@@ -14,13 +14,13 @@
 |---|---|---|---|
 | TC-T01-01 | AC1 agent files | Pass | `evidence/TC-T01-guard-unittests.txt` (`AgentFrontmatter`) |
 | TC-T01-02 | AC2 tester guard (hook level) | Pass | `evidence/TC-T01-guard-unittests.txt` (`TesterGuard`, 11 tests). A direct run of the configured hook command on `apps/web/app/page.tsx` exited 2 with `[tester guard] Blocked`. |
-| TC-T01-03 | AC2 tester agent, live | **Blocked** | Needs a Claude Code restart |
+| TC-T01-03 | AC2 tester agent, live | Pass | `evidence/TC-T01-03-live-probe.txt`: Edit and Bash writes to README.md blocked by the hook; probe file in docs/tests written; README.md checksum unchanged (verified by main session) |
 | TC-T01-04 | AC3 architects read-only | Pass | `evidence/TC-T01-guard-unittests.txt` (`ArchitectGuards`) |
 | TC-T01-05 | AC4 commands documented | Pass | `evidence/TC-T01-commands-workflow.txt` |
 | TC-T01-06 | AC5 dry run | **Blocked** | Needs a Claude Code restart |
 | TC-T01-07 | AC6 orchestration documented | Pass | `evidence/TC-T01-commands-workflow.txt` |
 
-Totals: 5 pass, 0 fail, 2 blocked.
+Totals: 6 pass, 0 fail, 1 blocked (TC-T01-06 dry run).
 
 ### Why two cases are blocked
 
@@ -30,7 +30,9 @@ loaded until Claude Code restarts. TC-T01-03 and TC-T01-06 must run in a new ses
 
 ## Defects raised
 
-(none)
+| Defect | Severity | Status |
+|---|---|---|
+| DEF-001 guard misparses quoted shell operators | Medium | Fixed, retest passed (30 guard tests) |
 
 ## Coverage notes
 
@@ -40,4 +42,4 @@ review finding 1.
 
 ## Sign-off
 
-**Not signed off.** Waiting for TC-T01-03 and TC-T01-06.
+**Not signed off.** Waiting for TC-T01-06 (dry run).

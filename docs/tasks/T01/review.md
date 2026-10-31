@@ -13,8 +13,8 @@
 | # | Severity | File | Issue | Resolution | Status |
 |---|---|---|---|---|---|
 | 1 | Minor | `.claude/hooks/guard_paths.py` | The Bash analysis is heuristic. `python -c` or similar can bypass it. | Accepted residual risk, documented in WORKFLOW.md. Review and `git diff` are the backstop. Revisit if an agent is seen bypassing it. | Accepted |
-| 2 | Minor | `.claude/hooks/guard_paths.py` | Readonly mode can wrongly block a command with a quoted `>`, for example `awk '$1 > 5'`. | Safe direction (blocks, does not allow). The agent can use Grep or Read instead. | Accepted |
-| 3 | Major | `.claude/agents/*` | The hooks need a trusted workspace and a session restart. If either is missing, the guards silently do not apply. | Documented in WORKFLOW.md "First-time setup". TC-T01-03 verifies the guards in a live session. | Open until TC-T01-03 passes |
+| 2 | Minor | `.claude/hooks/guard_paths.py` | Readonly mode can wrongly block a command with a quoted `>`, for example `awk '$1 > 5'`. | Fixed by DEF-001 (quote-aware tokeniser). | Fixed |
+| 3 | Major | `.claude/agents/*` | The hooks need a trusted workspace and a session restart. If either is missing, the guards silently do not apply. | Documented in WORKFLOW.md "First-time setup". TC-T01-03 passed live on 2026-11-01. | Fixed |
 | 4 | Note | agents | Models: architects `opus`, developer and tester `sonnet`. | The owner can change them in the frontmatter. | Closed |
 | 5 | Note | `.claude/hooks/guard_paths.py` | Needs `python3` on the host that runs Claude Code. | It is present. The guard uses only the standard library. | Closed |
 

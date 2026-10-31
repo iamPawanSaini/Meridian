@@ -127,6 +127,28 @@ class ArchitectGuards(GuardTestCase):
         self.assertBlocked("technical-architect", "Write", {"file_path": "apps/web/app/page.tsx"})
 
 
+class QuotedShellParsing(GuardTestCase):
+    """DEF-001: quoted operators must not break parsing or count as redirects."""
+
+    def test_quoted_pipe_and_gt_allowed_for_readonly(self):
+        for cmd in ['grep -rnE "kiteconnect|zerodha|upstox" docs', "awk '$1 > 5' docs/x.txt",
+                    'git log --format="%h > %s" -3', 'grep -c "a|b" docs/x.md | head -1',
+                    "ls docs 2>&1 | head", "grep -rn x docs 2>/dev/null"]:
+            self.assertAllowed("technical-architect", "Bash", {"command": cmd})
+
+    def test_real_operators_still_detected(self):
+        for cmd in ['grep "a|b" docs > apps/x.txt', 'echo "x" ; touch apps/y', "ls\nrm -rf apps",
+                    "echo $(touch apps/z)", "ls `rm apps/q`", "true && git commit -m x"]:
+            self.assertBlocked("technical-architect", "Bash", {"command": cmd})
+
+    def test_tester_quoted_pattern_with_tee_into_evidence(self):
+        self.assertAllowed("tester", "Bash", {"command": 'grep -rniE "zerodha|upstox" docs 2>&1 | tee docs/tests/T02/evidence/broker.txt'})
+        self.assertBlocked("tester", "Bash", {"command": 'grep -E "a|b" x | tee apps/web/out.txt'})
+
+    def test_unbalanced_quote_blocks(self):
+        self.assertBlocked("technical-architect", "Bash", {"command": 'grep "abc docs'})
+
+
 class DeveloperGuard(GuardTestCase):
     def test_developer_writes_source(self):
         self.assertAllowed("developer", "Write", {"file_path": "services/engine/meridian_engine/cli.py"})

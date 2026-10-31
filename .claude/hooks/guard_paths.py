@@ -64,7 +64,6 @@ PKG_MUTATING = re.compile(
     r"|^(pip|pip3|uv|poetry)\s+(install|uninstall|add|remove|sync)\b"
     r"|^python3?\s+-m\s+pip\s+(install|uninstall)\b"
 )
-REDIRECT = re.compile(r"(?<![<>&])(\d*)(>>?|&>>?)\s*([^\s;&|<>]+)")
 
 
 class Denied(Exception):
@@ -101,34 +100,61 @@ def check_path(raw: str, cwd: str | None, allow: list[str], deny: list[str]) -> 
         raise Denied(f"'{rel}' is outside this agent's write area. Allowed: {', '.join(allow)}")
 
 
-def split_segments(command: str) -> list[list[str]]:
-    """Split a shell command into simple-command token lists."""
-    # Break on control operators but keep redirects inside segments.
-    parts = re.split(r"\|\||&&|;|\||\n|\$\(|`|\(|\)", command)
-    segments = []
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        try:
-            tokens = shlex.split(part, comments=True)
-        except ValueError as exc:
-            raise Denied(f"could not parse shell command safely ({exc}).") from exc
-        # Drop leading VAR=value assignments and wrappers.
-        while tokens and (re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", tokens[0]) or tokens[0] in {"sudo", "env", "command", "exec", "time", "nice"}):
-            tokens.pop(0)
-        if tokens:
-            segments.append(tokens)
-    return segments
+OPERATOR_CHARS = set(";&|()<>")
+WRAPPERS = {"sudo", "env", "command", "exec", "time", "nice", "xargs"}
+SAFE_TARGETS = {"/dev/null", "/dev/stdout", "/dev/stderr", "-"}
 
 
-def redirect_targets(command: str) -> list[str]:
-    targets = []
-    for _fd, _op, target in REDIRECT.findall(command):
-        if target.startswith("&") or target in {"/dev/null", "/dev/stdout", "/dev/stderr"}:
+def parse_command(command: str) -> tuple[list[list[str]], list[str]]:
+    """Tokenise a shell command, respecting quotes.
+
+    Returns (segments, write_targets): segments are simple-command token lists split on
+    control operators; write_targets are files named by output redirects.
+    Quoted text such as grep "a|b" or awk '$1 > 5' stays inside one word (DEF-001).
+    """
+    # Newlines and backticks separate commands; replacing them inside quotes only alters
+    # literal text, which does not affect the checks.
+    text = command.replace("\n", " ; ").replace("`", " ; ")
+    lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|()<>")
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    try:
+        tokens = list(lexer)
+    except ValueError as exc:
+        raise Denied(f"could not parse shell command safely ({exc}).") from exc
+
+    segments: list[list[str]] = []
+    targets: list[str] = []
+    current: list[str] = []
+    i = 0
+    while i < len(tokens):
+        tok = tokens[i]
+        if tok and set(tok) <= OPERATOR_CHARS:
+            if ">" in tok or "<" in tok:
+                if current and current[-1].isdigit():
+                    current.pop()  # file descriptor, as in 2>&1
+                nxt = tokens[i + 1] if i + 1 < len(tokens) else ""
+                if ">" in tok and nxt and nxt not in SAFE_TARGETS and not (tok.endswith("&") and nxt.isdigit()):
+                    targets.append(nxt)
+                i += 2
+                continue
+            if current:
+                segments.append(current)
+            current = []
+            i += 1
             continue
-        targets.append(target)
-    return targets
+        current.append(tok)
+        i += 1
+    if current:
+        segments.append(current)
+
+    cleaned = []
+    for seg in segments:
+        while seg and (re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", seg[0]) or seg[0] in WRAPPERS or seg[0] == "$"):
+            seg = seg[1:]
+        if seg:
+            cleaned.append(seg)
+    return cleaned, targets
 
 
 def file_args(tokens: list[str]) -> list[str]:
@@ -140,15 +166,15 @@ def check_bash(command: str, mode: str, cwd: str | None, allow: list[str], deny:
         return
     if re.search(r"--no-verify\b", command) or re.search(r"\bgit\s+commit\b.*\s-n\b", command):
         raise Denied("bypassing git hooks (--no-verify) is not allowed.")
+    segments, targets = parse_command(command)
     if mode == "developer":
-        for target in redirect_targets(command):
+        for target in targets:
             check_path(target, cwd, allow, deny)
         return
 
-    segments = split_segments(command)
     readonly = mode == "readonly"
 
-    for target in redirect_targets(command):
+    for target in targets:
         if readonly:
             raise Denied(f"read-only agent: output redirect to '{target}' is not allowed. Use the Write tool for docs/.")
         check_path(target, cwd, allow, deny)
