@@ -1,0 +1,4 @@
+== TC-T02-18 naming.md exactly one outcome
+  PASS  exactly one Outcome line
+  PASS  outcome is exactly one of: keep / keep as internal codename only / rename
+  PASS  outcome has no unresolved markers

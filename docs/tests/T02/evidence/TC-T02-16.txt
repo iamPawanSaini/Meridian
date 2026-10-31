@@ -1,0 +1,7 @@
+== TC-T02-16 ADR content anchors
+  PASS  ADR-0006: simulation, orders, T33
+  PASS  ADR-0003: Drupal is a published copy
+  PASS  ADR-0005: client credentials + least privilege/scope
+  PASS  ADR-0004: apps/drupal subtree
+  PASS  ADR-0002: cron / schedule
+  PASS  ADR-0001: headless

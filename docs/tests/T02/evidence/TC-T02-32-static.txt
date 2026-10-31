@@ -1,0 +1,6 @@
+blocks 3
+block 1: type=flowchart LR openers=0 ends=0 odd-quote-lines=0 unbalanced-bracket-lines=0
+  undefined nodes: []
+block 2: type=flowchart TB openers=3 ends=3 odd-quote-lines=0 unbalanced-bracket-lines=0
+  undefined nodes: []
+block 3: type=sequenceDiagram openers=4 ends=4 odd-quote-lines=0 unbalanced-bracket-lines=0

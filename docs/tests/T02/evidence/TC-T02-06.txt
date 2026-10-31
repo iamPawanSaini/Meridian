@@ -1,0 +1,13 @@
+== TC-T02-06 every R-01..R-12 has a child FR/NFR in the architecture doc
+  PASS  R-01 has a child
+  PASS  R-02 has a child
+  PASS  R-03 has a child
+  PASS  R-04 has a child
+  PASS  R-05 has a child
+  PASS  R-06 has a child
+  PASS  R-07 has a child
+  PASS  R-08 has a child
+  PASS  R-09 has a child
+  PASS  R-10 has a child
+  PASS  R-11 has a child
+  PASS  R-12 has a child

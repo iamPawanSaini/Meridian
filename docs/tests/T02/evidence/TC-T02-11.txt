@@ -1,0 +1,10 @@
+== TC-T02-11 cost map classifies every component
+  PASS  cost row classified: GitHub Actions
+  PASS  cost row classified: Postgres
+  PASS  cost row classified: Pantheon
+  PASS  cost row classified: Vercel
+  PASS  cost row classified: Claude
+  PASS  cost row classified: data source|market data|yfinance|NSE
+  PASS  cost row classified: domain
+  PASS  each cost row has exactly one class cell (>=7 rows)
+  PASS  cost header has a limit column

@@ -1,0 +1,7 @@
+== TC-T02-15 ADR index
+  PASS  docs/adr/README.md lists ADR-0001
+  PASS  docs/adr/README.md lists ADR-0002
+  PASS  docs/adr/README.md lists ADR-0003
+  PASS  docs/adr/README.md lists ADR-0004
+  PASS  docs/adr/README.md lists ADR-0005
+  PASS  docs/adr/README.md lists ADR-0006

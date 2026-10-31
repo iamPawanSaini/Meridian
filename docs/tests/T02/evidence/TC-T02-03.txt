@@ -1,0 +1,19 @@
+== TC-T02-03 glossary terms
+  PASS  glossary term: trading day
+  PASS  glossary term: holiday calendar
+  PASS  glossary term: EOD candle
+  PASS  glossary term: Nifty 50
+  PASS  glossary term: circuit limit
+  PASS  glossary term: STT
+  PASS  glossary term: long
+  PASS  glossary term: short
+  PASS  glossary term: score
+  PASS  glossary term: rule hit
+  PASS  glossary term: veto
+  PASS  glossary term: ATR
+  PASS  glossary term: stop
+  PASS  glossary term: target
+  PASS  glossary term: time-stop
+  PASS  glossary term: R-multiple
+  PASS  glossary term: forward return
+  PASS  glossary term: alpha

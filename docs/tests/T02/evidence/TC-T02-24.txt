@@ -1,0 +1,4 @@
+== TC-T02-24 open questions resolved or ticketed
+  PASS  open questions table non-empty; every row resolved or ticketed
+  PASS  every ticket task ID exists in TASKS.md
+  PASS  open questions table has owner column

@@ -1,0 +1,6 @@
+== TC-T02-22 no external images or hosted assets
+  PASS  doc set exists for asset scan
+  PASS  no markdown images
+  PASS  no HTML img/script/iframe/link tags
+  PASS  no diagram or badge hosts
+  PASS  no image files under docs/architecture or docs/adr

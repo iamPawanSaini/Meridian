@@ -1,0 +1,5 @@
+== TC-T02-30 C7 links resolve; markdown lint when available
+  PASS  relative links in T02 docs resolve
+  SKIP  markdownlint not installed (plan says "if available"; record in report)
+
+SOME CHECKS FAILED

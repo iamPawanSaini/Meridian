@@ -1,0 +1,8 @@
+== TC-T02-14 each ADR has all template fields with content
+  PASS  ADR-0001 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0002 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0003 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0004 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0005 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0006 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  exactly six ADR files and no template placeholders left

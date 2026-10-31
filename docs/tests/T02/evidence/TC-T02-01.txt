@@ -1,0 +1,14 @@
+== TC-T02-01 required sections in solution-architecture.md
+  PASS  file exists and non-empty
+  PASS  section heading: context
+  PASS  section heading: container
+  PASS  section heading: data flow
+  PASS  section heading: scope
+  PASS  section heading: non-goals
+  PASS  section heading: assumptions
+  PASS  section heading: glossary
+  PASS  section heading: requirements
+  PASS  section heading: risk register
+  PASS  section heading: cost map
+  PASS  section heading: open questions
+  PASS  section heading: sign-off

@@ -1,0 +1,10 @@
+== TC-T02-08 risk register: seven named risks plus two extras
+  PASS  free data source blocking
+  PASS  LLM wrong or injected output
+  PASS  free-tier limits changing
+  PASS  Pantheon sandbox sleep
+  PASS  GitHub cron delay
+  PASS  SEBI / regulatory exposure
+  PASS  secrets leakage
+  PASS  LLM cost overrun (extra)
+  PASS  Vercel Hobby non-commercial (extra)

@@ -1,0 +1,3 @@
+== TC-T02-21 free-tier / regulatory claims carry URL + date, or 'unverified'
+  PASS  every cost row and limit/regulatory risk row has URL+date or 'unverified'
+  PASS  no plain http:// URLs
