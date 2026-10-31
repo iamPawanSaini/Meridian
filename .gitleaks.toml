@@ -1,0 +1,7 @@
+# gitleaks configuration for Meridian.
+# Uses the full default rule set. Add project rules below if needed.
+# Allowlist entries need a comment that explains why the match is not a secret.
+title = "Meridian gitleaks config"
+
+[extend]
+useDefault = true

@@ -1,0 +1,40 @@
+# Meridian pre-commit hooks (T00 baseline).
+# Install with scripts/bootstrap-dev.sh. T04a adds the per-language linters and formatters.
+# Never bypass these hooks with --no-verify.
+minimum_pre_commit_version: "3.2.0"
+default_install_hook_types: [pre-commit]
+
+repos:
+  # Secret scanning. pre-commit downloads a Go toolchain to build gitleaks if Go is
+  # not installed.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  # Basic formatting and hygiene.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+
+  # Project-specific checks.
+  - repo: local
+    hooks:
+      - id: meridian-check-names
+        name: Meridian naming (no stale placeholder names)
+        entry: scripts/check-names.sh
+        language: script
+        pass_filenames: false
+        always_run: true
