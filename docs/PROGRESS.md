@@ -7,7 +7,7 @@ Statuses: Not started, Planned, In progress, In review, In test, Blocked, Done.
 | Task | Title | Size | Phase | Depends on | Status | Branch | Notes |
 |---|---|---|---|---|---|---|---|
 | T00 | Repository scaffold and documentation skeleton | S | 0 Foundation | none | In test | `task/T00-scaffold` | Secret-scan demo pending (see `docs/tests/T00/test-report.md`) |
-| T01 | Claude Code agents and workflow commands | M | 0 Foundation | T00 | Not started | `task/T01-agents` |  |
+| T01 | Claude Code agents and workflow commands | M | 0 Foundation | T00 | In test | `task/T01-agents` | Live agent check and dry run need a Claude Code restart (`docs/tests/T01/test-report.md`) |
 | T02 | Solution architecture | M | 1 Architecture and planning | T00, T01 | Not started |  |  |
 | T03 | Technical design | M | 1 Architecture and planning | T02 | Not started |  |  |
 | T04 | Master test plan and test infrastructure design | M | 1 Architecture and planning | T03 | Not started |  |  |

@@ -19,4 +19,4 @@ Tasks come from each task's **Covers** line in `docs/TASKS.md`.
 | R-09 | All dashboard and API access is authenticated and least-privilege | T02, T03, T10, T11, T22, T26, T30 | |  |  | Open |
 | R-10 | Scheduled daily run, NSE holiday safe, idempotent, alerts on failure | T02, T10, T14, T15, T19, T20, T28, T29, T31 | |  |  | Open |
 | R-11 | Whole stack reproducible locally with DDEV and Docker from a clean clone | T02, T05, T06, T07, T27, T28, T32 | |  |  | Open |
-| R-12 | Every task tested and documented inside the project folder | T00, T01, T02, T04, T04a, T08, T32, T33 | | TC-T00-01 to TC-T00-08 | `docs/tests/T00/test-report.md` | Open |
+| R-12 | Every task tested and documented inside the project folder | T00, T01, T02, T04, T04a, T08, T32, T33 | | TC-T00-01 to TC-T00-08, TC-T01-01 to TC-T01-07 | `docs/tests/T00/test-report.md`, `docs/tests/T01/test-report.md` | Open |
