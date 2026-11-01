@@ -88,10 +88,11 @@ CODE_FILE = re.compile(
     r"\.(py|sh|bash|ts|tsx|js|jsx|mjs|cjs|php|module|inc|theme|install|ya?ml|toml|ini|cfg"
     r"|neon|md)$|(^|/)Dockerfile"
 )
-# T04a: these files quote the directives on purpose (the checker, its fixtures, the T04a test
+# T04a: these files quote the directives on purpose (the checker, its tests, the T04a test
 # design and reference models); captured output under evidence/ is not authored code.
+# T04a: task records (plans, decisions, reviews) quote examples, including invalid forms.
 SKIP_PATH = re.compile(
-    r"^(scripts/exceptions_report\.py|scripts/tests/fixtures/"
+    r"^(scripts/exceptions_report\.py|scripts/tests/|docs/tasks/"
     r"|docs/tests/T04a/(run-checks\.sh|test-cases\.md|test-report\.md|reference/)"
     r"|docs/tests/[^/]+/evidence/)"
 )

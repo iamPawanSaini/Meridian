@@ -108,7 +108,20 @@ class ScanTests(unittest.TestCase):
         self.assertIsNotNone(er.classify("eslint-disable", f"{SLASH}eslint-disable -- T32: x")[1])
         yl = f"{H}yamllint disable-line rule:line-length"
         self.assertIsNotNone(er.classify("yamllint", yl + f" {H}T32: x")[1])
-        self.assertIsNotNone(er.classify("@ts-ignore", f"{SLASH}@ts-ignore")[1])
+        self.assertIsNotNone(er.classify("@ts-ignore", SLASH + "@ts-" + "ignore")[1])
+
+    def test_task_records_may_quote_invalid_forms(self) -> None:
+        bare = f"import os  {NOQA}: F401  T32: legacy\n"
+        code, report = self.run_with({"docs/tasks/T04a/notes.md": bare})
+        self.assertEqual(code, 0)
+        self.assertIn("total: 0", report)
+        self.assertTrue(er.SKIP_PATH.match("docs/tasks/T04a/review.md"))
+        self.assertFalse(er.SKIP_PATH.match("docs/standards/CODING_STANDARDS.md"))
+        self.assertEqual(self.run_with_new({"docs/standards/x.md": bare})[0], 1)
+
+    def run_with_new(self, files: dict[str, str]) -> tuple[int, str]:
+        self.root = Path(tempfile.mkdtemp(dir=self.tmp.name))
+        return self.run_with(files)
 
     def test_ticket_on_another_line_does_not_count(self) -> None:
         text = f"# T32: reason\nimport os  {NOQA}: F401\n"

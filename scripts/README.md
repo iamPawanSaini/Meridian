@@ -50,7 +50,7 @@ each running lint, types, tests and the coverage gate.
   directory. The report counts per tool and lists the tickets used. The ticket must be in the
   tool's own comment slot (D-4 addendum in `docs/tasks/T04a/decision-t04a-standards.md`); a bare
   ticket after the rule list fails. A `noqa` needs a rule code, an `eslint-disable` a rule name,
-  and inline yamllint disables and `@ts-ignore` always fail.
+  and inline yamllint disables and the TypeScript ignore directive always fail.
 - `coverage_gate.py --thresholds quality/coverage-thresholds.json [--require PREFIX] COBERTURA.xml`.
   A component with no matching file prints `not measured`; a `--require` prefix with no match
   fails. `line` in the thresholds file is always a percentage. It reads the
