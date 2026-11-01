@@ -1,0 +1,3 @@
+== TC-T04-11 reconciliation method and tolerances
+  PASS  FR-14 zero differences; FR-18 0.01 rupee and 0.01 percentage points
+  PASS  hops named: Postgres, Drupal, UI; used by T27 and T31

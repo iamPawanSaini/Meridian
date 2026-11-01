@@ -1,0 +1,5 @@
+== TC-T04-07 entry and exit criteria (AC1)
+  PASS  entry criteria cover per task and per milestone
+  PASS  entry criteria require an approved plan and committed test design
+  PASS  exit: all cases Pass, or Blocked with recorded owner acceptance; no open Critical or High defect
+  PASS  exit: evidence stored for every case

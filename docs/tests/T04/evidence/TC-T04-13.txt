@@ -1,0 +1,5 @@
+== TC-T04-13 defect workflow in defects.md and the template (AC6)
+  PASS  all 8 workflow states in order in template Status line, in defects.md and in the master plan
+  PASS  who moves each state; triage SLA per severity; retest by tester with evidence; Won't fix needs solution-architect; defects vs review findings
+  PASS  existing DEF-001 and DEF-002 entries preserved with a valid workflow state
+  PASS  template keeps Steps to reproduce, Expected, Actual

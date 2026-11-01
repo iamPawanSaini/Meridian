@@ -1,0 +1,8 @@
+== TC-T04-10 test data strategy: four kinds plus rules (AC4)
+  PASS  fixtures: owner, location and refresh rule
+  PASS  recorded market data: committed JSON/CSV, an NSE holiday and a no-new-candle date (FR-23)
+  PASS  fake LLM responses: one per failure type (FR-06) and the prompt-injection set (FR-07)
+  PASS  failure types named: malformed, empty, timeout, API error, schema violation
+  PASS  seeded Drupal content: 5,000 records for NFR-03/05, T11, T25, T26
+  PASS  golden parity file (T13)
+  PASS  rules: no real secrets, no live network in CI, deterministic data

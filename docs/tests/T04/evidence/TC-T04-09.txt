@@ -1,0 +1,7 @@
+== TC-T04-09 regression suite and CI (AC3)
+  PASS  regression section names ci.yml
+  PASS  PR set: unit, Kernel, Vitest, contract against fixtures, static broker check, docs checks
+  PASS  heavier set: Functional, Playwright, ddev e2e with a trigger
+  PASS  T08 implements the CI jobs
+  PASS  docs run-checks scripts join the PR set via --regression with invariant/snapshot tags
+  PASS  excluded snapshot checks are counted and printed; invariants still fail the job

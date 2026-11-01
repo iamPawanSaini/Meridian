@@ -1,0 +1,12 @@
+== TC-T04-02 required top-level sections
+  PASS  heading for 'tools'
+  PASS  heading for 'layout'
+  PASS  heading for 'environments'
+  PASS  heading for 'entry'
+  PASS  heading for 'exit'
+  PASS  heading for 'severity'
+  PASS  heading for 'regression'
+  PASS  heading for 'test data'
+  PASS  heading for 'reconciliation'
+  PASS  heading for 'conventions'
+  PASS  heading for the defect workflow (or a pointer section)

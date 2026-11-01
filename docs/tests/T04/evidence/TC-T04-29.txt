@@ -1,0 +1,7 @@
+See manual-review.md TC-T04-29. Variant files: TC-T04-29-full.txt TC-T04-29-regression.txt TC-T04-29-bogus.txt TC-T04-29-mutation.txt
+usage: docs/tests/T04/run-checks.sh [--regression]
+exit=2
+  FAIL  planned-test IDs exactly equal the FR/NFR IDs in solution-architecture.md; no duplicates
+NOTE: --regression mode: 6 at-close (snapshot) checks excluded because they are true only at the close of T04; 118 invariant checks executed.
+RESULT: ONE OR MORE CHECKS FAILED
+exit=1

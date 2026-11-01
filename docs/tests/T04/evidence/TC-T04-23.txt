@@ -1,0 +1,4 @@
+== TC-T04-23 simulation only: no broker names or trading domains
+  PASS  no broker vendor names or trading hostnames in master plan, TRACEABILITY, defects, template, README, test-cases
+  PASS  master plan states FR-11 static broker check without naming a vendor, simulation-only
+  PASS  no network URL to a trading host anywhere in docs/tests/T04 scripts

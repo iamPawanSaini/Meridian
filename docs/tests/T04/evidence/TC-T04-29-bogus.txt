@@ -1,0 +1,2 @@
+usage: docs/tests/T04/run-checks.sh [--regression]
+exit=2

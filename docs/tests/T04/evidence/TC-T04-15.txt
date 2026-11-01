@@ -1,0 +1,8 @@
+== TC-T04-15 planned-tests table: cells and cross-checks against solution-architecture.md
+  PASS  no empty or placeholder cell in any of the 49 rows
+  PASS  parent R equals the R in solution-architecture.md
+  PASS  verifying tasks equal the tasks in solution-architecture.md, same order
+  PASS  levels come from the controlled vocabulary
+  PASS  case-ID patterns TC-Txx-* name exactly the verifying tasks, one per task
+  PASS  status is Planned / Partially verified / Verified / Blocked (accepted, re-run in Txx)
+  PASS  planned-test description is a sentence, not a stub

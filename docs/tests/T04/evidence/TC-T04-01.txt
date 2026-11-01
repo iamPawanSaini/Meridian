@@ -1,0 +1,11 @@
+== TC-T04-01 master-test-plan.md: eight test levels, each with owning tasks and a pass rule
+  PASS  master-test-plan.md exists and is non-empty
+  PASS  section 'Test levels' exists
+  PASS  level 'unit': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'integration': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'contract': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'end-to-end|e2e': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'security': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'performance': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'data reconciliation': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'manual simulation': sub-heading with owning tasks (Tnn) and a pass rule

@@ -1,0 +1,3 @@
+== TC-T04-20 docs/tests/README.md points to the master plan
+  PASS  README row for master-test-plan.md is a link that resolves
+  PASS  defects.md and README links resolve

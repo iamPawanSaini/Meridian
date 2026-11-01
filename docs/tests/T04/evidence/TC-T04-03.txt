@@ -1,0 +1,9 @@
+== TC-T04-03 tools per component (AC2): each component row names its tools
+  PASS  tools section has a table
+  PASS  Engine row: pytest, pytest-cov, pytest-socket, respx
+  PASS  Drupal row: PHPUnit with Unit, Kernel and Functional
+  PASS  Next.js row: Vitest, Playwright, axe (@axe-core/playwright)
+  PASS  Contract row: Schemathesis, openapi-core, Spectral
+  PASS  Security row: gitleaks, pip-audit, composer audit, npm audit, image scan, static broker check
+  PASS  Performance row: web-vitals and the Python timing harness
+  PASS  plan says versions are pinned in T04a, tools named by purpose only

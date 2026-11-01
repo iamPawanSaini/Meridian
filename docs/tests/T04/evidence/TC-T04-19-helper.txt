@@ -1,0 +1,29 @@
+  PASS  good miniature accepted by 'header'
+  PASS  good miniature accepted by 'ids'
+  PASS  good miniature accepted by 'nocells'
+  PASS  good miniature accepted by 'parents'
+  PASS  good miniature accepted by 'tasks'
+  PASS  good miniature accepted by 'levels'
+  PASS  good miniature accepted by 'patterns'
+  PASS  good miniature accepted by 'status'
+  PASS  good miniature accepted by 'text'
+  PASS  good miniature accepted by 'rtable'
+  PASS  good miniature accepted by 'rlinks'
+  PASS  seeded defect rejected: drop row (check 'ids')
+  PASS  seeded defect rejected: extra row (check 'ids')
+  PASS  seeded defect rejected: duplicate row (check 'ids')
+  PASS  seeded defect rejected: empty cell (check 'nocells')
+  PASS  seeded defect rejected: placeholder cell (check 'nocells')
+  PASS  seeded defect rejected: wrong parent (check 'parents')
+  PASS  seeded defect rejected: wrong task (check 'tasks')
+  PASS  seeded defect rejected: task order (check 'tasks')
+  PASS  seeded defect rejected: bad level (check 'levels')
+  PASS  seeded defect rejected: pattern missing task (check 'patterns')
+  PASS  seeded defect rejected: bad status (check 'status')
+  PASS  seeded defect rejected: stub text (check 'text')
+  PASS  seeded defect rejected: R link missing (check 'rlinks')
+  PASS  seeded defect rejected: R header changed (check 'rtable')
+  PASS  seeded defect rejected: no planned section (check 'header')
+  PASS  empty TRACEABILITY rejected
+  PASS  a 2-row table is rejected against the real 49-row size guard
+rc=0

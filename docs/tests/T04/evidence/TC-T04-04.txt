@@ -1,0 +1,6 @@
+== TC-T04-04 tool decisions D-2, D-3, D-4 recorded
+  PASS  contract: Schemathesis against DDEV; openapi-core in engine tests; T11 extends openapi.yaml
+  PASS  Dredd and Prism are not the contract tool
+  PASS  performance: nearest-rank percentile, raw samples kept, k6/Locust not adopted
+  PASS  network blocking: pytest-socket disable-socket and a no-network container; vcrpy rejected
+  PASS  market data mocked at the provider boundary (T15 interface)

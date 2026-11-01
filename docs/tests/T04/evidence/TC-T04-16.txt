@@ -1,0 +1,3 @@
+== TC-T04-16 R rows link to their FR/NFR rows; R table intact
+  PASS  R table header unchanged and rows R-01..R-12 present
+  PASS  every R row's Test cases cell links every FR/NFR whose parent it is

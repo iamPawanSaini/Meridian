@@ -1,0 +1,2 @@
+== TC-T04-19 checker self-test (rejects each seeded defect)
+  PASS  check_trace.py rejects 15 seeded defects, accepts the good miniature
