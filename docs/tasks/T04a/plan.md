@@ -47,7 +47,7 @@ shown working in T05 (see "Verification split").
   - `check_branch_name.py`: `^task/T\d{2}a?-[a-z0-9]+(-[a-z0-9]+)*$`, ID in `TASKS.md`,
     `main` allowed, `GITHUB_HEAD_REF` in CI.
   - `exceptions_report.py`: every suppression (`noqa`, `type: ignore`, `pragma: no cover`,
-    `eslint-disable`, `@ts-expect-error`, `phpcs:ignore`, `@phpstan-ignore`, shellcheck,
+    `eslint-disable`, `@ts-expect-error`, `phpcs:ignore`, PHPStan `phpstan-ignore`, shellcheck,
     yamllint, markdownlint, hadolint) and config path exclude must cite `Txx` or `DEF-nnn`
     on the same line; counts per tool (`--out FILE`).
   - `coverage_gate.py`: Cobertura XML (coverage.py, PHPUnit, Vitest) against
@@ -109,7 +109,7 @@ shown working in T05 (see "Verification split").
 - **Verified now (agent, stdlib and node 22):** unit tests for the five scripts; the
   commit-msg hook in a throwaway repo (`demo-secret-scan.sh` pattern) rejects `bad message`
   and accepts `T04a: x`; branch-name cases; a coverage drop on fixture XML is rejected; an
-  untagged `# noqa` fixture fails and the report runs on the tree; asset and hex fixtures;
+  untagged `noqa` fixture fails and the report runs on the tree; asset and hex fixtures;
   `quality.sh` aggregation with fake steps and the SKIP versus FAIL rule; standards sections
   exist; helper regression re-runs pass; wrapper content is correct.
 - **Owner-run (pre-commit downloads):** `bootstrap-dev.sh` then `quality.sh` on a clean tree

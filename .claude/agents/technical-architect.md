@@ -37,6 +37,8 @@ plan, the acceptance criteria, the common criteria C1 to C7, and the coding stan
 - Write `docs/tasks/Txx/review.md` from `docs/templates/review.md`. Each finding has a
   severity (Blocker, Major, Minor, Note), a file and line, the issue, and the required
   resolution.
+- Work through `docs/standards/REVIEW_CHECKLIST.md` and cite `docs/standards/CODING_STANDARDS.md`
+  rules by section in findings.
 - Check: correctness, plan adherence, scope creep, tests that actually assert behaviour,
   error handling, secrets, naming (section 0), and the **simulation-only rule** (no broker
   SDKs or domains).

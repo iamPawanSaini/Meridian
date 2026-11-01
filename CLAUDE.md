@@ -57,7 +57,8 @@ docs/               all project documentation (see below)
 | Run all pre-commit checks | `.tools/pre-commit run --all-files` |
 | Check for stale placeholder names | `scripts/check-names.sh` |
 | Demonstrate secret scanning | `scripts/demo-secret-scan.sh` |
-| Full quality suite | `ddev quality` (arrives in T04a) |
+| Full quality suite | `scripts/quality.sh` (`ddev quality` wrapper works once T05 adds DDEV config) |
+| Coding standards and review checklist | `docs/standards/CODING_STANDARDS.md`, `docs/standards/REVIEW_CHECKLIST.md` |
 
 ## Per-task loop (`docs/process/WORKFLOW.md`)
 
@@ -86,7 +87,7 @@ Commit messages start with the task ID, for example `T10: add ingest upsert endp
 | Test cases, reports, defects | `docs/tests/` |
 | Runbooks | `docs/runbooks/` |
 | Templates | `docs/templates/` |
-| Coding standards | `docs/standards/` (T04a) |
+| Coding standards | `docs/standards/` |
 
 ## Secrets
 

@@ -200,7 +200,7 @@ tests written only for coverage. Gating on line rate keeps the number comparable
     `docs/tests/defects.md`).
   - Matching regex: `\b(T\d{2}a?|DEF-\d{3}): \S`.
   - Examples: `# noqa: E501  T32: owner document, not reflowed`, and
-    `// @phpstan-ignore method.notFound (DEF-004: core stub missing, remove after fix)`.
+    `// @phpstan-ignore method.notFound (T09: core stub missing, remove after fix)`.
   - The cited task is the one that will **remove or re-decide** the exception. For a
     permanent exclusion, cite the task that decided it, for example
     `T04a: captured evidence output` for `docs/tests/*/evidence/**`.
