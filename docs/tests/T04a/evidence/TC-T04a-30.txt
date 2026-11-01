@@ -1,0 +1,4 @@
+== TC-T04a-30 helper regression after the baseline cleanup (T01 guard, T03 and T04 checks behave the same)
+  PASS  T01 guard unit tests pass
+  PASS  T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)
+  PASS  T03 run-checks.sh: exit 0, same PASS count as at close

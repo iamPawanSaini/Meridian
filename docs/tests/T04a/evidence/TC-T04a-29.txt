@@ -1,0 +1,4 @@
+== TC-T04a-29 exceptions report on the real tree (AC6)
+  PASS  exceptions_report.py exits 0 on the real tree and writes a non-empty report
+  PASS  independent scan: every suppression cites a ticket; report counts equal the scan
+  PASS  report lists the TASKS.md exclusion and its ticket T32

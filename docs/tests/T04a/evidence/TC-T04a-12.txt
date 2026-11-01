@@ -1,0 +1,15 @@
+== TC-T04a-12 commit-msg hook: message table (AC4, verification 'bad commit message')
+  PASS  script exists: scripts/check_commit_msg.py
+  PASS  accepts 'T04a: x'
+  PASS  accepts 'T10: add ingest upsert endpoint' (docs example)
+  PASS  accepts subject plus body with a 150-character body line
+  PASS  rejects 'bad message'
+  PASS  rejects empty message
+  PASS  rejects 'T04a:x' (no space)
+  PASS  rejects 'T04a: ' (no text)
+  PASS  rejects 't04: x' (lower case)
+  PASS  rejects 'T4: x' (one digit)
+  PASS  rejects 'Initial commit' in message mode (exempt only by range)
+  PASS  rejects 'T04ab: x'
+  PASS  rejects leading space ' T04a: x'
+  PASS  a rejection tells the author what is wrong

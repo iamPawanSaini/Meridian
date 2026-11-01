@@ -1,0 +1,3 @@
+== TC-T04a-11 commit-msg hook wiring is static-correct (AC4)
+  PASS  a hook at stage commit-msg calls check_commit_msg.py
+  PASS  bootstrap-dev.sh installs hooks (pre-commit install) and the commit-msg type

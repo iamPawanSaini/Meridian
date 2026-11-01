@@ -1,0 +1,15 @@
+== TC-T04a-17 exceptions report: an untagged suppression fails, per tool (AC6)
+  PASS  script exists: scripts/exceptions_report.py
+  PASS  control: fixture repo with no suppressions passes
+  PASS  untagged 'noqa' in a.py is rejected
+  PASS  untagged 'type: ignore' in b.py is rejected
+  PASS  untagged 'pragma: no cover' in c.py is rejected
+  PASS  untagged 'eslint-disable' in d.ts is rejected
+  PASS  untagged '@ts-expect-error' in e.ts is rejected
+  PASS  untagged 'phpcs:ignore' in f.php is rejected
+  PASS  untagged '@phpstan-ignore' in g.php is rejected
+  PASS  untagged 'shellcheck' in h.sh is rejected
+  PASS  untagged 'yamllint' in i.yaml is rejected
+  PASS  untagged 'markdownlint' in j.md is rejected
+  PASS  untagged 'hadolint' in Dockerfile is rejected
+  PASS  failure names file and line (pkg/mod.py:2)

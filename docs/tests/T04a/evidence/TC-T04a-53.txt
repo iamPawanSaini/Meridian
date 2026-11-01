@@ -1,0 +1,5 @@
+== TC-T04a-53 to 56 owner-run real-tool checks of the D-4 addendum 'verify' rows (OQ-T04a-6)
+  BLOCKED  TC-T04a-53 coverage.py honours '# pragma: no cover  # T13: reason' (owner-run, pip install coverage)
+  BLOCKED  TC-T04a-54 hadolint honours '# hadolint ignore=DL3008 # T06: reason' (owner-run)
+  BLOCKED  TC-T04a-55 markdownlint honours the separate-comment ticket form (owner-run)
+  BLOCKED  TC-T04a-56 yamllint per-rule ignore: path with a ticket comment works; the inline ticket form is silently ignored (owner-run)

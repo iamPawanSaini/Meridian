@@ -1,0 +1,4 @@
+== TC-T04a-06 quality/coverage-thresholds.json consistent with D-1 (AC7)
+  PASS  thresholds JSON exists and is valid JSON
+  PASS  floors present: scoring 90, risk 90, engine 85, Drupal custom 70, web lib 80, web components 80
+  PASS  no scoring or risk line floor below 90 percent (NFR-18 is fixed)

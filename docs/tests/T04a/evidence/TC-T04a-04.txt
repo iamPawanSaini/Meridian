@@ -1,0 +1,10 @@
+== TC-T04a-04 tool table, exception rule, commit and branch rules, asset rules, scope (AC2 to AC4)
+  PASS  tool table: Version, Source, Date checked, a dated row per tool
+  PASS  exception rule: ticket regex literal
+  PASS  exception rule section: same line, counted in a report, DEF must exist
+  PASS  commit rules: Txx: prefix, 72 characters, Merge and Revert allowed, fixup! fails, PR range only
+  PASS  merge commits only for main, squash and rebase disabled
+  PASS  branch rule: task/Txx-slug
+  PASS  section 0b asset rules: self-hosted fonts and icons, no third-party hosts, colours only from tokens
+  PASS  scope table: docs/tests helpers ruff only, py310 for scripts, hooks and helpers
+  PASS  web-vitals licence (Apache or MIT) and a pinned version recorded in the standards (OQ-T04-5)

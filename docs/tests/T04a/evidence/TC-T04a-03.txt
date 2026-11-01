@@ -1,0 +1,8 @@
+== TC-T04a-03 cross-cutting rules (AC2)
+  PASS  naming: section 0, meridian_engine, check-names.sh
+  PASS  error handling section
+  PASS  structured logging: structured, JSON or key=value, no secrets in logs
+  PASS  no secrets in code: gitleaks, .env.example
+  PASS  dependency policy: lockfiles, pinned versions, audit before adding
+  PASS  comments and docstrings expectations
+  PASS  size guidance: function 50 lines, file 400 lines

@@ -1,0 +1,23 @@
+== TC-T04a-16 branch naming check (AC4)
+  PASS  script exists: scripts/check_branch_name.py
+  PASS  accepts task/T04a-coding-standards
+  PASS  accepts task/T10-ingest
+  PASS  accepts task/T04-master-test-plan
+  PASS  accepts main
+  PASS  rejects feature/x
+  PASS  rejects master
+  PASS  rejects task/T04a (no slug)
+  PASS  rejects task/T04a- (empty slug)
+  PASS  rejects task/T04a-Bad-Caps
+  PASS  rejects task/T04a-two--dashes
+  PASS  rejects task/T04a-trailing-
+  PASS  rejects task/t04-x (lower case id)
+  PASS  rejects task/T4-x (one digit)
+  PASS  rejects unknown id task/T99-x
+  PASS  rejects task/T05a-x (not in TASKS.md)
+  PASS  rejects underscore slug task/T10-a_b
+  PASS  rejects nested path task/T10-a/b
+  PASS  CI: GITHUB_HEAD_REF=task/T10-ingest accepted
+  PASS  CI: GITHUB_HEAD_REF=feature/x rejected
+  PASS  no argument, no env: current git branch feature/bad rejected
+  PASS  no argument, no env: current git branch task/T04a-demo accepted

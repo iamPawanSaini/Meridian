@@ -1,0 +1,16 @@
+== TC-T04a-13 commit-msg hook: length, Merge, Revert, fixup, unknown id (AC4, D-3)
+  PASS  accepts a 72-character subject (boundary)
+  PASS  rejects a 73-character subject (boundary)
+  PASS  accepts a 71-character subject
+  PASS  accepts Merge branch ...
+  PASS  accepts GitHub merge subject longer than 72 characters
+  PASS  accepts git revert subject Revert "T10: x"
+  PASS  rejects 'Revert it' (no quoted subject)
+  PASS  rejects 'Merged things' (not 'Merge ')
+  PASS  rejects 'fixup! T04a: x'
+  PASS  rejects 'squash! T04a: x'
+  PASS  rejects unknown task id T99
+  PASS  rejects T05a (not a heading in TASKS.md)
+  PASS  unknown id is named in the message
+  PASS  default tasks file (real docs/TASKS.md): 'T04a: x' accepted
+  PASS  default tasks file (real docs/TASKS.md): 'T99: x' rejected

@@ -1,0 +1,6 @@
+== TC-T04a-36 to 47 owner-run (run: docs/tests/T04a/run-checks.sh --owner)
+  BLOCKED  TC-T04a-36 bootstrap-dev.sh in a clean copy installs pre-commit and both hook types; versions captured (network)
+  BLOCKED  TC-T04a-37 pre-commit run --all-files: zero violations on the clean tree (network)
+  BLOCKED  TC-T04a-38 scripts/quality.sh exits 0 on the clean tree with component steps SKIP (network)
+  BLOCKED  TC-T04a-39 to 45 rejection demos with controls: untyped Python, ruff, long Markdown, shellcheck, YAML, hadolint, Spectral
+  BLOCKED  TC-T04a-46 bad commit message refused by the installed hook; TC-T04a-47 bad branch name fails quality.sh

@@ -1,0 +1,8 @@
+== TC-T04a-07 REVIEW_CHECKLIST.md and the technical-architect reference (AC8)
+  PASS  REVIEW_CHECKLIST.md exists
+  PASS  at least 30 yes/no (question) items
+  PASS  one block per standards section (PHP, Python, TypeScript, SQL, Docker, shell, Markdown, OpenAPI, prompts)
+  PASS  C1 to C7 each covered
+  PASS  simulation-only rule check (no order placement)
+  PASS  cross-cutting: naming, errors, logging, secrets, dependencies, size, exceptions cite a ticket
+  PASS  technical-architect agent references REVIEW_CHECKLIST.md

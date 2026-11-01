@@ -1,0 +1,10 @@
+== TC-T04a-26 script tests, typing proxy and Python 3.10 compatibility (AC3, verification 'untyped Python')
+  PASS  scripts/tests/test_check_commit_msg.py exists with at least 3 tests
+  PASS  scripts/tests/test_check_branch_name.py exists with at least 3 tests
+  PASS  scripts/tests/test_exceptions_report.py exists with at least 3 tests
+  PASS  scripts/tests/test_coverage_gate.py exists with at least 3 tests
+  PASS  scripts/tests/test_check_assets.py exists with at least 3 tests
+  PASS  python3 -m unittest discover -s scripts/tests passes
+  PASS  all scripts/*.py compile on this Python (Python 3.10.12)
+  PASS  typing proxy self-test: untyped file flagged, typed file clean
+  PASS  every function in scripts/ and .claude/hooks/ is fully annotated (proxy for mypy --strict)

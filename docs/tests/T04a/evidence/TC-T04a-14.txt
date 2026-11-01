@@ -1,0 +1,11 @@
+== TC-T04a-14 commit-msg --range in a throwaway repo: PR range only (AC4, D-3)
+  PASS  good commits pass; legacy bad and over-long commits before the base are not checked
+  PASS  range rejects a new 'bad message' commit and names it
+  PASS  range rejects 'fixup! T04a: first'
+  PASS  range rejects 'squash! T10: second'
+  PASS  range rejects a 73-character subject
+  PASS  range rejects unknown task id T99
+  PASS  range accepts a 72-character subject
+  PASS  range accepts Revert "T10: second"
+  PASS  range accepts a no-ff merge commit and the commits it brings
+  PASS  empty range (HEAD..HEAD) is not an error

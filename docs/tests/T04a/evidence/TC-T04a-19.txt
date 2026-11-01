@@ -1,0 +1,10 @@
+== TC-T04a-19 coverage gate: floors and boundaries on Cobertura fixtures (AC7, verification 'coverage drop')
+  PASS  script exists: scripts/coverage_gate.py
+  PASS  all above floors (scoring 95, risk 95, other 90): accepted
+  PASS  scoring 89 percent rejected and the file is named
+  PASS  scoring exactly 90 accepted (floor is inclusive)
+  PASS  risk 89 rejected and the file is named
+  PASS  risk exactly 90 accepted
+  PASS  overall engine 83.3 percent rejected (scoring and risk fine, other 60)
+  PASS  overall engine exactly 85 accepted
+  PASS  a drop (scoring 95 -> 70) is rejected: the regression the criterion names

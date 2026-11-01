@@ -1,0 +1,45 @@
+== TC-T04a-18 exceptions report: tagged suppressions pass and are counted; tag rules (AC6, D-4)
+  PASS  correct form of 'noqa' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'noqa' is rejected (D-4 addendum)
+  PASS  correct form of 'type: ignore' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'type: ignore' is rejected (D-4 addendum)
+  PASS  correct form of 'pragma: no cover' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'pragma: no cover' is rejected (D-4 addendum)
+  PASS  correct form of 'eslint-disable' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'eslint-disable' is rejected (D-4 addendum)
+  PASS  correct form of '@ts-expect-error' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of '@ts-expect-error' is rejected (D-4 addendum)
+  PASS  correct form of 'phpcs:ignore' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'phpcs:ignore' is rejected (D-4 addendum)
+  PASS  correct form of '@phpstan-ignore' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of '@phpstan-ignore' is rejected (D-4 addendum)
+  PASS  correct form of 'shellcheck' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'shellcheck' is rejected (D-4 addendum)
+  PASS  'yamllint': no accepted inline form exists (a ticket after the directive is rejected)
+  PASS  correct form of 'markdownlint' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'markdownlint' is rejected (D-4 addendum)
+  PASS  correct form of 'hadolint' (ticket in the tool's comment slot) is accepted
+  PASS  bare or forbidden form of 'hadolint' is rejected (D-4 addendum)
+  PASS  noqa without a code is rejected even with a ticket
+  PASS  eslint-disable naming no rule is rejected even with a ticket
+  PASS  inline yamllint disable (block form) is rejected even with a ticket in a comment
+  PASS  ticket only in a docstring-style comment far from the directive is rejected
+  PASS  report file counts per tool (noqa 2, type: ignore 1, shellcheck 1) and lists tickets
+  PASS  accepts DEF-001 (exists in defects.md)
+  PASS  rejects DEF-999 (not in defects.md)
+  PASS  rejects T99 (not in TASKS.md)
+  PASS  rejects a ticket with no reason ('T32' alone)
+  PASS  rejects no space after the colon ('T32:x')
+  PASS  rejects lower-case ticket 't32: x'
+  PASS  accepts 'T04a: reason' (sub-task id)
+  PASS  rejects the bare form 'noqa: F401  T32: x' (ruff would drop the directive)
+  PASS  rejects a ticket on a different line from the suppression
+  PASS  rejects a ticket on the next line only (same-line rule)
+  PASS  config path exclude without ticket rejected (.markdownlint-cli2.yaml ignores)
+  PASS  config path exclude with ticket accepted
+  PASS  ruff exclude without ticket rejected
+  PASS  ruff exclude with ticket accepted
+  PASS  yamllint per-rule ignore path without ticket rejected (the yamllint exception form)
+  PASS  yamllint per-rule ignore path with a YAML comment ticket accepted
+  PASS  Spectral overrides rule off without ticket rejected
+  PASS  Spectral overrides rule off with a ticket comment accepted

@@ -1,0 +1,5 @@
+== TC-T04a-15 installed commit-msg hook in a throwaway repo (AC4, plan: 'bad message' vs 'T04a: x')
+  PASS  git commit -m 'bad message' is refused
+  PASS  refused commit created no commit
+  PASS  git commit -m 'T04a: x' succeeds
+  PASS  accepted commit exists

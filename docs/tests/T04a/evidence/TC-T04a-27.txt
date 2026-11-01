@@ -1,0 +1,5 @@
+== TC-T04a-27 baseline: project-authored Markdown has no line over 100 characters (AC6, verification 'long Markdown line')
+  PASS  checker self-test: prose line flagged; table, code, heading and bare URL exempt
+  PASS  checker self-test: leading YAML front matter exempt; '---' later in a file and prose after front matter still flagged
+  PASS  all project-authored Markdown (excluding docs/TASKS.md and evidence) within 100 characters
+  PASS  the T04a documents themselves are within 100 characters
