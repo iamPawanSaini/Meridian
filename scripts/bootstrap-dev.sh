@@ -11,24 +11,28 @@ cd "$repo_root"
 source scripts/tool-versions.env
 
 # The pinned pre-commit zipapp bundles virtualenv 21, which needs typing_extensions >= 4.16 on
-# Python older than 3.11 (DEF-003). Fail early with a clear message instead of a traceback.
+# Python older than 3.11 (DEF-003). The zipapp shim drops every site-packages directory from
+# sys.path, so the check does the same. Fail early with a clear message instead of a traceback.
 if ! python3 - <<'PY'
+import os
 import sys
 
 if sys.version_info >= (3, 11):
     sys.exit(0)
-try:
-    from importlib.metadata import version
+sys.path[:] = [p for p in sys.path if os.path.basename(p) not in ("site-packages", "dist-packages")]
+from importlib.metadata import distributions
 
-    parts = version("typing_extensions").split(".")
-    sys.exit(0 if (int(parts[0]), int(parts[1])) >= (4, 16) else 1)
-except Exception:
-    sys.exit(1)
+for dist in distributions(path=sys.path):
+    if (dist.metadata["Name"] or "").lower().replace("-", "_") == "typing_extensions":
+        major, minor = (int(x) for x in dist.version.split(".")[:2])
+        sys.exit(0 if (major, minor) >= (4, 16) else 1)
+sys.exit(1)
 PY
 then
-  echo "ERROR: Python $(python3 -c 'import sys; print(sys.version.split()[0])') needs typing_extensions >= 4.16." >&2
-  echo "  Use Python 3.11 or newer, or run:" >&2
-  echo "  sudo apt install python3-pip && python3 -m pip install --user 'typing_extensions>=4.16'" >&2
+  echo "ERROR: Python $(python3 -c 'import sys; print(sys.version.split()[0])') needs typing_extensions >= 4.16" >&2
+  echo "  on a path outside site-packages (the pre-commit zipapp ignores site-packages)." >&2
+  echo "  Use Python 3.11 or newer, or see DEF-003 in docs/tests/defects.md and" >&2
+  echo "  docs/runbooks/local-setup.md (Prerequisites) for the workaround." >&2
   exit 1
 fi
 

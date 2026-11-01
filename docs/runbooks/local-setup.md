@@ -16,10 +16,25 @@ running, or you want to reset it. The engine, Postgres and Next.js services join
 - Docker (Docker Engine or Docker Desktop) running.
 - DDEV v1.24 or newer ([install guide](https://docs.ddev.com/en/stable/users/install/ddev-installation/)).
 - git, and Python 3.11 or newer for `scripts/bootstrap-dev.sh` (pre-commit). On Python 3.10
-  (Ubuntu 22.04) run
-  `sudo apt install python3-pip && python3 -m pip install --user "typing_extensions>=4.16"`
-  first. The pinned pre-commit needs it, and `scripts/bootstrap-dev.sh` stops with a message
-  if it is missing.
+  (Ubuntu 22.04) the pinned pre-commit needs `typing_extensions` 4.16 or newer on a path that is
+  not a `site-packages` directory, because the pre-commit zipapp drops those from `sys.path`.
+  Without sudo (DEF-003):
+
+  ```bash
+  python3 - <<'EOF'
+  import io, json, os, site, urllib.request, zipfile
+  d = json.load(urllib.request.urlopen("https://pypi.org/pypi/typing_extensions/json"))
+  url = next(u["url"] for u in d["urls"] if u["packagetype"] == "bdist_wheel")
+  extra = os.path.join(os.path.dirname(site.getusersitepackages()), "pyextra")
+  os.makedirs(extra, exist_ok=True)
+  zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(url).read())).extractall(extra)
+  os.makedirs(site.getusersitepackages(), exist_ok=True)
+  with open(os.path.join(site.getusersitepackages(), "zz-pyextra.pth"), "w") as f:
+      f.write(extra + "\n")
+  EOF
+  ```
+
+  `scripts/bootstrap-dev.sh` checks this and stops with a message if it is missing.
 - On Windows with WSL2: run everything inside WSL2 and keep the clone on the WSL2 Linux
   filesystem, for example under `~/`. Do not clone under `/mnt/c`, it is very slow and breaks
   file watching.
