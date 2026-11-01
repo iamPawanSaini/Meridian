@@ -121,3 +121,73 @@ hit it).
 **Suggested fix (for the author, not applied by the tester):** make the unique rule partial,
 `UNIQUE (trade_date, attempt) WHERE attempt > 0` (or give `publish`/`replay` a distinct key), and
 update `data-model.md` runs and design D2 accordingly.
+
+### DEF-003: pre-commit hook environment does not build on Python 3.10 (Ubuntu 22.04)
+
+| Field | Value |
+|---|---|
+| ID | DEF-003 |
+| Severity | High (blocks every commit once hooks are installed) |
+| Found in | T05 build (main session), first real run of `scripts/bootstrap-dev.sh` hooks |
+| Status | Fixed (workaround documented); retest at T05 `/test-task` |
+| Fix commit | `git log --grep DEF-003` (T05) |
+| Retest result | 2026-11-01: hooks build and run after the workaround; T05 commits pass the hook |
+
+**Steps to reproduce**
+
+1. Ubuntu 22.04, system Python 3.10.12, no pip. Run `scripts/bootstrap-dev.sh` (pre-commit 4.7.0
+   zipapp), then `git commit` or `.tools/pre-commit run --all-files`.
+
+**Expected:** the hook environments build.
+
+**Actual:** `ModuleNotFoundError: No module named 'typing_extensions'`. The zipapp bundles
+virtualenv 21.14.7, which needs `typing_extensions>=4.16` on Python below 3.11 but is not bundled.
+The zipapp shim removes every `site-packages` directory from `sys.path`, so a `pip install --user`
+alone does not help, and the Ubuntu 22.04 apt package is 3.10.0.2 (too old). A second failure
+followed: with no pinned Node version, nodeenv resolves "latest" and crashes on a pre-release
+entry (`invalid literal for int() with base 10: '0-alpha'`).
+
+**Fix:** `bootstrap-dev.sh` fails early with instructions on Python 3.10 without
+`typing_extensions>=4.16`; `docs/runbooks/local-setup.md` lists Python 3.11+ (or the workaround);
+`.pre-commit-config.yaml` pins `default_language_version: node: 22.14.0`. Owner machine
+workaround used on 2026-11-01: `typing_extensions` 4.16.0 placed in a directory outside
+`site-packages` and added to `sys.path` through a `.pth` file in the user site. Preferred long-term
+fix: Python 3.11 or newer on the dev host, or a pre-commit installed with pip in a venv.
+
+### DEF-004: T04a baseline is not clean under the real hooks (`--all-files`)
+
+| Field | Value |
+|---|---|
+| ID | DEF-004 |
+| Severity | Medium (blocks `ddev quality` exit 0 and TC-T05-21/24/34; does not block commits of other files) |
+| Found in | T05 build (main session), first full `.tools/pre-commit run --all-files` on 2026-11-01 |
+| Status | Open (owner to decide: fix under T04a or a follow-up task) |
+| Fix commit | |
+| Retest result | |
+
+**Steps to reproduce:** after DEF-003's workaround, run `.tools/pre-commit run --all-files` on
+`task/T05-ddev-drupal` (39e6f68). Full output: owner-side scratch file, summarised here.
+
+**Expected:** zero violations on the existing code (T04a acceptance criterion "Baseline is clean").
+T04a recorded this as owner-run (TC-36) because the hooks could not be installed then.
+
+**Actual:** gitleaks, the Meridian checks and Spectral pass. These fail on files from T00 to T04a:
+
+- ruff check: about 350 findings (mostly E501, E701, E702, E741, SIM115) in `.claude/hooks/*.py`
+  and the tester scripts under `docs/tests/T03`, `T04`, `T04a`; ruff format would reformat 21
+  files.
+- mypy (strict): 2 errors in `.claude/hooks/guard_paths.py` and its test.
+- shellcheck: warnings (SC2164, SC2034, ...) in `docs/tests/*/run-checks.sh`.
+- yamllint: line-length in `docs/architecture/openapi.yaml` and `.spectral.yaml`.
+- markdownlint: MD056 in `docs/tasks/T03/review.md`, MD038 in
+  `docs/tasks/T04a/decision-t04a-standards.md` and others.
+- trailing-whitespace and mixed-line-ending rewrite committed evidence files under
+  `docs/tests/*/evidence/` (evidence must stay byte-exact, so these paths need excluding rather
+  than fixing).
+
+The auto-fixes from this run were reverted; nothing outside T05 was changed.
+
+**Suggested fix:** under T04a (it owns the baseline), exclude `docs/tests/*/evidence/` from the
+fixer hooks; decide per path whether tester scripts follow the same ruff profile or a relaxed one
+(recorded exception with a ticket); fix the rest. `.claude/hooks/*` is protected from subagents,
+so the main session applies those changes.
