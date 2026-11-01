@@ -12,7 +12,7 @@ Statuses: Not started, Planned, In progress, In review, In test, Blocked, Done.
 | T03 | Technical design | M | 1 Architecture and planning | T02 | In test | `task/T03-technical-design` | Approved by solution-architect (Rev 3); 30/32 pass; DEF-002 fixed; blocked on owner Spectral lint (TC-T03-10), Mermaid render (TC-T03-32) |
 | T04 | Master test plan and test infrastructure design | M | 1 Architecture and planning | T03 | Done (2026-11-01) | `task/T04-master-test-plan` | 32/32 pass, signed off; review approved; pre-commit/markdownlint SKIP (owner re-run for C4) |
 | T04a | Coding standards and quality gates | M | 1 Architecture and planning | T04 | In test | `task/T04a-coding-standards` | Both reviews approved; 35 pass, 0 fail, 23 blocked (16 owner-run need network, 6 deferred to T05/T08/T09/T21, 1 linters absent) |
-| T05 | DDEV Drupal project | M | 2 Local platform (DDEV and Docker) | T03 | Planned | `task/T05-ddev-drupal` | Plan approved |
+| T05 | DDEV Drupal project | M | 2 Local platform (DDEV and Docker) | T03 | In test | `task/T05-ddev-drupal` | Review approved with conditions; 35 pass, 3 fail (DEF-004, owner accepted closing with it open, fix next under T04a), 2 blocked owner-run (TC-T05-39 runbook verbatim, TC-T05-40 Windows browser login); DEF-003 closed; clean clone passes |
 | T06 | Extra Docker services in DDEV | M | 2 Local platform (DDEV and Docker) | T05 | Not started |  |  |
 | T07 | Pantheon dev environment and deployment path | M | 2 Local platform (DDEV and Docker) | T05 | Not started |  |  |
 | T08 | Continuous integration baseline | M | 2 Local platform (DDEV and Docker) | T05, T06 | Not started |  |  |
