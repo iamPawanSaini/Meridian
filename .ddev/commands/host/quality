@@ -6,5 +6,7 @@
 ## Flags: []
 
 # Thin wrapper: scripts/quality.sh is the only implementation (T04a).
-# Works once T05 adds .ddev/config.yaml.
+# T05: component tools run inside DDEV by default, because the host PHP may be too old.
+# An explicit QUALITY_RUNNER=native still wins.
+export QUALITY_RUNNER="${QUALITY_RUNNER:-ddev}"
 exec "$DDEV_APPROOT/scripts/quality.sh" "$@"

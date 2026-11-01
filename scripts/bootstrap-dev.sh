@@ -10,6 +10,28 @@ cd "$repo_root"
 # shellcheck source=scripts/tool-versions.env
 source scripts/tool-versions.env
 
+# The pinned pre-commit zipapp bundles virtualenv 21, which needs typing_extensions >= 4.16 on
+# Python older than 3.11 (DEF-003). Fail early with a clear message instead of a traceback.
+if ! python3 - <<'PY'
+import sys
+
+if sys.version_info >= (3, 11):
+    sys.exit(0)
+try:
+    from importlib.metadata import version
+
+    parts = version("typing_extensions").split(".")
+    sys.exit(0 if (int(parts[0]), int(parts[1])) >= (4, 16) else 1)
+except Exception:
+    sys.exit(1)
+PY
+then
+  echo "ERROR: Python $(python3 -c 'import sys; print(sys.version.split()[0])') needs typing_extensions >= 4.16." >&2
+  echo "  Use Python 3.11 or newer, or run:" >&2
+  echo "  sudo apt install python3-pip && python3 -m pip install --user 'typing_extensions>=4.16'" >&2
+  exit 1
+fi
+
 tools_dir="$repo_root/.tools"
 pyz="$tools_dir/pre-commit-${PRE_COMMIT_VERSION}.pyz"
 wrapper="$tools_dir/pre-commit"

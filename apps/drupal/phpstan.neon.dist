@@ -1,11 +1,9 @@
-# PHPStan for Meridian custom Drupal code (T04a, decision D-4). Needs phpstan and
-# mglaman/phpstan-drupal from the T05 Composer setup (verify the include paths there).
+# PHPStan for Meridian custom Drupal code (T04a, decision D-4).
+# phpstan/extension-installer (installed by drupal/core-dev, allowed in composer.json) loads
+# mglaman/phpstan-drupal and phpstan/phpstan-deprecation-rules. Do not add `includes:` for
+# them: PHPStan reports "included multiple times" (checked in T05).
 # There is no ignore file. Each ignore is inline, has an identifier and a reason that cites
 # a ticket. Stale ignores are reported (reportUnmatchedIgnoredErrors stays at its default).
-includes:
-    - vendor/mglaman/phpstan-drupal/extension.neon
-    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
-
 parameters:
     level: 6
     paths:

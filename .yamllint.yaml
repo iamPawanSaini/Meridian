@@ -4,6 +4,8 @@ extends: default
 rules:
   line-length:
     max: 100
+    ignore:
+      - /apps/drupal/config/sync/  # T05: long mail template lines in the cex output
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
   document-start: disable  # T04a: the repo YAML has no document start markers
@@ -12,3 +14,11 @@ rules:
   comments:
     min-spaces-from-content: 1
   comments-indentation: disable  # T04a: conflicts with commented-out examples in configs
+  # T05: Drupal writes config/sync with `drush cex`. Its format (`{  }`, long mail text, no final
+  # newline in user.mail.yml) is not ours to edit, or the next cex would revert it (AC4).
+  braces:
+    ignore:
+      - /apps/drupal/config/sync/  # T05: empty maps are exported as `{  }`
+  new-line-at-end-of-file:
+    ignore:
+      - /apps/drupal/config/sync/  # T05: user.mail.yml is exported without a final newline

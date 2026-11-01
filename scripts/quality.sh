@@ -5,8 +5,8 @@
 #
 # Usage: scripts/quality.sh
 # Environment:
-#   QUALITY_RUNNER=native|ddev  where component tools run (default native). T05/T06 map `ddev`
-#                               to `ddev exec`, `ddev engine` and `ddev next`.
+#   QUALITY_RUNNER=native|ddev  where component tools run (default native; `ddev quality` sets
+#                               ddev). `ddev` maps to `ddev exec`, `ddev engine`, `ddev next`.
 #   QUALITY_STEPS=FILE          replaces the built-in steps. Each line is
 #                               NAME<TAB>MANIFEST<TAB>COMMAND. MANIFEST '-' always runs; a
 #                               MANIFEST path that does not exist gives SKIP; a present manifest
@@ -46,21 +46,30 @@ fi
 
 # Built-in steps as NAME<TAB>MANIFEST<TAB>COMMAND lines.
 builtin_steps() {
-  local engine drupal web commit_range
+  local engine drupal drupal_tests web commit_range
   commit_range="git rev-parse --verify -q origin/main >/dev/null"
   commit_range+=" || { echo 'origin/main not found: run git fetch origin'; exit 1; };"
   commit_range+=" python3 scripts/check_commit_msg.py --range origin/main..HEAD"
-  # Verify the exact tool commands when T05 (Drupal), T13 (engine) and T21 (web) add the manifests.
+  # Verify the exact tool commands when T13 (engine) and T21 (web) add the manifests.
   engine="ruff check . && ruff format --check . && mypy meridian_engine"
   engine+=" && pytest --cov=meridian_engine --cov-branch --cov-report=xml:coverage.xml"
   engine+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   engine+=" ../../quality/coverage-thresholds.json --require meridian_engine/ coverage.xml"
-  drupal="vendor/bin/phpcs --standard=phpcs.xml.dist"
-  drupal+=" && vendor/bin/phpstan analyse -c phpstan.neon.dist"
-  drupal+=" && vendor/bin/phpunit --coverage-cobertura=coverage.xml"
-  drupal+=" && python3 ../../scripts/coverage_gate.py --thresholds"
-  drupal+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"
-  drupal+=" coverage.xml"
+  drupal="composer validate --no-check-publish --no-interaction"
+  drupal+=" && vendor/bin/phpcs --version && vendor/bin/phpstan --version"
+  drupal+=" && vendor/bin/phpcs --standard=phpcs.xml.dist"
+  # T05: on a tree with no PHP, PHPStan prints "[ERROR] No files found to analyse" yet exits 0,
+  # a vacuous pass. The guard makes the not-run state explicit and runs PHPStan once custom PHP
+  # exists. The version calls above always run, so a missing tool is still a FAIL. T09 adds the
+  # first module and removes this guard.
+  drupal+=" && if [ -n \"\$(find web/modules/custom \\( -name '*.php' -o -name '*.module'"
+  drupal+=" -o -name '*.inc' -o -name '*.install' \\) -print -quit)\" ]; then"
+  drupal+=" vendor/bin/phpstan analyse -c phpstan.neon.dist;"
+  drupal+=" else echo 'phpstan: not run, no custom PHP yet (T09)'; fi"
+  drupal_tests="vendor/bin/phpunit --coverage-cobertura=coverage.xml"
+  drupal_tests+=" && python3 ../../scripts/coverage_gate.py --thresholds"
+  drupal_tests+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"
+  drupal_tests+=" coverage.xml"
   web="npx eslint . && npx tsc --noEmit && npx prettier --check . && npx vitest run --coverage"
   web+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   web+=" ../../quality/coverage-thresholds.json --require apps/web/lib/"
@@ -76,6 +85,10 @@ builtin_steps() {
     "$(wrap 'ddev engine' services/engine "$engine")"
   printf '%s\t%s\t%s\n' "component-drupal" "apps/drupal/composer.json" \
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal")"
+  # T05: PHPUnit and the coverage gate wait for apps/drupal/phpunit.xml.dist (added by T09 with
+  # the first module). Until then this step shows a visible SKIP.
+  printf '%s\t%s\t%s\n' "component-drupal-tests" "apps/drupal/phpunit.xml.dist" \
+    "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal_tests")"
   printf '%s\t%s\t%s\n' "component-web" "apps/web/package.json" \
     "$(wrap 'ddev next' apps/web "$web")"
 }

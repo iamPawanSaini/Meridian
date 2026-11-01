@@ -1,7 +1,5 @@
 <?php
 
-// phpcs:ignoreFile
-
 /**
  * @file
  * Meridian site settings (T05). Committed and owned by this repository.
