@@ -54,16 +54,19 @@ running, or you want to reset it. The engine, Postgres and Next.js services join
    cd meridian
    ```
 
-   Expected: a `meridian` folder on the Linux filesystem.
+   Expected: a `meridian` folder on the Linux filesystem. Until T05 is merged into `main`, also
+   run `git checkout task/T05-ddev-drupal`: `main` has no `.ddev/` yet.
 
-2. If another checkout of this project is registered, unlist it first. Two DDEV projects named
-   `meridian` cannot coexist.
+2. If another checkout of this project is registered, remove that registration first. Two DDEV
+   projects named `meridian` cannot coexist, and `ddev stop --unlist` alone keeps the old
+   database volume, so step 4 would then refuse with "already installed". This deletes the old
+   checkout's local database (local, disposable data only).
 
    ```bash
-   ddev stop --unlist meridian
+   ddev delete -Oy meridian
    ```
 
-   Expected: nothing to do on a first setup.
+   Expected: nothing to do on a first setup (`ddev list` does not show `meridian`).
 
 3. Start the project. The first run pulls Docker images and runs `composer install`, which can
    take several minutes.
@@ -92,6 +95,15 @@ running, or you want to reset it. The engine, Postgres and Next.js services join
 
    Expected: a `https://meridian.ddev.site/user/reset/...` link. Open it.
 
+6. Install the git hooks and dev tooling (needed for commits and for `ddev quality`).
+
+   ```bash
+   scripts/bootstrap-dev.sh
+   ```
+
+   Expected: `Done. Hooks installed (pre-commit and commit-msg).` On Python 3.10 see the
+   Prerequisites first.
+
 ## Verification
 
 ```bash
@@ -109,7 +121,9 @@ ddev quality
   `git status --porcelain` empty.
 - `ddev quality` exits 0 with `PASS component-drupal` and
   `SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist)`. The engine and web steps SKIP
-  until T13 and T21. `ddev quality` also runs pre-commit, so run `scripts/bootstrap-dev.sh` first.
+  until T13 and T21. `ddev quality` also runs pre-commit (step 6). Run it on a committed tree:
+  the pre-commit fixers rewrite files in place. Until DEF-004 is fixed, `ddev quality` exits 1 on
+  the pre-commit step because of older files; the two Drupal step lines above are what T05 needs.
 
 ## Reinstall
 

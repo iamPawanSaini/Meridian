@@ -23,13 +23,15 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
+      # config/sync is drush cex output; evidence must stay byte-exact (DEF-004).
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        exclude: ^apps/drupal/config/sync/ # T05: Drupal config export format is owned by drush cex
+        exclude: ^(apps/drupal/config/sync/|docs/tests/[^/]+/evidence/) # T05: cex output, evidence
       - id: end-of-file-fixer
-        exclude: ^apps/drupal/config/sync/ # T05: Drupal config export format is owned by drush cex
+        exclude: ^(apps/drupal/config/sync/|docs/tests/[^/]+/evidence/) # T05: cex output, evidence
       - id: mixed-line-ending
         args: [--fix=lf]
+        exclude: ^docs/tests/[^/]+/evidence/ # T05: test evidence must stay byte-exact (DEF-004)
       - id: check-yaml
       - id: check-json
       - id: check-toml
