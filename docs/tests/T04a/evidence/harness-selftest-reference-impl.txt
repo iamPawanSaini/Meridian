@@ -1,0 +1,485 @@
+== TC-T04a-01 CODING_STANDARDS.md exists with a section per language (AC1)
+  FAIL  CODING_STANDARDS.md exists and is non-empty
+        
+  FAIL  heading for 'PHP.*Drupal'
+        
+  FAIL  heading for 'Python'
+        
+  FAIL  heading for 'TypeScript.*Next|Next\.?js'
+        
+  FAIL  heading for 'SQL.*migration'
+        
+  FAIL  heading for 'Docker.*YAML|Docker'
+        
+  FAIL  heading for 'Shell'
+        
+  FAIL  heading for 'Markdown'
+        
+  FAIL  heading for 'OpenAPI'
+        
+  FAIL  heading for 'LLM.*prompt|prompt files'
+        
+  FAIL  no TODO/TBD/FIXME markers in the standards
+        
+== TC-T04a-02 each language section names its tool and key rules (AC1, AC3)
+  FAIL  PHP: PHP_CodeSniffer, Drupal, DrupalPractice, PHPStan, phpstan-drupal, level 6
+        
+  FAIL  PHP: no PHPStan baseline, ignores carry a reason
+        
+  FAIL  Python: ruff, mypy, line length 100, py312 and py310 scope
+        
+  FAIL  Python: strict applied per invocation to scripts, .claude/hooks, meridian_engine
+        
+  FAIL  TypeScript: ESLint, Prettier, tsc --noEmit, strict
+        
+  FAIL  SQL: Alembic migrations, reversible, parameterised queries
+        
+  FAIL  Docker/YAML: hadolint, yamllint, pinned base image
+        
+  FAIL  Shell: shellcheck, set -euo pipefail
+        
+  FAIL  Markdown: markdownlint, line length 100, tables exempt, TASKS.md exclusion cites T32
+        
+  FAIL  OpenAPI: Spectral, openapi.yaml
+        
+  FAIL  LLM prompts: versioned, untrusted data delimited (FR-07), no secrets
+        
+== TC-T04a-03 cross-cutting rules (AC2)
+  FAIL  naming: section 0, meridian_engine, check-names.sh
+        
+  FAIL  error handling section
+        
+  FAIL  structured logging: structured, JSON or key=value, no secrets in logs
+        
+  FAIL  no secrets in code: gitleaks, .env.example
+        
+  FAIL  dependency policy: lockfiles, pinned versions, audit before adding
+        
+  FAIL  comments and docstrings expectations
+        
+  FAIL  size guidance: function 50 lines, file 400 lines
+        
+== TC-T04a-04 tool table, exception rule, commit and branch rules, asset rules, scope (AC2 to AC4)
+  FAIL  tool table: Version, Source, Date checked, a dated row per tool
+        
+  FAIL  exception rule: ticket regex literal
+        
+  FAIL  exception rule section: same line, counted in a report, DEF must exist
+        
+  FAIL  commit rules: Txx: prefix, 72 characters, Merge and Revert allowed, fixup! fails, PR range only
+        
+  FAIL  merge commits only for main, squash and rebase disabled
+        
+  FAIL  branch rule: task/Txx-slug
+        
+  FAIL  section 0b asset rules: self-hosted fonts and icons, no third-party hosts, colours only from tokens
+        
+  FAIL  scope table: docs/tests helpers ruff only, py310 for scripts, hooks and helpers
+        
+  FAIL  web-vitals licence (Apache or MIT) and a pinned version recorded in the standards (OQ-T04-5)
+        
+== TC-T04a-05 coverage thresholds recorded in the standards (AC7)
+  FAIL  engine scoring and risk 90 (NFR-18), engine overall 85
+        
+  FAIL  Drupal custom modules 70, provisional, Kernel tests counted
+        
+  FAIL  Next.js lib and components 80; app routes covered by Playwright
+        
+  FAIL  line coverage is the gate; branch reported not gated; floors only go up
+        
+== TC-T04a-06 quality/coverage-thresholds.json consistent with D-1 (AC7)
+  FAIL  thresholds JSON exists and is valid JSON
+        Traceback (most recent call last):
+          File "<string>", line 1, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'quality/coverage-thresholds.json'
+  FAIL  floors present: scoring 90, risk 90, engine 85, Drupal custom 70, web lib 80, web components 80
+        Traceback (most recent call last):
+          File "<stdin>", line 2, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'quality/coverage-thresholds.json'
+  FAIL  no scoring or risk line floor below 90 percent (NFR-18 is fixed)
+        Traceback (most recent call last):
+          File "<stdin>", line 2, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'quality/coverage-thresholds.json'
+== TC-T04a-07 REVIEW_CHECKLIST.md and the technical-architect reference (AC8)
+  FAIL  REVIEW_CHECKLIST.md exists
+        
+  FAIL  at least 30 yes/no (question) items
+        grep: docs/standards/REVIEW_CHECKLIST.md: No such file or directory
+         yes/no items
+        docs/tests/T04a/run-checks.sh: line 201: [: : integer expression expected
+  FAIL  one block per standards section (PHP, Python, TypeScript, SQL, Docker, shell, Markdown, OpenAPI, prompts)
+        missing or empty: docs/standards/REVIEW_CHECKLIST.md
+  FAIL  C1 to C7 each covered
+        missing or empty: docs/standards/REVIEW_CHECKLIST.md
+  FAIL  simulation-only rule check (no order placement)
+        missing or empty: docs/standards/REVIEW_CHECKLIST.md
+  FAIL  cross-cutting: naming, errors, logging, secrets, dependencies, size, exceptions cite a ticket
+        missing or empty: docs/standards/REVIEW_CHECKLIST.md
+  FAIL  technical-architect agent references REVIEW_CHECKLIST.md
+        
+== TC-T04a-08 root tool configs (AC3)
+  FAIL  ruff.toml: line-length 100, py312, per-file-target-version py310 for scripts, hooks, docs/tests
+        missing or empty: ruff.toml
+  FAIL  mypy.ini exists
+        
+  FAIL  mypy.ini does not rely on per-module strict (D-2, unverified in mypy docs)
+        
+  FAIL  .yamllint.yaml: extends and line-length
+        missing or empty: .yamllint.yaml
+  FAIL  .markdownlint-cli2.yaml: MD013 line_length 100, tables/code_blocks/headings false
+        missing or empty: .markdownlint-cli2.yaml
+  FAIL  .shellcheckrc exists
+        
+  FAIL  tsconfig.base.json valid JSON with strict true
+        Traceback (most recent call last):
+          File "<string>", line 1, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'tsconfig.base.json'
+  FAIL  .prettierrc.json valid JSON
+        Traceback (most recent call last):
+          File "<string>", line 1, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: '.prettierrc.json'
+== TC-T04a-09 component configs: PHP and ESLint (AC3)
+  FAIL  phpcs.xml.dist: valid ruleset, Drupal, DrupalPractice, web/modules/custom
+        Traceback (most recent call last):
+          File "<stdin>", line 2, in <module>
+          File "/usr/lib/python3.10/xml/etree/ElementTree.py", line 1222, in parse
+            tree.parse(source, parser)
+          File "/usr/lib/python3.10/xml/etree/ElementTree.py", line 569, in parse
+            source = open(source, "rb")
+  FAIL  phpstan.neon.dist: level 6, comments on ignores, phpstan-drupal, custom modules
+        missing or empty: apps/drupal/phpstan.neon.dist
+  FAIL  phpstan: no baseline file, stale ignores still reported
+        
+  FAIL  eslint.config.mjs: parses with node, uses next and typescript-eslint
+        
+== TC-T04a-10 pre-commit hooks pinned (AC3, AC4)
+  FAIL  every non-local repo has a version rev; ruff (lint+format), mypy, shellcheck, yamllint, hadolint, markdownlint, Spectral (node, pinned)
+        repo missing: ruff
+        repo missing: mypy
+        repo missing: shellcheck
+        repo missing: yamllint
+        repo missing: hadolint
+        repo missing: markdownlint
+  FAIL  default_install_hook_types includes pre-commit and commit-msg
+        missing in .pre-commit-config.yaml: ^default_install_hook_types:.*pre-commit.*commit-msg|^default_install_hook_types:.*commit-msg.*pre-commit
+  FAIL  mypy hook: --strict, python 3.10, files scripts and .claude/hooks
+        Traceback (most recent call last):
+          File "<stdin>", line 4, in <module>
+        AssertionError: --strict
+  FAIL  [at-close] at least 3 'verify' markers (hook versions unconfirmed until the owner-run install, TC-36)
+        
+== TC-T04a-11 commit-msg hook wiring is static-correct (AC4)
+  FAIL  a hook at stage commit-msg calls check_commit_msg.py
+        Traceback (most recent call last):
+          File "<stdin>", line 4, in <module>
+        AssertionError: no hook calls check_commit_msg.py
+  FAIL  bootstrap-dev.sh installs hooks (pre-commit install) and the commit-msg type
+        missing in scripts/bootstrap-dev.sh: commit-msg|install_hook_types
+== TC-T04a-12 commit-msg hook: message table (AC4, verification 'bad commit message')
+  PASS  script exists: scripts/check_commit_msg.py
+  PASS  accepts 'T04a: x'
+  PASS  accepts 'T10: add ingest upsert endpoint' (docs example)
+  PASS  accepts subject plus body with a 150-character body line
+  PASS  rejects 'bad message'
+  PASS  rejects empty message
+  PASS  rejects 'T04a:x' (no space)
+  PASS  rejects 'T04a: ' (no text)
+  PASS  rejects 't04: x' (lower case)
+  PASS  rejects 'T4: x' (one digit)
+  PASS  rejects 'Initial commit' in message mode (exempt only by range)
+  PASS  rejects 'T04ab: x'
+  PASS  rejects leading space ' T04a: x'
+  PASS  a rejection tells the author what is wrong
+== TC-T04a-13 commit-msg hook: length, Merge, Revert, fixup, unknown id (AC4, D-3)
+  PASS  accepts a 72-character subject (boundary)
+  PASS  rejects a 73-character subject (boundary)
+  PASS  accepts a 71-character subject
+  PASS  accepts Merge branch ...
+  PASS  accepts GitHub merge subject longer than 72 characters
+  PASS  accepts git revert subject Revert "T10: x"
+  PASS  rejects 'Revert it' (no quoted subject)
+  PASS  rejects 'Merged things' (not 'Merge ')
+  PASS  rejects 'fixup! T04a: x'
+  PASS  rejects 'squash! T04a: x'
+  PASS  rejects unknown task id T99
+  PASS  rejects T05a (not a heading in TASKS.md)
+  PASS  unknown id is named in the message
+  PASS  default tasks file (real docs/TASKS.md): 'T04a: x' accepted
+  PASS  default tasks file (real docs/TASKS.md): 'T99: x' rejected
+== TC-T04a-14 commit-msg --range in a throwaway repo: PR range only (AC4, D-3)
+  PASS  good commits pass; legacy bad and over-long commits before the base are not checked
+  PASS  range rejects a new 'bad message' commit and names it
+  PASS  range rejects 'fixup! T04a: first'
+  PASS  range rejects 'squash! T10: second'
+  PASS  range rejects a 73-character subject
+  PASS  range rejects unknown task id T99
+  PASS  range accepts a 72-character subject
+  PASS  range accepts Revert "T10: second"
+  PASS  range accepts a no-ff merge commit and the commits it brings
+  PASS  empty range (HEAD..HEAD) is not an error
+== TC-T04a-15 installed commit-msg hook in a throwaway repo (AC4, plan: 'bad message' vs 'T04a: x')
+  PASS  git commit -m 'bad message' is refused
+  PASS  refused commit created no commit
+  PASS  git commit -m 'T04a: x' succeeds
+  PASS  accepted commit exists
+== TC-T04a-16 branch naming check (AC4)
+  PASS  script exists: scripts/check_branch_name.py
+  PASS  accepts task/T04a-coding-standards
+  PASS  accepts task/T10-ingest
+  PASS  accepts task/T04-master-test-plan
+  PASS  accepts main
+  PASS  rejects feature/x
+  PASS  rejects master
+  PASS  rejects task/T04a (no slug)
+  PASS  rejects task/T04a- (empty slug)
+  PASS  rejects task/T04a-Bad-Caps
+  PASS  rejects task/T04a-two--dashes
+  PASS  rejects task/T04a-trailing-
+  PASS  rejects task/t04-x (lower case id)
+  PASS  rejects task/T4-x (one digit)
+  PASS  rejects unknown id task/T99-x
+  PASS  rejects task/T05a-x (not in TASKS.md)
+  PASS  rejects underscore slug task/T10-a_b
+  PASS  rejects nested path task/T10-a/b
+  PASS  CI: GITHUB_HEAD_REF=task/T10-ingest accepted
+  PASS  CI: GITHUB_HEAD_REF=feature/x rejected
+  PASS  no argument, no env: current git branch feature/bad rejected
+  PASS  no argument, no env: current git branch task/T04a-demo accepted
+== TC-T04a-17 exceptions report: an untagged suppression fails, per tool (AC6)
+  PASS  script exists: scripts/exceptions_report.py
+  PASS  control: fixture repo with no suppressions passes
+  PASS  untagged 'noqa' in a.py is rejected
+  PASS  untagged 'type: ignore' in b.py is rejected
+  PASS  untagged 'pragma: no cover' in c.py is rejected
+  PASS  untagged 'eslint-disable' in d.ts is rejected
+  PASS  untagged '@ts-expect-error' in e.ts is rejected
+  PASS  untagged 'phpcs:ignore' in f.php is rejected
+  PASS  untagged '@phpstan-ignore' in g.php is rejected
+  PASS  untagged 'shellcheck' in h.sh is rejected
+  PASS  untagged 'yamllint' in i.yaml is rejected
+  PASS  untagged 'markdownlint' in j.md is rejected
+  PASS  untagged 'hadolint' in Dockerfile is rejected
+  PASS  failure names file and line (pkg/mod.py:2)
+== TC-T04a-18 exceptions report: tagged suppressions pass and are counted; tag rules (AC6, D-4)
+  PASS  tagged 'noqa' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'type: ignore' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'pragma: no cover' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'eslint-disable' ('T32: legacy' on the same line) is accepted
+  PASS  tagged '@ts-expect-error' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'phpcs:ignore' ('T32: legacy' on the same line) is accepted
+  PASS  tagged '@phpstan-ignore' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'shellcheck' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'yamllint' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'markdownlint' ('T32: legacy' on the same line) is accepted
+  PASS  tagged 'hadolint' ('T32: legacy' on the same line) is accepted
+  PASS  report file counts per tool (noqa 2, type: ignore 1, shellcheck 1) and lists tickets
+  PASS  accepts DEF-001 (exists in defects.md)
+  PASS  rejects DEF-999 (not in defects.md)
+  PASS  rejects T99 (not in TASKS.md)
+  PASS  rejects a ticket with no reason ('T32' alone)
+  PASS  rejects no space after the colon ('T32:x')
+  PASS  rejects lower-case ticket 't32: x'
+  PASS  accepts 'T04a: reason' (sub-task id)
+  PASS  rejects a ticket on a different line from the suppression
+  PASS  rejects a ticket in prose before the code on the previous line only (same-line rule)
+  PASS  config path exclude without ticket rejected (.markdownlint-cli2.yaml ignores)
+  PASS  config path exclude with ticket accepted
+  PASS  ruff exclude without ticket rejected
+  PASS  ruff exclude with ticket accepted
+== TC-T04a-19 coverage gate: floors and boundaries on Cobertura fixtures (AC7, verification 'coverage drop')
+  PASS  script exists: scripts/coverage_gate.py
+  PASS  all above floors (scoring 95, risk 95, other 90): accepted
+  PASS  scoring 89 percent rejected and the file is named
+  PASS  scoring exactly 90 accepted (floor is inclusive)
+  PASS  risk 89 rejected and the file is named
+  PASS  risk exactly 90 accepted
+  PASS  overall engine 83.3 percent rejected (scoring and risk fine, other 60)
+  PASS  overall engine exactly 85 accepted
+  PASS  a drop (scoring 95 -> 70) is rejected: the regression the criterion names
+== TC-T04a-20 coverage gate: line rate not branch, other components, malformed input (AC7, D-1)
+  PASS  line 95 with branch rate 0.10 accepted (gate reads the line rate)
+  PASS  line 85 with branch rate 1.0 rejected (branch cannot rescue lines)
+  PASS  Drupal custom 69 percent rejected
+  PASS  Drupal custom exactly 70 accepted
+  PASS  web lib 79 rejected
+  PASS  web lib exactly 80 accepted
+  PASS  web components 79 rejected
+  PASS  web app/ routes have no unit floor (10 percent accepted)
+  PASS  malformed XML rejected, not a traceback
+  PASS  coverage report with no files rejected (no vacuous pass)
+  PASS  missing coverage file rejected
+== TC-T04a-21 asset check rejects third-party hosts and hard-coded hex (verification, section 0b)
+  PASS  script exists: scripts/check_assets.py
+  PASS  control: a page with only same-origin assets passes
+  PASS  rejects fonts.googleapis.com <link>
+  PASS  rejects fonts.gstatic.com in CSS url()
+  PASS  rejects script from cdn.jsdelivr.net
+  PASS  rejects script from unpkg.com
+  PASS  rejects @import from cdnjs.cloudflare.com
+  PASS  rejects icon stylesheet from use.fontawesome.com
+  PASS  rejects protocol-relative //fonts.googleapis.com
+  PASS  rejects hex #1a2b3c in app CSS
+  PASS  rejects short hex #fff in app CSS
+  PASS  rejects 8-digit hex #1a2b3cff
+  PASS  rejects hex in TSX inline style
+  PASS  rejects third-party font in the Drupal custom theme
+  PASS  rejects hex in the Drupal custom theme
+  PASS  failure names the file
+== TC-T04a-22 asset check accepts legitimate use and ignores out-of-scope files (no false positives)
+  PASS  accepts same-origin font url(/fonts/inter.woff2)
+  PASS  accepts CSS variables
+  PASS  accepts in-page anchor href="#main-content"
+  PASS  accepts HTML entity &#39; (not a colour)
+  PASS  accepts an external documentation link (not an asset)
+  PASS  ignores docs/ (fonts.googleapis.com in Markdown is out of scope)
+  PASS  ignores services/engine files
+  PASS  hex inside the tokens file (path read from the script) is accepted
+== TC-T04a-23 scripts/quality.sh: static contract (AC5)
+  PASS  quality.sh exists and is executable
+  PASS  quality.sh passes bash -n
+  PASS  starts with a bash shebang
+  PASS  runs pre-commit, branch, commit range, exceptions, assets, coverage gate
+  PASS  component manifests keyed: engine pyproject, drupal composer.json, web package.json
+  PASS  commit range against origin/main
+  PASS  prints PASS, FAIL and SKIP and honours QUALITY_RUNNER and QUALITY_STEPS
+  PASS  no silent swallowing: no '|| true' on a code line
+== TC-T04a-24 quality.sh with fake steps: PASS, FAIL, SKIP and the exit code (AC5)
+  PASS  all steps pass: exit 0 and a PASS line for the step
+  PASS  manifest absent: SKIP (its command would have failed), exit 0, no FAIL line
+  PASS  one failing step: exit non-zero, FAIL shown, later steps still run
+  PASS  tool missing with manifest present: FAIL (not SKIP), exit non-zero
+  PASS  manifest present and the command fails: FAIL, exit non-zero
+  PASS  mixed run: exit non-zero although some steps pass and some SKIP
+  PASS  summary line has PASS, FAIL and SKIP counts
+  PASS  only SKIP steps: exit 0 (T08 asserts expected components, not this script)
+  PASS  unknown QUALITY_RUNNER rejected with a message naming the runner (native or ddev)
+== TC-T04a-25 .ddev/commands/host/quality wrapper (AC5; ddev quality itself is TC-48)
+  FAIL  wrapper exists and is executable
+        
+  FAIL  wrapper has a bash shebang
+        head: cannot open '.ddev/commands/host/quality' for reading: No such file or directory
+  FAIL  wrapper execs scripts/quality.sh with the arguments
+        
+  FAIL  wrapper has the DDEV '## Description' header
+        
+  FAIL  wrapper propagates failure (fake FAIL step: non-zero exit, FAIL printed)
+        
+  FAIL  wrapper propagates success (fake PASS step: exit 0)
+        
+== TC-T04a-26 script tests, typing proxy and Python 3.10 compatibility (AC3, verification 'untyped Python')
+  FAIL  scripts/tests/test_check_commit_msg.py exists with at least 3 tests
+        
+  FAIL  scripts/tests/test_check_branch_name.py exists with at least 3 tests
+        
+  FAIL  scripts/tests/test_exceptions_report.py exists with at least 3 tests
+        
+  FAIL  scripts/tests/test_coverage_gate.py exists with at least 3 tests
+        
+  FAIL  scripts/tests/test_check_assets.py exists with at least 3 tests
+        
+  FAIL  python3 -m unittest discover -s scripts/tests passes
+        Traceback (most recent call last):
+          File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+            return _run_code(code, main_globals, None,
+          File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+            exec(code, run_globals)
+          File "/usr/lib/python3.10/unittest/__main__.py", line 18, in <module>
+  FAIL  all scripts/*.py compile on this Python (Python 3.10.12)
+        
+  PASS  typing proxy self-test: untyped file flagged, typed file clean
+  FAIL  every function in scripts/ and .claude/hooks/ is fully annotated (proxy for mypy --strict)
+        
+== TC-T04a-27 baseline: project-authored Markdown has no line over 100 characters (AC6, verification 'long Markdown line')
+  PASS  checker self-test: prose line flagged; table, code, heading and bare URL exempt
+  FAIL  all project-authored Markdown (excluding docs/TASKS.md and evidence) within 100 characters
+        .claude/agents/developer.md:3 (268)
+        .claude/agents/developer.md:12 (199)
+        .claude/agents/solution-architect.md:3 (326)
+        .claude/agents/solution-architect.md:12 (135)
+        .claude/agents/technical-architect.md:3 (310)
+        .claude/agents/technical-architect.md:12 (140)
+  FAIL  the T04a documents themselves are within 100 characters
+        Traceback (most recent call last):
+          File "<stdin>", line 5, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'docs/standards/CODING_STANDARDS.md'
+== TC-T04a-28 exclusions carry a ticket; TASKS.md exclusion cites T32 (AC6, interim Q1)
+  PASS  T32 is a heading in docs/TASKS.md
+  FAIL  markdownlint config excludes docs/TASKS.md on a line citing T32
+        grep: .markdownlint-cli2.yaml: No such file or directory
+  FAIL  markdownlint config excludes docs/tests/*/evidence on a line citing a ticket
+        grep: .markdownlint-cli2.yaml: No such file or directory
+  FAIL  ruff.toml excludes evidence on a line citing a ticket
+        grep: ruff.toml: No such file or directory
+  FAIL  the TASKS.md exclusion cites T32 specifically
+        grep: .markdownlint-cli2.yaml: No such file or directory
+  FAIL  markdownlint 'ignores': only TASKS.md and evidence, each with a ticket
+        Traceback (most recent call last):
+          File "<stdin>", line 3, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: '.markdownlint-cli2.yaml'
+== TC-T04a-29 exceptions report on the real tree (AC6)
+  FAIL  exceptions_report.py exits 0 on the real tree and writes a non-empty report
+        
+  FAIL  independent scan: every suppression cites a ticket; report counts equal the scan
+        independent counts: {'noqa': 2, '@phpstan-ignore': 2}
+        untagged: docs/tasks/T04a/plan.md:50: @phpstan-ignore
+        untagged: docs/tasks/T04a/plan.md:112: noqa
+        report lacks count 2 for noqa
+        report lacks count 2 for @phpstan-ignore
+  FAIL  report lists the TASKS.md exclusion and its ticket T32
+        
+== TC-T04a-30 helper regression after the baseline cleanup (T01 guard, T03 and T04 checks behave the same)
+  PASS  T01 guard unit tests pass
+  PASS  T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)
+  PASS  T03 run-checks.sh: exit 0, same PASS count as at close
+== TC-T04a-31 optional linters on the tree (AC3, C4); SKIP only when the tool is absent
+  SKIP  ruff check (lint): ruff not installed
+  SKIP  ruff format --check: ruff not installed
+  SKIP  mypy --strict scripts and .claude/hooks (py310): mypy not installed
+  SKIP  shellcheck on tracked shell scripts: shellcheck not installed
+  SKIP  yamllint on the tree: yamllint not installed
+  SKIP  markdownlint-cli2: markdownlint-cli2 not installed
+  SKIP  pre-commit: .tools/pre-commit not installed
+== TC-T04a-32 documentation and traceability (C5)
+  FAIL  scripts/README.md lists quality.sh and the five check scripts
+        missing in scripts/README.md: quality\.sh
+  PASS  .ddev/README.md describes the quality command and that it works from T05
+  FAIL  CLAUDE.md commands table lists scripts/quality.sh
+        
+  PASS  TRACEABILITY R-12 row names T04a
+  PASS  TRACEABILITY NFR-18 row names T04a (coverage thresholds)
+== TC-T04a-33 simulation-only, no secrets, .env.example unchanged (C6, SIM)
+  FAIL  no broker vendor names or trading hostnames in the T04a files
+        
+  FAIL  no secret patterns in the T04a files
+        
+  FAIL  .env.example unchanged against main (no new variables)
+        
+  PASS  check-names.sh clean
+== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]
+  PASS  [at-close] plan.md status Approved
+  FAIL  [at-close] run-checks.sh and test-cases.md committed before the standards, checklist and scripts (git order)
+        design not committed
+  FAIL  [at-close] technical-architect review exists and is Approved
+        
+  FAIL  [at-close] design commit message starts with T04a:
+        
+== TC-T04a-35 no component scaffolds yet (plan non-goal; makes the SKIP rule real) [snapshot]
+  PASS  [at-close] services/engine/pyproject.toml is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] apps/drupal/composer.json is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] apps/web/package.json is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] .ddev/config.yaml is absent (arrives in T05, T13 or T21)
+== TC-T04a-36 to 47 owner-run (run: docs/tests/T04a/run-checks.sh --owner)
+  BLOCKED  TC-T04a-36 bootstrap-dev.sh in a clean copy installs pre-commit and both hook types; versions captured (network)
+  BLOCKED  TC-T04a-37 pre-commit run --all-files: zero violations on the clean tree (network)
+  BLOCKED  TC-T04a-38 scripts/quality.sh exits 0 on the clean tree with component steps SKIP (network)
+  BLOCKED  TC-T04a-39 to 45 rejection demos with controls: untyped Python, ruff, long Markdown, shellcheck, YAML, hadolint, Spectral
+  BLOCKED  TC-T04a-46 bad commit message refused by the installed hook; TC-T04a-47 bad branch name fails quality.sh
+== TC-T04a-48 to 52 deferred or manual
+  BLOCKED  TC-T04a-48 ddev quality (needs .ddev/config.yaml from T05 and DDEV)
+  BLOCKED  TC-T04a-49 bad PHP style rejected by phpcs and PHPStan (needs T05 Composer tools; custom modules from T09)
+  BLOCKED  TC-T04a-50 ESLint error, tsc --noEmit failure, Prettier failure (needs the T21 scaffold)
+  BLOCKED  TC-T04a-51 CI coverage drop, CI branch-name check, real Cobertura attribute names (needs T08, T09, T13, T21)
+  BLOCKED  TC-T04a-52 manual review of ten standards rules against the checklist (tester, evidence manual-review.md)
+
+NOTE: mode agent: 282 checks executed, 7 SKIP (optional tools, listed above), 10 BLOCKED (owner-run or deferred, listed above).
+RESULT: ONE OR MORE CHECKS FAILED
