@@ -9,23 +9,41 @@
 
 ## How to run
 
-- Automated cases: `docs/tests/T02/run-checks.sh 2>&1 | tee docs/tests/T02/evidence/run-checks.txt`. Each automated case maps to the block headed `== TC-T02-nn` in the script output. Copy that block to `docs/tests/T02/evidence/TC-T02-nn.txt`. The script exits non-zero if any check fails. A missing document fails every dependent check, so nothing passes vacuously.
-- Manual cases (marked "manual"): performed by the tester at execution. Notes and command output go in `evidence/TC-T02-nn.txt`.
-- Cases were designed from the criteria and plan before the documents existed. The script is expected to fail until the solution-architect writes them.
-- Assumed layout (from the plan): `##` headings; FR/NFR, risks, cost map, open questions and naming checks as Markdown tables (FR/NFR header has Parent, Priority, Target, Verifying task; risk header has Likelihood, Impact, Owner, Mitigation, Task; cost header has a Limit column); ADR files `docs/adr/ADR-000N-short-title.md`; naming.md has one line `Outcome: ...`. If the author uses another layout, raise a defect about the layout and change the script only through a recorded change, never to hide a content gap.
-- `markdownlint` is "if available" per the plan. If absent the script prints SKIP and the report records it.
+- Automated cases: `docs/tests/T02/run-checks.sh 2>&1 | tee docs/tests/T02/evidence/run-checks.txt`.
+  Each automated case maps to the block headed `== TC-T02-nn` in the script output. Copy that block
+  to `docs/tests/T02/evidence/TC-T02-nn.txt`. The script exits non-zero if any check fails. A
+  missing document fails every dependent check, so nothing passes vacuously.
+- Manual cases (marked "manual"): performed by the tester at execution. Notes and command output go
+  in `evidence/TC-T02-nn.txt`.
+- Cases were designed from the criteria and plan before the documents existed. The script is
+  expected to fail until the solution-architect writes them.
+- Assumed layout (from the plan): `##` headings; FR/NFR, risks, cost map, open questions and naming
+  checks as Markdown tables (FR/NFR header has Parent, Priority, Target, Verifying task; risk header
+  has Likelihood, Impact, Owner, Mitigation, Task; cost header has a Limit column); ADR files
+  `docs/adr/ADR-000N-short-title.md`; naming.md has one line `Outcome: ...`. If the author uses
+  another layout, raise a defect about the layout and change the script only through a recorded
+  change, never to hide a content gap.
+- `markdownlint` is "if available" per the plan. If absent the script prints SKIP and the report
+  records it.
 
 ## Acceptance criteria (labels used below)
 
-- AC1: `solution-architecture.md` contains context diagram, container diagram, data flow, scope and non-goals, assumptions, glossary (NSE terms, scoring terms)
-- AC2: functional and non-functional requirements refined from section 2, each with ID, priority and measurable target
-- AC3: risk register with owner and mitigation for the seven named risks (data source blocking, LLM wrong or injected output, free-tier limits changing, Pantheon sleep, GitHub cron delay, SEBI exposure, secrets leakage)
+- AC1: `solution-architecture.md` contains context diagram, container diagram, data flow, scope and
+  non-goals, assumptions, glossary (NSE terms, scoring terms)
+- AC2: functional and non-functional requirements refined from section 2, each with ID, priority and
+  measurable target
+- AC3: risk register with owner and mitigation for the seven named risks (data source blocking, LLM
+  wrong or injected output, free-tier limits changing, Pantheon sleep, GitHub cron delay, SEBI
+  exposure, secrets leakage)
 - AC4: cost map with each component free, free-with-limits or paid, and the limit that matters
-- AC5: ADRs for headless Drupal plus Next.js, engine on GitHub Actions, Postgres system of record, monorepo subtree deploy to Pantheon, authentication, no live trading
-- AC6: branding check in `naming.md`; outcome keep, internal codename only, or rename (if renamed, section 0 updated and grep clean)
+- AC5: ADRs for headless Drupal plus Next.js, engine on GitHub Actions, Postgres system of record,
+  monorepo subtree deploy to Pantheon, authentication, no live trading
+- AC6: branding check in `naming.md`; outcome keep, internal codename only, or rename (if renamed,
+  section 0 updated and grep clean)
 - AC7: open questions list; each resolved or ticketed
 - AC8: technical-architect sign-off recorded in the document
-- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh` and markdown checks, since CI arrives in T08)
+- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh` and
+  markdown checks, since CI arrives in T08)
 - PX: plan extras (cited claims; parent R-ID on every FR/NFR; TRACEABILITY refinement)
 - SIM: CLAUDE.md simulation-only rule (no broker SDKs or trading domains)
 
@@ -51,13 +69,21 @@
 | PX: claims cited with URL and date, or unverified | TC-T02-21, 34 |
 | SIM: no broker names or trading domains | TC-T02-23 |
 
-Plan extras mapped: parent R-ID, MoSCoW, target and verifying task on every FR/NFR (04, 05, 07); seven named risks plus LLM cost and Vercel Hobby, each with owner and mitigation (08, 09, 10); cost map class for each component (11, 12); six ADRs with Status, Date, Context, Decision, Alternatives considered, Consequences (14); naming.md five checks plus exactly one outcome (17, 18); Mermaid present and no external hosts (02, 22, 32); `check-names.sh` (19); no broker names (23); TRACEABILITY refined IDs for R-01..R-12 (26); open questions (24); sign-off (25).
+Plan extras mapped: parent R-ID, MoSCoW, target and verifying task on every FR/NFR (04, 05, 07);
+seven named risks plus LLM cost and Vercel Hobby, each with owner and mitigation (08, 09, 10); cost
+map class for each component (11, 12); six ADRs with Status, Date, Context, Decision, Alternatives
+considered, Consequences (14); naming.md five checks plus exactly one outcome (17, 18); Mermaid
+present and no external hosts (02, 22, 32); `check-names.sh` (19); no broker names (23);
+TRACEABILITY refined IDs for R-01..R-12 (26); open questions (24); sign-off (25).
 
 Manual cases: 07, 10, 12, 20, 31, 32, 33, 34, 35. All others are automated.
 
 ## Cases
 
-Standard steps for automated cases: (1) `docs/tests/T02/run-checks.sh 2>&1 | tee docs/tests/T02/evidence/run-checks.txt`; (2) copy the `== TC-T02-nn` block to `evidence/TC-T02-nn.txt`. Standard precondition: T02 documents written and reviewed, branch `task/T02-solution-architecture`, run from the repo root.
+Standard steps for automated cases: (1)
+`docs/tests/T02/run-checks.sh 2>&1 | tee docs/tests/T02/evidence/run-checks.txt`; (2) copy the
+`== TC-T02-nn` block to `evidence/TC-T02-nn.txt`. Standard precondition: T02 documents written and
+reviewed, branch `task/T02-solution-architecture`, run from the repo root.
 
 ### TC-T02-01: Required sections present in solution-architecture.md
 
@@ -586,7 +612,8 @@ Standard steps for automated cases: (1) `docs/tests/T02/run-checks.sh 2>&1 | tee
 
 ## Change log
 
-Test-script corrections after the technical-architect review (`docs/tasks/T02/review.md`, findings 13 to 15). These are script defects, not document changes. No content check was loosened.
+Test-script corrections after the technical-architect review (`docs/tasks/T02/review.md`, findings
+13 to 15). These are script defects, not document changes. No content check was loosened.
 
 | Date | Script check | Defect | Correction |
 |---|---|---|---|

@@ -181,9 +181,33 @@ tests written only for coverage. Gating on line rate keeps the number comparable
   that was later rewritten. Rewriting a pushed task branch (force-push) after evidence was
   recorded needs the evidence to be re-pointed.
 
+### D-3 Addendum 2026-11-01 (tooling review, `docs/tasks/T04a/review.md` finding 2)
+
+This addendum carries out the intent of D-3, "history already on `main` is never re-checked".
+**No rule changes.**
+
+- **Fixed boundary.** The commit-message rule applies only to commits after
+  `RULE_START = 7689ec5774ed54ff9e144e9a99c289b9998e6632`. That is the T04 close commit, the
+  parent of the first T04a commit.
+- **Range check.** `check_range` always excludes `^RULE_START`, in addition to the PR base. So
+  a range that reaches back past T04 never re-checks older subjects.
+- **CI (T08).** Checkout needs `fetch-depth: 0`, so that `RULE_START` and `origin/main` are
+  present for the range check.
+- **No history rewrite.** Commits at or before `RULE_START` are never reworded or rebased,
+  because evidence cites their SHAs. The same applies to any pushed commit that evidence cites
+  (D-3 consequences).
+- **Recorded fix.** The main session reworded the unpushed tip commit `ddad7b7` to `d76614a`.
+  Its subject was 75 characters, over the 72 limit. The tree is unchanged. The commit was not
+  pushed and no evidence cited it, so this rewrite is allowed under D-3. Evidence must cite
+  `d76614a`, not `ddad7b7`.
+
 ---
 
 ## D-4 (question 5): PHPStan level and the exception ticket format
+
+> **Partly superseded.** The ticket placement and the examples in this section are superseded
+> by "Addendum 2026-11-01, review-standards finding 1" below. The PHPStan level, the no-baseline
+> rule, the ID formats and the matching regex still stand.
 
 **Decision:**
 
@@ -237,6 +261,90 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 
 ---
 
+## D-4 Addendum 2026-11-01, review-standards finding 1: suppression and ticket forms
+
+**Why:** the original D-4 examples put the ticket straight after the suppression, with no
+separator (for example `# noqa: E501  T32: reason`). Several tools then reject or silently drop
+the suppression (see `docs/tasks/T04a/review-standards.md`, finding 1):
+
+- mypy accepts only `[codes]` and an optional `# comment` after `type: ignore`. Anything else is
+  an "invalid type: ignore comment" error
+  ([mypy fastparse.py](https://github.com/python/mypy/blob/master/mypy/fastparse.py), checked
+  2026-11-01).
+- ruff reads `T32` as a rule code. The following `:` makes the whole `noqa` directive invalid,
+  and ruff drops it with a warning
+  ([ruff noqa.rs](https://github.com/astral-sh/ruff/blob/main/crates/ruff_linter/src/noqa.rs),
+  read 2026-11-01; inference from the source).
+- yamllint matches its directives with a pattern that allows only whitespace after the rule
+  list. Any trailing text, even `# T05: reason`, makes yamllint **silently ignore** the
+  directive
+  ([yamllint linter.py](https://github.com/adrienverge/yamllint/blob/master/yamllint/linter.py),
+  checked 2026-11-01).
+
+**Decision:** the ticket stays **on the same line**, but always in the **tool's own comment or
+description slot**, after the tool's separator. Never put it as bare text after the rule list.
+The ticket regex `\b(T\d{2}a?|DEF-\d{3}): \S` and the ID-existence check are unchanged.
+
+### Forms per tool
+
+"Verified" means confirmed in the tool's documentation or source on the date shown. "Verify in
+owner-run TC" means it must be confirmed by a fixture run against the real tool (owner-run cases
+TC-T04a-36 onward, or the named later task) before anyone relies on it.
+
+| Tool | Required form (the ticket is in the comment slot) | Separator | Status and source |
+|---|---|---|---|
+| ruff | `x = call()  # noqa: S603  # T20: argument list is fixed` | second `#` | Verified: the [ruff docs](https://docs.astral.sh/ruff/linter/#error-suppression) say the code list "ends at the last valid code", and a trailing `#` comment is allowed; ruff `noqa.rs` test `# noqa: F401 # Some comment` (checked 2026-11-01) |
+| mypy | `import yaml  # type: ignore[import-untyped]  # T13: stubs come with the engine manifest` | second `#` | Verified: `fastparse.py` pattern `\s*\[([^]#]*)\]\s*(#.*)?$` (checked 2026-11-01) |
+| coverage.py | `if debug:  # pragma: no cover  # T13: reason` | second `#` | Verify in owner-run TC (T13, first coverage run). The default exclude regex is believed to match anywhere in the line; not checked in this session |
+| shellcheck | `# shellcheck disable=SC2034 # T05: read by the sourcing DDEV command` | second `#` | Verified: documented trailing-comment form ([ShellCheck wiki, Directive](https://github.com/koalaman/shellcheck/wiki/Directive), checked 2026-11-01) |
+| hadolint | `# hadolint ignore=DL3008 # T06: distro pins the version` | second `#` | Verified from source: the pragma parser consumes an optional `# ...` comment after the rule list ([hadolint Pragma.hs](https://github.com/hadolint/hadolint/blob/master/src/Hadolint/Pragma.hs), checked 2026-11-01; inference from the source). Verify in owner-run TC |
+| ESLint | `// eslint-disable-next-line no-console -- T29: replaced by the server logger` | `--` | Verified: [ESLint rule config, comment descriptions](https://eslint.org/docs/latest/use/configure/rules) (checked 2026-11-01) |
+| TypeScript | `// @ts-expect-error T21: upstream type is wrong, issue linked in the plan` | space after the directive | Verify in T21 (deferred TC). `@ts-ignore` stays forbidden |
+| PHPStan | `// @phpstan-ignore method.notFound (T09: core stub missing)` | parentheses | Verified: [PHPStan ignoring errors](https://phpstan.org/user-guide/ignoring-errors) (checked 2026-11-01, original D-4) |
+| phpcs | `// phpcs:ignore Drupal.Commenting.FunctionComment.Missing -- T09: reason` | `--` | Partly verified: `--` notes are documented for `phpcs:ignoreFile`, `phpcs:disable` and `phpcs:enable` from PHP_CodeSniffer 3.2.0 ([PHPCS Advanced Usage](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Advanced-Usage), checked 2026-11-01). `phpcs:ignore` with `--` is not shown there. Verify in T05 or T09 (deferred TC) |
+| markdownlint | `<!-- markdownlint-disable-next-line MD013 --> <!-- T32: owner wording kept -->` | a separate HTML comment on the same line | Verify in owner-run TC. The README does not document text inside the directive. From the source, unknown words seem to be ignored, but a separate comment does not depend on that |
+| yamllint | **No inline disables.** Use a per-rule `ignore:` path list in `.yamllint.yaml`, with the ticket as a YAML comment on the path line: `- path/file.yaml  # T08: reason` | YAML `#` on the config line | Inline directives cannot hold a ticket: trailing text silently disables the directive (`linter.py`, verified above). Per-rule `ignore:` support: verify in owner-run TC |
+| Spectral | **No inline form.** Use `overrides:` in `.spectral.yaml` (`files:` may use a JSON pointer, for example `openapi.yaml#/paths`, and set the rule to `"off"`), with `# Txx: reason` on the rule line | YAML `#` on the config line | Verified: [Spectral overrides](https://github.com/stoplightio/spectral/blob/develop/docs/guides/4d-overrides.md) (checked 2026-11-01). That page does not mention an inline suppression |
+| Config path excludes (ruff `extend-exclude`, mypy `exclude`, markdownlint `ignores`, coverage `omit`) | `- "docs/TASKS.md"  # T32: owner document` | the format's own comment (`#` in YAML, TOML and INI) | Already in use in `.markdownlint-cli2.yaml` and `ruff.toml`. JSON has no comments, so `quality/coverage-thresholds.json` must not hold excludes |
+
+### Scan rule for `exceptions_report.py`
+
+1. Find every suppression token (the existing list), plus every config exclude in the files the
+   report already scans.
+2. Take the text **after the tool's separator** from the table above. A ticket elsewhere on the
+   line does not count. The checks per tool:
+   - ruff, mypy, coverage, shellcheck and hadolint: after the directive and its code list, `#`
+     then optional spaces, then the ticket. For example, ruff:
+     `#\s*noqa:\s*[A-Z]+[0-9]+(?:[,\s]+[A-Z]+[0-9]+)*\s+#\s*(T\d{2}a?|DEF-\d{3}): \S`.
+   - ESLint and phpcs: `--` then spaces, then the ticket.
+   - PHPStan: the ticket inside the `( ... )` after the identifier.
+   - TypeScript: the ticket after `@ts-expect-error` and a space.
+   - markdownlint: the ticket in a separate `<!-- ... -->` on the same line.
+   - Config excludes: the ticket in the format's comment on the same line.
+3. **FAIL**, naming the file and line, when:
+   - there is no ticket;
+   - the ticket is in the bare form, for example `# noqa: E501  T32: reason`;
+   - the ID does not exist in `docs/TASKS.md` or `docs/tests/defects.md`;
+   - a `noqa` has no code;
+   - an `eslint-disable` names no rule;
+   - an inline `yamllint disable` or `yamllint disable-line` appears at all;
+   - `@ts-ignore` is used.
+4. Count per tool and per ticket, as before.
+
+**Consequences:**
+
+- `docs/standards/CODING_STANDARDS.md` ("Exception policy" and its examples) must use these
+  forms. The fixtures that use the bare form must be updated: `scripts/tests/` (for example
+  `test_exceptions_report.py` lines 42 to 43) and `docs/tests/T04a/run-checks.sh` (line 433).
+  Add a negative fixture that proves the bare form now FAILs.
+- The owner-run cases add one real-tool fixture per row that is still marked "verify". Each
+  fixture shows that the suppression takes effect, not only that the report accepts it.
+  Deferred rows (TypeScript, phpcs) are re-run in T21 and in T05 or T09.
+- If a "verify" row fails against the real tool, the form is replaced through a new addendum,
+  not by local workarounds.
+
+---
+
 ## Summary
 
 | ID | Question | Decision |
@@ -245,7 +353,7 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 | D-1 | Coverage | Line floors: engine 85%, `scoring` and `risk` 90% (NFR-18), Drupal custom 70% provisional (Unit plus Kernel, T09 measures), web `lib/` and `components/` 80%; branch on and reported, gated later only if T16 decides; floors only go up |
 | D-2 | mypy scope | Strict for `scripts/`, `.claude/hooks/`, `meridian_engine` (per invocation, not per module); engine tests non-strict checked; `docs/tests` helpers ruff only; py310 target for stdlib paths |
 | D-3 | Commits | `Txx: ` subject at most 72 characters; `Merge ` and `Revert "` allowed; `fixup!` fails; PR range only; `main` uses merge commits only (squash and rebase disabled) to keep per-task commits and SHAs |
-| D-4 | PHPStan and exceptions | Level 6, no baseline, inline identifier ignores with a reason; ticket format `Txx:` or `DEF-nnn:` plus a reason on the same line; the ID must exist |
+| D-4 | PHPStan and exceptions | Level 6, no baseline, inline identifier ignores with a reason; ticket format `Txx:` or `DEF-nnn:` plus a reason on the same line; the ID must exist. **Addendum 2026-11-01:** the ticket goes in the tool's own comment slot (`# Txx:` after `noqa` or `type: ignore`, `-- Txx:` for ESLint and phpcs); no inline yamllint disables |
 | Q6 | D-6 | Main session's interim choice, pending owner: deferred cases stay Blocked with per-case owner acceptance |
 
 ## Open questions
@@ -257,3 +365,4 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 | OQ-T04a-3 | Cobertura attribute names in coverage.py, PHPUnit and Vitest XML | developer | T09, T13, T21 |
 | OQ-T04a-4 | Branch-coverage floor for `scoring` and `risk` | solution-architect | T16 |
 | OQ-T04a-5 | Raise PHPStan to level 8 | technical-architect | T12 review |
+| OQ-T04a-6 | Confirm the "verify" rows of the D-4 addendum against the real tools (coverage, hadolint, markdownlint, yamllint per-rule `ignore:`; TypeScript and phpcs deferred) | tester (owner-run) | T04a owner-run TCs; T05/T09; T21 |

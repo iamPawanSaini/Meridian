@@ -47,9 +47,14 @@
 
 Totals: 32 pass, 0 fail, 0 blocked, 0 not run.
 
-Script totals: full mode 124 checks, 124 PASS, 0 FAIL (`evidence/run-checks.txt`). `--regression` mode 118 invariant checks executed, 6 at-close checks excluded (TC-18 x1, TC-21 x3, TC-25 x2), all PASS (`evidence/run-checks-regression.txt`). Clean clone gives the same results. The design-time run (117 FAIL, 9 PASS, `evidence/design-time-run.txt`) shows the checks failed before authoring. No script or helper changed after 418ad25.
+Script totals: full mode 124 checks, 124 PASS, 0 FAIL (`evidence/run-checks.txt`). `--regression`
+mode 118 invariant checks executed, 6 at-close checks excluded (TC-18 x1, TC-21 x3, TC-25 x2), all
+PASS (`evidence/run-checks-regression.txt`). Clean clone gives the same results. The design-time run
+(117 FAIL, 9 PASS, `evidence/design-time-run.txt`) shows the checks failed before authoring. No
+script or helper changed after 418ad25.
 
-SKIPs (optional tools, not Blocked): `pre-commit` (`.tools/pre-commit` missing) and `markdownlint` not installed, both in TC-T04-24 and both in the clean clone.
+SKIPs (optional tools, not Blocked): `pre-commit` (`.tools/pre-commit` missing) and `markdownlint`
+not installed, both in TC-T04-24 and both in the clean clone.
 
 ## Defects raised
 
@@ -59,16 +64,29 @@ SKIPs (optional tools, not Blocked): `pre-commit` (`.tools/pre-commit` missing) 
 
 ## Blocked at close
 
-None. No case is Blocked, so no owner acceptance is needed and decision D-6 (pending owner confirmation) does not apply to this report. Nothing here rests on D-6.
+None. No case is Blocked, so no owner acceptance is needed and decision D-6 (pending owner
+confirmation) does not apply to this report. Nothing here rests on D-6.
 
 ## Coverage notes
 
-- Not covered by a tool: pre-commit hooks (secret scan, EOF/whitespace) and markdownlint on the T04 documents did not run. The script's own secret-pattern grep, marker grep and link check passed. The owner or CI should run `.tools/pre-commit run --all-files` after `scripts/bootstrap-dev.sh`; this is a re-run for C4, not a Blocked case under the case wording ("pre-commit and markdownlint clean if installed").
-- Content quality of the plan is tested structurally by the script and by sampling (TC-26, 27, 28). Rows beyond the 10 sampled and 17 spot-checked were checked only for structure, task and level.
-- Observations for later plans (recorded in `evidence/manual-review.md`, not defects): T27 failure-injection runs, T30 XSS/CSRF probing and the T26 keyboard-only walkthrough are not named in the master plan; the T30, T26 and T27 plans must specify the method. `docs/TASKS.md` T09 lists three roles while FR-16 and T03 fix four; the T09 plan must use four.
-- Tool choices (Schemathesis, openapi-core, pytest-socket, web-vitals and others) are unverified as installable; they are confirmed by T04a and T08 as the plan says.
-- The at-close checks (TC-18, TC-21, TC-25 D-6 wording) are true only at this commit; later runs should use `--regression`.
+- Not covered by a tool: pre-commit hooks (secret scan, EOF/whitespace) and markdownlint on the T04
+  documents did not run. The script's own secret-pattern grep, marker grep and link check passed.
+  The owner or CI should run `.tools/pre-commit run --all-files` after `scripts/bootstrap-dev.sh`;
+  this is a re-run for C4, not a Blocked case under the case wording ("pre-commit and markdownlint
+  clean if installed").
+- Content quality of the plan is tested structurally by the script and by sampling (TC-26, 27, 28).
+  Rows beyond the 10 sampled and 17 spot-checked were checked only for structure, task and level.
+- Observations for later plans (recorded in `evidence/manual-review.md`, not defects): T27
+  failure-injection runs, T30 XSS/CSRF probing and the T26 keyboard-only walkthrough are not named
+  in the master plan; the T30, T26 and T27 plans must specify the method. `docs/TASKS.md` T09 lists
+  three roles while FR-16 and T03 fix four; the T09 plan must use four.
+- Tool choices (Schemathesis, openapi-core, pytest-socket, web-vitals and others) are unverified as
+  installable; they are confirmed by T04a and T08 as the plan says.
+- The at-close checks (TC-18, TC-21, TC-25 D-6 wording) are true only at this commit; later runs
+  should use `--regression`.
 
 ## Sign-off
 
-Signed off: all 32 cases pass with stored evidence, no case is Fail or Blocked, and no defect is open. Optional tool SKIPs (pre-commit, markdownlint) are listed above. Tester (execution session), 2026-11-01.
+Signed off: all 32 cases pass with stored evidence, no case is Fail or Blocked, and no defect is
+open. Optional tool SKIPs (pre-commit, markdownlint) are listed above. Tester (execution session),
+2026-11-01.

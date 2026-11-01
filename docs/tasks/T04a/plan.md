@@ -13,7 +13,8 @@ Approved by main session on owner's instruction, 2026-11-01.
 ## Goal
 
 Write the coding standards once and enforce them by machine. One script, `scripts/quality.sh`,
-is the only implementation. `ddev quality`, pre-commit and CI (T08) all call it. Only Phase 1 is
+is the only implementation. `ddev quality` and CI (T08) call it; it runs the pre-commit hooks as
+its first step (the hooks do not call it). Only Phase 1 is
 in scope. `.ddev/config.yaml` arrives in T05, so the `ddev quality` wrapper is added now but is
 shown working in T05 (see "Verification split").
 

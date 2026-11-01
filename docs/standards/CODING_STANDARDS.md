@@ -28,7 +28,8 @@ Meridian never places real orders (see `CLAUDE.md`). In every language:
 
 - You must not add a broker SDK, broker API client or order-placement code.
 - You must not reference a broker trading domain, not even in tests, fixtures or config.
-- The static broker check (FR-11, built in T08 and T30) and the review checklist enforce this.
+- The static broker check (FR-11) and the review checklist enforce this. The check is built in
+  T18, runs in CI from T08, and is repeated in T30 and T33.
 - A request that would add live-trading capability stops the task and goes to the owner.
 
 ## Cross-cutting rules
@@ -47,14 +48,17 @@ Use the names in section 0 of `docs/TASKS.md` everywhere:
 | Workflows | `ci.yml`, `daily-run.yml`, `deploy-drupal.yml` |
 
 - `scripts/check-names.sh` runs as a pre-commit hook and fails on the old placeholder names.
-- New environment variables use the `MERIDIAN_` prefix, unless a platform fixes the name
-  (for example `ANTHROPIC_API_KEY`, `TERMINUS_MACHINE_TOKEN`).
+- Environment variable names follow the D7 matrix in the technical design and `.env.example`.
+  Names already in D7 keep their names. New engine and Drupal variables use the `MERIDIAN_`
+  prefix. New Next.js server variables use `MERIDIAN_WEB_`, or `DRUPAL_` for the Drupal read
+  and login clients, as D7 does. A platform-fixed name is kept as is (for example
+  `ANTHROPIC_API_KEY`, `TERMINUS_MACHINE_TOKEN`).
 - Identifiers follow the language convention:
 
 | Language | Modules and files | Types and classes | Functions and variables | Constants |
 |---|---|---|---|---|
 | Python | `snake_case.py` | `PascalCase` | `snake_case` | `UPPER_SNAKE` |
-| PHP (Drupal) | PSR-4, `src/Foo/BarService.php`; hooks in `meridian_core.module` | `PascalCase` | `camelCase` methods, `snake_case` hooks and machine names | `UPPER_SNAKE` |
+| PHP (Drupal) | PSR-4, `src/Foo/BarService.php`; hooks as `#[Hook]` classes in `src/Hook/` | `PascalCase` | `camelCase` methods, `snake_case` hooks and machine names | `UPPER_SNAKE` |
 | TypeScript | `kebab-case.ts`; React components `PascalCase.tsx` | `PascalCase` | `camelCase` | `UPPER_SNAKE` |
 | SQL | `snake_case` tables and columns | n/a | n/a | n/a |
 | Shell | `kebab-case.sh` | n/a | `snake_case` functions and locals | `UPPER_SNAKE` env vars |
@@ -73,7 +77,8 @@ Use the names in section 0 of `docs/TASKS.md` everywhere:
   (`raise ... from err`, `new FooException($msg, 0, $previous)`, `new Error(msg, { cause })`).
 - Fail-soft only where a requirement says so, and log the reason:
   - one symbol failing does not stop the run (FR-02);
-  - any LLM failure (malformed, empty, timeout, API error) is a veto with the reason stored
+  - any LLM failure (malformed, empty, timeout, API error, schema violation) is a veto with the
+    reason stored
     (FR-05 to FR-07);
   - a failed publish marks the run `published: partial` and raises an alert (FR-25).
 - Errors that reach a user or an API client never contain a stack trace, a secret, a token
@@ -167,6 +172,7 @@ allowlist.
   requests only (T21a adds a Playwright test).
 - Colours come only from the tokens file (T21a). Component code has no hard-coded hex value.
 - `scripts/check_assets.py` enforces the third-party host and hex rules in `scripts/quality.sh`.
+- T21a adds the details: font subsets and weights, tabular figures, the rupee glyph and the CSP.
 
 ## Language standards
 
@@ -186,8 +192,11 @@ Contributed code and core are never edited; patches go through Composer.
   ignore, fails.
 - Every PHP file starts with `declare(strict_types=1);`. Parameters, returns and properties are
   typed.
-- Use dependency injection in services, controllers, forms and plugins. `\Drupal::` static
-  calls are allowed only in procedural hooks and `.module` or `.install` files.
+- Use dependency injection in services, controllers, forms, plugins and hooks. Implement hooks
+  as methods with the `#[Hook]` attribute on autowired classes in `src/Hook/` (Drupal 11.1 and
+  later), with constructor injection. Keep procedural code only for install and update hooks
+  in `.install` files, and for any hook not yet supported as OOP. `\Drupal::` static calls are
+  allowed only in those procedural files.
 - Use the Entity API and entity queries, with `accessCheck()` set explicitly. Raw database
   queries use the Database API with placeholders, never string concatenation.
 - Configuration lives in `apps/drupal/config/sync` and is exported with the change. No secret
@@ -218,7 +227,14 @@ Scope and tools (D-2):
 - A `docs/tests` helper that moves into `scripts/` must then pass strict mypy.
 - Every function has full type annotations in strict paths. Use `typing` precisely; avoid
   `Any` (use a `TypedDict`, a dataclass or a `Protocol`).
-- Use `pathlib` for paths. Use timezone-aware datetimes; never a naive `datetime.now()`.
+- Use `pathlib` for paths.
+- **Dates and times.** Datetimes are timezone-aware; never a naive `datetime.now()` and never
+  host local time (runners and containers run in UTC). Timestamps are stored in UTC.
+  `trade_date` is an IST calendar date (`data-model.md`), derived with
+  `zoneinfo.ZoneInfo("Asia/Kolkata")`.
+- **Money.** Prices, cash, costs and P&L use `decimal.Decimal` on the simulation, persistence
+  and publish paths (Postgres `numeric(14,4)`, hashed as decimal strings). Floats are allowed
+  only inside indicator maths and are quantised to `Decimal` at that boundary.
 - `subprocess` takes an argument list, never `shell=True`, and checks the exit code.
 - Engine I/O sits behind interfaces (market data provider, LLM client, Drupal publisher), so
   tests use fakes. Tests never call the live network (pytest-socket, T13).
@@ -239,7 +255,9 @@ Scope: `apps/web` (`meridian-web`, from T21).
 - Tokens and secrets stay on the server: server-only modules for the Drupal client, no secret
   in a `NEXT_PUBLIC_` variable, no token in the browser (D6 of the technical design).
 - LLM text is rendered as escaped text. `dangerouslySetInnerHTML` must not be used.
-- Every page and data route requires authentication (FR-19).
+- Every page and data route requires authentication (FR-19), except the exact exempt list in
+  `technical-design.md` D6 ("Routes exempt from the login middleware"). Adding a route to that
+  list needs a design change first.
 - Styling uses the design tokens only (asset rules above).
 - Tests: Vitest next to the source (`*.test.ts`, `*.test.tsx`), Playwright in `apps/web/e2e`.
 
@@ -267,7 +285,9 @@ Scope: Postgres 16 schema of the engine (`services/engine`, Alembic, from T14).
   run time. Each build context has a `.dockerignore`.
 - Combine package install and cleanup in one layer; pin system packages where hadolint asks.
 - **YAML** passes yamllint with the root `.yamllint.yaml`: two-space indent, no tabs, no
-  duplicate keys, documents start without `---` unless the format needs it.
+  duplicate keys, documents start without `---` unless the format needs it. No inline
+  yamllint disables; an exception is a per-rule `ignore:` entry with a ticket (exception
+  policy).
 - GitHub Actions (T08): third-party actions pinned by commit SHA with the version in a comment,
   `permissions:` set to least privilege per job, secrets only through `${{ secrets.NAME }}` and
   never echoed.
@@ -277,7 +297,8 @@ Scope: Postgres 16 schema of the engine (`services/engine`, Alembic, from T14).
 
 - Start with `#!/usr/bin/env bash` and `set -euo pipefail`. Scripts in the repo are
   executable.
-- shellcheck passes with the root `.shellcheckrc`. A disable directive cites a ticket.
+- shellcheck passes with the root `.shellcheckrc`. A disable directive cites a ticket after a
+  second `#` (exception policy).
 - Quote every expansion (`"$var"`). Use `[[ ]]` for tests and `$( )` for substitution.
 - Resolve paths from the repo root (`git rev-parse --show-toplevel`), so the script runs from
   any directory.
@@ -289,9 +310,10 @@ Scope: Postgres 16 schema of the engine (`services/engine`, Alembic, from T14).
 
 - markdownlint-cli2 checks every Markdown file with the root `.markdownlint-cli2.yaml`.
 - Line length (MD013) is **100** characters. Tables, code blocks and headings are exempt.
-- `docs/TASKS.md` is the owner's document and is not reflowed. Its exclusion is in the config
-  and cites T32 (documentation finalisation) on the same line. Captured evidence
-  (`docs/tests/*/evidence/**`) is excluded with a line that cites T04a.
+- `docs/TASKS.md` is the owner's document and is not reflowed (interim, pending owner
+  confirmation, OQ-T04a-1). Its exclusion is in the config and cites T32 (documentation
+  finalisation) on the same line. Captured evidence (`docs/tests/*/evidence/**`) is excluded
+  with a line that cites T04a.
 - Plain English, short sentences, one idea per paragraph. Prefer lists and tables to long
   prose.
 - Use relative links inside the repo and named links for external sources, with the date the
@@ -305,7 +327,8 @@ Scope: Postgres 16 schema of the engine (`services/engine`, Alembic, from T14).
 - The ingest and read contract is `docs/architecture/openapi.yaml` (OpenAPI 3.1.0). It is the
   single source; code follows it, not the reverse.
 - Spectral lints it with the built-in `spectral:oas` ruleset through `.spectral.yaml`, with
-  `--fail-severity=warn`. No rule is switched off without a ticket on the same line.
+  `--fail-severity=warn`. Spectral has no inline suppression: a rule is switched off only
+  through `overrides:` in `.spectral.yaml`, with a ticket comment on the rule line.
 - Every operation has an `operationId` in `camelCase`, a summary, a security requirement and
   every response code it can return. Ingest errors use the `Error` schema.
 - Field names, enums and patterns equal `docs/specs/data-model.md`. Each schema has an example.
@@ -324,8 +347,12 @@ Scope: the analyst-review prompt of the engine (T17) and any later prompt.
   fenced with clear delimiters and labelled as untrusted, and the prompt tells the model to
   ignore instructions inside it (FR-07, RK-02). Prompt-injection tests cover each untrusted
   input field.
-- The reply must match a JSON schema. Anything else is a veto with the reason stored. The LLM
-  can only turn a BUY into a veto; it never creates a BUY.
+- The reply must match a JSON schema. The schema is a versioned file next to the prompt, and a
+  schema change bumps `prompt_version` too.
+- Parsing is strict: the code never repairs a reply or extracts JSON from prose. A reply that
+  does not conform is a veto with the reason stored (FR-06).
+- The raw LLM output is stored with every decision, whatever the outcome (FR-12).
+- The LLM can only turn a BUY into a veto; it never creates a BUY (FR-05).
 - No secret, API key, token or personal data goes into a prompt file or a rendered prompt.
 - Prompt changes are reviewed by the solution-architect (T17 owner chain).
 
@@ -339,33 +366,38 @@ a config differ, the config wins and this table is corrected in the same task.
 
 | Tool | Language or area | Version | Source | Date checked | Runs in |
 |---|---|---|---|---|---|
-| ruff (lint and format) | Python | 0.14.x, verify | [docs.astral.sh/ruff](https://docs.astral.sh/ruff/) | 2026-11-01 (recorded; verify) | pre-commit, engine suite |
-| mypy | Python | 1.18.x, verify | [mypy-lang.org](https://mypy-lang.org/) | 2026-11-01 (recorded; verify) | pre-commit, engine suite |
+| ruff (lint and format) | Python | 0.14.4, verify | [docs.astral.sh/ruff](https://docs.astral.sh/ruff/) | 2026-11-01 (recorded; verify) | pre-commit, engine suite |
+| mypy | Python | 1.18.2, verify | [mypy-lang.org](https://mypy-lang.org/) | 2026-11-01 (recorded; verify) | pre-commit, engine suite |
 | PHP_CodeSniffer (phpcs) with drupal/coder | PHP | phpcs 3.13.x, coder 8.3.x, verify | [PHPCSStandards/PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer), [drupal/coder](https://www.drupal.org/project/coder) | 2026-11-01 (recorded; verify) | Drupal suite (T05, T09) |
 | PHPStan with phpstan-drupal | PHP | phpstan 2.1.x, phpstan-drupal 2.0.x, verify | [phpstan.org](https://phpstan.org/), [mglaman/phpstan-drupal](https://github.com/mglaman/phpstan-drupal) | 2026-11-01 (recorded; verify) | Drupal suite (T05, T09) |
 | ESLint with typescript-eslint | TypeScript | ESLint 9.x, typescript-eslint 8.x, verify | [eslint.org](https://eslint.org/), [typescript-eslint.io](https://typescript-eslint.io/) | 2026-11-01 (recorded; verify) | web suite (T21) |
 | Prettier | TypeScript, CSS, JSON | 3.6.x, verify | [prettier.io](https://prettier.io/) | 2026-11-01 (recorded; verify) | web suite (T21) |
 | TypeScript compiler (`tsc --noEmit`) | TypeScript | 5.9.x, verify | [typescriptlang.org](https://www.typescriptlang.org/) | 2026-11-01 (recorded; verify) | web suite (T21) |
-| hadolint | Dockerfile | 2.14.0, verify | [hadolint/hadolint](https://github.com/hadolint/hadolint) | 2026-11-01 (recorded; verify) | pre-commit |
-| yamllint | YAML | 1.37.x, verify | [yamllint docs](https://yamllint.readthedocs.io/) | 2026-11-01 (recorded; verify) | pre-commit |
-| shellcheck (shellcheck-py) | Shell | 0.11.0, verify | [koalaman/shellcheck](https://github.com/koalaman/shellcheck) | 2026-11-01 (recorded; verify) | pre-commit |
-| markdownlint-cli2 | Markdown | 0.19.x, verify | [DavidAnson/markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) | 2026-11-01 (recorded; verify) | pre-commit |
-| Spectral (`@stoplight/spectral-cli`) | OpenAPI | 6.15.x, verify | [stoplightio/spectral](https://github.com/stoplightio/spectral) | 2026-11-01 (recorded; verify) | pre-commit (local node hook) |
+| hadolint (hadolint-py) | Dockerfile | 2.12.1b3 (hadolint-py rev), verify | [hadolint/hadolint](https://github.com/hadolint/hadolint) | 2026-11-01 (recorded; verify) | pre-commit |
+| yamllint | YAML | 1.37.1, verify | [yamllint docs](https://yamllint.readthedocs.io/) | 2026-11-01 (recorded; verify) | pre-commit |
+| shellcheck (shellcheck-py) | Shell | 0.11.0.1 (shellcheck-py rev), verify | [koalaman/shellcheck](https://github.com/koalaman/shellcheck) | 2026-11-01 (recorded; verify) | pre-commit |
+| markdownlint-cli2 | Markdown | 0.18.1, verify | [DavidAnson/markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) | 2026-11-01 (recorded; verify) | pre-commit |
+| Spectral (`@stoplight/spectral-cli`) | OpenAPI | 6.15.0, verify | [stoplightio/spectral](https://github.com/stoplightio/spectral) | 2026-11-01 (recorded; verify) | pre-commit (local node hook) |
 | gitleaks | Secrets | 8.30.1 (pinned since T00) | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) | 2026-11-01 | pre-commit, CI history scan (T08) |
 | pre-commit | All | 4.7.0 (pinned since T00) | [pre-commit.com](https://pre-commit.com/) | 2026-11-01 | `scripts/bootstrap-dev.sh` |
-| web-vitals | Performance tests (NFR-03) | 5.1.0, Apache-2.0 licence, verify | [GoogleChrome/web-vitals](https://github.com/GoogleChrome/web-vitals) | 2026-11-01 (recorded; verify) | Playwright (T26); closes OQ-T04-5 pending install |
+| web-vitals | Performance tests (NFR-03) | Version verify (current npm release; `main` branch `package.json` showed 6.2.3); licence Apache-2.0, verified | [GoogleChrome/web-vitals package.json](https://github.com/GoogleChrome/web-vitals/blob/main/package.json) | 2026-11-01 (licence checked; version verify) | Playwright (T26); closes OQ-T04-5 pending install |
 
-Runtimes: Python 3.12 for the engine, Python 3.10 (stdlib) for repo tooling, Node 22 LTS for
-Spectral and the web app, PHP as set by `pantheon.yml` in T05.
+Runtimes: Python 3.12 for the engine; Python 3.10 (stdlib) is the minimum supported version for
+repo tooling, and CI (T08) runs the tooling on 3.12 (3.10 reached end of life on 2026-10-01;
+revisit the floor in T32); Node 22 LTS for Spectral (T21 decides the web app's Node version);
+PHP 8.3 or later (Drupal 11), exact version as set by `pantheon.yml` in T05.
 
-The `web-vitals` licence (Apache-2.0) and pin are recorded here to close OQ-T04-5. The licence
-is compatible with the dependency policy. The offline install is confirmed in T26.
+The `web-vitals` licence is Apache-2.0, verified on 2026-11-01 from the project's
+`package.json`, and is compatible with the dependency policy. The version is "verify": the
+`main` branch showed 6.2.3, which may run ahead of npm. T26 pins the current npm release,
+confirms the offline install and checks that `onLCP()` usage matches that major version. This
+records OQ-T04-5 except the version pin.
 
 ## Coverage thresholds
 
 Line coverage floors per component and path prefix (D-1). `scripts/coverage_gate.py` reads
-Cobertura XML and the floors in `quality/coverage-thresholds.json`, and fails naming the file
-and prefix that is below its floor.
+Cobertura XML and the floors in `quality/coverage-thresholds.json`, and fails naming the
+component and prefix that is below its floor.
 
 | Component | Path | Line floor | Branch |
 |---|---|---|---|
@@ -378,8 +410,10 @@ and prefix that is below its floor.
 
 Measuring rules:
 
-- **The gate is the line rate** (Cobertura `line-rate`), not the combined line and branch
-  figure that coverage.py prints when branch coverage is on.
+- **The gate is line coverage.** It counts covered lines from the `<line hits>` elements of
+  every file under a prefix, pooled per prefix; it does not read the `line-rate` attributes,
+  and branch data is ignored. It is therefore not the combined line and branch figure that
+  coverage.py prints when branch coverage is on.
 - Branch coverage is on in the engine and is reported, not gated. T16 may add a branch floor
   for `scoring` and `risk`; it is then recorded here.
 - Drupal counts Unit and Kernel tests only. Functional test code probably does not show in
@@ -398,38 +432,65 @@ An exception is any suppression or exclusion of a check:
 
 - inline suppressions: `noqa`, `type: ignore`, `pragma: no cover`, `eslint-disable`,
   `@ts-expect-error`, `phpcs:ignore`, PHPStan `phpstan-ignore` tags, `shellcheck disable`,
-  `yamllint disable`, `markdownlint-disable`, `hadolint ignore`;
-- path excludes in any tool config (ruff, mypy, markdownlint, yamllint, coverage).
+  `markdownlint-disable`, `hadolint ignore`;
+- path excludes and rule overrides in any tool config (ruff, mypy, markdownlint, yamllint,
+  coverage, Spectral).
 
-Rules (D-4):
+Rules (D-4 and its addendum of 2026-11-01):
 
 - Every exception cites a ticket **on the same line**, as the ticket ID, a colon, a space and a
   reason. Matching regex: `\b(T\d{2}a?|DEF-\d{3}): \S`.
+- The ticket goes in the **tool's own comment or description slot**, after the tool's
+  separator (table below). Never put it as bare text after the rule list: mypy rejects that,
+  and ruff and yamllint silently drop the suppression. A ticket anywhere else on the line does
+  not count.
 - Allowed IDs: `Txx` or `Txxa`, a task heading in `docs/TASKS.md`, or `DEF-nnn`, a defect in
   `docs/tests/defects.md`. The ID must exist; `scripts/exceptions_report.py` checks it.
 - The cited task is the one that will **remove or re-decide** the exception. For a permanent
   exclusion, cite the task that decided it.
 - Suppress one rule by its code, never a whole file or every rule. A `noqa` without a rule
-  code, a bare `eslint-disable` and a PHPStan ignore without an identifier are not allowed.
-- The scanner also reads Markdown. A document that quotes a suppression comment, rather than
-  naming the tool, must cite a ticket on that line too.
-- `@ts-expect-error` is used instead of `@ts-ignore`, so a stale suppression fails.
+  code, an `eslint-disable` that names no rule and a PHPStan ignore without an identifier are
+  not allowed.
+- **No inline yamllint disables** at all. Use a per-rule `ignore:` path list in
+  `.yamllint.yaml`, with the ticket as a YAML comment on the path line.
+- **Spectral has no inline form.** Use `overrides:` in `.spectral.yaml`, with the ticket as a
+  YAML comment on the rule line.
+- The TypeScript `ts-ignore` directive is forbidden. Use `@ts-expect-error`, so a stale
+  suppression fails.
+- `quality/coverage-thresholds.json` holds no excludes (JSON has no comment for a ticket).
+- The scanner also reads Markdown. Task records under `docs/tasks/` (plans, decisions,
+  reviews) are not scanned, because they quote examples, including invalid forms. Every other
+  document (including `docs/standards/`) that quotes a suppression comment, rather than naming
+  the tool, must use the valid form with the ticket in its slot.
 - `scripts/exceptions_report.py` lists every exception and counts them per tool and per
-  ticket (`--out FILE` writes the report). `scripts/quality.sh` runs it and fails on an
-  exception without a valid ticket.
+  ticket (`--out FILE` writes the report). `scripts/quality.sh` runs it and fails, naming the
+  file and line, on a missing ticket, a ticket in the bare form, an unknown ID, a `noqa` with
+  no code, an `eslint-disable` with no rule, any inline yamllint disable, or `ts-ignore`.
 - Closing a task while an exception names that same task as its remover is a review finding.
 - T32 and T33 review every remaining exception as part of "known limitations".
 
-Examples:
+Required forms per tool. A row marked **verify (OQ-T04a-6)** is not yet confirmed against the
+real tool. The owner-run cases (TC-T04a-36 onward) or the named later task confirm it with a
+fixture that shows the suppression takes effect. If a form fails there, a new addendum replaces
+it; do not invent a local workaround.
 
-```text
-import yaml  # type: ignore[import-untyped]  T13: stubs added with the engine manifest
-x = call()  # noqa: S603  T20: argument list is fixed, no user input
-// @phpstan-ignore method.notFound (T09: core stub missing, remove after the T09 upgrade)
-// eslint-disable-next-line no-console -- T29: replaced by the server logger
-# shellcheck disable=SC2034  T05: read by the sourcing DDEV command
-- docs/TASKS.md  # T32: owner document, not reflowed
-```
+| Tool | Required form (ticket in the comment slot) | Separator | Status |
+|---|---|---|---|
+| ruff | `x = call()  # noqa: S603  # T20: argument list is fixed` | second `#` | Verified (ruff docs and source, 2026-11-01) |
+| mypy | `import yaml  # type: ignore[import-untyped]  # T13: stubs come with the engine manifest` | second `#` | Verified (mypy `fastparse.py`, 2026-11-01) |
+| coverage.py | `if debug:  # pragma: no cover  # T13: reason` | second `#` | verify (OQ-T04a-6), T13 first coverage run |
+| shellcheck | `# shellcheck disable=SC2034 # T05: read by the sourcing DDEV command` | second `#` | Verified (ShellCheck wiki, Directive, 2026-11-01) |
+| hadolint | `# hadolint ignore=DL3008 # T06: distro pins the version` | second `#` | verify (OQ-T04a-6), owner-run; inferred from hadolint `Pragma.hs` |
+| ESLint | `// eslint-disable-next-line no-console -- T29: replaced by the server logger` | `--` | Verified (ESLint docs, comment descriptions, 2026-11-01) |
+| TypeScript | `// @ts-expect-error T21: upstream type is wrong, issue linked in the plan` | space after the directive | verify (OQ-T04a-6), T21 |
+| PHPStan | `// @phpstan-ignore method.notFound (T09: core stub missing)` | parentheses | Verified (PHPStan docs, ignoring errors, 2026-11-01) |
+| phpcs | `// phpcs:ignore Drupal.Commenting.FunctionComment.Missing -- T09: reason` | `--` | verify (OQ-T04a-6), T05 or T09; `--` is documented only for other phpcs directives |
+| markdownlint | `<!-- markdownlint-disable-next-line MD013 --> <!-- T32: owner wording kept -->` | a separate HTML comment on the same line | verify (OQ-T04a-6), owner-run |
+| yamllint | No inline disable. A per-rule `ignore:` entry in `.yamllint.yaml`: `- path/file.yaml  # T08: reason` | YAML `#` on the config line | Inline form rejected (verified); per-rule `ignore:` is verify (OQ-T04a-6), owner-run |
+| Spectral | No inline form. `overrides:` in `.spectral.yaml` (`files:` may use a JSON pointer such as `openapi.yaml#/paths`), rule set to `"off"`, `# Txx: reason` on the rule line | YAML `#` on the config line | Verified (Spectral overrides guide, 2026-11-01) |
+| Config path excludes (ruff `extend-exclude`, mypy `exclude`, markdownlint `ignores`, coverage `omit`) | `- "docs/TASKS.md"  # T32: owner document` | the format's own comment (`#` in YAML, TOML, INI) | In use in `.markdownlint-cli2.yaml` and `ruff.toml` |
+
+Source and links: `docs/tasks/T04a/decision-t04a-standards.md`, "D-4 Addendum 2026-11-01".
 
 ## Commits, branches and merging
 
@@ -448,6 +509,11 @@ checks it in `scripts/quality.sh` and in CI (reads `GITHUB_HEAD_REF`, T08).
 - `fixup!` and `squash!` commits fail in `--range` mode. Squash them locally before pushing.
 - The commit-msg hook checks each new commit locally. CI checks only the PR range
   (`origin/main..HEAD`); history already on `main` is never re-checked.
+- **Rule boundary.** The rule applies from `RULE_START` onward: commit `7689ec5` (T04 close,
+  the parent of the first T04a commit), fixed in `scripts/check_commit_msg.py`. Its ancestors
+  (T00 to T04) are exempt whatever range is checked. It is a fixed boundary, not a list of
+  exempt commits. The check needs full history (CI uses `fetch-depth: 0`, T08); if the
+  boundary commit is missing it exits with an error rather than checking the full range.
 - Write the subject in the imperative mood. Use the body for the why, wrapped at 72.
 - Never use `--no-verify`.
 
@@ -459,8 +525,9 @@ evidence cites its SHAs; if you must, re-point the evidence.
 
 ## Running the quality checks
 
-One script is the only implementation: `scripts/quality.sh`. Pre-commit, `ddev quality` and CI
-(T08) all call it.
+One script is the only implementation: `scripts/quality.sh`. `ddev quality` and CI (T08) call
+it, and it runs the pre-commit hooks as its first step. (The hooks do not call it; that would
+recurse.)
 
 ```bash
 scripts/bootstrap-dev.sh   # once per clone: pinned pre-commit and the git hooks

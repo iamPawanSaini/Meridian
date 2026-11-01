@@ -16,13 +16,14 @@
 - Regression mode (decision D-5): `run-checks.sh --regression` skips the snapshot checks tagged
   `cka` (TC-10 "verify" markers, TC-34 and TC-35 in full) and prints how many were excluded.
   Everything else is an invariant, including all behavioural checks.
-- Owner-run cases (36 to 47): `run-checks.sh --owner`. It copies the tracked tree to a throwaway
+- Owner-run cases (36 to 47 and 53 to 56): `run-checks.sh --owner`.
+  It copies the tracked tree to a throwaway
   directory, runs `scripts/bootstrap-dev.sh` there (network needed once for the hook
   environments), then runs the baseline and the rejection demos. Each demo refuses a bad file
   and accepts a same-named good control, so a broken tool cannot count as a rejection. Output goes
   to `evidence/TC-T04a-nn-rejected.txt` and `-control.txt`. Until the owner runs it, these cases
   are Blocked.
-- Deferred cases (48 to 51) are Blocked until T05, T08, T09, T13 and T21 exist. Under D-6
+- Deferred cases (48 to 51, 57, 58) are Blocked until T05, T08, T09, T13 and T21 exist. Under D-6
   (pending the owner) each needs written owner acceptance at close.
 - Environment of the agent sandbox: python3.10 stdlib, node 22, php present; no network, no
   pre-commit, ruff, mypy, shellcheck, yamllint, markdownlint, hadolint, Spectral, composer. Those
@@ -94,7 +95,7 @@ changed, with a Change log row.
 | AC3: tools chosen, configured, pinned | TC-T04a-02, 04, 08, 09, 10, 26, 31, 36, 49, 50 |
 | AC4: commit hook and branch naming | TC-T04a-11, 12, 13, 14, 15, 16, 46, 47, 51 |
 | AC5: single command, exit code, wrapper | TC-T04a-23, 24, 25, 38, 48 |
-| AC6: baseline clean, exceptions with ticket and report | TC-T04a-17, 18, 27, 28, 29, 37, 38 |
+| AC6: baseline clean, exceptions with ticket and report | TC-T04a-17, 18, 27, 28, 29, 37, 38, 53 to 58 |
 | AC7: coverage thresholds recorded and enforced | TC-T04a-05, 06, 19, 20, 51 |
 | AC8: REVIEW_CHECKLIST and agent reference | TC-T04a-07, 52 |
 | AC9: rejection per language | TC-T04a-12, 13, 15, 19, 20, 26, 27, 39 to 47, 49, 50, 51 |
@@ -117,14 +118,20 @@ hosts and 4 hex forms (21); SKIP versus FAIL and non-zero exit (24); a typing pr
 checker self-test that prove the checkers can reject (26, 27); six owner-run rejection demos with
 controls (39 to 47).
 
-Automated: 01 to 35 (35 cases, about 280 checks). Owner-run: 36 to 47 (12). Deferred: 48 to 51
-(4). Manual: 52 (1). Total 52.
+Automated: 01 to 35 (35 cases, about 300 checks). Owner-run: 36 to 47 and 53 to 56 (16).
+Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 
 ## Change log
 
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-01 | Initial design | n/a |
+| 2026-11-01 | TC-27 line-length checker skips a leading YAML front-matter block; self-test added | Review finding 4: test-script defect, markdownlint does the same; not a loosening of the 100-character rule |
+| 2026-11-01 | TC-33 `.env.example` base is the parent of the first `T04a:` commit, not local `main` | Review finding 6: local `main` can be stale |
+| 2026-11-01 | TC-17, 18, 29 exception fixtures and the TC-29 scan use the per-tool forms of the D-4 addendum; bare-form negatives added; yamllint and Spectral config-ignore cases added | Decision change by the solution-architect (D-4 addendum), not a loosening: the old bare form is now an expected rejection |
+| 2026-11-01 | TC-53 to 58 added for the addendum rows marked "verify" (OQ-T04a-6) | New cases; coverage.py, hadolint, markdownlint, yamllint owner-run; TypeScript and phpcs deferred |
+| 2026-11-01 | TC-29 independent scan skips `docs/tasks/` | Main-session scope decision: task plans, decisions and reviews quote invalid forms on purpose. Not a loosening: `docs/standards` and all code and config stay scanned |
+| 2026-11-01 | Prose lines in `docs/tests/T02`, `T03`, `T04` test-cases and test-report reflowed to 100 characters | Review finding 5: word-neutral (0 word changes in `git diff --word-diff=porcelain`; PASS counts of the three `run-checks.sh` unchanged; `evidence/reflow-*.txt`) |
 
 ## Cases: standards and review checklist
 
@@ -395,7 +402,7 @@ Automated: 01 to 35 (35 cases, about 280 checks). Owner-run: 36 to 47 (12). Defe
 | Type | Automated |
 | Preconditions | As TC-17 |
 | Steps | 1. Read block `== TC-T04a-18` |
-| Expected result | The same 11 lines with ` T32: legacy` on the same line pass. A repo with 2 `noqa`, 1 `type: ignore` and 1 `shellcheck` writes a report (`--out`) showing those counts per tool and the tickets used. Accepted: `DEF-001: ...` (exists), `T04a: ...`. Rejected: `DEF-999` (absent), `T99`, `T32` with no reason, `T32:x`, `t32: x`, a ticket on the previous or the next line. Config excludes: a `.markdownlint-cli2.yaml` `ignores` entry or a `ruff.toml` `exclude` without a ticket is rejected; with `T32:` or `T04a:` it passes |
+| Expected result | Per the D-4 addendum the ticket must sit in the tool's own comment slot: `# noqa: F401  # T32: legacy`, `type: ignore[code]  # T32: ...`, `pragma: no cover  # T32: ...`, `shellcheck disable=SC2034 # T32: ...`, `hadolint ignore=DL3008 # T32: ...`, `eslint-disable-next-line rule -- T32: ...`, `phpcs:ignore sniff -- T32: ...`, `@phpstan-ignore id (T32: ...)`, `@ts-expect-error T32: ...`, `<!-- markdownlint-disable-next-line MD013 --> <!-- T32: ... -->` all pass. The bare forms (for example `# noqa: F401  T32: legacy`) and `@ts-ignore T32: ...` are rejected, and yamllint has no accepted inline form (any trailing ticket is rejected). Also rejected: `noqa` without a code and `eslint-disable` without a rule even with a ticket; a ticket before the directive. Per-rule `ignore:` paths in `.yamllint.yaml` and Spectral `overrides` rules set to off need a YAML comment ticket on the same line. A repo with 2 `noqa`, 1 `type: ignore` and 1 `shellcheck` writes a report (`--out`) showing those counts per tool and the tickets used. Accepted: `DEF-001: ...` (exists), `T04a: ...`. Rejected: `DEF-999` (absent), `T99`, `T32` with no reason, `T32:x`, `t32: x`, a ticket on the previous or the next line. Config excludes: a `.markdownlint-cli2.yaml` `ignores` entry or a `ruff.toml` `exclude` without a ticket is rejected; with `T32:` or `T04a:` it passes |
 | Actual result | |
 | Evidence | `evidence/TC-T04a-18.txt` |
 | Status | Not run |
@@ -534,7 +541,7 @@ Automated: 01 to 35 (35 cases, about 280 checks). Owner-run: 36 to 47 (12). Defe
 | Type | Automated |
 | Preconditions | Repo root |
 | Steps | 1. Read block `== TC-T04a-27` |
-| Expected result | The checker flags a 160-character prose line and exempts a long table row, fenced code, heading and bare URL (self-test). Over all tracked or untracked Markdown except `docs/TASKS.md` and `docs/tests/*/evidence/**` (at least 50 files) there are 0 lines over 100 characters. The T04a documents themselves also pass. The current tree has about 308 such lines, so this fails until the cleanup commit |
+| Expected result | The checker flags a 160-character prose line and exempts a long table row, fenced code, heading, bare URL and a leading YAML front-matter block; a `---` block later in a file and prose after front matter are still flagged (self-tests, review finding 4). Over all tracked or untracked Markdown except `docs/TASKS.md` and `docs/tests/*/evidence/**` (at least 50 files) there are 0 lines over 100 characters. The T04a documents themselves also pass. The current tree has about 308 such lines, so this fails until the cleanup commit |
 | Actual result | |
 | Evidence | `evidence/TC-T04a-27.txt` |
 | Status | Not run |
@@ -564,7 +571,7 @@ Automated: 01 to 35 (35 cases, about 280 checks). Owner-run: 36 to 47 (12). Defe
 | Type | Automated |
 | Preconditions | `scripts/exceptions_report.py` |
 | Steps | 1. Read block `== TC-T04a-29` |
-| Expected result | The report runs on the real tree, exits 0 and writes a non-empty file. An independent scan (comment forms over code files, excluding the tool, its fixtures, T04a tests and evidence) finds every suppression cited with a ticket, and each non-zero per-tool count equals a count in the report. The report lists the `TASKS.md` exclusion with `T32` |
+| Expected result | The report runs on the real tree, exits 0 and writes a non-empty file. An independent scan (comment forms over code files, excluding the tool, its fixtures, T04a tests and evidence) finds every suppression with the ticket in the tool's comment slot (the per-tool forms of the D-4 addendum; yamllint inline and `@ts-ignore` never allowed), and each non-zero per-tool count equals a count in the report. The report lists the `TASKS.md` exclusion with `T32` |
 | Actual result | |
 | Evidence | `evidence/TC-T04a-29.txt` |
 | Status | Not run |
@@ -624,7 +631,7 @@ Automated: 01 to 35 (35 cases, about 280 checks). Owner-run: 36 to 47 (12). Defe
 | Type | Automated |
 | Preconditions | Repo root |
 | Steps | 1. Read block `== TC-T04a-33` |
-| Expected result | No broker vendor name or trading hostname, and no secret pattern, in the standards, scripts, configs, `.ddev` and this file (at least 10 files scanned); `.env.example` is identical to `main`; `check-names.sh` passes |
+| Expected result | No broker vendor name or trading hostname, and no secret pattern, in the standards, scripts, configs, `.ddev` and this file (at least 10 files scanned); `.env.example` is identical to its content at the parent of the first `T04a:` commit (review finding 6); `check-names.sh` passes |
 | Actual result | |
 | Evidence | `evidence/TC-T04a-33.txt` |
 | Status | Not run |
@@ -920,5 +927,101 @@ Each demo case: the bad file is refused (non-zero) and the same-named good contr
 | Actual result | |
 | Evidence | `evidence/manual-review.md` |
 | Status | Not run |
+| Date | |
+| Executed by | |
+
+## Cases: D-4 addendum real-tool checks (OQ-T04a-6)
+
+Each shows that the suppression takes effect with the ticket in the comment slot, not only that
+`exceptions_report.py` accepts it. A "verify" row that fails against the real tool needs a new
+addendum from the solution-architect, not a local workaround.
+
+### TC-T04a-53: coverage.py honours the ticketed pragma
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (D-4 addendum row: coverage.py) |
+| Type | Owner-run (network for `pip install coverage`) |
+| Preconditions | `run-checks.sh --owner`; python3 venv |
+| Steps | 1. Read block `== TC-T04a-53`: `x.py` has `if a < 0:  # pragma: no cover  # T13: reason`, `y.py` is identical without the pragma; run both under `coverage run` and `coverage report --fail-under=100` |
+| Expected result | `x.py` reports 100 percent (the line and its block are excluded); `y.py` is below 100 |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-53-pragma.txt`, `-control.txt` |
+| Status | Not run (Blocked until the owner runs it) |
+| Date | |
+| Executed by | |
+
+### TC-T04a-54: hadolint honours the ticketed ignore
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (addendum row: hadolint) |
+| Type | Owner-run |
+| Preconditions | TC-36 passed |
+| Steps | 1. Read block `== TC-T04a-54`: a Dockerfile with `RUN apk add curl` with and without `# hadolint ignore=DL3018 # T06: reason` on the line before |
+| Expected result | DL3018 is reported without the pragma and absent with it |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-54-ignored.txt`, `-control.txt` |
+| Status | Not run (Blocked) |
+| Date | |
+| Executed by | |
+
+### TC-T04a-55: markdownlint honours the separate-comment ticket form
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (addendum row: markdownlint) |
+| Type | Owner-run |
+| Preconditions | TC-36 passed |
+| Steps | 1. Read block `== TC-T04a-55`: a 200-character line preceded by `<!-- markdownlint-disable-next-line MD013 --> <!-- T32: reason -->`, and the same line without it |
+| Expected result | The first passes all hooks; the second fails MD013 |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-55-ignored.txt`, `-control.txt` |
+| Status | Not run (Blocked) |
+| Date | |
+| Executed by | |
+
+### TC-T04a-56: yamllint per-rule ignore path works; inline ticket form is ignored
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (addendum row: yamllint) |
+| Type | Owner-run |
+| Preconditions | TC-36 passed; the script temporarily replaces `.yamllint.yaml` in the copy |
+| Steps | 1. Read block `== TC-T04a-56`: `line-length` max 40 with `ignore:` listing one path with a `# T32:` comment; three long-line files: the ignored path, another path, and a file with `# yamllint disable-line rule:line-length # T32: x` |
+| Expected result | The ignored path passes; the other path fails; the inline directive with trailing text still fails (silently ignored, which is why no inline form is allowed) |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-56-ignored.txt`, `-control.txt`, `-inline.txt` |
+| Status | Not run (Blocked) |
+| Date | |
+| Executed by | |
+
+### TC-T04a-57: TypeScript `@ts-expect-error T21: reason` (deferred to T21)
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (addendum row: TypeScript) |
+| Type | Deferred (needs `apps/web` and `tsc`) |
+| Preconditions | T21 done |
+| Steps | 1. A type error with and without `// @ts-expect-error T21: reason`; `tsc --noEmit`; then `// @ts-ignore` through ESLint |
+| Expected result | The directive suppresses the error; the ticket text does not break it; `@ts-ignore` is reported |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-57.txt` |
+| Status | Blocked (deferred; owner acceptance under D-6) |
+| Date | |
+| Executed by | |
+
+### TC-T04a-58: phpcs `phpcs:ignore <sniff> -- T09: reason` (deferred to T05 or T09)
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC6 (addendum row: phpcs) |
+| Type | Deferred (needs Composer tools) |
+| Preconditions | T05 tools or T09 module |
+| Steps | 1. A violating line with and without `// phpcs:ignore Drupal.Commenting.FunctionComment.Missing -- T09: reason`; run phpcs |
+| Expected result | The sniff is suppressed with the `--` note, so the form is usable |
+| Actual result | |
+| Evidence | `evidence/TC-T04a-58.txt` |
+| Status | Blocked (deferred; owner acceptance under D-6) |
 | Date | |
 | Executed by | |

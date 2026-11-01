@@ -399,39 +399,48 @@ ckp "no argument, no env: current git branch task/T04a-demo accepted" gb_ok
 
 echo "== TC-T04a-17 exceptions report: an untagged suppression fails, per tool (AC6)"
 ckp "script exists: scripts/exceptions_report.py" test -s "$S/exceptions_report.py"
-# tool|file|line template (%TAG% = '' or ' T32: legacy')
+# D-4 addendum (2026-11-01): the ticket goes in the tool's own comment slot after its separator.
+# tool|file|untagged line|correct form (accepted)|bare or forbidden form (rejected). '-' = no accepted form.
 TOOLS=(
-'noqa|a.py|import os  # noqa: F401%TAG%'
-'type: ignore|b.py|x: int = "s"  # type: ignore[assignment]%TAG%'
-'pragma: no cover|c.py|def f() -> None:  # pragma: no cover%TAG%'
-'eslint-disable|d.ts|// eslint-disable-next-line no-console%TAG%'
-'@ts-expect-error|e.ts|// @ts-expect-error%TAG%'
-'phpcs:ignore|f.php|// phpcs:ignore Drupal.Commenting.FunctionComment%TAG%'
-'@phpstan-ignore|g.php|// @phpstan-ignore method.notFound%TAG%'
-'shellcheck|h.sh|# shellcheck disable=SC2086%TAG%'
-'yamllint|i.yaml|# yamllint disable-line rule:line-length%TAG%'
-'markdownlint|j.md|<!-- markdownlint-disable MD013%TAG% -->'
-'hadolint|Dockerfile|# hadolint ignore=DL3008%TAG%'
+'noqa|a.py|import os  # noqa: F401|import os  # noqa: F401  # T32: legacy|import os  # noqa: F401  T32: legacy'
+'type: ignore|b.py|x: int = "s"  # type: ignore[assignment]|x: int = "s"  # type: ignore[assignment]  # T32: legacy|x: int = "s"  # type: ignore[assignment]  T32: legacy'
+'pragma: no cover|c.py|def f() -> None:  # pragma: no cover|def f() -> None:  # pragma: no cover  # T32: legacy|def f() -> None:  # pragma: no cover  T32: legacy'
+'eslint-disable|d.ts|// eslint-disable-next-line no-console|// eslint-disable-next-line no-console -- T32: legacy|// eslint-disable-next-line no-console T32: legacy'
+'@ts-expect-error|e.ts|// @ts-expect-error|// @ts-expect-error T32: legacy|// @ts-ignore T32: legacy'
+'phpcs:ignore|f.php|// phpcs:ignore Drupal.Commenting.FunctionComment.Missing|// phpcs:ignore Drupal.Commenting.FunctionComment.Missing -- T32: legacy|// phpcs:ignore Drupal.Commenting.FunctionComment.Missing T32: legacy'
+'@phpstan-ignore|g.php|// @phpstan-ignore method.notFound|// @phpstan-ignore method.notFound (T32: legacy)|// @phpstan-ignore method.notFound T32: legacy'
+'shellcheck|h.sh|# shellcheck disable=SC2034|# shellcheck disable=SC2034 # T32: legacy|# shellcheck disable=SC2034 T32: legacy'
+'yamllint|i.yaml|# yamllint disable-line rule:line-length|-|# yamllint disable-line rule:line-length # T32: legacy'
+'markdownlint|j.md|<!-- markdownlint-disable-next-line MD013 -->|<!-- markdownlint-disable-next-line MD013 --> <!-- T32: legacy -->|<!-- markdownlint-disable-next-line MD013 T32: legacy -->'
+'hadolint|Dockerfile|# hadolint ignore=DL3008|# hadolint ignore=DL3008 # T32: legacy|# hadolint ignore=DL3008 T32: legacy'
 )
 ex_run() { (cd "$1" && git add -A && git commit -qm "fixture" --allow-empty && python3 "$S/exceptions_report.py" --out "$1/exc-report.txt"); }
-ex_one() { local file=$1 tmpl=$2 tag=$3 d="$WORK/ex_$RANDOM$RANDOM"
-  mkrepo "$d" || return 1; put "$d/$file" "${tmpl//%TAG%/$tag}"; ex_run "$d"; }
+ex_line() { local file=$1 line=$2 d="$WORK/ex_$RANDOM$RANDOM"; mkrepo "$d" || return 1; put "$d/$file" "$line"; ex_run "$d"; }
 cleanrepo() { local d=$WORK/ex_clean; mkrepo "$d" && put "$d/ok.py" 'x: int = 1' && ex_run "$d"; }
 ckp "control: fixture repo with no suppressions passes" accepts cleanrepo
-for row in "${TOOLS[@]}"; do IFS='|' read -r tool file tmpl <<<"$row"
-  ckp "untagged '$tool' in $file is rejected" rejects ex_one "$file" "$tmpl" ''
+for row in "${TOOLS[@]}"; do IFS='|' read -r tool file untag good bare <<<"$row"
+  ckp "untagged '$tool' in $file is rejected" rejects ex_line "$file" "$untag"
 done
 exfile_named() { local d=$WORK/ex_named; mkrepo "$d" && put "$d/pkg/mod.py" "$(printf 'a = 1\nimport os  # noqa: F401')" && git -C "$d" add -A && git -C "$d" commit -qm f \
   && (cd "$d" && python3 "$S/exceptions_report.py" --out "$d/r.txt"); }
 ckp "failure names file and line (pkg/mod.py:2)" rejects_naming 'pkg/mod\.py.?:?.?2' exfile_named
 
 echo "== TC-T04a-18 exceptions report: tagged suppressions pass and are counted; tag rules (AC6, D-4)"
-for row in "${TOOLS[@]}"; do IFS='|' read -r tool file tmpl <<<"$row"
-  ckp "tagged '$tool' ('T32: legacy' on the same line) is accepted" accepts ex_one "$file" "$tmpl" ' T32: legacy'
+for row in "${TOOLS[@]}"; do IFS='|' read -r tool file untag good bare <<<"$row"
+  if [ "$good" = "-" ]; then
+    ckp "'$tool': no accepted inline form exists (a ticket after the directive is rejected)" rejects ex_line "$file" "$bare"
+  else
+    ckp "correct form of '$tool' (ticket in the tool's comment slot) is accepted" accepts ex_line "$file" "$good"
+    ckp "bare or forbidden form of '$tool' is rejected (D-4 addendum)" rejects ex_line "$file" "$bare"
+  fi
 done
+ckp "noqa without a code is rejected even with a ticket" rejects ex_line a.py 'import os  # noqa  # T32: legacy'
+ckp "eslint-disable naming no rule is rejected even with a ticket" rejects ex_line d.ts '// eslint-disable-next-line -- T32: legacy'
+ckp "inline yamllint disable (block form) is rejected even with a ticket in a comment" rejects ex_line i.yaml '# yamllint disable rule:line-length # T32: legacy'
+ckp "ticket only in a docstring-style comment far from the directive is rejected" rejects ex_line a.py 'import os  # T32: legacy  # noqa: F401'
 exmany() { local d=$WORK/ex_many; mkrepo "$d" || return 1
-  put "$d/a.py" "$(printf 'import os  # noqa: F401  T32: legacy\nimport sys  # noqa: F401  T04a: legacy\ny: int = "s"  # type: ignore[assignment]  DEF-001: x')"
-  put "$d/h.sh" '# shellcheck disable=SC2086  T32: legacy'
+  put "$d/a.py" "$(printf 'import os  # noqa: F401  # T32: legacy\nimport sys  # noqa: F401  # T04a: legacy\ny: int = "s"  # type: ignore[assignment]  # DEF-001: x')"
+  put "$d/h.sh" '# shellcheck disable=SC2034 # T32: legacy'
   ex_run "$d" || return 1
   grep -iE 'noqa' "$d/exc-report.txt" | grep -qE '\b2\b' || { echo "noqa count 2 not in report"; return 1; }
   grep -iE 'type: ?ignore' "$d/exc-report.txt" | grep -qE '\b1\b' || { echo "type: ignore count 1 not in report"; return 1; }
@@ -439,20 +448,25 @@ exmany() { local d=$WORK/ex_many; mkrepo "$d" || return 1
   grep -qE 'T32' "$d/exc-report.txt" || { echo "ticket not listed"; return 1; }; }
 ckp "report file counts per tool (noqa 2, type: ignore 1, shellcheck 1) and lists tickets" exmany
 tagcase() { local d=$WORK/ex_tag_$RANDOM; mkrepo "$d" || return 1; put "$d/a.py" "$1"; ex_run "$d"; }
-ckp "accepts DEF-001 (exists in defects.md)" accepts tagcase 'import os  # noqa: F401  DEF-001: core stub'
-ckp "rejects DEF-999 (not in defects.md)" rejects tagcase 'import os  # noqa: F401  DEF-999: x'
-ckp "rejects T99 (not in TASKS.md)" rejects tagcase 'import os  # noqa: F401  T99: x'
-ckp "rejects a ticket with no reason ('T32' alone)" rejects tagcase 'import os  # noqa: F401  T32'
-ckp "rejects no space after the colon ('T32:x')" rejects tagcase 'import os  # noqa: F401  T32:x'
-ckp "rejects lower-case ticket 't32: x'" rejects tagcase 'import os  # noqa: F401  t32: x'
-ckp "accepts 'T04a: reason' (sub-task id)" accepts tagcase 'import os  # noqa: F401  T04a: captured output'
+ckp "accepts DEF-001 (exists in defects.md)" accepts tagcase 'import os  # noqa: F401  # DEF-001: core stub'
+ckp "rejects DEF-999 (not in defects.md)" rejects tagcase 'import os  # noqa: F401  # DEF-999: x'
+ckp "rejects T99 (not in TASKS.md)" rejects tagcase 'import os  # noqa: F401  # T99: x'
+ckp "rejects a ticket with no reason ('T32' alone)" rejects tagcase 'import os  # noqa: F401  # T32'
+ckp "rejects no space after the colon ('T32:x')" rejects tagcase 'import os  # noqa: F401  # T32:x'
+ckp "rejects lower-case ticket 't32: x'" rejects tagcase 'import os  # noqa: F401  # t32: x'
+ckp "accepts 'T04a: reason' (sub-task id)" accepts tagcase 'import os  # noqa: F401  # T04a: captured output'
+ckp "rejects the bare form 'noqa: F401  T32: x' (ruff would drop the directive)" rejects tagcase 'import os  # noqa: F401  T32: x'
 ckp "rejects a ticket on a different line from the suppression" rejects tagcase "$(printf '# T32: reason on another line\nimport os  # noqa: F401')"
-ckp "rejects a ticket in prose before the code on the previous line only (same-line rule)" rejects tagcase "$(printf 'import os  # noqa: F401\n# T32: reason')"
+ckp "rejects a ticket on the next line only (same-line rule)" rejects tagcase "$(printf 'import os  # noqa: F401\n# T32: reason')"
 cfg_case() { local d=$WORK/ex_cfg_$RANDOM; mkrepo "$d" || return 1; put "$d/$1" "$2"; ex_run "$d"; }
 ckp "config path exclude without ticket rejected (.markdownlint-cli2.yaml ignores)" rejects cfg_case .markdownlint-cli2.yaml "$(printf 'ignores:\n  - "docs/TASKS.md"')"
 ckp "config path exclude with ticket accepted" accepts cfg_case .markdownlint-cli2.yaml "$(printf 'ignores:\n  - "docs/TASKS.md"  # T32: owner document')"
 ckp "ruff exclude without ticket rejected" rejects cfg_case ruff.toml 'exclude = ["docs/tests/*/evidence"]'
 ckp "ruff exclude with ticket accepted" accepts cfg_case ruff.toml 'exclude = ["docs/tests/*/evidence"]  # T04a: captured output'
+ckp "yamllint per-rule ignore path without ticket rejected (the yamllint exception form)" rejects cfg_case .yamllint.yaml "$(printf 'rules:\n  line-length:\n    ignore:\n      - docs/x.yaml')"
+ckp "yamllint per-rule ignore path with a YAML comment ticket accepted" accepts cfg_case .yamllint.yaml "$(printf 'rules:\n  line-length:\n    ignore:\n      - docs/x.yaml  # T32: legacy')"
+ckp "Spectral overrides rule off without ticket rejected" rejects cfg_case .spectral.yaml "$(printf 'overrides:\n  - files: ["openapi.yaml#/paths"]\n    rules:\n      oas3-schema: "off"')"
+ckp "Spectral overrides rule off with a ticket comment accepted" accepts cfg_case .spectral.yaml "$(printf 'overrides:\n  - files: ["openapi.yaml#/paths"]\n    rules:\n      oas3-schema: "off"  # T32: legacy')"
 
 echo "== TC-T04a-19 coverage gate: floors and boundaries on Cobertura fixtures (AC7, verification 'coverage drop')"
 ckp "script exists: scripts/coverage_gate.py" test -s "$S/coverage_gate.py"
@@ -619,9 +633,13 @@ mdlen() { python3 -I - "$@" <<'PY'
 import re, sys
 bad = []
 for p in sys.argv[1:]:
-    fence = False
+    fence = False; fm = False
     for n, line in enumerate(open(p, encoding="utf-8"), 1):
         s = line.rstrip("\n")
+        if n == 1 and s.rstrip() == "---": fm = True; continue          # YAML front matter, as markdownlint
+        if fm:
+            if s.rstrip() in ("---", "..."): fm = False
+            continue
         if re.match(r"\s*(```|~~~)", s): fence = not fence; continue
         if fence or s.lstrip().startswith("|") or s.startswith("#"): continue
         if len(s) > 100 and re.match(r"^.{100}.*\s", s): bad.append(f"{p}:{n} ({len(s)})")
@@ -633,6 +651,12 @@ mdself() { printf '%s\n' "$(printf 'word %.0s' $(seq 1 40))" >"$WORK/long.md"
   printf '| %s |\n```\n%s\n```\n# %s\nhttps://%s\n' "$(printf 'c%.0s' $(seq 1 130))" "$(printf 'x%.0s' $(seq 1 130))" "$(printf 'h%.0s' $(seq 1 130))" "$(printf 'u%.0s' $(seq 1 130))" >"$WORK/exempt.md"
   ! mdlen "$WORK/long.md" >/dev/null && mdlen "$WORK/exempt.md" >/dev/null; }
 ckp "checker self-test: prose line flagged; table, code, heading and bare URL exempt" mdself
+mdfm() { local long; long=$(printf 'word %.0s' $(seq 1 40))
+  printf -- '---\ndescription: %s\n---\n# Title\n\nshort\n' "$long" >"$WORK/fm.md"
+  printf 'intro\n\n---\ndescription: %s\n---\n' "$long" >"$WORK/notfm.md"
+  printf -- '---\ndescription: %s\n---\n\n%s\n' "$long" "$long" >"$WORK/fm_then_prose.md"
+  mdlen "$WORK/fm.md" >/dev/null && ! mdlen "$WORK/notfm.md" >/dev/null && ! mdlen "$WORK/fm_then_prose.md" >/dev/null; }
+ckp "checker self-test: leading YAML front matter exempt; '---' later in a file and prose after front matter still flagged" mdfm
 mdscan() { local F; mapfile -t F < <(git ls-files -co --exclude-standard -- '*.md' | grep -vE '^docs/TASKS\.md$|^docs/tests/[^/]+/evidence/'); [ ${#F[@]} -ge 50 ] || { echo "too few files (${#F[@]})"; return 1; }; mdlen "${F[@]}"; }
 ckp "all project-authored Markdown (excluding docs/TASKS.md and evidence) within 100 characters" mdscan
 mdnew() { mdlen "$SA" "$RC" "$T/test-cases.md" docs/tasks/T04a/plan.md docs/tasks/T04a/decision-t04a-standards.md; }
@@ -671,12 +695,26 @@ indep() { python3 -I - "$REP" <<'PY'
 import re, subprocess, sys
 files = subprocess.run(["git", "ls-files", "-co", "--exclude-standard"], capture_output=True, text=True).stdout.split("\n")
 code = re.compile(r"\.(py|sh|ts|tsx|js|mjs|php|module|inc|ya?ml|toml|ini|cfg|neon)$|(^|/)Dockerfile")
+TK = r"(?:T\d{2}a?|DEF-\d{3}): \S"          # D-4 addendum: the ticket must follow the tool's own separator
 tok = {"noqa": r"#\s*noqa", "type: ignore": r"#\s*type:\s*ignore", "pragma: no cover": r"#\s*pragma:\s*no cover",
        "eslint-disable": r"(//|/\*)\s*eslint-disable", "@ts-expect-error": r"(//|/\*)\s*@ts-expect-error",
        "phpcs:ignore": r"(//|#|/\*)\s*phpcs:ignore", "@phpstan-ignore": r"@phpstan-ignore", "shellcheck": r"#\s*shellcheck\s+disable",
-       "yamllint": r"#\s*yamllint\s+disable", "markdownlint": r"^\s*<!--\s*markdownlint-disable", "hadolint": r"#\s*hadolint\s+ignore"}
-skip = re.compile(r"^(scripts/exceptions_report\.py|scripts/tests/|docs/tests/T04a/|docs/tests/[^/]+/evidence/)")
-ticket = re.compile(r"\b(T\d{2}a?|DEF-\d{3}): \S")
+       "yamllint": r"#\s*yamllint\s+disable", "markdownlint": r"^\s*<!--\s*markdownlint-disable", "hadolint": r"#\s*hadolint\s+ignore",
+       "@ts-ignore": r"@ts-ignore"}
+# per tool: the regex the whole line must match to count as correctly ticketed (None = never allowed)
+ok_form = {"noqa": r"#\s*noqa:\s*[A-Z]+[0-9]+(?:[,\s]+[A-Z]+[0-9]+)*\s+#\s*" + TK,
+           "type: ignore": r"type:\s*ignore\[[^\]#]+\]\s+#\s*" + TK,
+           "pragma: no cover": r"pragma:\s*no cover\s+#\s*" + TK,
+           "shellcheck": r"shellcheck\s+disable=\S+\s+#\s*" + TK,
+           "hadolint": r"hadolint\s+ignore=\S+\s+#\s*" + TK,
+           "eslint-disable": r"eslint-disable\S*\s+[@\w/-]+.*\s--\s+" + TK,
+           "phpcs:ignore": r"phpcs:ignore\s+\S+.*\s--\s+" + TK,
+           "@phpstan-ignore": r"@phpstan-ignore\s+\S+\s+\(" + TK,
+           "@ts-expect-error": r"@ts-expect-error\s+" + TK,
+           "markdownlint": r"-->\s*<!--\s*" + TK,
+           "yamllint": None, "@ts-ignore": None}
+skip = re.compile(r"^(scripts/exceptions_report\.py|scripts/tests/|docs/tasks/|docs/tests/T04a/|docs/tests/[^/]+/evidence/)")
+ticket = None
 counts = {k: 0 for k in tok}; untagged = []
 for f in files:
     if not f or skip.match(f) or not (code.search(f) or f.endswith(".md")): continue
@@ -687,7 +725,8 @@ for f in files:
             if k == "markdownlint" and not f.endswith(".md"): continue
             if re.search(rx, l):
                 counts[k] += 1
-                if not ticket.search(l): untagged.append(f"{f}:{n}: {k}")
+                form = ok_form[k]
+                if form is None or not re.search(form, l): untagged.append(f"{f}:{n}: {k} (no ticket in the tool's comment slot)")
 rep = open(sys.argv[1]).read()
 errs = [f"untagged: {u}" for u in untagged[:8]]
 for k, c in counts.items():
@@ -736,8 +775,11 @@ nobr() { local f; mapfile -t f < <(t4files); [ ${#f[@]} -ge 10 ] && ! grep -niE 
 ckp "no broker vendor names or trading hostnames in the T04a files" nobr
 nosec() { local f; mapfile -t f < <(t4files); [ ${#f[@]} -ge 10 ] && ! grep -nE 'sk-ant-[A-Za-z0-9]|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20}|xox[bp]-' "${f[@]}"; }
 ckp "no secret patterns in the T04a files" nosec
-envsame() { git diff --quiet main -- .env.example 2>/dev/null || git diff --quiet origin/main -- .env.example; }
-ckp ".env.example unchanged against main (no new variables)" envsame
+envsame() { local first base   # review finding 6: base = parent of the first T04a commit, not local main
+  first=$(git log --format=%H --grep='^T04a: ' --reverse | head -1); [ -n "$first" ] || { echo "no T04a commit yet"; return 1; }
+  base=$(git rev-parse "$first^") || return 1; echo "base $base"
+  git diff --quiet "$base" -- .env.example; }
+ckp ".env.example unchanged since the parent of the first T04a commit (no new variables)" envsame
 ckp "check-names.sh clean" scripts/check-names.sh
 
 echo "== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]"
@@ -775,6 +817,14 @@ blk "TC-T04a-49 bad PHP style rejected by phpcs and PHPStan (needs T05 Composer 
 blk "TC-T04a-50 ESLint error, tsc --noEmit failure, Prettier failure (needs the T21 scaffold)"
 blk "TC-T04a-51 CI coverage drop, CI branch-name check, real Cobertura attribute names (needs T08, T09, T13, T21)"
 blk "TC-T04a-52 manual review of ten standards rules against the checklist (tester, evidence manual-review.md)"
+echo "== TC-T04a-53 to 56 owner-run real-tool checks of the D-4 addendum 'verify' rows (OQ-T04a-6)"
+blk "TC-T04a-53 coverage.py honours '# pragma: no cover  # T13: reason' (owner-run, pip install coverage)"
+blk "TC-T04a-54 hadolint honours '# hadolint ignore=DL3008 # T06: reason' (owner-run)"
+blk "TC-T04a-55 markdownlint honours the separate-comment ticket form (owner-run)"
+blk "TC-T04a-56 yamllint per-rule ignore: path with a ticket comment works; the inline ticket form is silently ignored (owner-run)"
+echo "== TC-T04a-57 to 58 deferred real-tool checks of the addendum"
+blk "TC-T04a-57 TypeScript '// @ts-expect-error T21: reason' suppresses the error (deferred to T21)"
+blk "TC-T04a-58 phpcs '// phpcs:ignore <sniff> -- T09: reason' suppresses the sniff (deferred to T05 or T09)"
 
 # =====================================================================================================
 else   # ---------- --owner mode ----------
@@ -834,6 +884,43 @@ echo "== TC-T04a-47 bad branch name through quality.sh"
 ob2() { cd "$OD" || return 1; git checkout -q -b feature/bad; local ev="$ROOT/$T/evidence/TC-T04a-47-rejected.txt"
   scripts/quality.sh >"$ev" 2>&1; local rc=$?; [ $rc -ne 0 ] && grep -qiE 'FAIL.*branch' "$ev"; }
 ckp "branch feature/bad: quality.sh exits non-zero with a FAIL on the branch step" ob2
+
+# ----- real-tool checks of the D-4 addendum rows marked 'verify' (OQ-T04a-6) -----
+# hookrun FILE CONTENT: write FILE in the clone, run every hook on it, leave the output in HOUT and the status in HRC
+hookrun() { put "$OD/$1" "$2"; git -C "$OD" add "$1"; HOUT=$(cd "$OD" && .tools/pre-commit run --files "$1" 2>&1); HRC=$?
+  git -C "$OD" rm -q -f --cached "$1"; rm -f "$OD/$1"; }
+echo "== TC-T04a-53 coverage.py pragma form"
+cov() { local v=$WORK/venv; python3 -m venv "$v" && "$v/bin/pip" install -q coverage || return 1
+  local d=$WORK/cov; mkdir -p "$d"; cd "$d" || return 1
+  printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:  # pragma: no cover  # T13: reason\n        return 2\n    return 0\n' >x.py
+  printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:\n        return 2\n    return 0\n' >y.py
+  printf 'import x, y\nx.f(1); x.f(0); y.f(1); y.f(0)\n' >t.py
+  "$v/bin/coverage" run t.py && "$v/bin/coverage" report -m --include=x.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-pragma.txt" 2>&1 || { echo "pragma form did not exclude the line"; return 1; }
+  "$v/bin/coverage" report -m --include=y.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-control.txt" 2>&1 && { echo "control without pragma reached 100"; return 1; }; return 0; }
+ckp "x.py with the ticketed pragma reaches 100 percent; the same code without it does not" cov
+echo "== TC-T04a-54 hadolint ignore with a ticket comment"
+hl() { hookrun zz/Dockerfile $'FROM alpine:3.20\n# hadolint ignore=DL3018 # T06: reason\nRUN apk add curl'; local a=$HOUT
+  hookrun zz/Dockerfile $'FROM alpine:3.20\nRUN apk add curl'; local b=$HOUT
+  printf '%s\n' "$a" >"$ROOT/$T/evidence/TC-T04a-54-ignored.txt"; printf '%s\n' "$b" >"$ROOT/$T/evidence/TC-T04a-54-control.txt"
+  ! grep -q DL3018 <<<"$a" && grep -q DL3018 <<<"$b"; }
+ckp "DL3018 reported without the pragma, absent with '# hadolint ignore=DL3018 # T06: reason'" hl
+echo "== TC-T04a-55 markdownlint separate-comment ticket form"
+LONGP=$(printf 'word %.0s' $(seq 1 40))
+ml() { hookrun docs/zz_ml.md "$(printf '# T\n\n<!-- markdownlint-disable-next-line MD013 --> <!-- T32: reason -->\n%s\n' "$LONGP")"; local a=$HOUT ra=$HRC
+  hookrun docs/zz_ml.md "$(printf '# T\n\n%s\n' "$LONGP")"; local b=$HOUT rb=$HRC
+  printf '%s\n' "$a" >"$ROOT/$T/evidence/TC-T04a-55-ignored.txt"; printf '%s\n' "$b" >"$ROOT/$T/evidence/TC-T04a-55-control.txt"
+  [ $ra -eq 0 ] && [ $rb -ne 0 ]; }
+ckp "long line passes with the disable-next-line plus ticket comment; fails without" ml
+echo "== TC-T04a-56 yamllint ignore: path list and the inline ticket form"
+yl() { local cfg=$OD/.yamllint.yaml; cp "$cfg" "$WORK/yamllint.orig"
+  printf -- '---\nextends: default\nrules:\n  line-length:\n    max: 40\n    ignore:\n      - docs/zz_ignored.yaml  # T32: reason\n' >"$cfg"
+  local long='---\nkey: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'
+  hookrun docs/zz_ignored.yaml "$(printf '%b' "$long")"; local a=$HRC; printf '%s\n' "$HOUT" >"$ROOT/$T/evidence/TC-T04a-56-ignored.txt"
+  hookrun docs/zz_other.yaml "$(printf '%b' "$long")"; local b=$HRC; printf '%s\n' "$HOUT" >"$ROOT/$T/evidence/TC-T04a-56-control.txt"
+  hookrun docs/zz_inline.yaml "$(printf '%b # yamllint disable-line rule:line-length # T32: x' "$long" | sed 's/"$/"/')"; local c=$HRC; printf '%s\n' "$HOUT" >"$ROOT/$T/evidence/TC-T04a-56-inline.txt"
+  cp "$WORK/yamllint.orig" "$cfg"
+  [ $a -eq 0 ] && [ $b -ne 0 ] && [ $c -ne 0 ]; }
+ckp "ignored path passes; other path fails; inline directive with trailing ticket text is silently ignored (still fails)" yl
 fi
 
 echo

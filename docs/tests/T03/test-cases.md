@@ -9,25 +9,50 @@
 
 ## How to run
 
-- Automated cases: `docs/tests/T03/run-checks.sh 2>&1 | tee docs/tests/T03/evidence/run-checks.txt`. Each automated case maps to the block headed `== TC-T03-nn` in the output; copy that block to `docs/tests/T03/evidence/TC-T03-nn.txt`. The script exits non-zero if any check fails and prints `SKIP` only for optional tools (pre-commit, markdownlint), which the report must list.
-- Helpers called by the script (also runnable alone, from the repo root): `python3 -I docs/tests/T03/validate_openapi.py [path]` (python3 + PyYAML only), `python3 -I docs/tests/T03/check_env_parity.py`, `python3 -I docs/tests/T03/check_data_model.py` (path override: env `DM_PATH`), `python3 -I docs/tests/T03/selftest_validator.py`.
-- Manual cases (type "Manual" or "Owner-run"): performed at execution; notes and command output go in `evidence/TC-T03-nn.txt`.
-- Designed from the criteria and plan before the documents existed. The scripts are expected to fail until `technical-design.md`, `data-model.md`, `openapi.yaml`, `.spectral.yaml`, the TRACEABILITY column and the sign-off exist. No check passes on a missing file. The only checks that pass today concern files that already exist (`check-names.sh`, `.env.example` hygiene, the TRACEABILITY header, the validator self-test) and guard against regressions.
-- Assumed layout (from the plan): `technical-design.md` has `#` headings for D1 to D8, a heading with "idempotency", "outbox", an "Environment and secrets matrix" section (Markdown table, first column `Name`, columns consumer, purpose, secret yes/no, DDEV, Pantheon, Vercel, GitHub Actions, task), and a "Sign-off" section. `data-model.md` has a Drupal region with one subsection per bundle (field table with Type, Validation, Indexed columns) and a Postgres region with one subsection per table (Column, Type columns). If the author uses another layout, raise a defect about the layout and change the scripts only through a recorded change, never to hide a content gap.
-- The sandbox has no network, so Spectral (`npx`) is an owner-run case (TC-T03-10). Until its output is stored, AC3 is Blocked and the report cannot be signed off.
+- Automated cases: `docs/tests/T03/run-checks.sh 2>&1 | tee docs/tests/T03/evidence/run-checks.txt`.
+  Each automated case maps to the block headed `== TC-T03-nn` in the output; copy that block to
+  `docs/tests/T03/evidence/TC-T03-nn.txt`. The script exits non-zero if any check fails and prints
+  `SKIP` only for optional tools (pre-commit, markdownlint), which the report must list.
+- Helpers called by the script (also runnable alone, from the repo root):
+  `python3 -I docs/tests/T03/validate_openapi.py [path]` (python3 + PyYAML only),
+  `python3 -I docs/tests/T03/check_env_parity.py`, `python3 -I docs/tests/T03/check_data_model.py`
+  (path override: env `DM_PATH`), `python3 -I docs/tests/T03/selftest_validator.py`.
+- Manual cases (type "Manual" or "Owner-run"): performed at execution; notes and command output go
+  in `evidence/TC-T03-nn.txt`.
+- Designed from the criteria and plan before the documents existed. The scripts are expected to fail
+  until `technical-design.md`, `data-model.md`, `openapi.yaml`, `.spectral.yaml`, the TRACEABILITY
+  column and the sign-off exist. No check passes on a missing file. The only checks that pass today
+  concern files that already exist (`check-names.sh`, `.env.example` hygiene, the TRACEABILITY
+  header, the validator self-test) and guard against regressions.
+- Assumed layout (from the plan): `technical-design.md` has `#` headings for D1 to D8, a heading
+  with "idempotency", "outbox", an "Environment and secrets matrix" section (Markdown table, first
+  column `Name`, columns consumer, purpose, secret yes/no, DDEV, Pantheon, Vercel, GitHub Actions,
+  task), and a "Sign-off" section. `data-model.md` has a Drupal region with one subsection per
+  bundle (field table with Type, Validation, Indexed columns) and a Postgres region with one
+  subsection per table (Column, Type columns). If the author uses another layout, raise a defect
+  about the layout and change the scripts only through a recorded change, never to hide a content
+  gap.
+- The sandbox has no network, so Spectral (`npx`) is an owner-run case (TC-T03-10). Until its output
+  is stored, AC3 is Blocked and the report cannot be signed off.
 
 ## Acceptance criteria (labels used below)
 
-- AC1: Drupal content model spec: content types (Decision, Position, Daily Run, Price Snapshot summary, Watchlist Item), every field with type, validation, indexing
+- AC1: Drupal content model spec: content types (Decision, Position, Daily Run, Price Snapshot
+  summary, Watchlist Item), every field with type, validation, indexing
 - AC2: Postgres schema spec and migration plan (tables, keys, unique constraints, indexes)
 - AC3: engine to Drupal ingest contract as `docs/architecture/openapi.yaml`; passes OpenAPI linting
-- AC4: idempotency rule documented (external ID per record, upsert semantics) and outbox/retry design for Drupal outages
-- AC5: authentication design: engine to Drupal (OAuth client credentials, scope), Next.js to Drupal (read scope), user login flow
-- AC6: environment and secrets matrix (local DDEV, Pantheon dev, Vercel, GitHub Actions) listing every variable
-- AC7: repo and deploy strategy decided, including Drupal composer root and how `apps/drupal` reaches Pantheon
+- AC4: idempotency rule documented (external ID per record, upsert semantics) and outbox/retry
+  design for Drupal outages
+- AC5: authentication design: engine to Drupal (OAuth client credentials, scope), Next.js to Drupal
+  (read scope), user login flow
+- AC6: environment and secrets matrix (local DDEV, Pantheon dev, Vercel, GitHub Actions) listing
+  every variable
+- AC7: repo and deploy strategy decided, including Drupal composer root and how `apps/drupal`
+  reaches Pantheon
 - AC8: every requirement ID traces to at least one design element in `docs/TRACEABILITY.md`
 - AC9: solution-architect sign-off recorded
-- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh`, markdown, secret and OpenAPI checks, since CI arrives in T08)
+- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh`, markdown,
+  secret and OpenAPI checks, since CI arrives in T08)
 - PX: plan extras (NFR numbers with source or provisional gate; T02 follow-up edits; revalidation secret)
 - SIM: CLAUDE.md simulation-only rule (no broker names or trading domains)
 
@@ -54,13 +79,22 @@
 | PX: NFR numbers owned by T03, T02 follow-ups, revalidation secret | TC-T03-13, 17, 28 |
 | SIM: no broker names or trading domains | TC-T03-21 |
 
-Plan test hooks mapped: OpenAPI structural script (07, 08), owner-run Spectral (10), env parity (14), traceability check (18). Negative coverage: validator mutation self-test (16 seeded defects plus unparseable and missing file, 08), 401/403/413/422/429 documented (07), stale and changed records (05, 25), 422 dead-letter and outage paths (06, 25), empty or TBD cells rejected (02, 14, 18), broker-name grep (21).
+Plan test hooks mapped: OpenAPI structural script (07, 08), owner-run Spectral (10), env parity
+(14), traceability check (18). Negative coverage: validator mutation self-test (16 seeded defects
+plus unparseable and missing file, 08), 401/403/413/422/429 documented (07), stale and changed
+records (05, 25), 422 dead-letter and outage paths (06, 25), empty or TBD cells rejected (02, 14,
+18), broker-name grep (21).
 
-Automated cases: 01 to 22. Manual or owner-run: 23 to 32. Total 32. Mermaid rendering is TC-T03-30... see numbering in the case headings below, which is authoritative.
+Automated cases: 01 to 22. Manual or owner-run: 23 to 32. Total 32. Mermaid rendering is
+TC-T03-30... see numbering in the case headings below, which is authoritative.
 
 ## Cases
 
-Standard steps for automated cases: (1) `docs/tests/T03/run-checks.sh 2>&1 | tee docs/tests/T03/evidence/run-checks.txt`; (2) copy the `== TC-T03-nn` block to `evidence/TC-T03-nn.txt`. Standard precondition: T03 documents written and reviewed, branch `task/T03-technical-design`, run from the repo root with python3 and PyYAML available.
+Standard steps for automated cases: (1)
+`docs/tests/T03/run-checks.sh 2>&1 | tee docs/tests/T03/evidence/run-checks.txt`; (2) copy the
+`== TC-T03-nn` block to `evidence/TC-T03-nn.txt`. Standard precondition: T03 documents written and
+reviewed, branch `task/T03-technical-design`, run from the repo root with python3 and PyYAML
+available.
 
 ### TC-T03-01: Technical design has D1 to D8 sections, links and requirement map
 

@@ -77,7 +77,7 @@ Secrets:
 
 - [ ] Do all secrets come from environment variables or a platform store, never from code,
   config exports or fixtures?
-- [ ] Did gitleaks run, with no `--no-verify` anywhere in the history of the branch?
+- [ ] Did gitleaks and the commit-range check pass on the PR range (`quality.sh`, CI from T08)?
 - [ ] Is browser code free of secrets (no secret in a `NEXT_PUBLIC_` variable)?
 
 Dependencies:
@@ -98,9 +98,21 @@ Exceptions:
 
 - [ ] Does every new suppression or config exclude cite a ticket on the same line, in the
   format `Txx: reason` or `DEF-nnn: reason`?
+- [ ] Is the ticket in the tool's own comment slot, in the form given in the per-tool table of
+  the exception policy (second `#` for ruff, mypy, coverage, shellcheck, hadolint; `--` for
+  ESLint and phpcs; parentheses for PHPStan; a separate HTML comment for markdownlint), and
+  not as bare text after the rule list?
+- [ ] Is the change free of inline yamllint disables, with any YAML exception made as a
+  per-rule `ignore:` entry in `.yamllint.yaml` carrying a ticket comment?
+- [ ] Is every Spectral exception an `overrides:` entry in `.spectral.yaml` with a ticket
+  comment on the rule line?
+- [ ] Is the TypeScript `ts-ignore` directive absent (only `@ts-expect-error` with a ticket)?
+- [ ] If a new suppression uses a form still marked "verify (OQ-T04a-6)", is there evidence
+  that the suppression takes effect in the real tool?
 - [ ] Does the cited ticket exist, and is it the task that will remove or re-decide it?
 - [ ] Does no exception name the task being closed as its remover?
 - [ ] Does each suppression target one rule code, not a whole file or every rule?
+- [ ] Does `scripts/exceptions_report.py` pass, and do its per-tool counts match the change?
 
 ## 5. Tests assert behaviour
 
@@ -123,20 +135,35 @@ PHP and Drupal:
 - [ ] Do services use dependency injection, and do queries use the Entity or Database API with
   placeholders and an explicit `accessCheck()`?
 - [ ] Is the configuration exported to `config/sync` with no secret in it?
+- [ ] Does every PHP file declare `strict_types=1`, with typed parameters, returns and
+  properties?
+- [ ] Are hooks `#[Hook]` classes in `src/Hook/` with constructor injection, with procedural
+  code and `\Drupal::` calls only in install, update or not-yet-OOP hooks?
+- [ ] Does every new route declare a permission or OAuth scope?
+- [ ] Does every ingest failure return the `Error` schema from `openapi.yaml`?
 
 Python:
 
 - [ ] Do ruff lint and ruff format pass, with line length 100 and the right target version?
 - [ ] Does mypy pass in strict mode for `scripts/`, `.claude/hooks/` and `meridian_engine`?
 - [ ] Is `subprocess` called with an argument list and no `shell=True`?
-- [ ] Are datetimes timezone-aware?
+- [ ] Are datetimes timezone-aware, timestamps stored in UTC, and `trade_date` derived in
+  `Asia/Kolkata`, never from host local time?
+- [ ] Do prices, cash, costs and P&L use `Decimal` on the simulation, persistence and publish
+  paths, with floats only inside indicator maths?
+- [ ] Is engine code free of `print()`, with human output through the one output module?
+- [ ] Is engine I/O (market data, LLM, Drupal) behind an interface that tests replace with a
+  fake?
+- [ ] Does each command-line tool exit non-zero on failure with one clear line on stderr?
 
 TypeScript and Next.js:
 
 - [ ] Do ESLint, Prettier and `tsc --noEmit` (strict) pass?
 - [ ] Is the code free of `any`, and is every non-null assertion or cast explained?
 - [ ] Is LLM and API text rendered escaped, with no `dangerouslySetInnerHTML`?
-- [ ] Does every new route and data route require authentication?
+- [ ] Does every new page and data route require authentication, and was no route added to
+  the exempt list in `technical-design.md` D6 without a design change?
+- [ ] Is data from Drupal validated at the `lib/` client boundary before use?
 
 SQL and migrations:
 
@@ -145,10 +172,13 @@ SQL and migrations:
 - [ ] Are all queries parameterised, with no SQL built from strings?
 - [ ] Does a destructive change use the two-revision pattern, and is the data-model spec
   updated?
+- [ ] Does every new read-path query have a supporting index listed in the technical design?
 
 Docker and YAML:
 
 - [ ] Does hadolint pass, with base images pinned and the container running as non-root?
+- [ ] Is no secret passed through `ARG`, `ENV` or a layer, and does the build context have a
+  `.dockerignore`?
 - [ ] Does yamllint pass, and do workflow actions use pinned SHAs and least-privilege
   permissions?
 
@@ -157,6 +187,7 @@ Shell:
 - [ ] Does the shell script use `set -euo pipefail` and pass shellcheck?
 - [ ] Are expansions quoted, temporary files cleaned up by a trap, and no failure hidden by
   `|| true` without a comment?
+- [ ] Does the script resolve paths from the repo root, so it runs from any directory?
 
 Markdown:
 
@@ -165,17 +196,24 @@ Markdown:
 
 OpenAPI:
 
-- [ ] Does Spectral pass on `openapi.yaml` with `spectral:oas` and no rule switched off without
-  a ticket?
+- [ ] Does Spectral pass on `openapi.yaml` with `spectral:oas` and `--fail-severity=warn`,
+  with any rule switched off only through a ticketed `overrides:` entry?
 - [ ] Do the contract and the data-model spec agree, and were contract tests updated?
 
 LLM prompt files:
 
 - [ ] Is the prompt in a versioned file, with the version bumped on every text change and
   stored per decision?
+- [ ] Is the JSON schema a versioned file next to the prompt, and does a schema change bump
+  `prompt_version`?
 - [ ] Is untrusted text fenced and labelled as data, with an injection test per untrusted
   field?
-- [ ] Is the reply validated against a JSON schema, with any failure becoming a veto?
+- [ ] Is the reply parsed strictly (no repair, no JSON extracted from prose) and validated
+  against the schema, with any failure, including a schema violation, becoming a veto?
+- [ ] Can the LLM only turn a BUY into a veto, and never create a BUY (FR-05)?
+- [ ] Is the raw LLM output stored with every decision (FR-12)?
+- [ ] Does the model name come from configuration, not from the prompt or code?
+- [ ] Did the solution-architect review the prompt change?
 - [ ] Is the prompt free of secrets and personal data?
 
 ## 7. Assets and theme (section 0b)
@@ -188,6 +226,7 @@ LLM prompt files:
 
 - [ ] Is the branch named `task/Txx-slug` for the task under review?
 - [ ] Does every commit subject start with the task ID (`Txx: `), stay within 72 characters,
-  and contain no `fixup!` or `squash!` commit?
+  and contain no `fixup!` or `squash!` commit? (The rule applies to commits after `RULE_START`,
+  `7689ec5`; older history is exempt.)
 - [ ] Was the test design committed before the implementation where the task requires git
   order?

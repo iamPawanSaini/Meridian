@@ -45,16 +45,20 @@
 | TC-T03-31 | C1, C2, C5, AC9 | Pass (re-check, commit 96b4c17) | `evidence/manual-review.md` |
 | TC-T03-32 | C7 | Blocked | `evidence/manual-review.md` |
 
-Totals: 30 pass, 0 fail, 2 blocked, 0 not run (32 cases). TC-T03-24 failed on the first run (DEF-002) and passed on retest after Revision 3.
+Totals: 30 pass, 0 fail, 2 blocked, 0 not run (32 cases). TC-T03-24 failed on the first run
+(DEF-002) and passed on retest after Revision 3.
 
-Blocked cases (none is a document defect; TC-T03-31 was Blocked until T03 was committed and passed on re-check):
+Blocked cases (none is a document defect; TC-T03-31 was Blocked until T03 was committed and passed
+on re-check):
 
-- TC-T03-10 Spectral lint: owner-run, no network. The structural validator (TC-07, 49 checks) and its self-test (TC-08) pass, but the documented lint has not been run.
+- TC-T03-10 Spectral lint: owner-run, no network. The structural validator (TC-07, 49 checks) and
+  its self-test (TC-08) pass, but the documented lint has not been run.
 - TC-T03-32 Mermaid render: no renderer available.
 
 Optional tools missing (TC-22): pre-commit and markdownlint, recorded as SKIP, not as pass.
 
-Deviation: TC-T03-30 used a clone plus an overlay of the uncommitted T03 files, not a clone of a committed branch.
+Deviation: TC-T03-30 used a clone plus an overlay of the uncommitted T03 files, not a clone of a
+committed branch.
 
 ## Defects raised
 
@@ -62,15 +66,26 @@ Deviation: TC-T03-30 used a clone plus an overlay of the uncommitted T03 files, 
 |---|---|---|
 | DEF-002 `uq_runs_date_attempt` collides for a second `publish` or `replay` row on the same date (`docs/tests/defects.md`) | Medium | Retest passed (fix commit pending, main session) |
 
-Script defects fixed during design (not product defects): TC-T03-09 and TC-T03-17 quoting errors, recorded in the Change log of `test-cases.md`.
+Script defects fixed during design (not product defects): TC-T03-09 and TC-T03-17 quoting errors,
+recorded in the Change log of `test-cases.md`.
 
 ## Coverage notes
 
-- All nine acceptance criteria and C1 to C7 have at least one executed case; see the coverage table in `test-cases.md`.
-- Automated evidence: 355 PASS lines in `evidence/run-checks.txt`, split per case. Helper outputs: `validate_openapi.txt`, `selftest_validator.txt`, `check_data_model.txt`, `check_env_parity.txt`.
-- Not covered: the real Spectral ruleset run (owner), rendering of the Mermaid diagram, commit-history checks, and all runtime behaviour (Drupal, Alembic and Pantheon facts marked unverified are confirmed by T07, T09, T10, T14 and T22, not by this task).
-- Observation, not a defect: Postgres `prices.source` has no named CHECK although Drupal restricts it to `yfinance` or `stub` (suggest `ck_prices_source` in T14).
+- All nine acceptance criteria and C1 to C7 have at least one executed case; see the coverage table
+  in `test-cases.md`.
+- Automated evidence: 355 PASS lines in `evidence/run-checks.txt`, split per case. Helper outputs:
+  `validate_openapi.txt`, `selftest_validator.txt`, `check_data_model.txt`, `check_env_parity.txt`.
+- Not covered: the real Spectral ruleset run (owner), rendering of the Mermaid diagram,
+  commit-history checks, and all runtime behaviour (Drupal, Alembic and Pantheon facts marked
+  unverified are confirmed by T07, T09, T10, T14 and T22, not by this task).
+- Observation, not a defect: Postgres `prices.source` has no named CHECK although Drupal restricts
+  it to `yfinance` or `stub` (suggest `ck_prices_source` in T14).
 
 ## Sign-off
 
-**Not signed off.** No case fails and TC-T03-31 now passes (commit 96b4c17, deviation: chronology judged from file contents because everything landed in one commit). Two cases remain Blocked, neither a document defect: TC-T03-10 (Spectral lint, owner-run, no network) and TC-T03-32 (Mermaid render, no renderer). Under the sign-off rule the report stays "Not signed off" until the owner stores the Spectral output and the diagram render is confirmed or the owner accepts the by-eye check. tester, 2026-11-01.
+**Not signed off.** No case fails and TC-T03-31 now passes (commit 96b4c17, deviation: chronology
+judged from file contents because everything landed in one commit). Two cases remain Blocked,
+neither a document defect: TC-T03-10 (Spectral lint, owner-run, no network) and TC-T03-32 (Mermaid
+render, no renderer). Under the sign-off rule the report stays "Not signed off" until the owner
+stores the Spectral output and the diagram render is confirmed or the owner accepts the by-eye
+check. tester, 2026-11-01.

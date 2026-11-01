@@ -50,7 +50,9 @@
 
 Totals: 33 pass, 0 fail, 2 blocked, 0 not run.
 
-Full script output: `evidence/run-checks.txt`. The only `FAIL` line in it is `BLOCKED .tools/pre-commit not installed` (TC-T02-29), an environment condition, not a document defect. The script exits non-zero because of that line.
+Full script output: `evidence/run-checks.txt`. The only `FAIL` line in it is
+`BLOCKED .tools/pre-commit not installed` (TC-T02-29), an environment condition, not a document
+defect. The script exits non-zero because of that line.
 
 ## Defects raised
 
@@ -58,25 +60,36 @@ Full script output: `evidence/run-checks.txt`. The only `FAIL` line in it is `BL
 |---|---|---|
 | (none) | | |
 
-No document defects were found. The three blocked cases are environment or owner-action blocks, so nothing was logged in `docs/tests/defects.md`.
+No document defects were found. The three blocked cases are environment or owner-action blocks, so
+nothing was logged in `docs/tests/defects.md`.
 
 ## Coverage notes
 
-- **Blocked, owner action (TC-T02-29):** the secret scan needs `.tools/pre-commit`, installed by `scripts/bootstrap-dev.sh` (owner action from T00). The other C6 sub-checks passed: `.env.example` is unchanged against `task/T01-agents`, and no key-like strings were found in the T02 docs.
-- **Blocked, environment (TC-T02-32):** no GitHub preview (branch not pushed, no network) and no local Mermaid renderer. Static syntax validation passed (3 blocks, balanced fences, subgraph/alt/loop vs `end`, brackets, quotes, defined nodes) but a static check is not a render.
-- **TC-T02-34:** the tester had no web tool; the main session ran the live comparison afterwards (see evidence file). 4 of 4 sampled claims supported.
+- **Blocked, owner action (TC-T02-29):** the secret scan needs `.tools/pre-commit`, installed by
+  `scripts/bootstrap-dev.sh` (owner action from T00). The other C6 sub-checks passed: `.env.example`
+  is unchanged against `task/T01-agents`, and no key-like strings were found in the T02 docs.
+- **Blocked, environment (TC-T02-32):** no GitHub preview (branch not pushed, no network) and no
+  local Mermaid renderer. Static syntax validation passed (3 blocks, balanced fences,
+  subgraph/alt/loop vs `end`, brackets, quotes, defined nodes) but a static check is not a render.
+- **TC-T02-34:** the tester had no web tool; the main session ran the live comparison afterwards
+  (see evidence file). 4 of 4 sampled claims supported.
 - markdownlint is not available: SKIP recorded, per the plan ("if available").
 - TC-T02-19 rename sub-check is vacuous because the outcome is "keep as internal codename only".
 - Naming owner actions OA-1 to OA-5 remain open (ticketed to T33 as OQ-10). They are not test blockers.
-- Not tested: Mermaid rendering on GitHub. External claims were sampled (4 claims), not exhaustively re-verified.
+- Not tested: Mermaid rendering on GitHub. External claims were sampled (4 claims), not exhaustively
+  re-verified.
 
 ## Sign-off
 
-**Not signed off.** Cases TC-T02-29 (owner: run `scripts/bootstrap-dev.sh`, then the secret scan) and TC-T02-32 (GitHub Mermaid render, after push) are Blocked. TC-T02-34 was executed by the main session on 2026-11-01 with a web-fetch agent (4 of 4 claims supported).
+**Not signed off.** Cases TC-T02-29 (owner: run `scripts/bootstrap-dev.sh`, then the secret scan)
+and TC-T02-32 (GitHub Mermaid render, after push) are Blocked. TC-T02-34 was executed by the main
+session on 2026-11-01 with a web-fetch agent (4 of 4 claims supported).
 
 To unblock:
 
-1. TC-T02-29: owner runs `scripts/bootstrap-dev.sh` so `.tools/pre-commit` exists, then the secret scan is re-run (owner action).
-2. TC-T02-32: push the branch and view `docs/architecture/solution-architecture.md` on GitHub, or install a Mermaid renderer, then re-run (environment).
+1. TC-T02-29: owner runs `scripts/bootstrap-dev.sh` so `.tools/pre-commit` exists, then the secret
+   scan is re-run (owner action).
+2. TC-T02-32: push the branch and view `docs/architecture/solution-architecture.md` on GitHub, or
+   install a Mermaid renderer, then re-run (environment).
 
 No case failed and no document defect is open. Tester, 2026-11-01.

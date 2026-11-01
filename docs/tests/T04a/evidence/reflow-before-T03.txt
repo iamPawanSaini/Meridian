@@ -1,0 +1,379 @@
+== TC-T03-01 technical-design.md structure D1..D8, requirement map
+  PASS  technical-design.md exists and non-empty
+  PASS  heading for D1
+  PASS  heading for D2
+  PASS  heading for D3
+  PASS  heading for D4
+  PASS  heading for D5
+  PASS  heading for D6
+  PASS  heading for D7
+  PASS  heading for D8
+  PASS  links to data-model.md
+  PASS  links to openapi.yaml
+  PASS  requirement map names R-04, R-06 and R-09
+  PASS  data-model.md exists and non-empty
+== TC-T03-02 Drupal content model: five bundles, every field typed, validated, indexed
+  PASS  data-model.md exists and non-empty
+  PASS  Drupal content model region present
+  PASS  Postgres schema region present
+  PASS  [drupal] subsection for bundle decision
+  PASS  [drupal:decision] field table with Type, Validation and Indexed columns
+  PASS  [drupal:decision] at least 5 fields listed
+  PASS  [drupal:decision] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:decision] has external_id field
+  PASS  [drupal:decision] external_id: unique + regex validation + indexed
+  PASS  [drupal:decision] has field-level visible-to roles info
+  PASS  [drupal:decision] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle position
+  PASS  [drupal:position] field table with Type, Validation and Indexed columns
+  PASS  [drupal:position] at least 5 fields listed
+  PASS  [drupal:position] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:position] has external_id field
+  PASS  [drupal:position] external_id: unique + regex validation + indexed
+  PASS  [drupal:position] has field-level visible-to roles info
+  PASS  [drupal:position] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle daily_run
+  PASS  [drupal:daily_run] field table with Type, Validation and Indexed columns
+  PASS  [drupal:daily_run] at least 5 fields listed
+  PASS  [drupal:daily_run] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:daily_run] has external_id field
+  PASS  [drupal:daily_run] external_id: unique + regex validation + indexed
+  PASS  [drupal:daily_run] has field-level visible-to roles info
+  PASS  [drupal:daily_run] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle price_snapshot
+  PASS  [drupal:price_snapshot] field table with Type, Validation and Indexed columns
+  PASS  [drupal:price_snapshot] at least 5 fields listed
+  PASS  [drupal:price_snapshot] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:price_snapshot] has external_id field
+  PASS  [drupal:price_snapshot] external_id: unique + regex validation + indexed
+  PASS  [drupal:price_snapshot] has field-level visible-to roles info
+  PASS  [drupal:price_snapshot] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle watchlist_item
+  PASS  [drupal:watchlist_item] field table with Type, Validation and Indexed columns
+  PASS  [drupal:watchlist_item] at least 5 fields listed
+  PASS  [drupal:watchlist_item] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:watchlist_item] has external_id field
+  PASS  [drupal:watchlist_item] external_id: unique + regex validation + indexed
+  PASS  [drupal:watchlist_item] has field-level visible-to roles info
+  PASS  [drupal:watchlist_item] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal:decision] FR-12 provenance field: inputs snapshot
+  PASS  [drupal:decision] FR-12 provenance field: raw LLM output
+  PASS  [drupal:decision] FR-12 provenance field: prompt version
+  PASS  [drupal:decision] FR-12 provenance field: model name
+  PASS  [drupal:decision] FR-12 provenance field: rule version
+  PASS  [drupal:decision] raw LLM output visible to administrator only
+  PASS  [drupal:decision] references daily run by external_id
+  PASS  [drupal:position] references daily run by external_id
+  PASS  [drupal:decision] decision references position/run by external_id
+  PASS  [drupal:decision] mode field validated to long|short
+  PASS  [drupal:*] symbol validated by regex in decision, position, price_snapshot, watchlist_item
+  PASS  [pg] subsection for table runs
+  PASS  [pg:runs] column table with Column and Type
+  PASS  [pg:runs] at least 4 columns listed
+  PASS  [pg:runs] no empty type cells
+  PASS  [pg:runs] primary key stated
+  PASS  [pg:runs] at least one index specified (name or columns)
+  PASS  [pg:runs] NOT NULL / nullability stated
+  PASS  [pg] subsection for table watchlist_snapshots
+  PASS  [pg:watchlist_snapshots] column table with Column and Type
+  PASS  [pg:watchlist_snapshots] at least 4 columns listed
+  PASS  [pg:watchlist_snapshots] no empty type cells
+  PASS  [pg:watchlist_snapshots] primary key stated
+  PASS  [pg:watchlist_snapshots] at least one index specified (name or columns)
+  PASS  [pg:watchlist_snapshots] NOT NULL / nullability stated
+  PASS  [pg] subsection for table prices
+  PASS  [pg:prices] column table with Column and Type
+  PASS  [pg:prices] at least 4 columns listed
+  PASS  [pg:prices] no empty type cells
+  PASS  [pg:prices] primary key stated
+  PASS  [pg:prices] at least one index specified (name or columns)
+  PASS  [pg:prices] NOT NULL / nullability stated
+  PASS  [pg] subsection for table decisions
+  PASS  [pg:decisions] column table with Column and Type
+  PASS  [pg:decisions] at least 4 columns listed
+  PASS  [pg:decisions] no empty type cells
+  PASS  [pg:decisions] primary key stated
+  PASS  [pg:decisions] at least one index specified (name or columns)
+  PASS  [pg:decisions] NOT NULL / nullability stated
+  PASS  [pg] subsection for table positions
+  PASS  [pg:positions] column table with Column and Type
+  PASS  [pg:positions] at least 4 columns listed
+  PASS  [pg:positions] no empty type cells
+  PASS  [pg:positions] primary key stated
+  PASS  [pg:positions] at least one index specified (name or columns)
+  PASS  [pg:positions] NOT NULL / nullability stated
+  PASS  [pg] subsection for table outbox
+  PASS  [pg:outbox] column table with Column and Type
+  PASS  [pg:outbox] at least 4 columns listed
+  PASS  [pg:outbox] no empty type cells
+  PASS  [pg:outbox] primary key stated
+  PASS  [pg:outbox] at least one index specified (name or columns)
+  PASS  [pg:outbox] NOT NULL / nullability stated
+  PASS  [pg] subsection for table alembic_version
+  PASS  [pg:alembic_version] column table with Column and Type
+  PASS  [pg:alembic_version] at least 1 columns listed
+  PASS  [pg:alembic_version] no empty type cells
+  PASS  [pg:alembic_version] primary key stated
+  PASS  [pg:decisions] unique constraint on (trade_date, symbol, mode)
+  PASS  [pg:decisions] provenance column NOT NULL: inputs snapshot
+  PASS  [pg:decisions] provenance column NOT NULL: raw LLM output
+  PASS  [pg:decisions] provenance column NOT NULL: prompt version
+  PASS  [pg:decisions] provenance column NOT NULL: model name
+  PASS  [pg:decisions] provenance column NOT NULL: rule version
+  PASS  [pg:decisions/positions] foreign key to runs
+  PASS  [pg:outbox] columns: record_type, external_id, payload, status, attempts, next_attempt
+  PASS  [pg:outbox] status values pending, sent, dead
+  PASS  [pg:outbox] at most one pending row per (record_type, external_id) (partial unique)
+  PASS  [pg:runs] has status and published (incl. partial) columns
+  PASS  [pg:prices] unique per (symbol, trade_date)
+  PASS  [pg:positions] unique constraint stated
+  PASS  Postgres 16 and no vendor-only features stated
+  PASS  (sentinel) data-model checker exited 0
+== TC-T03-03 Postgres schema: tables, keys, unique constraints, indexes (shares checker with 02)
+  PASS  all seven tables have subsections (runs, watchlist_snapshots, prices, decisions, positions, outbox, alembic_version)
+  PASS  decisions unique (trade_date, symbol, mode) for rerun idempotency
+  PASS  five FR-12 provenance columns named in Postgres decisions section
+== TC-T03-04 migration plan
+  PASS  baseline Alembic revision in T14
+  PASS  mentions Alembic and T14
+  PASS  revision naming NNNN_slug
+  PASS  downgrade tested for each revision
+  PASS  forward-only in dev stated
+  PASS  migration plan is in a headed section
+== TC-T03-05 idempotency rule (D3)
+  PASS  idempotency section exists (heading)
+  PASS  external ID per record type, deterministic format with dec- prefix
+  PASS  external ID formats for position and run
+  PASS  upsert semantics: create, update, unchanged
+  PASS  payload hash used for unchanged detection
+  PASS  source_version stale rejection
+  PASS  stale record rejected (not applied)
+  PASS  rerun of same date defined (what is the 'same record')
+  PASS  same payload twice yields unchanged, no duplicate (stated)
+== TC-T03-06 outbox and retry design (D4)
+  PASS  outbox section exists (heading)
+  PASS  row lifecycle pending -> sent / dead
+  PASS  one pending row per (record_type, external_id)
+  PASS  backoff with 120 s cap (RK-04)
+  PASS  wake request before publishing
+  PASS  401 triggers token refresh
+  PASS  422 goes to dead-letter and raises an alert
+  PASS  published: partial rule
+  PASS  batch size stated (500)
+  PASS  drain triggers (next run, manual publish dispatch)
+  PASS  Mermaid sequence diagram present
+  PASS  mermaid fences balanced
+== TC-T03-07 OpenAPI structural validation (PyYAML)
+  PASS  file exists and is non-empty
+  PASS  YAML parses to a mapping
+  PASS  openapi version is 3.1.x
+  PASS  info.title present
+  PASS  info.version present
+  PASS  paths present and non-empty
+  PASS  components present
+  PASS  document uses at least one $ref (components reused)
+  PASS  all $ref are internal (no external files or URLs)
+  PASS  every internal $ref resolves
+  PASS  at least 2 operations (ingest + watchlist read)
+  PASS  every operation has operationId
+  PASS  operationIds are unique
+  PASS  every operation has non-empty responses
+  PASS  every operation has security (own or global, non-empty)
+  PASS  every operation has tags
+  PASS  securitySchemes declared
+  PASS  an oauth2 clientCredentials scheme is declared
+  PASS  clientCredentials flow has tokenUrl
+  PASS  every security requirement names a declared scheme
+  PASS  every scope used in security is declared in securitySchemes
+  PASS  at least one scope is actually used
+  PASS  scope names follow meridian_* convention
+  PASS  scope meridian_ingest declared
+  PASS  scope meridian_watchlist_read declared
+  PASS  exactly one POST .../ingest operation exists
+  PASS  ingest path is /api/meridian/v1/ingest
+  PASS  ingest has a 2xx response
+  PASS  ingest documents 401
+  PASS  ingest documents 403
+  PASS  ingest documents 413
+  PASS  ingest documents 422
+  PASS  ingest documents 429
+  PASS  ingest requires scope meridian_ingest
+  PASS  ingest has a required JSON requestBody
+  PASS  ingest requestBody carries an example or examples
+  PASS  request batch array declares maxItems
+  PASS  request batch maxItems >= 500 (NFR-04 / T10)
+  PASS  request batch array declares minItems >= 1
+  PASS  typed items use a discriminator
+  PASS  2xx response schema has a per-item result list (array property)
+  PASS  413 description mentions body size limit
+  PASS  an error schema exists that carries field paths
+  PASS  exactly one GET .../watchlist_item operation exists
+  PASS  watchlist path is /jsonapi/node/watchlist_item
+  PASS  watchlist requires scope meridian_watchlist_read
+  PASS  watchlist documents a 2xx, 401 and 403
+  PASS  request examples include their schema's required top-level properties
+  PASS  (sentinel) validate_openapi.py exited 0
+== TC-T03-08 validator self-test (rejects each seeded defect)
+  PASS  good fixture accepted (exit 0)
+  PASS  mutation 'openapi 3.0.3' rejected on 'openapi version is 3.1.x'
+  PASS  mutation 'no info.version' rejected on 'info.version present'
+  PASS  mutation 'dangling $ref' rejected on 'every internal $ref resolves'
+  PASS  mutation 'external $ref' rejected on 'all $ref are internal'
+  PASS  mutation 'missing operationId' rejected on 'every operation has operationId'
+  PASS  mutation 'duplicate operationId' rejected on 'operationIds are unique'
+  PASS  mutation 'no security' rejected on 'every operation has security'
+  PASS  mutation 'undeclared scope' rejected on 'every scope used in security is declared'
+  PASS  mutation 'missing 413' rejected on 'ingest documents 413'
+  PASS  mutation 'missing 429' rejected on 'ingest documents 429'
+  PASS  mutation 'missing 401' rejected on 'ingest documents 401'
+  PASS  mutation 'no 2xx' rejected on 'ingest has a 2xx response'
+  PASS  mutation 'maxItems 100' rejected on 'maxItems >= 500'
+  PASS  mutation 'no maxItems' rejected on 'declares maxItems'
+  PASS  mutation 'not clientCredentials' rejected on 'clientCredentials scheme'
+  PASS  mutation 'example lacks required' rejected on 'request examples include'
+  PASS  unparseable YAML rejected
+  PASS  missing file rejected
+  PASS  (sentinel) selftest exited 0
+== TC-T03-09 Spectral ruleset file (lint itself is owner-run, TC-T03-10)
+  PASS  .spectral.yaml exists at repo root
+  PASS  .spectral.yaml extends spectral:oas
+  PASS  .spectral.yaml parses as YAML mapping
+  PASS  .spectral.yaml does not switch off core rules wholesale (no rule set to off/false for operationId, schema, example, success-response)
+  PASS  openapi.yaml referenced by TD with the exact lint command
+== TC-T03-11 authentication: clients, scopes, tokens (D6)
+  PASS  auth section exists (heading)
+  PASS  scope meridian_ingest in technical-design.md
+  PASS  scope meridian_watchlist_read in technical-design.md
+  PASS  scope meridian_dashboard_read in technical-design.md
+  PASS  OAuth client credentials grant for engine
+  PASS  Simple OAuth named, version check deferred to T10
+  PASS  token lifetimes stated (seconds or minutes)
+  PASS  key-file storage local and Pantheon
+  PASS  final Drupal role list: administrator, analyst, engine-ingest, dashboard-read
+  PASS  authorisation matrix (role x endpoint) present
+  PASS  scopes consistent: openapi.yaml scopes also appear in technical-design.md
+== TC-T03-12 user login flow and session (D6)
+  PASS  authorisation code grant
+  PASS  PKCE
+  PASS  separate confidential client meridian-web-login (or an explicit alternative decision recorded)
+  PASS  confidential, server-side client
+  PASS  session cookie flags HttpOnly, Secure, SameSite
+  PASS  login and logout/expiry behaviour described (redirect to login)
+  PASS  tokens never reach the browser (FR-21)
+== TC-T03-13 revalidation route and secret
+  PASS  revalidation route path stated (/api/revalidate or similar)
+  PASS  revalidation secret named on both sides (Drupal and Next.js)
+  PASS  revalidate interval 300 s
+  PASS  T02 RK-07 now names the revalidation secret
+== TC-T03-14 env matrix parity with .env.example (names, both directions)
+  PASS  technical-design.md exists and non-empty
+  PASS  .env.example exists
+  PASS  section heading with 'environment' and 'secrets' found
+  PASS  matrix table with Name/Variable first column found
+  PASS  matrix column present: consumer
+  PASS  matrix column present: purpose
+  PASS  matrix column present: secret
+  PASS  matrix column present: ddev
+  PASS  matrix column present: pantheon
+  PASS  matrix column present: vercel
+  PASS  matrix column present: github
+  PASS  matrix column present: task
+  PASS  matrix has at least 12 variables
+  PASS  no duplicate variable names in matrix
+  PASS  no empty cells or malformed rows (use 'n/a' explicitly)
+  PASS  .env.example has no duplicate names
+  PASS  .env.example has at least 12 variables
+  PASS  every .env.example name is in the matrix
+  PASS  every matrix name is in .env.example
+  PASS  no NEXT_PUBLIC_ variable names Drupal (FR-21, server-only base URL)
+  PASS  matrix lists revalidation secret
+  PASS  matrix lists revalidate interval
+  PASS  matrix lists Terminus token
+  PASS  matrix lists Pantheon deploy key
+  PASS  matrix lists Postgres URL
+  PASS  matrix lists Claude key
+  PASS  matrix lists OAuth ingest client
+  PASS  matrix lists OAuth read client
+  PASS  matrix lists OAuth key files/paths
+  PASS  .env.example secret-like variables are blank or obvious placeholders
+  PASS  (sentinel) check_env_parity.py exited 0
+== TC-T03-15 env matrix covers four environments and every consumer (D7)
+  PASS  matrix section exists
+  PASS  environment: DDEV
+  PASS  environment: Pantheon
+  PASS  environment: Vercel
+  PASS  environment: GitHub Actions
+  PASS  rule: Drupal base URL server-only, no NEXT_PUBLIC_ prefix
+  PASS  secret store stated per secret (GitHub Secrets / Vercel env / Pantheon secrets / .env)
+  PASS  .env.example grouped by consumer (>= 3 section comments)
+  PASS  .env.example has no real secrets (no sk-ant-, AKIA, private key blocks)
+== TC-T03-16 repo and deploy strategy (D8)
+  PASS  deploy section exists (heading)
+  PASS  Composer root apps/drupal, docroot web
+  PASS  config/sync path
+  PASS  DDEV composer_root setting
+  PASS  subtree split and push to Pantheon (ADR-0004)
+  PASS  how apps/drupal reaches Pantheon: workflow deploy-drupal.yml
+  PASS  Pantheon credential: Terminus token and deploy key
+  PASS  Vercel root apps/web
+  PASS  engine image from services/engine
+  PASS  workflow names ci.yml, daily-run.yml, deploy-drupal.yml
+  PASS  items ADR-0004 left unverified listed for T07
+== TC-T03-17 NFR numbers owned by T03
+  PASS  NFR-04 value in technical-design.md
+  PASS  NFR-05 value in technical-design.md
+  PASS  payload size limit and rate limit numbers for T10
+  PASS  provisional values name their confirming gate (measurement before T10)
+  PASS  Pantheon request time limit recorded with source or marked unverified
+  PASS  T02 follow-ups: NFR-04 and NFR-05 table rows in SA point to technical-design (exactly 2 rows)
+  PASS  T02 follow-ups: OQ-01 and OQ-07 resolution updated
+  PASS  T02 follow-ups: SA sign-off has a T03 amendment line
+== TC-T03-18 TRACEABILITY: design element (T03) non-empty for R-01..R-12
+  PASS  TRACEABILITY header has 'Design element (T03)' column
+  PASS  R-01 has a non-empty design element cell
+  PASS  R-01 design element cites a document or D-section
+  PASS  R-02 has a non-empty design element cell
+  PASS  R-02 design element cites a document or D-section
+  PASS  R-03 has a non-empty design element cell
+  PASS  R-03 design element cites a document or D-section
+  PASS  R-04 has a non-empty design element cell
+  PASS  R-04 design element cites a document or D-section
+  PASS  R-05 has a non-empty design element cell
+  PASS  R-05 design element cites a document or D-section
+  PASS  R-06 has a non-empty design element cell
+  PASS  R-06 design element cites a document or D-section
+  PASS  R-07 has a non-empty design element cell
+  PASS  R-07 design element cites a document or D-section
+  PASS  R-08 has a non-empty design element cell
+  PASS  R-08 design element cites a document or D-section
+  PASS  R-09 has a non-empty design element cell
+  PASS  R-09 design element cites a document or D-section
+  PASS  R-10 has a non-empty design element cell
+  PASS  R-10 design element cites a document or D-section
+  PASS  R-11 has a non-empty design element cell
+  PASS  R-11 design element cites a document or D-section
+  PASS  R-12 has a non-empty design element cell
+  PASS  R-12 design element cites a document or D-section
+== TC-T03-19 solution-architect sign-off recorded
+  PASS  sign-off section in technical-design.md
+  PASS  sign-off names solution-architect
+  PASS  sign-off has an ISO date
+  PASS  sign-off states approved
+  PASS  no unresolved TODO/TBD/FIXME markers left in design docs or openapi
+  PASS  status line is not Draft
+== TC-T03-20 check-names.sh passes (C4 limited, no stale names)
+  PASS  scripts/check-names.sh exits 0
+  PASS  T03 documents use current names (meridian_engine, meridian_ingest, meridian-web)
+== TC-T03-21 simulation only: no broker names or trading domains in T03 artefacts
+  PASS  all T03 artefacts exist (so the grep is not vacuous)
+  PASS  no broker names in technical-design.md, data-model.md, openapi.yaml, .env.example, .spectral.yaml
+  PASS  no trading-domain hostnames in openapi servers
+  PASS  design states simulation-only / no live trading (ADR-0006)
+== TC-T03-22 no secrets, markdown hygiene, links
+  PASS  no secret patterns in T03 docs and openapi
+  SKIP  pre-commit not installed (.tools/pre-commit missing)
+  PASS  relative markdown links in TD and DM resolve
+  PASS  no external image/script assets in docs
+  SKIP  markdownlint not installed
+
+RESULT: ALL AUTOMATED CHECKS PASSED

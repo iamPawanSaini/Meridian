@@ -9,30 +9,72 @@
 
 ## How to run
 
-- All automated cases: `docs/tests/T04/run-checks.sh 2>&1 | tee docs/tests/T04/evidence/run-checks.txt`. Each automated case is the block headed `== TC-T04-nn`; copy it to `docs/tests/T04/evidence/TC-T04-nn.txt`. The script exits non-zero if any check fails. It prints `SKIP` only for optional tools (pre-commit, markdownlint), which the report must list.
-- Regression mode (decision D-5): `docs/tests/T04/run-checks.sh --regression` runs only the checks tagged `ckp`/`pyp` (invariant, "permanent") and skips those tagged `cka`/`pya` (snapshot, "at-close"). It prints how many were excluded. Excluded checks are not `SKIP`s in the optional-tool sense. The snapshot checks are: git order (TC-T04-21), comparison with `task/T03-technical-design` (TC-T04-18) and the pending-owner-confirmation wording (TC-T04-25). Everything else is invariant, including the 49-row ID-set and task-equality checks.
-- Helpers (python3 stdlib only, run from the repo root): `python3 -I docs/tests/T04/check_trace.py all`, `python3 -I docs/tests/T04/check_defects.py severity|states|workflow|legacy|meanings`, `python3 -I docs/tests/T04/selftest_trace.py`.
+- All automated cases:
+  `docs/tests/T04/run-checks.sh 2>&1 | tee docs/tests/T04/evidence/run-checks.txt`. Each automated
+  case is the block headed `== TC-T04-nn`; copy it to `docs/tests/T04/evidence/TC-T04-nn.txt`. The
+  script exits non-zero if any check fails. It prints `SKIP` only for optional tools (pre-commit,
+  markdownlint), which the report must list.
+- Regression mode (decision D-5): `docs/tests/T04/run-checks.sh --regression` runs only the checks
+  tagged `ckp`/`pyp` (invariant, "permanent") and skips those tagged `cka`/`pya` (snapshot,
+  "at-close"). It prints how many were excluded. Excluded checks are not `SKIP`s in the
+  optional-tool sense. The snapshot checks are: git order (TC-T04-21), comparison with
+  `task/T03-technical-design` (TC-T04-18) and the pending-owner-confirmation wording (TC-T04-25).
+  Everything else is invariant, including the 49-row ID-set and task-equality checks.
+- Helpers (python3 stdlib only, run from the repo root):
+  `python3 -I docs/tests/T04/check_trace.py all`,
+  `python3 -I docs/tests/T04/check_defects.py severity|states|workflow|legacy|meanings`,
+  `python3 -I docs/tests/T04/selftest_trace.py`.
 - Manual cases (26 to 32): performed at execution; notes and command output go to `evidence/TC-T04-nn.txt`.
-- Designed from the criteria, plan and decisions before the documents existed. Today the script fails every content check (117 FAIL, 9 PASS, in `evidence/design-time-run.txt`). The checks that pass today guard existing files: `check-names.sh`, the `DEF-001`/`DEF-002` entries, the R table header, the checker self-test, the no-trading-host grep on the scripts, the 49 IDs in `solution-architecture.md`, and (at-close) the unchanged-columns comparison. No check passes on a missing file.
-- Execution must be by a session other than the one that authored the documents (plan step 7). The report states who executed.
+- Designed from the criteria, plan and decisions before the documents existed. Today the script
+  fails every content check (117 FAIL, 9 PASS, in `evidence/design-time-run.txt`). The checks that
+  pass today guard existing files: `check-names.sh`, the `DEF-001`/`DEF-002` entries, the R table
+  header, the checker self-test, the no-trading-host grep on the scripts, the 49 IDs in
+  `solution-architecture.md`, and (at-close) the unchanged-columns comparison. No check passes on a
+  missing file.
+- Execution must be by a session other than the one that authored the documents (plan step 7). The
+  report states who executed.
 
 ### Assumed layout (raise a defect if the author deviates, never loosen the script)
 
-- `docs/tests/master-test-plan.md`: `#` headings for Test levels (with one sub-heading per level: Unit, Integration, Contract, End-to-end, Security, Performance, Data reconciliation, Manual simulation), Tools per component (a Markdown table whose first cell is the component: Engine, Drupal, Next.js, Contract, Security, Performance), Test layout, Environments (with a level-by-environment table), Entry criteria, Exit criteria, Defect severity scale (table: Severity, Meaning), Regression suite, Test data strategy, Reconciliation, Conventions, and a heading containing "defect" for the workflow states. A level sub-section is at least 200 characters, names owning tasks (`Tnn`) and a pass rule.
-- `docs/TRACEABILITY.md`: heading "Planned tests", then a 7-column table: ID, Parent R, Verifying task, Level(s), Planned test, Planned case ID or pattern, Status. Verifying tasks are comma separated in the order of `solution-architecture.md`. The case cell has one `TC-Txx-*` pattern per verifying task. Levels come from: unit, integration, contract, end-to-end, security, performance, data reconciliation, manual simulation, docs check (`docs check` is added for FR-28/FR-29, which are verified by documents, not product tests). Status: Planned, Partially verified, Verified, `Blocked (accepted, re-run in Txx)`.
-- `docs/tests/defects.md`: a transitions table whose first cell is each of the 8 states with the role that moves it; a triage SLA table with one row per severity and a number with a unit; rules; a short section on defects versus review findings; a link to `master-test-plan.md` as the severity source.
-- `docs/templates/defect.md`: `Severity` line `Critical / High / Medium / Low`; `Status` line with the 8 states separated by ` / ` in order: Open / Triaged / In progress / Fixed / Retest passed / Closed / Reopened / Won't fix.
+- `docs/tests/master-test-plan.md`: `#` headings for Test levels (with one sub-heading per level:
+  Unit, Integration, Contract, End-to-end, Security, Performance, Data reconciliation, Manual
+  simulation), Tools per component (a Markdown table whose first cell is the component: Engine,
+  Drupal, Next.js, Contract, Security, Performance), Test layout, Environments (with a
+  level-by-environment table), Entry criteria, Exit criteria, Defect severity scale (table:
+  Severity, Meaning), Regression suite, Test data strategy, Reconciliation, Conventions, and a
+  heading containing "defect" for the workflow states. A level sub-section is at least 200
+  characters, names owning tasks (`Tnn`) and a pass rule.
+- `docs/TRACEABILITY.md`: heading "Planned tests", then a 7-column table: ID, Parent R, Verifying
+  task, Level(s), Planned test, Planned case ID or pattern, Status. Verifying tasks are comma
+  separated in the order of `solution-architecture.md`. The case cell has one `TC-Txx-*` pattern per
+  verifying task. Levels come from: unit, integration, contract, end-to-end, security, performance,
+  data reconciliation, manual simulation, docs check (`docs check` is added for FR-28/FR-29, which
+  are verified by documents, not product tests). Status: Planned, Partially verified, Verified,
+  `Blocked (accepted, re-run in Txx)`.
+- `docs/tests/defects.md`: a transitions table whose first cell is each of the 8 states with the
+  role that moves it; a triage SLA table with one row per severity and a number with a unit; rules;
+  a short section on defects versus review findings; a link to `master-test-plan.md` as the severity
+  source.
+- `docs/templates/defect.md`: `Severity` line `Critical / High / Medium / Low`; `Status` line with
+  the 8 states separated by ` / ` in order: Open / Triaged / In progress / Fixed / Retest passed /
+  Closed / Reopened / Won't fix.
 
 ## Acceptance criteria (labels used below)
 
-- AC1: `docs/tests/master-test-plan.md` defines test levels (unit, integration, contract, end-to-end, security, performance, data reconciliation, manual simulation), tools per component, environments, entry and exit criteria, defect severity scale
-- AC2: tool choices documented: pytest (engine), PHPUnit (Drupal), Vitest and Playwright (Next.js), OpenAPI contract tests, axe for accessibility
+- AC1: `docs/tests/master-test-plan.md` defines test levels (unit, integration, contract,
+  end-to-end, security, performance, data reconciliation, manual simulation), tools per component,
+  environments, entry and exit criteria, defect severity scale
+- AC2: tool choices documented: pytest (engine), PHPUnit (Drupal), Vitest and Playwright (Next.js),
+  OpenAPI contract tests, axe for accessibility
 - AC3: regression suite definition and how it runs in CI
 - AC4: test data strategy: fixtures, recorded market data, fake LLM responses, seeded Drupal content
-- AC5: traceability matrix has a planned test-case column for every requirement (100% requirement coverage planned)
+- AC5: traceability matrix has a planned test-case column for every requirement (100% requirement
+  coverage planned)
 - AC6: defect workflow documented in `docs/tests/defects.md` template
-- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh`, markdown and secret checks, since CI arrives in T08)
-- PX: plan extras (layout, reconciliation, conventions, README row, decisions D-1 to D-6, design-before-authoring order)
+- C1 to C7: common criteria, `docs/TASKS.md` section 3.3 (C4 limited to `check-names.sh`, markdown
+  and secret checks, since CI arrives in T08)
+- PX: plan extras (layout, reconciliation, conventions, README row, decisions D-1 to D-6,
+  design-before-authoring order)
 - SIM: CLAUDE.md simulation-only rule (no broker names or trading domains)
 
 ## Criterion coverage
@@ -55,7 +97,12 @@
 | PX: layout, reconciliation, conventions, decisions D-1 to D-6, order | TC-T04-05, 11, 12, 18, 21, 25, 27 |
 | SIM: no broker names or trading domains | TC-T04-23 |
 
-Negative coverage: checker mutation self-test (15 seeded defects plus empty file plus size guard, 19); empty, placeholder and stub cells rejected (15); wrong parent, task, order, level, pattern and status rejected (15, 19); missing or extra rows rejected (14, 19); removed or altered old TRACEABILITY cells rejected (18); script committed after the plan rejected (21); Dredd, Prism, k6, Locust and vcrpy recorded as not adopted (04); D-6 not adopted before owner confirmation (25); broker names rejected (23).
+Negative coverage: checker mutation self-test (15 seeded defects plus empty file plus size guard,
+19); empty, placeholder and stub cells rejected (15); wrong parent, task, order, level, pattern and
+status rejected (15, 19); missing or extra rows rejected (14, 19); removed or altered old
+TRACEABILITY cells rejected (18); script committed after the plan rejected (21); Dredd, Prism, k6,
+Locust and vcrpy recorded as not adopted (04); D-6 not adopted before owner confirmation (25);
+broker names rejected (23).
 
 Automated cases: 01 to 25. Manual or owner-run: 26 to 32. Total 32.
 
