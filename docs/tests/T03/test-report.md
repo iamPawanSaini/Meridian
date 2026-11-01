@@ -42,15 +42,14 @@
 | TC-T03-28 | AC6, PX | Pass | `evidence/manual-review.md` |
 | TC-T03-29 | AC1, AC2, AC3 | Pass | `evidence/cross-doc-fields.txt`, `evidence/manual-review.md` |
 | TC-T03-30 | C3, C7 | Pass | `evidence/TC-T03-30.txt` |
-| TC-T03-31 | C1, C2, C5, AC9 | Blocked | `evidence/manual-review.md` |
+| TC-T03-31 | C1, C2, C5, AC9 | Pass (re-check, commit 96b4c17) | `evidence/manual-review.md` |
 | TC-T03-32 | C7 | Blocked | `evidence/manual-review.md` |
 
-Totals: 29 pass, 0 fail, 3 blocked, 0 not run (32 cases). TC-T03-24 failed on the first run (DEF-002) and passed on retest after Revision 3.
+Totals: 30 pass, 0 fail, 2 blocked, 0 not run (32 cases). TC-T03-24 failed on the first run (DEF-002) and passed on retest after Revision 3.
 
-Blocked cases (none is a document defect):
+Blocked cases (none is a document defect; TC-T03-31 was Blocked until T03 was committed and passed on re-check):
 
 - TC-T03-10 Spectral lint: owner-run, no network. The structural validator (TC-07, 49 checks) and its self-test (TC-08) pass, but the documented lint has not been run.
-- TC-T03-31 plan/review/commit hygiene: the git-log order and `T03:` commit prefix cannot be checked until T03 is committed. The other parts pass.
 - TC-T03-32 Mermaid render: no renderer available.
 
 Optional tools missing (TC-22): pre-commit and markdownlint, recorded as SKIP, not as pass.
@@ -74,4 +73,4 @@ Script defects fixed during design (not product defects): TC-T03-09 and TC-T03-1
 
 ## Sign-off
 
-**Not signed off.** No case fails, but three cases are Blocked: TC-T03-10 (Spectral lint, owner-run), TC-T03-31 (needs the T03 commit) and TC-T03-32 (Mermaid render, no renderer). None is a document defect. DEF-002 is fixed and retested (evidence: `evidence/DEF-002-retest.txt`; `run-checks.sh` and `check_data_model.py` re-run, all PASS, 354 PASS lines, 2 SKIP). Sign-off becomes possible when the owner stores the Spectral output, the work is committed and TC-31 is re-checked, and the diagram render is confirmed or the owner accepts the by-eye check. tester, 2026-11-01 (retest).
+**Not signed off.** No case fails and TC-T03-31 now passes (commit 96b4c17, deviation: chronology judged from file contents because everything landed in one commit). Two cases remain Blocked, neither a document defect: TC-T03-10 (Spectral lint, owner-run, no network) and TC-T03-32 (Mermaid render, no renderer). Under the sign-off rule the report stays "Not signed off" until the owner stores the Spectral output and the diagram render is confirmed or the owner accepts the by-eye check. tester, 2026-11-01.

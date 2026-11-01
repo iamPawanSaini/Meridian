@@ -521,10 +521,10 @@ Standard steps for automated cases: (1) `docs/tests/T03/run-checks.sh 2>&1 | tee
 | Preconditions | Review written |
 | Steps | 1. `grep -n 'Status' docs/tasks/T03/plan.md` shows Approved. 2. `ls docs/tasks/T03/review.md` exists and every finding is marked resolved. 3. `git log --oneline -- docs/tasks/T03/plan.md docs/architecture/technical-design.md` shows the plan before the design. 4. Check `docs/architecture/README.md`, `docs/specs/README.md` and `docs/adr/README.md` link the new documents and that commits start with `T03:` |
 | Expected result | Plan approved before the design was written; review exists with all findings resolved; solution-architect sign-off present; indexes updated; commit prefix correct |
-| Actual result | Plan Approved, review Approved with findings fixed, sign-off present, indexes link the documents. Steps needing a T03 commit (git log order, T03: prefix) cannot be evaluated yet. |
-| Evidence | `evidence/manual-review.md` |
-| Status | Blocked |
-| Date | 2026-11-01 |
+| Actual result | Re-checked after commit 96b4c17 (prefix T03: OK). Plan Approved; review Approved (re-review), findings 1 to 12 Fixed, only Notes 13, 14, 16, 18 not marked Fixed; design revision history rows 1 to 3; indexes link the documents. Deviation: plan, review, design and tests landed in one commit, so git log cannot show plan-before-design; chronology judged from file contents (review C1 row: plan Approved 2026-11-01 before the design was written; design Revisions 1 to 3). |
+| Evidence | `evidence/TC-T03-31.txt`, `evidence/manual-review.md` |
+| Status | Pass |
+| Date | 2026-11-01 (re-check) |
 | Executed by | tester |
 
 ### TC-T03-32: Mermaid diagrams render
