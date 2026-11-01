@@ -1,0 +1,33 @@
+# Owned by the repository (T05). The DDEV generated-file marker was removed on purpose, so DDEV
+# no longer overwrites this file. DDEV's default ignored README.* (hiding .ddev/README.md) and
+# providers/pantheon.yaml (needed by T07). Add new DDEV-generated paths here when DDEV adds them.
+
+/**/*.example
+/.dbimageBuild
+/.ddev-docker-*.yaml
+/.*downloads
+/.homeadditions
+/.importdb*
+/.sshimageBuild
+/.webimageBuild
+/apache/apache-site.conf
+/commands/.gitattributes
+/config.local.y*ml
+/config.*.local.y*ml
+/db_snapshots
+/mutagen/mutagen.yml
+/mutagen/.start-synced
+/nginx_full/nginx-site.conf
+/postgres/postgresql.conf
+/providers/acquia.yaml
+/providers/lagoon.yaml
+/providers/platform.yaml
+/providers/upsun.yaml
+/sequelpro.spf
+/traefik/config/meridian.yaml
+/traefik/certs/meridian.crt
+/traefik/certs/meridian.key
+/xhprof/xhprof_prepend.php
+/commands/*/README.txt
+/addon-metadata/
+/*/README.*
