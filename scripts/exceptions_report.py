@@ -111,7 +111,7 @@ EXCLUDE_KEY = re.compile(
 # gitleaks allowlist paths, and Spectral rules switched off (`rule-name: off`).
 ALLOWLIST_PATHS = re.compile(r"^\s*paths\s*=")
 RULE_OFF = re.compile(r"""^\s*["']?[\w:./-]+["']?\s*:\s*["']?(off|disable)["']?\s*(#.*)?$""")
-XML_EXCLUDE =re.compile(r"<\s*exclude(-pattern)?\b")
+XML_EXCLUDE = re.compile(r"<\s*exclude(-pattern)?\b")
 TICKET = re.compile(r"\b(T\d{2}a?|DEF-\d{3}): \S")
 _OPENERS = {"", "[", "{", "|", ">", "|-", ">-", "|+", ">+"}
 
