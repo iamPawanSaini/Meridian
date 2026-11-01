@@ -10,7 +10,11 @@ under a deeper prefix also counts towards the shallower ones (for example a file
 The gate fails, naming the files, when a component is under its floor, when the report has
 no lines at all, when no component matches any file, or when an input cannot be read.
 
-Usage: coverage_gate.py [--thresholds quality/coverage-thresholds.json] COBERTURA.xml [...]
+A component that matches no file prints `not measured: PREFIX`. Each component step names the
+prefixes it must measure with --require PREFIX (repeatable); an unmatched one fails the gate.
+The "line" value is always a percentage.
+
+Usage: coverage_gate.py [--thresholds F] [--require PREFIX ...] COBERTURA.xml [...]
 Exit 0 when every measured component meets its floor, else 1.
 """
 
@@ -51,8 +55,8 @@ def load_thresholds(path: str) -> list[tuple[str, float]]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     result: list[tuple[str, float]] = []
     for item in data["components"]:
-        floor = float(item["line"])
-        result.append((str(item["path"]), floor / 100 if floor > 1 else floor))
+        # "line" is always a percentage (a floor of 1 means 1%, not 100%).
+        result.append((str(item["path"]), float(item["line"]) / 100))
     return result
 
 
@@ -68,8 +72,16 @@ def rate(lines: dict[int, int]) -> float:
     return sum(1 for hits in lines.values() if hits > 0) / len(lines)
 
 
-def evaluate(coverage: Coverage, thresholds: list[tuple[str, float]]) -> list[str]:
-    """Return one failure message per problem; an empty list means the gate passes."""
+def evaluate(
+    coverage: Coverage,
+    thresholds: list[tuple[str, float]],
+    required: list[str] | None = None,
+) -> list[str]:
+    """Return one failure message per problem; an empty list means the gate passes.
+
+    Every required prefix must match at least one file. Other unmatched components print a
+    `not measured` line and are skipped.
+    """
     measured = {name: lines for name, lines in coverage.items() if lines}
     if not measured:
         return ["coverage report contains no measured lines"]
@@ -78,6 +90,7 @@ def evaluate(coverage: Coverage, thresholds: list[tuple[str, float]]) -> list[st
     for prefix, floor in thresholds:
         selected = {n: ln for n, ln in measured.items() if matches(n, prefix)}
         if not selected:
+            print(f"coverage gate: not measured: {prefix}")
             continue
         matched_any = True
         pooled = sum(len(ln) for ln in selected.values())
@@ -92,6 +105,9 @@ def evaluate(coverage: Coverage, thresholds: list[tuple[str, float]]) -> list[st
             )
     if not matched_any:
         failures.append("no file in the report matches any configured component")
+    for prefix in required or []:
+        if not any(matches(name, prefix) for name in measured):
+            failures.append(f"required prefix {prefix} matches no file in the report")
     return failures
 
 
@@ -99,6 +115,13 @@ def main(argv: list[str] | None = None) -> int:
     """Entry point; returns the process exit code."""
     parser = argparse.ArgumentParser(description="Gate Cobertura line coverage on floors.")
     parser.add_argument("--thresholds", default=DEFAULT_THRESHOLDS)
+    parser.add_argument(
+        "--require",
+        action="append",
+        default=[],
+        metavar="PREFIX",
+        help="path prefix that must match at least one file (repeatable)",
+    )
     parser.add_argument("xml", nargs="+", help="Cobertura XML file(s)")
     args = parser.parse_args(argv)
     try:
@@ -107,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ET.ParseError, ValueError, KeyError, TypeError) as exc:
         print(f"coverage gate cannot read its input: {exc}")
         return 1
-    failures = evaluate(coverage, thresholds)
+    failures = evaluate(coverage, thresholds, args.require)
     for failure in failures:
         print(f"coverage gate FAILED: {failure}")
     if not failures:

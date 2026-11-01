@@ -32,6 +32,8 @@ TOKEN_FILES = frozenset(
 )
 SCOPES = ("apps/web/", "apps/drupal/web/themes/custom/")
 ASSET_FILE = re.compile(r"\.(css|scss|sass|less|ts|tsx|js|jsx|mjs|cjs|html|twig|svg)$")
+# Drupal themes load external CSS, JS and fonts through *.libraries.yml and *.theme files.
+DRUPAL_FILE = re.compile(r"\.(libraries\.ya?ml|theme)$")
 SKIP_DIRS = re.compile(r"(^|/)(node_modules|\.next|vendor|dist|build)/")
 
 KNOWN_HOSTS = re.compile(
@@ -44,6 +46,8 @@ KNOWN_HOSTS = re.compile(
 EXTERNAL = r"(?:https?:)?//[A-Za-z0-9]"
 ASSET_CONTEXTS = [
     re.compile(r"url\(\s*['\"]?" + EXTERNAL, re.IGNORECASE),
+    # Drupal libraries.yml: `https://...: { type: external }` keys and `url:` values.
+    re.compile(r"^\s*['\"]?(?:https?:)?//[A-Za-z0-9][^'\"\s]*['\"]?\s*:", re.IGNORECASE),
     re.compile(r"@import\s+(?:url\(\s*)?['\"]?" + EXTERNAL, re.IGNORECASE),
     re.compile(r"<script\b[^>]*\bsrc\s*=\s*['\"]?" + EXTERNAL, re.IGNORECASE),
     re.compile(
@@ -76,7 +80,9 @@ def candidate_files() -> list[str]:
     return [
         name
         for name in proc.stdout.splitlines()
-        if name.startswith(SCOPES) and ASSET_FILE.search(name) and not SKIP_DIRS.search(name)
+        if name.startswith(SCOPES)
+        and (ASSET_FILE.search(name) or (DRUPAL_FILE.search(name) and name.startswith(SCOPES[1])))
+        and not SKIP_DIRS.search(name)
     ]
 
 

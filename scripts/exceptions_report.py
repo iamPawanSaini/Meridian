@@ -39,27 +39,78 @@ SUPPRESSIONS: list[tuple[str, str, bool]] = [
     ("markdownlint", r"^\s*<!--\s*markdownlint-disable", True),
     ("hadolint", r"#\s*hadolint\s+ignore", False),
 ]
+SUPPRESSIONS.append(("@ts-ignore", r"@ts-ignore", False))
 _COMPILED = [(name, re.compile(rx), md_only) for name, rx, md_only in SUPPRESSIONS]
+
+# D-4 addendum: the ticket counts only in the tool's own comment slot, after its separator.
+_TID = r"(T\d{2}a?|DEF-\d{3}): \S"
+_CODES = r"[A-Z]+[0-9]+(?:[,\s]+[A-Z]+[0-9]+)*"
+SLOT: dict[str, re.Pattern[str]] = {
+    "noqa": re.compile(r"#\s*noqa:\s*" + _CODES + r"\s+#\s*" + _TID),
+    "type: ignore": re.compile(r"#\s*type:\s*ignore(?:\[[^\]#]*\])?\s+#\s*" + _TID),
+    "pragma: no cover": re.compile(r"#\s*pragma:\s*no cover\s+#\s*" + _TID),
+    "eslint-disable": re.compile(r"eslint-disable\S*\s+[^\s-].*?\s--\s+" + _TID),
+    "@ts-expect-error": re.compile(r"@ts-expect-error\s+" + _TID),
+    "phpcs:ignore": re.compile(r"phpcs:ignore\b.*?\s--\s+" + _TID),
+    "@phpstan-ignore": re.compile(r"@phpstan-ignore\s+[^(]*\(\s*" + _TID),
+    "shellcheck": re.compile(r"#\s*shellcheck\s+disable=[\w,]+\s+#\s*" + _TID),
+    "hadolint": re.compile(r"#\s*hadolint\s+ignore=[\w,]+\s+#\s*" + _TID),
+    "markdownlint": re.compile(r"-->.*<!--\s*" + _TID),
+    "config exclude": re.compile(r"(?:#|//)\s*" + _TID),
+}
+_NOQA_CODE = re.compile(r"#\s*noqa:\s*[A-Z]+[0-9]+")
+_ESLINT_RULE = re.compile(r"eslint-disable\S*\s+[^\s-]")
+_FORBIDDEN = {
+    "yamllint": "inline yamllint disables are not allowed (use ignore: in .yamllint.yaml)",
+    "@ts-ignore": "@ts-ignore is forbidden (use @ts-expect-error with a ticket)",
+}
+
+
+def classify(tool: str, line: str) -> tuple[str | None, str | None]:
+    """Return (ticket ID, None) when the tool's ticket slot is filled, else (None, problem).
+
+    A ticket anywhere else on the line (the bare form) does not count.
+    """
+    if tool in _FORBIDDEN:
+        return None, _FORBIDDEN[tool]
+    if tool == "noqa" and not _NOQA_CODE.search(line):
+        return None, "noqa without a rule code (use 'noqa: CODE  # Txx: reason')"
+    if tool == "eslint-disable" and not _ESLINT_RULE.search(line):
+        return None, "eslint-disable names no rule"
+    match = SLOT[tool].search(line)
+    if match is not None:
+        return match.group(1), None
+    if TICKET.search(line):
+        return None, "ticket is not in the tool's comment slot (bare form); see the D-4 addendum"
+    return None, "no ticket (expected 'Txx: reason' in the comment slot)"
 
 CODE_FILE = re.compile(
     r"\.(py|sh|bash|ts|tsx|js|jsx|mjs|cjs|php|module|inc|theme|install|ya?ml|toml|ini|cfg"
     r"|neon|md)$|(^|/)Dockerfile"
 )
-# The script and its fixtures quote the directives on purpose; captured output is evidence.
+# T04a: these files quote the directives on purpose (the checker, its fixtures, the T04a test
+# design and reference models); captured output under evidence/ is not authored code.
 SKIP_PATH = re.compile(
-    r"^(scripts/exceptions_report\.py|scripts/tests/|docs/tests/T04a/"
+    r"^(scripts/exceptions_report\.py|scripts/tests/fixtures/"
+    r"|docs/tests/T04a/(run-checks\.sh|test-cases\.md|test-report\.md|reference/)"
     r"|docs/tests/[^/]+/evidence/)"
 )
 CONFIG_FILE = re.compile(
     r"(^|/)(ruff\.toml|\.ruff\.toml|pyproject\.toml|mypy\.ini|setup\.cfg|\.coveragerc"
     r"|\.yamllint\.ya?ml|\.markdownlint-cli2\.(ya?ml|jsonc?)|phpcs\.xml(\.dist)?"
-    r"|phpstan\.neon(\.dist)?|eslint\.config\.m?js|tsconfig[^/]*\.json|\.prettierrc[^/]*)$"
+    r"|phpstan\.neon(\.dist)?|eslint\.config\.m?js|tsconfig[^/]*\.json|\.prettierrc[^/]*"
+    r"|\.pre-commit-config\.yaml|\.gitleaks\.toml|\.shellcheckrc|\.hadolint\.ya?ml"
+    r"|\.spectral\.ya?ml)$"
 )
 EXCLUDE_KEY = re.compile(
     r"""^(?P<indent>\s*)(?P<key>"?(?:extend-)?(?:exclude|excludes|ignore|ignores|ignorePatterns"""
-    r"""|per-file-ignores|extend-per-file-ignores|excludePaths)"?)\s*(?P<sep>[=:])(?P<rest>.*)$"""
+    r"""|per-file-ignores|extend-per-file-ignores|excludePaths|disable|ignored)"?)"""
+    r"""\s*(?P<sep>[=:])(?P<rest>.*)$"""
 )
-XML_EXCLUDE = re.compile(r"<\s*exclude(-pattern)?\b")
+# gitleaks allowlist paths, and Spectral rules switched off (`rule-name: off`).
+ALLOWLIST_PATHS = re.compile(r"^\s*paths\s*=")
+RULE_OFF = re.compile(r"""^\s*["']?[\w:./-]+["']?\s*:\s*["']?(off|disable)["']?\s*(#.*)?$""")
+XML_EXCLUDE =re.compile(r"<\s*exclude(-pattern)?\b")
 TICKET = re.compile(r"\b(T\d{2}a?|DEF-\d{3}): \S")
 _OPENERS = {"", "[", "{", "|", ">", "|-", ">-", "|+", ">+"}
 
@@ -104,10 +155,12 @@ def config_exclude_lines(lines: list[str]) -> list[int]:
                 needing.append(number)
                 continue
             block_indent = None
-        if XML_EXCLUDE.search(line):
+        if XML_EXCLUDE.search(line) or RULE_OFF.match(line):
             needing.append(number)
             continue
         match = EXCLUDE_KEY.match(line)
+        if match is None and ALLOWLIST_PATHS.match(line):
+            match = EXCLUDE_KEY.match(line.replace("paths", "exclude", 1))
         if match is None:
             continue
         rest = strip_comment(match.group("rest"))
@@ -135,15 +188,14 @@ def scan_file(path: str, valid: set[str]) -> tuple[Counter[str], Counter[str], l
     is_md = path.endswith(".md")
 
     def judge(number: int, tool: str) -> None:
-        found: list[str] = TICKET.findall(lines[number - 1])
-        good = [t for t in found if t in valid]
         counts[tool] += 1
-        if good:
-            tickets[good[0]] += 1
-        elif found:
-            problems.append(f"{path}:{number}: {tool}: unknown ticket {found[0]}")
+        ticket, problem = classify(tool, lines[number - 1])
+        if problem is not None:
+            problems.append(f"{path}:{number}: {tool}: {problem}")
+        elif ticket is not None and ticket in valid:
+            tickets[ticket] += 1
         else:
-            problems.append(f"{path}:{number}: {tool}: no ticket (expected 'Txx: reason')")
+            problems.append(f"{path}:{number}: {tool}: unknown ticket {ticket}")
 
     for number, line in enumerate(lines, 1):
         for tool, rx, md_only in _COMPILED:

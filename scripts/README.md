@@ -35,16 +35,25 @@ each running lint, types, tests and the coverage gate.
   `ddev exec`, `ddev engine` and `ddev next`.
 - `QUALITY_STEPS=FILE` replaces the built-in steps with lines of `NAME<TAB>MANIFEST<TAB>COMMAND`
   (`-` as the manifest means always run). The tests use it.
-- The commit-range step needs `origin/main` (run `git fetch origin`).
+- The commit-range step needs `origin/main` (run `git fetch origin`) and the full history.
 
 ## Check script details
 
 - `check_commit_msg.py --msg-file F` or `--range A..B`, with `--tasks-file` (default
-  `docs/TASKS.md`). `Merge ` and `Revert "` subjects are allowed. `fixup!` and `squash!` fail.
+  `docs/TASKS.md`). `Revert "` subjects are allowed, and `Merge ` subjects only on real merge
+  commits (more than one parent) in `--range` mode. `fixup!` and `squash!` fail. The rules apply
+  from `RULE_START` (the T04 close commit `7689ec5`) on; older commits are exempt. `--rule-start
+  REV` overrides it. A shallow clone, or an explicit boundary that is missing, exits 2 with
+  "fetch the full history" (CI needs `fetch-depth: 0`).
 - `check_branch_name.py [--branch B]` reads `--branch`, then `GITHUB_HEAD_REF`, then git.
 - `exceptions_report.py [--out FILE]` and `check_assets.py` scan the git tree of the current
-  directory. The report counts per tool and lists the tickets used.
-- `coverage_gate.py --thresholds quality/coverage-thresholds.json COBERTURA.xml`. It reads the
+  directory. The report counts per tool and lists the tickets used. The ticket must be in the
+  tool's own comment slot (D-4 addendum in `docs/tasks/T04a/decision-t04a-standards.md`); a bare
+  ticket after the rule list fails. A `noqa` needs a rule code, an `eslint-disable` a rule name,
+  and inline yamllint disables and `@ts-ignore` always fail.
+- `coverage_gate.py --thresholds quality/coverage-thresholds.json [--require PREFIX] COBERTURA.xml`.
+  A component with no matching file prints `not measured`; a `--require` prefix with no match
+  fails. `line` in the thresholds file is always a percentage. It reads the
   line rate only, and a file counts towards every component prefix it matches. Cobertura paths
   must contain the prefixes in the thresholds file, for example `meridian_engine/scoring/`.
 - The asset check allows hex colours only in the tokens file `apps/web/styles/tokens.css` (T21a

@@ -78,6 +78,16 @@ class TreeTests(unittest.TestCase):
         self.assertEqual(self.run_with({f"{APP}/globals.css": "a { color: #123456; }\n"}), 1)
         self.assertEqual(self.run_with({f"{THEME}/base.css": "a { color: #123456; }\n"}), 1)
 
+    def test_drupal_libraries_yml_is_scanned(self) -> None:
+        lib = "apps/drupal/web/themes/custom/meridian_theme/meridian_theme.libraries.yml"
+        ext = "https://fonts.googleapis.com/css2?family=Inter"
+        text = f"base:\n  css:\n    theme:\n      {ext}: {{ type: external }}\n"
+        self.assertEqual(self.run_with({lib: text}), 1)
+        generic = "      https://cdn.example.org/x.css: { type: external }\n"
+        self.assertEqual(self.run_with({lib: "base:\n  css:\n    theme:\n" + generic}), 1)
+        local = "base:\n  css:\n    theme:\n      css/base.css: {}\n"
+        self.assertEqual(self.run_with({lib: local}), 0)
+
     def test_tokens_file_is_allowed(self) -> None:
         self.assertEqual(self.run_with({"apps/web/styles/tokens.css": ":root{--a:#0b1020;}\n"}), 0)
 

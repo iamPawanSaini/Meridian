@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Run every quality check once. This is the only implementation: `ddev quality`, the
-# pre-commit hooks and CI (T08) all call it. Prints PASS, FAIL or SKIP per step and a summary,
-# and exits non-zero when any step FAILs.
+# Run every quality check once. This is the only implementation: `ddev quality` and CI (T08)
+# call it, and it runs the pre-commit hooks as its first step. Prints PASS, FAIL or SKIP per
+# step and a summary, and exits non-zero when any step FAILs.
 #
 # Usage: scripts/quality.sh
 # Environment:
@@ -12,6 +12,8 @@
 #                               MANIFEST path that does not exist gives SKIP; a present manifest
 #                               with a failing or missing command gives FAIL.
 # SKIP happens only when a component manifest is absent. A missing tool is a FAIL.
+# No -e on purpose: every step's exit status is captured and counted, and a failing step must
+# not stop the later steps. The summary and the final exit code carry the result.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -52,15 +54,17 @@ builtin_steps() {
   engine="ruff check . && ruff format --check . && mypy meridian_engine"
   engine+=" && pytest --cov=meridian_engine --cov-branch --cov-report=xml:coverage.xml"
   engine+=" && python3 ../../scripts/coverage_gate.py --thresholds"
-  engine+=" ../../quality/coverage-thresholds.json coverage.xml"
+  engine+=" ../../quality/coverage-thresholds.json --require meridian_engine/ coverage.xml"
   drupal="vendor/bin/phpcs --standard=phpcs.xml.dist"
   drupal+=" && vendor/bin/phpstan analyse -c phpstan.neon.dist"
   drupal+=" && vendor/bin/phpunit --coverage-cobertura=coverage.xml"
   drupal+=" && python3 ../../scripts/coverage_gate.py --thresholds"
-  drupal+=" ../../quality/coverage-thresholds.json coverage.xml"
+  drupal+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"
+  drupal+=" coverage.xml"
   web="npx eslint . && npx tsc --noEmit && npx prettier --check . && npx vitest run --coverage"
   web+=" && python3 ../../scripts/coverage_gate.py --thresholds"
-  web+=" ../../quality/coverage-thresholds.json coverage/cobertura-coverage.xml"
+  web+=" ../../quality/coverage-thresholds.json --require apps/web/lib/"
+  web+=" coverage/cobertura-coverage.xml"
 
   printf '%s\t%s\t%s\n' "pre-commit" "-" "$precommit run --all-files"
   printf '%s\t%s\t%s\n' "branch-name" "-" "python3 scripts/check_branch_name.py"
@@ -91,14 +95,18 @@ fi
 pass=0
 fail=0
 skip=0
-while IFS=$'\t' read -r name manifest cmd; do
+read_count=0
+# Steps are read on fd 3 and each step gets stdin from /dev/null, so a step that reads stdin
+# (ddev exec, docker exec -i, any pipe reader) cannot swallow the remaining step lines.
+while IFS=$'\t' read -r -u 3 name manifest cmd; do
   [[ -z "$name" ]] && continue
+  read_count=$((read_count + 1))
   if [[ "$manifest" != "-" && ! -e "$manifest" ]]; then
     echo "SKIP  $name (no $manifest)"
     skip=$((skip + 1))
     continue
   fi
-  if output="$(bash -c "$cmd" 2>&1)"; then
+  if output="$(bash -c "$cmd" 2>&1 </dev/null)"; then
     echo "PASS  $name"
     pass=$((pass + 1))
   else
@@ -106,7 +114,11 @@ while IFS=$'\t' read -r name manifest cmd; do
     printf '%s\n' "$output" | sed 's/^/      /'
     fail=$((fail + 1))
   fi
-done <"$steps_file"
+done 3<"$steps_file"
 
 echo "summary: PASS $pass FAIL $fail SKIP $skip"
+if [[ $((pass + fail + skip)) -ne "$read_count" ]]; then
+  echo "error: $read_count steps were read but $((pass + fail + skip)) were counted" >&2
+  exit 1
+fi
 [[ "$fail" -eq 0 ]]

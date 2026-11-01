@@ -89,6 +89,40 @@ class MainTests(unittest.TestCase):
         _helpers.git(repo, "commit", "-q", "--allow-empty", "-m", "fixup! T10: fine")
         self.assertEqual(ccm.main(args), 1)
 
+    def test_rule_start_exempts_older_history(self) -> None:
+        repo = _helpers.make_repo(self.dir / "rs", {})
+        _helpers.git(repo, "commit", "-q", "--allow-empty", "-m", "old bad subject")
+        boundary = _helpers.git(repo, "rev-parse", "HEAD").strip()
+        _helpers.git(repo, "commit", "-q", "--allow-empty", "-m", "T10: fine")
+        first = _helpers.git(repo, "rev-list", "--max-parents=0", "HEAD").strip()
+        cwd = os.getcwd()
+        os.chdir(repo)
+        self.addCleanup(os.chdir, cwd)
+        base = ["--tasks-file", str(self.tasks), "--range", f"{first}..HEAD"]
+        self.assertEqual(ccm.main([*base, "--rule-start", boundary]), 0)
+        self.assertEqual(ccm.main(base), 1)  # no boundary in this repo: the full range counts
+        _helpers.git(repo, "commit", "-q", "--allow-empty", "-m", "bad after boundary")
+        self.assertEqual(ccm.main([*base, "--rule-start", boundary]), 1)
+
+    def test_missing_explicit_boundary_exits_2(self) -> None:
+        repo = _helpers.make_repo(self.dir / "mb", {})
+        cwd = os.getcwd()
+        os.chdir(repo)
+        self.addCleanup(os.chdir, cwd)
+        argv = ["--tasks-file", str(self.tasks), "--range", "HEAD..HEAD", "--rule-start", "1" * 40]
+        self.assertEqual(ccm.main(argv), 2)
+
+    def test_merge_subject_needs_two_parents_in_range(self) -> None:
+        repo = _helpers.make_repo(self.dir / "mp", {})
+        base = _helpers.git(repo, "rev-parse", "HEAD").strip()
+        _helpers.git(repo, "commit", "-q", "--allow-empty", "-m", "Merge my local fixes")
+        cwd = os.getcwd()
+        os.chdir(repo)
+        self.addCleanup(os.chdir, cwd)
+        argv = ["--tasks-file", str(self.tasks), "--range", f"{base}..HEAD"]
+        self.assertEqual(ccm.main(argv), 1)
+        self.assertIsNone(ccm.check_subject("Merge my local fixes", KNOWN))
+
     def test_unreadable_tasks_file(self) -> None:
         msg = self.dir / "m"
         msg.write_text("T10: x\n", encoding="utf-8")

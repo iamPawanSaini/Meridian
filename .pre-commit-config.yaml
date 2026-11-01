@@ -100,7 +100,7 @@ repos:
 
       - id: spectral
         name: Spectral (OpenAPI lint)
-        entry: spectral lint --ruleset .spectral.yaml
+        entry: spectral lint --ruleset .spectral.yaml --fail-severity=warn
         language: node
         additional_dependencies: ["@stoplight/spectral-cli@6.15.0"] # verify
         files: ^docs/architecture/openapi\.yaml$

@@ -10,6 +10,12 @@ from pathlib import Path
 import _helpers
 import exceptions_report as er
 
+# Directive text is built from pieces so this file holds no real suppression comment.
+H = "# "
+NOQA = H + "noqa"
+TYPE_IGNORE = H + "type: " + "ignore"
+SLASH = "// "
+
 
 class ScanTests(unittest.TestCase):
     """Run main() inside throwaway repos."""
@@ -34,13 +40,13 @@ class ScanTests(unittest.TestCase):
         self.assertIn("total: 0", report)
 
     def test_untagged_suppression_fails(self) -> None:
-        code, _ = self.run_with({"a.py": "import os  # " + "noqa: F401\n"})
+        code, _ = self.run_with({"a.py": f"import os  {NOQA}: F401\n"})
         self.assertEqual(code, 1)
 
     def test_tagged_suppressions_are_counted(self) -> None:
         text = (
-            "import os  # " + "noqa: F401  T32: legacy\n"
-            "import sys  # " + "noqa: F401  DEF-001: stub\n"
+            f"import os  {NOQA}: F401  {H}T32: legacy\n"
+            f"import sys  {NOQA}: F401  {H}DEF-001: stub\n"
         )
         code, report = self.run_with({"a.py": text})
         self.assertEqual(code, 0)
@@ -49,13 +55,13 @@ class ScanTests(unittest.TestCase):
         self.assertIn("ticket DEF-001: 1", report)
 
     def test_ticket_rules(self) -> None:
-        marker = "import os  # " + "noqa: F401"
+        marker = f"import os  {NOQA}: F401  {H}"
         bad = [
-            marker + "  DEF-999: x",
-            marker + "  T99: x",
-            marker + "  T32",
-            marker + "  T32:x",
-            marker + "  t32: x",
+            marker + "DEF-999: x",
+            marker + "T99: x",
+            marker + "T32",
+            marker + "T32:x",
+            marker + "t32: x",
         ]
         for text in bad:
             with self.subTest(text=text):
@@ -64,20 +70,60 @@ class ScanTests(unittest.TestCase):
                 os.chdir(repo)
                 self.assertEqual(er.main([]), 1)
 
+    def test_bare_form_now_fails(self) -> None:
+        bare = {
+            "noqa": f"import os  {NOQA}: F401  T32: legacy",
+            "type: ignore": f"x: int = 'a'  {TYPE_IGNORE}[assignment]  T32: legacy",
+            "eslint-disable": f"{SLASH}eslint-disable-next-line no-console T32: legacy",
+            "phpcs:ignore": f"{SLASH}phpcs:ignore Drupal.Commenting T32: legacy",
+            "shellcheck": f"{H}shellcheck disable=SC2086  T32: legacy",
+        }
+        for tool, text in bare.items():
+            with self.subTest(tool=tool):
+                ticket, problem = er.classify(tool, text)
+                self.assertIsNone(ticket)
+                self.assertIn("bare form", problem or "")
+        code, _ = self.run_with({"a.py": bare["noqa"] + "\n"})
+        self.assertEqual(code, 1)
+
+    def test_corrected_forms_pass(self) -> None:
+        forms = {
+            "noqa": f"x = call()  {NOQA}: S603  {H}T32: fixed argument list",
+            "type: ignore": f"import yaml  {TYPE_IGNORE}[import-untyped]  {H}T32: stubs later",
+            "pragma: no cover": f"if debug:  {H}pragma: no cover  {H}T32: debug only",
+            "eslint-disable": f"{SLASH}eslint-disable-next-line no-console -- T32: logger",
+            "@ts-expect-error": f"{SLASH}@ts-expect-error T32: upstream type",
+            "phpcs:ignore": f"{SLASH}phpcs:ignore Drupal.Commenting.X -- T32: reason",
+            "@phpstan-ignore": f"{SLASH}@phpstan-ignore method.notFound (T32: stub)",
+            "shellcheck": f"{H}shellcheck disable=SC2034 {H}T32: read by caller",
+            "hadolint": f"{H}hadolint ignore=DL3008 {H}T32: distro pins",
+            "markdownlint": "<!-- markdownlint-disable-next-line MD013 --> <!-- T32: wording -->",
+        }
+        for tool, text in forms.items():
+            with self.subTest(tool=tool):
+                self.assertEqual(er.classify(tool, text), ("T32", None))
+
+    def test_forbidden_and_incomplete_forms(self) -> None:
+        self.assertIsNotNone(er.classify("noqa", f"import os  {NOQA}  {H}T32: x")[1])
+        self.assertIsNotNone(er.classify("eslint-disable", f"{SLASH}eslint-disable -- T32: x")[1])
+        yl = f"{H}yamllint disable-line rule:line-length"
+        self.assertIsNotNone(er.classify("yamllint", yl + f" {H}T32: x")[1])
+        self.assertIsNotNone(er.classify("@ts-ignore", f"{SLASH}@ts-ignore")[1])
+
     def test_ticket_on_another_line_does_not_count(self) -> None:
-        text = "# T32: reason\nimport os  # " + "noqa: F401\n"
+        text = f"# T32: reason\nimport os  {NOQA}: F401\n"
         self.assertEqual(self.run_with({"a.py": text})[0], 1)
 
     def test_every_tool_recognised(self) -> None:
         names = {name for name, _, _ in er.SUPPRESSIONS}
-        self.assertEqual(len(names), 11)
+        self.assertEqual(len(names), 12)
 
     def test_markdown_directive_only_in_markdown(self) -> None:
         directive = "<!-- " + "markdownlint-disable MD013 -->"
         self.assertEqual(self.run_with({"j.md": directive + "\n"})[0], 1)
 
     def test_failure_names_file_and_line(self) -> None:
-        text = "a = 1\nimport os  # " + "noqa\n"
+        text = f"a = 1\nimport os  {NOQA}\n"
         repo = _helpers.make_repo(self.root / "n", {"pkg/mod.py": text})
         os.chdir(repo)
         self.assertEqual(er.main([]), 1)
@@ -102,6 +148,16 @@ class ConfigExcludeTests(unittest.TestCase):
     def test_unrelated_keys_ignored(self) -> None:
         lines = ["line-length = 100", "per-file-target-version = 1", "ignore_code_blocks: 1"]
         self.assertEqual(er.config_exclude_lines(lines), [])
+
+    def test_more_config_files_are_covered(self) -> None:
+        for name in [".pre-commit-config.yaml", ".gitleaks.toml", ".shellcheckrc",
+                     ".hadolint.yaml", ".spectral.yaml"]:
+            with self.subTest(name=name):
+                self.assertIsNotNone(er.CONFIG_FILE.search(name))
+        self.assertEqual(er.config_exclude_lines(["disable=SC1090"]), [1])
+        self.assertEqual(er.config_exclude_lines(["ignored:", "  - DL3008"]), [2])
+        self.assertEqual(er.config_exclude_lines(["paths = ['x']"]), [1])
+        self.assertEqual(er.config_exclude_lines(["  some-rule: off"]), [1])
 
     def test_config_exclude_requires_ticket(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

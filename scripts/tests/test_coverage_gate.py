@@ -95,6 +95,18 @@ class GateTests(unittest.TestCase):
     def test_unmatched_report_fails(self) -> None:
         self.assertEqual(self.gate(cobertura([("other/file.py", 10, 10)])), 1)
 
+    def test_required_prefix_must_match(self) -> None:
+        path = self.dir / "r.xml"
+        path.write_text(self.engine(95, 95, 95), encoding="utf-8")
+        base = ["--thresholds", str(THRESHOLDS), str(path)]
+        self.assertEqual(cg.main(["--require", "meridian_engine/", *base]), 0)
+        self.assertEqual(cg.main(["--require", "apps/web/lib/", *base]), 1)
+
+    def test_floor_is_always_a_percentage(self) -> None:
+        thr = self.dir / "t.json"
+        thr.write_text('{"components": [{"path": "a/", "line": 1}]}', encoding="utf-8")
+        self.assertEqual(cg.load_thresholds(str(thr)), [("a/", 0.01)])
+
     def test_fixture_file(self) -> None:
         argv = ["--thresholds", str(THRESHOLDS), str(FIXTURES / "cobertura_ok.xml")]
         self.assertEqual(cg.main(argv), 0)

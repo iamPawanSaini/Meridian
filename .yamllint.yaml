@@ -6,9 +6,9 @@ rules:
     max: 100
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
-  document-start: disable
+  document-start: disable  # T04a: the repo YAML has no document start markers
   truthy:
     check-keys: false
   comments:
     min-spaces-from-content: 1
-  comments-indentation: disable
+  comments-indentation: disable  # T04a: conflicts with commented-out examples in configs
