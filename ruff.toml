@@ -1,0 +1,22 @@
+# Ruff configuration for all Python in the repo (T04a).
+# Standards: docs/standards/CODING_STANDARDS.md.
+# The default target is the engine (py312). Tooling that runs on the stdlib Python 3.10 is
+# pinned lower with per-file-target-version (decision D-2), so ruff does not suggest 3.11+ syntax.
+line-length = 100
+target-version = "py312"
+
+# Captured command output is evidence, not source (docs/tests/*/evidence).
+extend-exclude = ["docs/tests/*/evidence"]  # T04a: captured output, not authored code
+
+# verify: per-file-target-version needs a ruff release that supports it (owner-run install, TC-36).
+
+[per-file-target-version]
+"scripts/**/*.py" = "py310"
+".claude/hooks/**/*.py" = "py310"
+"docs/tests/**/*.py" = "py310"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+
+[format]
+quote-style = "double"

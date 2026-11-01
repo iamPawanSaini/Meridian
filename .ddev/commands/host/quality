@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+## Description: Run every quality check (lint, types, tests, coverage gate, standards checks)
+## Usage: quality
+## Example: ddev quality
+## Flags: []
+
+# Thin wrapper: scripts/quality.sh is the only implementation (T04a).
+# Works once T05 adds .ddev/config.yaml.
+exec "$DDEV_APPROOT/scripts/quality.sh" "$@"

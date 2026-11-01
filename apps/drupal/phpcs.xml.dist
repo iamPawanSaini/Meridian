@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- PHP_CodeSniffer ruleset for Meridian custom Drupal code (T04a). Needs drupal/coder (T05). -->
+<ruleset name="meridian">
+  <description>Drupal and DrupalPractice standards for custom modules.</description>
+  <file>web/modules/custom</file>
+  <arg name="extensions" value="php,module,inc,install,test,profile,theme,yml"/>
+  <arg name="colors"/>
+  <arg value="sp"/>
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+</ruleset>

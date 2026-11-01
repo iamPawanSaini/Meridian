@@ -13,7 +13,8 @@ source scripts/tool-versions.env
 tools_dir="$repo_root/.tools"
 pyz="$tools_dir/pre-commit-${PRE_COMMIT_VERSION}.pyz"
 wrapper="$tools_dir/pre-commit"
-url="https://github.com/pre-commit/pre-commit/releases/download/v${PRE_COMMIT_VERSION}/pre-commit-${PRE_COMMIT_VERSION}.pyz"
+base_url="https://github.com/pre-commit/pre-commit/releases/download"
+url="${base_url}/v${PRE_COMMIT_VERSION}/pre-commit-${PRE_COMMIT_VERSION}.pyz"
 
 mkdir -p "$tools_dir"
 
@@ -45,5 +46,6 @@ EOF
 chmod +x "$wrapper"
 
 "$wrapper" --version
-"$wrapper" install --install-hooks
-echo "Done. Hooks installed. Run '.tools/pre-commit run --all-files' to check the tree."
+"$wrapper" install --install-hooks --hook-type pre-commit --hook-type commit-msg
+echo "Done. Hooks installed (pre-commit and commit-msg)."
+echo "Run 'scripts/quality.sh' to check the tree."

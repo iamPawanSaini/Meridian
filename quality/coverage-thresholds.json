@@ -1,0 +1,10 @@
+{
+  "components": [
+    {"path": "meridian_engine/scoring/", "line": 90},
+    {"path": "meridian_engine/risk/", "line": 90},
+    {"path": "meridian_engine/", "line": 85},
+    {"path": "web/modules/custom/meridian_", "line": 70},
+    {"path": "apps/web/lib/", "line": 80},
+    {"path": "apps/web/components/", "line": 80}
+  ]
+}
