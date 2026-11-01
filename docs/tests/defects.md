@@ -27,8 +27,10 @@ States, in order: Open, Triaged, In progress, Fixed, Retest passed, Closed, Reop
 
 - Retest is done by the tester, with evidence stored (output, log or screenshot) and referenced
   in the defect. A developer's own check is not a retest.
-- A defect is Closed only after Retest passed. Entries that reach Retest passed stay in the
-  Closed section of this file (DEF-001 and DEF-002 do so).
+- A defect is set to the Closed state only after Retest passed. The main session sets Status to
+  Closed at `/close-task` of the task that found the defect. The "Closed" section of this file
+  holds entries in Retest passed, Closed or Won't fix; DEF-001 and DEF-002 stay at Retest passed
+  until their tasks close.
 - Won't fix for a Critical or High defect needs a solution-architect decision, recorded in the
   defect. The technical-architect may decide Medium and Low.
 - A Critical or High defect that is open blocks task close and the milestone gate (see "Exit
@@ -47,7 +49,7 @@ counts from Triaged until Fixed. The meanings are those of the master plan.
 |---|---|---|---|
 | Critical | Data loss, security breach, wrong financial result, or any live-order capability | 4 working hours | 1 working day |
 | High | Core function broken with no workaround | 1 working day | 3 working days |
-| Medium | Function impaired, workaround exists | 2 working days | before task close |
+| Medium | Function impaired, workaround exists | 2 working days | before task close, or ticketed in a named later task with technical-architect agreement |
 | Low | Cosmetic or documentation issue | 5 working days | before task close or ticketed |
 
 ## Defects and review findings

@@ -62,7 +62,7 @@ evidence (see "Exit criteria").
   and error states, CSV export, a full run through to the dashboard.
 - **Owning tasks:** T22 to T26 (Playwright on the dashboard), T27 (full stack on DDEV), T28
   (deployed dev), T21a (accessibility and self-hosted assets).
-- **Pass rule:** every Playwright scenario passes against DDEV (the stack of T05 to T07) with
+- **Pass rule:** every Playwright scenario passes against DDEV (the stack of T05 and T06) with
   seeded data and the fake LLM. T27 passes `ddev e2e` from a clean clone. T28 shows one
   unattended scheduled run in the deployed dashboard (FR-27).
 
@@ -75,8 +75,9 @@ evidence (see "Exit criteria").
   (audits and image scan), T01 (path guard).
 - **Pass rule:** the static broker check returns 0 hits. gitleaks finds 0 secrets over the full
   git history. The authorisation matrix has 0 forbidden cells that pass. 0 unresolved high or
-  critical findings in the audits and the image scan. A security case may not be Blocked at
-  close (see "Conventions").
+  critical findings in the audits and the image scan. Once D-6 is confirmed by the owner, a
+  security case may not be Blocked at close; until then the T00 to T02 precedent in "Blocked at
+  close" applies.
 
 ## Performance
 
@@ -218,10 +219,13 @@ Per task (all must hold before `/close-task`):
 - Every case is Pass, or Blocked with a recorded owner acceptance in the "Blocked at close" table
   of the test report (see "Conventions").
 - Evidence is stored for every case in `docs/tests/Txx/evidence/`.
-- No open Critical or High defect in `docs/tests/defects.md`. Medium and Low defects are fixed
-  or have a ticket in a named later task.
+- No open Critical or High defect in `docs/tests/defects.md`. Low defects are fixed or have a ticket
+  in a named later task. A Medium defect is fixed, or ticketed in a named later task with
+  technical-architect agreement.
 - The test report is written, states who executed the cases and the commit SHA, and lists every
-  `SKIP`. It reads "Signed off" only when no case is Fail or Blocked.
+  `SKIP`. It reads "Signed off" when no case is Fail or Blocked, and "Signed off with accepted
+  Blocked cases" when no case is Fail and every Blocked case is listed in a complete "Blocked at
+  close" table.
 - The traceability rows of the requirements the task verifies are updated (case IDs and status).
 
 Per milestone:
@@ -280,10 +284,16 @@ clean cache, 6 min warm):
 - Docs checks: the docs-task `run-checks.sh` scripts in `--regression` mode (below), plus the T01
   path-guard unit tests.
 
+**Reports:** every PR-set and heavier-set job writes JUnit XML (pytest, PHPUnit, Vitest,
+Playwright) and the coverage reports, and uploads them as workflow artifacts. T08 implements this.
+
 **Heavier set** (Functional, Playwright and `ddev e2e`; needs the full stack):
 
 - Drupal Functional tests, Schemathesis (marker `drupal_live`), Playwright end-to-end and
   accessibility tests, `ddev e2e`.
+- Before `/close-task` of a task that changes `apps/drupal`, `apps/web` or the ingest contract, the
+  heavier set is green on the task branch (by label or dispatch), and the run is linked in the
+  test report.
 - Trigger: a nightly schedule, a manual dispatch, and a push to main (merge to main). A pull
   request can run it by label.
 - Performance and manual cases are not part of either set.
@@ -368,8 +378,9 @@ Codified from the practice of T00 to T03. A rule marked **new** has not been use
 Pass, Fail, Blocked, Not run. Fail means the product, document or script is wrong and creates a
 defect. Blocked means a precondition or tool is missing (no network, no DDEV, a tool not
 installed, an owner action pending); it is not a product fault. A Blocked case keeps its
-criterion open. A report with any Fail or Blocked case is "Not signed off" until the owner
-accepts the Blocked case as below.
+criterion open. A report with any Fail case is "Not signed off". A report with Blocked cases is "Not signed off"
+until each is listed in a complete "Blocked at close" table (below); it then reads "Signed off with
+accepted Blocked cases".
 
 ## Owner-run cases
 
