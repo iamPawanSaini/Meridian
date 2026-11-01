@@ -1,0 +1,6 @@
+040000 tree e2cd48b5f96f570cbd12c5ce8be794b7765bf15a	apps/drupal
+(ls-tree apps/drupal exit=0; empty output = path has no commits on this branch)
+1/6 (0) [0]2/6 (1) [0]3/6 (2) [0]4/6 (3) [0]5/6 (4) [0]6/6 (5) [0]Created branch 'tmp-split'
+b3a5a5c813aa4463d752ce85866f42b4a7fe60de
+split exit=0
+git version 2.34.1

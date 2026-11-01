@@ -1,0 +1,5 @@
+== TC-T03-13 revalidation route and secret
+  PASS  revalidation route path stated (/api/revalidate or similar)
+  PASS  revalidation secret named on both sides (Drupal and Next.js)
+  PASS  revalidate interval 300 s
+  PASS  T02 RK-07 now names the revalidation secret

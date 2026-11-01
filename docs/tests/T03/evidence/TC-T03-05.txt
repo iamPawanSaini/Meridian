@@ -1,0 +1,10 @@
+== TC-T03-05 idempotency rule (D3)
+  PASS  idempotency section exists (heading)
+  PASS  external ID per record type, deterministic format with dec- prefix
+  PASS  external ID formats for position and run
+  PASS  upsert semantics: create, update, unchanged
+  PASS  payload hash used for unchanged detection
+  PASS  source_version stale rejection
+  PASS  stale record rejected (not applied)
+  PASS  rerun of same date defined (what is the 'same record')
+  PASS  same payload twice yields unchanged, no duplicate (stated)

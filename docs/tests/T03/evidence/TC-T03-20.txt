@@ -1,0 +1,3 @@
+== TC-T03-20 check-names.sh passes (C4 limited, no stale names)
+  PASS  scripts/check-names.sh exits 0
+  PASS  T03 documents use current names (meridian_engine, meridian_ingest, meridian-web)

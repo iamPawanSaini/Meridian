@@ -1,0 +1,7 @@
+== TC-T03-19 solution-architect sign-off recorded
+  PASS  sign-off section in technical-design.md
+  PASS  sign-off names solution-architect
+  PASS  sign-off has an ISO date
+  PASS  sign-off states approved
+  PASS  no unresolved TODO/TBD/FIXME markers left in design docs or openapi
+  PASS  status line is not Draft

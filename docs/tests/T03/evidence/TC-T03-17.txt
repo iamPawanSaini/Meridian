@@ -1,0 +1,9 @@
+== TC-T03-17 NFR numbers owned by T03
+  PASS  NFR-04 value in technical-design.md
+  PASS  NFR-05 value in technical-design.md
+  PASS  payload size limit and rate limit numbers for T10
+  PASS  provisional values name their confirming gate (measurement before T10)
+  PASS  Pantheon request time limit recorded with source or marked unverified
+  PASS  T02 follow-ups: NFR-04 and NFR-05 table rows in SA point to technical-design (exactly 2 rows)
+  PASS  T02 follow-ups: OQ-01 and OQ-07 resolution updated
+  PASS  T02 follow-ups: SA sign-off has a T03 amendment line

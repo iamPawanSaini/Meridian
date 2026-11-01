@@ -1,0 +1,5 @@
+== TC-T03-21 simulation only: no broker names or trading domains in T03 artefacts
+  PASS  all T03 artefacts exist (so the grep is not vacuous)
+  PASS  no broker names in technical-design.md, data-model.md, openapi.yaml, .env.example, .spectral.yaml
+  PASS  no trading-domain hostnames in openapi servers
+  PASS  design states simulation-only / no live trading (ADR-0006)

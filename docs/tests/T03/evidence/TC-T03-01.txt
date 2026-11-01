@@ -1,0 +1,14 @@
+== TC-T03-01 technical-design.md structure D1..D8, requirement map
+  PASS  technical-design.md exists and non-empty
+  PASS  heading for D1
+  PASS  heading for D2
+  PASS  heading for D3
+  PASS  heading for D4
+  PASS  heading for D5
+  PASS  heading for D6
+  PASS  heading for D7
+  PASS  heading for D8
+  PASS  links to data-model.md
+  PASS  links to openapi.yaml
+  PASS  requirement map names R-04, R-06 and R-09
+  PASS  data-model.md exists and non-empty

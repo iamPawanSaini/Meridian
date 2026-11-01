@@ -60,10 +60,10 @@ Typography and icons (decided):
 
 | Component | Tech | Dev hosting | Local (DDEV/Docker) |
 |---|---|---|---|
-| Engine (fetch, score, LLM review, simulate, publish) | Python 3.12 | GitHub Actions (cron) | `engine` container |
-| Records DB (engine state) | Postgres 16 | Free hosted Postgres (verify limits) | `postgres` container |
+| Engine (fetch, score, LLM review, simulate, publish) | Python 3.12 | GitHub Actions (cron) | `meridian-engine` container |
+| Records DB (engine state) | Postgres 16 | Free hosted Postgres (verify limits) | `meridian-postgres` container |
 | Content backend and admin | Drupal 11 (headless) | Pantheon sandbox | DDEV `web` + `db` |
-| Dashboard | Next.js (App Router, TypeScript) + `next-drupal` | Vercel Hobby (non-commercial) | `web-next` container (node) |
+| Dashboard | Next.js (App Router, TypeScript) + `next-drupal` | Vercel Hobby (non-commercial) | `meridian-web` container (node) |
 | LLM | Claude API | n/a | n/a |
 
 Data flow: GitHub Actions cron → engine → Postgres (system of record) → publisher → Drupal ingest API → Next.js reads Drupal JSON:API → user.

@@ -1,0 +1,7 @@
+== TC-T03-04 migration plan
+  PASS  baseline Alembic revision in T14
+  PASS  mentions Alembic and T14
+  PASS  revision naming NNNN_slug
+  PASS  downgrade tested for each revision
+  PASS  forward-only in dev stated
+  PASS  migration plan is in a headed section

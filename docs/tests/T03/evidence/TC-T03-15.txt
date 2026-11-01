@@ -1,0 +1,10 @@
+== TC-T03-15 env matrix covers four environments and every consumer (D7)
+  PASS  matrix section exists
+  PASS  environment: DDEV
+  PASS  environment: Pantheon
+  PASS  environment: Vercel
+  PASS  environment: GitHub Actions
+  PASS  rule: Drupal base URL server-only, no NEXT_PUBLIC_ prefix
+  PASS  secret store stated per secret (GitHub Secrets / Vercel env / Pantheon secrets / .env)
+  PASS  .env.example grouped by consumer (>= 3 section comments)
+  PASS  .env.example has no real secrets (no sk-ant-, AKIA, private key blocks)

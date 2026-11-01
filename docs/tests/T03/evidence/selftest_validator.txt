@@ -1,0 +1,21 @@
+  PASS  good fixture accepted (exit 0)
+  PASS  mutation 'openapi 3.0.3' rejected on 'openapi version is 3.1.x'
+  PASS  mutation 'no info.version' rejected on 'info.version present'
+  PASS  mutation 'dangling $ref' rejected on 'every internal $ref resolves'
+  PASS  mutation 'external $ref' rejected on 'all $ref are internal'
+  PASS  mutation 'missing operationId' rejected on 'every operation has operationId'
+  PASS  mutation 'duplicate operationId' rejected on 'operationIds are unique'
+  PASS  mutation 'no security' rejected on 'every operation has security'
+  PASS  mutation 'undeclared scope' rejected on 'every scope used in security is declared'
+  PASS  mutation 'missing 413' rejected on 'ingest documents 413'
+  PASS  mutation 'missing 429' rejected on 'ingest documents 429'
+  PASS  mutation 'missing 401' rejected on 'ingest documents 401'
+  PASS  mutation 'no 2xx' rejected on 'ingest has a 2xx response'
+  PASS  mutation 'maxItems 100' rejected on 'maxItems >= 500'
+  PASS  mutation 'no maxItems' rejected on 'declares maxItems'
+  PASS  mutation 'not clientCredentials' rejected on 'clientCredentials scheme'
+  PASS  mutation 'example lacks required' rejected on 'request examples include'
+  PASS  unparseable YAML rejected
+  PASS  missing file rejected
+
+RESULT: PASS

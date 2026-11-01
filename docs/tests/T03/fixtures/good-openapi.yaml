@@ -1,0 +1,92 @@
+# Test fixture only: a minimal contract that the validator must accept. Not the real contract.
+openapi: 3.1.0
+info: {title: Fixture, version: 0.0.1}
+security:
+  - oauth2: [meridian_ingest]
+paths:
+  /api/meridian/v1/ingest:
+    post:
+      operationId: ingestBatch
+      tags: [ingest]
+      security:
+        - oauth2: [meridian_ingest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IngestBatch'}
+            example:
+              run_external_id: run-2026-11-02
+              items:
+                - {record_type: decision, external_id: dec-2026-11-02-TCS-long}
+      responses:
+        '200':
+          description: Per-item results
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/IngestResult'}
+        '401': {description: Unauthorised}
+        '403': {description: Forbidden}
+        '413': {description: Body size above the limit}
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '429': {description: Rate limited}
+  /jsonapi/node/watchlist_item:
+    get:
+      operationId: listWatchlistItems
+      tags: [watchlist]
+      security:
+        - oauth2: [meridian_watchlist_read]
+      responses:
+        '200': {description: OK}
+        '401': {description: Unauthorised}
+        '403': {description: Forbidden}
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            meridian_ingest: Write records
+            meridian_watchlist_read: Read watchlist
+  schemas:
+    IngestBatch:
+      type: object
+      required: [run_external_id, items]
+      properties:
+        run_external_id: {type: string}
+        items:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            oneOf: [{$ref: '#/components/schemas/Decision'}]
+            discriminator:
+              propertyName: record_type
+    Decision:
+      type: object
+      required: [record_type, external_id]
+      properties:
+        record_type: {const: decision}
+        external_id: {type: string}
+    IngestResult:
+      type: object
+      properties:
+        results:
+          type: array
+          items: {type: object}
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              path: {type: string}
+              message: {type: string}

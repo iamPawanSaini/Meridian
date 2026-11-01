@@ -1,0 +1,4 @@
+== TC-T03-03 Postgres schema: tables, keys, unique constraints, indexes (shares checker with 02)
+  PASS  all seven tables have subsections (runs, watchlist_snapshots, prices, decisions, positions, outbox, alembic_version)
+  PASS  decisions unique (trade_date, symbol, mode) for rerun idempotency
+  PASS  five FR-12 provenance columns named in Postgres decisions section

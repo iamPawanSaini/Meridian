@@ -1,0 +1,2 @@
+first publish row for 2026-11-02, attempt 0: inserted
+second publish (or replay) row for the same date, attempt 0: REJECTED -> UNIQUE constraint failed: runs.trade_date, runs.attempt
