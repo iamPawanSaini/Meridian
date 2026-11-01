@@ -4,7 +4,8 @@
   uq_runs_one_running : UNIQUE (status) WHERE status = 'running'
   ck_runs_attempt     : attempt = 0 exactly when command in (publish, replay)
 sqlite is used only to enforce the same partial unique indexes and check that Postgres will."""
-import sqlite3, sys
+import sqlite3
+import sys
 c = sqlite3.connect(":memory:")
 c.execute("""create table runs(run_id text primary key, trade_date text not null, attempt int not null,
  command text not null, status text not null,

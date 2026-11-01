@@ -54,10 +54,12 @@ refined requirements with measurable targets, risks, costs, the six founding ADR
 
 ## Non-goals
 
-- Technical design details: content model, Postgres schema, OpenAPI contract, env matrix. These belong to T03.
+- Technical design details: content model, Postgres schema, OpenAPI contract, env matrix. These
+  belong to T03.
 - Choosing the hosted Postgres vendor. The cost map lists candidates. Record the choice in T03 or T28.
 - Scoring thresholds or rule values. These belong to T16 (`docs/specs/rules.md`).
-- Any code, config or workflow change. Changes to `docs/TASKS.md` section 0 apply only if the outcome is "rename".
+- Any code, config or workflow change. Changes to `docs/TASKS.md` section 0 apply only if the
+  outcome is "rename".
 
 ## Steps
 
@@ -75,7 +77,8 @@ refined requirements with measurable targets, risks, costs, the six founding ADR
    based), WHOIS and registrar availability, and app-store search. Record these as
    "not verifiable by agent, owner action" with exact instructions. The outcome must still be
    set. Default to "keep as internal codename only" until the owner actions close.
-7. Collect the open questions (ID, question, owner, resolution or ticket task ID). Every item must be resolved or ticketed.
+7. Collect the open questions (ID, question, owner, resolution or ticket task ID). Every item must
+   be resolved or ticketed.
 8. Update TRACEABILITY.md. Run `scripts/check-names.sh` and markdownlint, if available, on new docs.
 9. Hand over for review. The technical-architect writes `docs/tasks/T02/review.md` and records
    sign-off in the solution-architecture document.

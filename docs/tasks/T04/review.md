@@ -25,9 +25,11 @@ The review covers the following:
   - D-1 to D-6
   - the test-related criteria of T08 to T31
 - Independence:
-  - `test-cases.md`, `run-checks.sh` and the helpers were committed in 418ad25, before the documents in d440e55.
+  - `test-cases.md`, `run-checks.sh` and the helpers were committed in 418ad25, before the documents
+    in d440e55.
   - d440e55 does not touch any T04 test file.
-- Reviewer runs: `docs/tests/T04/run-checks.sh` executed 124 checks, and all passed (exit 0). The `--regression` mode executed 118 checks and excluded 6 snapshot checks; all passed.
+- Reviewer runs: `docs/tests/T04/run-checks.sh` executed 124 checks, and all passed (exit 0). The
+  `--regression` mode executed 118 checks and excluded 6 snapshot checks; all passed.
 - SKIPs: pre-commit and markdownlint are not installed in the sandbox.
 - `scripts/check-names.sh` passes.
 
@@ -37,7 +39,8 @@ The review covers the following:
 - Need a correction: FR-10, FR-22 and NFR-19 (findings 6, 8 and 5).
 - NFR-12 was spotted outside the sample (finding 7).
 
-No requirement is untestable as planned. NFR-02 and NFR-06 can be verified only over the T31 window, which is inherent in the requirement.
+No requirement is untestable as planned. NFR-02 and NFR-06 can be verified only over the T31 window,
+which is inherent in the requirement.
 
 ## Findings
 
@@ -105,7 +108,8 @@ Other checks:
 
 ## Approval
 
-**Approved (re-review, commit 36cde37).** No Blocker or Major finding is open. These items remain for `/test-task` and `/close-task`:
+**Approved (re-review, commit 36cde37).** No Blocker or Major finding is open. These items remain
+for `/test-task` and `/close-task`:
 
 - C3 and C7: an independent tester executes the cases, including the clean-clone run.
 - C4: the owner runs pre-commit and markdownlint, or the case is recorded as Blocked.
@@ -115,6 +119,10 @@ The master plan Status line is set to Approved.
 
 technical-architect, 2026-11-01.
 
-Earlier verdict (first review), kept for the record: Changes requested. Finding 1 (Major) must be fixed. Fix findings 2 to 11 in the same change: each is a one-line or one-row edit, and none needs a change to the T04 checks. If a check does fail after these edits, record it in the `test-cases.md` Change log without loosening anything. The master plan Status line stays "Draft for review" until a re-review approves it.
+Earlier verdict (first review), kept for the record: Changes requested. Finding 1 (Major) must be
+fixed. Fix findings 2 to 11 in the same change: each is a one-line or one-row edit, and none needs a
+change to the T04 checks. If a check does fail after these edits, record it in the `test-cases.md`
+Change log without loosening anything. The master plan Status line stays "Draft for review" until a
+re-review approves it.
 
 technical-architect, 2026-11-01.

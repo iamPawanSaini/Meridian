@@ -75,5 +75,6 @@ Postgres. The vendor (Neon or Supabase candidates) is chosen in T03 or T28.
   - While Drupal is unreachable, watchlist edits made there take effect only on the first
     run after it is reachable again. The run record shows the source used.
 - Follow-ups: T03 (schema, outbox and retry design, watchlist snapshot), T10 (watchlist read
-  scope), T12 (Watchlist Item UI), T13 (YAML seed and fallback order), T14 (migrations, idempotency), T19
+  scope), T12 (Watchlist Item UI), T13 (YAML seed and fallback order), T14 (migrations,
+  idempotency), T19
   (publisher), T27 (reconciliation), T28 (vendor), T29 (backup drill).

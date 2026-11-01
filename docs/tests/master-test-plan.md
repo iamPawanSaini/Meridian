@@ -378,7 +378,8 @@ Codified from the practice of T00 to T03. A rule marked **new** has not been use
 Pass, Fail, Blocked, Not run. Fail means the product, document or script is wrong and creates a
 defect. Blocked means a precondition or tool is missing (no network, no DDEV, a tool not
 installed, an owner action pending); it is not a product fault. A Blocked case keeps its
-criterion open. A report with any Fail case is "Not signed off". A report with Blocked cases is "Not signed off"
+criterion open. A report with any Fail case is "Not signed off". A report with Blocked cases is "Not
+signed off"
 until each is listed in a complete "Blocked at close" table (below); it then reads "Signed off with
 accepted Blocked cases".
 

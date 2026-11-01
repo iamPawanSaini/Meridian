@@ -2,7 +2,10 @@
 """Self-test of check_trace.py: a good miniature passes every check; each seeded defect is
 rejected by the check meant to catch it. Passes today (it guards the checker, not the content).
 The environment variable MINI=1 relaxes only the 49-row and 12-R-row size guards for the miniature."""
-import os, sys, tempfile, subprocess
+import os
+import subprocess
+import sys
+import tempfile
 H = os.path.dirname(os.path.abspath(__file__))
 SA = """| ID | R | Requirement | Pri | Target | Verifying tasks |
 |---|---|---|---|---|---|

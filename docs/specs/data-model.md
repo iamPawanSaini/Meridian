@@ -13,7 +13,8 @@ This file is the field-level reference. Names, enums, ranges and regexes here ar
 in the OpenAPI schemas (`openapi.yaml`). If they ever differ, this file wins and the
 contract is fixed. One exception: a Markdown table cell cannot hold `|`, so the `{mode}`
 part of an `external_id` regex is written here as `[a-z]{4,5}` with "suffix equals `mode`";
-the exact pattern, with `long` or `short`, is the one in `openapi.yaml`. Postgres is the system of record (ADR-0003). The Drupal copy is a
+the exact pattern, with `long` or `short`, is the one in `openapi.yaml`. Postgres is the system of
+record (ADR-0003). The Drupal copy is a
 published projection of it, and it reconciles with it (FR-14).
 
 ## Shared value rules

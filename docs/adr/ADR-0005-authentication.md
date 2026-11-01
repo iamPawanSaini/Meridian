@@ -74,4 +74,5 @@ Endpoint lists, scope names, token lifetimes and the flow details are T03 work.
   (RK-04).
 - Follow-ups: T03 (auth design, scopes, env matrix including the revalidation secret), T10
   (engine client: ingest and watchlist read scopes), T11 (read client, field access), T19
-  and T21 (revalidation call and route), T22 (login flow, route protection), T30 (authorisation matrix), OQ-08.
+  and T21 (revalidation call and route), T22 (login flow, route protection), T30 (authorisation
+  matrix), OQ-08.

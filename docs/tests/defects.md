@@ -104,11 +104,20 @@ inside one word; operators and redirect targets come from the token stream.
 
 **Steps to reproduce**
 
-1. Read `docs/specs/data-model.md`, table `runs`: `attempt` is "always 0" for `publish` and `replay` (`ck_runs_attempt`), and `uq_runs_date_attempt` is a plain unique constraint on (`trade_date`, `attempt`). Design D2 repeats this ("`publish` and `replay` rows use `attempt = 0`").
-2. Model the constraint: `python3 -I` sqlite demo in `docs/tests/T03/evidence/DEF-002-demo.txt` (insert two rows with the same `trade_date`, `attempt = 0`).
+1. Read `docs/specs/data-model.md`, table `runs`: `attempt` is "always 0" for `publish` and `replay`
+   (`ck_runs_attempt`), and `uq_runs_date_attempt` is a plain unique constraint on (`trade_date`,
+   `attempt`). Design D2 repeats this ("`publish` and `replay` rows use `attempt = 0`").
+2. Model the constraint: `python3 -I` sqlite demo in `docs/tests/T03/evidence/DEF-002-demo.txt`
+   (insert two rows with the same `trade_date`, `attempt = 0`).
 
-**Expected:** any number of `publish` and `replay` runs can be recorded for one trade date (NFR-15 expects a manual `publish` dispatch after an outage, and a delayed cron or repeated dispatch can repeat it), and none of them can fail on a unique violation.
+**Expected:** any number of `publish` and `replay` runs can be recorded for one trade date (NFR-15
+expects a manual `publish` dispatch after an outage, and a delayed cron or repeated dispatch can
+repeat it), and none of them can fail on a unique violation.
 
-**Actual:** the second `publish` or `replay` row for the same `trade_date` violates `uq_runs_date_attempt`, so the run cannot even record itself (T14 Alembic baseline and T19/T20 would hit it).
+**Actual:** the second `publish` or `replay` row for the same `trade_date` violates
+`uq_runs_date_attempt`, so the run cannot even record itself (T14 Alembic baseline and T19/T20 would
+hit it).
 
-**Suggested fix (for the author, not applied by the tester):** make the unique rule partial, `UNIQUE (trade_date, attempt) WHERE attempt > 0` (or give `publish`/`replay` a distinct key), and update `data-model.md` runs and design D2 accordingly.
+**Suggested fix (for the author, not applied by the tester):** make the unique rule partial,
+`UNIQUE (trade_date, attempt) WHERE attempt > 0` (or give `publish`/`replay` a distinct key), and
+update `data-model.md` runs and design D2 accordingly.

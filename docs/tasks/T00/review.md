@@ -32,4 +32,5 @@
 
 ## Approval
 
-**Approved with conditions:** close finding 1, and run TC-T00-04 and TC-T00-05 with stored evidence. Then T00 can be closed.
+**Approved with conditions:** close finding 1, and run TC-T00-04 and TC-T00-05 with stored evidence.
+Then T00 can be closed.

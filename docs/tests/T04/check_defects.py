@@ -3,7 +3,9 @@
 docs/tests/master-test-plan.md, docs/tests/defects.md and docs/templates/defect.md.
 Usage: python3 -I check_defects.py severity|states|workflow|legacy
 Exit 0 pass, 1 fail. Missing files FAIL. Stdlib only."""
-import re, sys, os
+import os
+import re
+import sys
 
 MP, DF, TP = "docs/tests/master-test-plan.md", "docs/tests/defects.md", "docs/templates/defect.md"
 SEV = ["Critical", "High", "Medium", "Low"]

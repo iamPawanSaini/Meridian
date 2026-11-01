@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Proves validate_openapi.py is not vacuous: the good fixture must pass, and each mutation
 must make it fail on the named check. Needs python3 + PyYAML only."""
-import copy, subprocess, sys, tempfile
+import copy
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 import yaml
 
@@ -16,7 +19,8 @@ def run(doc_or_text):
         r = subprocess.run([sys.executable, V, str(p)], capture_output=True, text=True)
         return r.returncode, r.stdout
 
-ing = lambda d: d["paths"]["/api/meridian/v1/ingest"]["post"]
+def ing(d):
+    return d["paths"]["/api/meridian/v1/ingest"]["post"]
 def m(f):
     d = copy.deepcopy(good); f(d); return d
 

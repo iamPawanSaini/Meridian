@@ -129,7 +129,11 @@ change before merge. Sign-off is recorded in `technical-design.md` ("Sign-off"),
 "T03 amendment" line in `solution-architecture.md` is marked reviewed. Design approval does
 not waive the tester's evidence for AC3 (Spectral) or for C3, C4, C6 and C7.
 
-**Re-review (DEF-002), 2026-11-01: Approved.** Revision 3 makes `uq_runs_date_attempt` a partial unique index `WHERE attempt > 0`, so repeated `publish` and `replay` rows (`attempt = 0`) on one date no longer collide. Compute attempts stay unique per date. `uq_runs_one_running` still covers every row, so the lock is not weakened. The "already succeeded" check reads only `attempt > 0` rows, and `ck_runs_attempt` ties `attempt = 0` to `publish` and `replay`, so the check is unaffected.
+**Re-review (DEF-002), 2026-11-01: Approved.** Revision 3 makes `uq_runs_date_attempt` a partial
+unique index `WHERE attempt > 0`, so repeated `publish` and `replay` rows (`attempt = 0`) on one
+date no longer collide. Compute attempts stay unique per date. `uq_runs_one_running` still covers
+every row, so the lock is not weakened. The "already succeeded" check reads only `attempt > 0` rows,
+and `ck_runs_attempt` ties `attempt = 0` to `publish` and `replay`, so the check is unaffected.
 
 ### First-round verdict (kept for history)
 

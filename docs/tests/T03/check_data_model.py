@@ -4,7 +4,9 @@ Layout assumed (from the plan, steps D1 and D2): a region headed '...Drupal...' 
 subsection per bundle, and a region headed '...Postgres...' with one subsection per table;
 each subsection holds a Markdown table. Drupal field tables need Type, Validation, Indexed
 columns; Postgres column tables need Column and Type columns. A missing file fails every check."""
-import os, re, sys
+import os
+import re
+import sys
 from pathlib import Path
 DM = Path(os.environ.get("DM_PATH", "docs/specs/data-model.md"))
 fail = 0

@@ -2,7 +2,9 @@
 """Structural validator for docs/architecture/openapi.yaml (T03). Needs python3 + PyYAML only.
 Usage: validate_openapi.py [path]   Exit 0 only if every check passes. A missing or
 unparseable file fails every dependent check (nothing passes vacuously)."""
-import sys, re, urllib.parse
+import re
+import sys
+import urllib.parse
 from pathlib import Path
 
 try:

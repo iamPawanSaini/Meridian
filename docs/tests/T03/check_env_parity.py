@@ -3,7 +3,8 @@
 Matrix = the Markdown table in docs/architecture/technical-design.md (section whose heading
 contains 'environment' and 'secret') whose first header cell is Name/Variable.
 Names must equal .env.example names, in both directions."""
-import re, sys
+import re
+import sys
 from pathlib import Path
 TD = Path("docs/architecture/technical-design.md"); EX = Path(".env.example")
 fail = 0
@@ -23,7 +24,8 @@ for j in range(start + 1, len(lines)):
     m = re.match(r"(#+) ", lines[j])
     if m and len(m.group(1)) <= lvl: end = j; break
 rows = [l for l in lines[start:end] if l.startswith("|")]
-cells = lambda l: [c.strip() for c in l.strip().strip("|").split("|")]
+def cells(line):
+    return [c.strip() for c in line.strip().strip("|").split("|")]
 hdr_i = next((i for i, l in enumerate(rows) if re.search(r"\b(name|variable)\b", cells(l)[0], re.I)), None)
 if not chk("matrix table with Name/Variable first column found", hdr_i is not None): sys.exit(1)
 hdr = [h.lower() for h in cells(rows[hdr_i])]
