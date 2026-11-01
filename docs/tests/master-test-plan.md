@@ -5,7 +5,7 @@
 | Task | T04 |
 | Author | tester |
 | Date | 2026-11-01 |
-| Status | Draft for review (technical-architect) |
+| Status | Approved (technical-architect review, 2026-11-01; see `docs/tasks/T04/review.md`) |
 | Decisions | `docs/tasks/T04/decision-t04-test-strategy.md` (D-1 to D-6) |
 | Requirements | [`solution-architecture.md`](../architecture/solution-architecture.md) (FR-01 to FR-30, NFR-01 to NFR-19) |
 | Planned tests | [`TRACEABILITY.md`](../TRACEABILITY.md), section "Planned tests" (49 rows) |
