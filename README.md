@@ -27,14 +27,16 @@ scripts/bootstrap-dev.sh       # installs pinned pre-commit into .tools/ and the
 .tools/pre-commit run --all-files
 ```
 
-The local DDEV stack arrives in T05 and T06.
+The Drupal part of the local stack runs in DDEV (Docker and DDEV v1.24 or newer needed). Follow
+`docs/runbooks/local-setup.md`: `ddev start`, then `ddev drupal-install`, then `ddev drush uli`.
+The engine, Postgres and Next.js services join in T06.
 
 ## Repository layout
 
 | Folder | Purpose |
 |---|---|
 | `.claude/` | Claude Code agents, workflow commands and hooks |
-| `.ddev/` | DDEV configuration (from T05) |
+| `.ddev/` | DDEV configuration and custom commands (from T05) |
 | `apps/drupal/` | Drupal 11 Composer root (from T05) |
 | `apps/web/` | Next.js dashboard (from T21) |
 | `services/engine/` | Python engine `meridian_engine` (from T13) |

@@ -57,7 +57,10 @@ docs/               all project documentation (see below)
 | Run all pre-commit checks | `.tools/pre-commit run --all-files` |
 | Check for stale placeholder names | `scripts/check-names.sh` |
 | Demonstrate secret scanning | `scripts/demo-secret-scan.sh` |
-| Full quality suite | `scripts/quality.sh` (`ddev quality` wrapper works once T05 adds DDEV config) |
+| Start the local stack | `ddev start` (clone on the WSL2 Linux filesystem; see `docs/runbooks/local-setup.md`) |
+| Install Drupal from `config/sync` | `ddev drupal-install` (`--force` reinstalls and drops the local database) |
+| Admin login link | `ddev drush uli` |
+| Full quality suite | `ddev quality` (runs in DDEV; `scripts/quality.sh` is the single implementation) |
 | Coding standards and review checklist | `docs/standards/CODING_STANDARDS.md`, `docs/standards/REVIEW_CHECKLIST.md` |
 
 ## Per-task loop (`docs/process/WORKFLOW.md`)
