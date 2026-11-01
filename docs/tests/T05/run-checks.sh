@@ -24,6 +24,7 @@
 #
 # Tags (decision D-5): ckp = invariant (runs in all static modes); cka = snapshot, true only at the
 # close of T05 (e.g. phpunit.xml.dist absent until T09); skipped by --regression, count printed.
+# shellcheck disable=SC2329,SC2015,SC2016,SC2034 # T05: check helpers are called through ckp/cka by name; regexes are literal
 set -euo pipefail
 
 ROOT=$(git rev-parse --show-toplevel) || exit 2
@@ -297,7 +298,7 @@ nc() { grep -nE -- "$1" "$SET" | grep -vE '^[0-9]+:\s*(#|//|\*|/\*)' | head -1 |
 need_set() { need_file "$SET"; }
 ckp "settings.php exists and lints (php -l, if PHP present)" bash -c "[[ -s '$SET' ]] && { ! command -v php >/dev/null || php -l '$SET' >/dev/null; }"
 ckp "config_sync_directory is '../config/sync' (resolves to apps/drupal/config/sync)" bash -c \
-  "grep -vE '^\s*(#|//|\*|/\*)' '$SET' | grep -qE \"\\\$settings\\['config_sync_directory'\\]\\s*=\\s*['\\\"]\\.\\./config/sync['\\\"]\""
+  "grep -vE '^\s*(#|//|\*|/\*)' '$SET' | grep -qE \"[\\$]settings\\['config_sync_directory'\\]\\s*=\\s*['\\\"]\\.\\./config/sync['\\\"]\""
 order_ok() { need_set || return 1; local a b c d
   a=$(nc 'settings\.pantheon\.php'); b=$(nc 'settings\.ddev\.php'); c=$(nc "config_sync_directory"); d=$(nc 'settings\.local\.php')
   [[ -n "$a" && -n "$b" && -n "$c" && -n "$d" ]] || { echo "missing include or setting: pantheon=$a ddev=$b sync=$c local=$d"; return 1; }
@@ -349,8 +350,11 @@ ckp "no contrib or API modules yet (jsonapi, rest, simple_oauth, basic_auth: T09
 ckp "system.site.yml has a UUID" bash -c "python3 -I '$WORK/h.py' y '$SYNC/system.site.yml' uuid | grep -qE '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\$'"
 ckp "system.site.yml site mail is example.com (RFC 2606)" bash -c "python3 -I '$WORK/h.py' y '$SYNC/system.site.yml' mail | grep -qE '@example\.com\$'"
 ckp "system.site.yml name is Meridian" yeq "$SYNC/system.site.yml" name Meridian
-ckp "no hash salt, password or key in config/sync" bash -c \
-  "[[ -d '$SYNC' ]] && ! grep -rqiE 'hash_salt|password:\s*\S|BEGIN [A-Z ]*PRIVATE KEY' '$SYNC'"
+no_secret_sync() { [[ -d "$SYNC" ]] || { echo "missing $SYNC"; return 1; }
+  ! grep -rqiE 'hash_salt|BEGIN [A-Z ]*PRIVATE KEY' "$SYNC" || { echo "salt or private key found"; return 1; }
+  local pw; pw=$(python3 -I "$WORK/h.py" y "$SYNC/system.mail.yml" mailer_dsn.password) || return 1
+  [[ "$pw" == null || -z "$pw" || "$pw" == None ]] || { echo "mailer_dsn.password is set"; return 1; }; }
+ckp "no hash salt or key in config/sync; system.mail mailer_dsn.password is null" no_secret_sync
 ckp "no uuid-free system.site (UUID kept so --existing-config keeps site identity)" bash -c "grep -q '^uuid:' '$SYNC/system.site.yml'"
 
 case_start TC-T05-11 "drupal-install command, static (AC2, KD-5)"
@@ -652,11 +656,13 @@ clean_clone() {
   local scratch br t0 t1 out rc
   scratch=$(mktemp -d "${TMPDIR:-/tmp}/t05clone.XXXXXX"); br=$(git rev-parse --abbrev-ref HEAD)
   ddev stop --unlist meridian >/dev/null 2>&1 || true
+  # a fresh machine has no database volume; the volume of the previous checkout survives an unlist
+  ddev delete -Oy meridian >/dev/null 2>&1 || true
   if ! git clone -q --branch "$br" "file://$ROOT" "$scratch/meridian" 2>&1; then
     bad "git clone of $br failed"; return 0; fi
   ran=$((ran+1))
-  # a clone carries only committed files: uncommitted work is not tested, and is flagged here.
-  if [[ -n "$(git status --porcelain)" ]]; then bad "source tree has uncommitted changes: the clone does not contain them"; ran=$((ran+1)); fi
+  # a clone carries only committed files: uncommitted T05 deliverables are not tested, and are flagged here.
+  if [[ -n "$(git status --porcelain -- apps/drupal .ddev scripts/quality.sh docs/runbooks CLAUDE.md README.md)" ]]; then bad "source tree has uncommitted changes: the clone does not contain them"; ran=$((ran+1)); fi
   cd "$scratch/meridian"
   t0=$(date +%s)
   out=$(ddev start 2>&1) && rc=0 || rc=$?

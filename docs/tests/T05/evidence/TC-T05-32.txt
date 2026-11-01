@@ -1,0 +1,5 @@
+== TC-T05-32 live: cex after a fresh install produces no diff (AC4)
+  PASS  ddev drush config:status reports no differences
+  PASS  ddev drush cex -y exits 0 and says nothing to export
+  PASS  git status --porcelain apps/drupal/config/sync is empty
+  PASS  negative control: a config change shows up in cex (harness proves detection), then is reverted

@@ -1,0 +1,2 @@
+== TC-T05-39 AC6: runbook followed verbatim on a clean machine or container (owner-run)
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word and record each command, output and the total time; not automatable

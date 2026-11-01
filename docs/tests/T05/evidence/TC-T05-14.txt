@@ -1,0 +1,9 @@
+== TC-T05-14 documentation updates (C5, scope list)
+  PASS  runbooks index lists local-setup.md
+  PASS  .ddev/README.md covers config.yaml, drupal-install and the default quality runner
+  PASS  apps/drupal/README.md: layout, version table with URL and date, upstream reference, config workflow
+  PASS  version table rows carry a source URL or 'owner to verify' (every verify item resolved)
+  PASS  CLAUDE.md Commands table lists ddev start, ddev drupal-install, ddev drush uli
+  PASS  root README Getting started points to the runbook
+  PASS  CODING_STANDARDS tool table: phpcs/coder/phpstan rows no longer say verify
+  PASS  TRACEABILITY R-11 / FR-26 rows name the T05 evidence (filled at close)

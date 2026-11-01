@@ -1,0 +1,6 @@
+== TC-T05-16 simulation-only denylist (FR-11, ADR-0006, CLAUDE.md)
+  PASS  denylist scan over every new T05 file is clean (non-empty file set required)
+  PASS  composer.lock package names contain no broker, trading or order SDK
+  PASS  composer.lock source and dist URLs contain no trading host
+  PASS  no composer.json 'require' of any non-Drupal-ecosystem trading package
+  PASS  .ddev/config.yaml has no outbound host other than DDEV/Drupal tooling

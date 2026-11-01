@@ -1,0 +1,2174 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml..........................................................................Passed
+check json..........................................................................Passed
+check toml..........................................................................Passed
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check..........................................................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+E501 Line too long (111 > 100)
+   --> .claude/hooks/guard_paths.py:222:101
+    |
+220 |         if readonly:
+221 |             raise Denied(
+222 |                 f"read-only agent: output redirect to '{target}' is not allowed. Use the Write tool for docs/."
+    |                                                                                                     ^^^^^^^^^^^
+223 |             )
+224 |         check_path(target, cwd, allow, deny)
+    |
+
+E501 Line too long (108 > 100)
+   --> .claude/hooks/guard_paths.py:235:101
+    |
+233 |             ):
+234 |                 raise Denied(
+235 |                     f"'git {sub}' changes repository state; only the main session or developer may do that."
+    |                                                                                                     ^^^^^^^^
+236 |                 )
+237 |             continue
+    |
+
+UP037 [*] Remove quotes from type annotation
+  --> .claude/hooks/tests/test_guard_paths.py:50:6
+   |
+48 | def run_guard(
+49 |     agent: str, tool: str, tool_input: dict[str, str]
+50 | ) -> "subprocess.CompletedProcess[str]":
+   |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+51 |     payload = {
+52 |         "hook_event_name": "PreToolUse",
+   |
+help: Remove quotes
+
+E501 Line too long (109 > 100)
+   --> .claude/hooks/tests/test_guard_paths.py:112:101
+    |
+110 |             "Edit",
+111 |             {
+112 |                 "file_path": "apps/drupal/web/modules/custom/meridian_ingest/tests/src/Kernel/IngestTest.php"
+    |                                                                                                     ^^^^^^^^^
+113 |             },
+114 |         )
+    |
+
+E501 Line too long (108 > 100)
+   --> .claude/hooks/tests/test_guard_paths.py:142:101
+    |
+140 |             "Bash",
+141 |             {
+142 |                 "command": "python3 -m pytest services/engine 2>&1 | tee docs/tests/T13/evidence/pytest.txt"
+    |                                                                                                     ^^^^^^^^
+143 |             },
+144 |         )
+    |
+
+E501 Line too long (107 > 100)
+   --> .claude/hooks/tests/test_guard_paths.py:224:101
+    |
+222 |             "Bash",
+223 |             {
+224 |                 "command": 'grep -rniE "zerodha|upstox" docs 2>&1 | tee docs/tests/T02/evidence/broker.txt'
+    |                                                                                                     ^^^^^^^
+225 |             },
+226 |         )
+    |
+
+E501 Line too long (101 > 100)
+  --> docs/tests/T03/check_data_model.py:31:101
+   |
+30 | def section(rx, within=None, exact_level=None):
+31 |     """lines of first heading matching rx (case-insens) up to next heading of same or higher level"""
+   |                                                                                                     ^
+32 |     pool = within if within is not None else lines
+33 |     for i, l in enumerate(pool):
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_data_model.py:33:12
+   |
+31 |     """lines of first heading matching rx (case-insens) up to next heading of same or higher level"""
+32 |     pool = within if within is not None else lines
+33 |     for i, l in enumerate(pool):
+   |            ^
+34 |         m = re.match(r"(#+) (.*)", l)
+35 |         if m and re.search(rx, m.group(2), re.I):
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_data_model.py:50:9
+   |
+48 |     """list of (header_cells_lower, [row cell lists]) for each table in sec"""
+49 |     out, cur = [], None
+50 |     for l in sec:
+   |         ^
+51 |         if l.startswith("|"):
+52 |             c = [x.strip() for x in l.strip().strip("|").split("|")]
+   |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/check_data_model.py:148:13
+    |
+146 |     (
+147 |         l
+148 |         for l in (dsecs["decision"] or [])
+    |             ^
+149 |         if l.startswith("|") and re.search(r"raw_?llm|llm_?raw|raw_?output", l, re.I)
+150 |     ),
+    |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/check_data_model.py:244:16
+    |
+242 | ]:
+243 |     row = next(
+244 |         (l for l in (psecs["decisions"] or []) if l.startswith("|") and re.search(rx, l, re.I)), ""
+    |                ^
+245 |     )
+246 |     chk(
+    |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_env_parity.py:32:16
+   |
+30 |     (
+31 |         i
+32 |         for i, l in enumerate(lines)
+   |                ^
+33 |         if re.match(r"#+ ", l)
+34 |         and re.search(r"environment", l, re.I)
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_env_parity.py:48:15
+   |
+46 |         end = j
+47 |         break
+48 | rows = [l for l in lines[start:end] if l.startswith("|")]
+   |               ^
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_env_parity.py:56:15
+   |
+55 | hdr_i = next(
+56 |     (i for i, l in enumerate(rows) if re.search(r"\b(name|variable)\b", cells(l)[0], re.I)), None
+   |               ^
+57 | )
+58 | if not chk("matrix table with Name/Variable first column found", hdr_i is not None):
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_env_parity.py:76:22
+   |
+74 |     chk(f"matrix column present: {k}", idx is not None)
+75 |     col[k] = idx
+76 | body = [cells(l) for l in rows[hdr_i + 1 :] if not re.fullmatch(r"[|:\- ]+", l)]
+   |                      ^
+77 | names, bad = [], []
+78 | for r in body:
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T03/check_env_parity.py:94:20
+   |
+92 | chk("no empty cells or malformed rows (use 'n/a' explicitly)", not bad, str(bad[:5]))
+93 | envn = [
+94 |     m.group(1) for l in EX.read_text().splitlines() if (m := re.match(r"\s*([A-Z][A-Z0-9_]*)=", l))
+   |                    ^
+95 | ]
+96 | chk(".env.example has no duplicate names", envn and len(envn) == len(set(envn)))
+   |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/check_env_parity.py:126:5
+    |
+124 |     chk(f"matrix lists {label}", any(re.search(rx, n) for n in mx))
+125 | leaks = []
+126 | for l in EX.read_text().splitlines():
+    |     ^
+127 |     m = re.match(r"([A-Z][A-Z0-9_]*)=(.*)$", l)
+128 |     if (
+    |
+
+E501 Line too long (108 > 100)
+ --> docs/tests/T03/def002_retest.py:2:101
+  |
+1 | #!/usr/bin/env python3
+2 | """DEF-002 retest model. Models the FIXED documented constraints (data-model.md runs, Revision 3) in sqlite:
+  |                                                                                                     ^^^^^^^^
+3 |   uq_runs_date_attempt: UNIQUE (trade_date, attempt) WHERE attempt > 0
+4 |   uq_runs_one_running : UNIQUE (status) WHERE status = 'running'
+  |
+
+E501 Line too long (103 > 100)
+  --> docs/tests/T03/def002_retest.py:12:101
+   |
+11 | c = sqlite3.connect(":memory:")
+12 | c.execute("""create table runs(run_id text primary key, trade_date text not null, attempt int not null,
+   |                                                                                                     ^^^
+13 |  command text not null, status text not null,
+14 |  constraint ck_runs_attempt check ((attempt = 0) = (command in ('publish', 'replay'))))""")
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> docs/tests/T03/selftest_validator.py:5:1
+   |
+ 3 |   must make it fail on the named check. Needs python3 + PyYAML only."""
+ 4 |
+ 5 | / import copy
+ 6 | | import subprocess
+ 7 | | import sys
+ 8 | | import tempfile
+ 9 | | from pathlib import Path
+10 | | import yaml
+   | |___________^
+11 |
+12 |   here = Path(__file__).resolve().parent
+   |
+help: Organize imports
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/selftest_validator.py:101:58
+    |
+ 99 | for name, (f, expect) in muts.items():
+100 |     rc, out = run(m(f))
+101 |     hit = any(l.startswith("  FAIL") and expect in l for l in out.splitlines())
+    |                                                          ^
+102 |     ok = rc != 0 and hit
+103 |     print(("  PASS  " if ok else "  FAIL  ") + f"mutation '{name}' rejected on '{expect}'")
+    |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/validate_openapi.py:99:31
+    |
+ 97 |     "all $ref are internal (no external files or URLs)",
+ 98 |     not ext,
+ 99 |     "; ".join(f"{l}->{r}" for l, r in ext[:3]),
+    |                               ^
+100 | )
+101 | broken = [r for r in refs if r[1].startswith("#") and resolve(r[1]) is None]
+    |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T03/validate_openapi.py:102:75
+    |
+100 | )
+101 | broken = [r for r in refs if r[1].startswith("#") and resolve(r[1]) is None]
+102 | chk("every internal $ref resolves", not broken, "; ".join(f"{l}->{r}" for l, r in broken[:3]))
+    |                                                                           ^
+    |
+
+C401 Unnecessary generator (rewrite as a set comprehension)
+   --> docs/tests/T03/validate_openapi.py:127:74
+    |
+125 |     str([f"{m} {p}" for m, p, o in ops if not o.get("operationId")]),
+126 | )
+127 | chk("operationIds are unique", ops and len([i for i in ids if i]) == len(set(i for i in ids if i)))
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^
+128 | chk(
+129 |     "every operation has non-empty responses",
+    |
+help: Rewrite as a set comprehension
+
+SIM401 Use `op.get("security", gsec)` instead of an `if` block
+   --> docs/tests/T03/validate_openapi.py:136:12
+    |
+135 | def effective_sec(op):
+136 |     return op["security"] if "security" in op else gsec
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: Replace with `op.get("security", gsec)`
+
+B007 Loop control variable `mt` not used within loop body
+   --> docs/tests/T03/validate_openapi.py:307:9
+    |
+305 | for m, p, o in ops:
+306 |     rb = deref(o.get("requestBody") or {})
+307 |     for mt, media in (rb.get("content") or {}).items():
+    |         ^^
+308 |         exs = [media["example"]] if "example" in media else []
+309 |         for e in (media.get("examples") or {}).values():
+    |
+help: Rename unused `mt` to `_mt`
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T04/check_defects.py:32:11
+   |
+32 | def cells(l):
+   |           ^
+33 |     return [c.strip() for c in l.strip().strip("|").split("|")]
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T04/check_defects.py:38:9
+   |
+36 | def sev_rows(t):
+37 |     out = []
+38 |     for l in t.splitlines():
+   |         ^
+39 |         if l.lstrip().startswith("|"):
+40 |             c = cells(l)
+   |
+
+E741 Ambiguous variable name: `l`
+  --> docs/tests/T04/check_defects.py:50:9
+   |
+48 |     lv = 0
+49 |     out = []
+50 |     for l in t.splitlines():
+   |         ^
+51 |         m = re.match(r"^(#+) ", l)
+52 |         if m:
+   |
+
+E741 Ambiguous variable name: `l`
+   --> docs/tests/T04/check_defects.py:115:9
+    |
+113 |     bad = []
+114 |     rows = {}
+115 |     for l in df.splitlines():
+    |         ^
+116 |         if l.lstrip().startswith("|"):
+117 |             c = cells(l)
+    |
+
+E401 [*] Multiple imports on one line
+  --> docs/tests/T04/check_trace.py:11:1
+   |
+ 9 | """
+10 |
+11 | import re, subprocess, sys, os
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 |
+13 | LEVELS = {
+   |
+help: Split imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> docs/tests/T04/check_trace.py:11:1
+   |
+ 9 | """
+10 |
+11 | import re, subprocess, sys, os
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 |
+13 | LEVELS = {
+   |
+help: Organize imports
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> docs/tests/T04/check_trace.py:113:21
+    |
+111 |         errs.append(f"planned table has {len(h)} columns, expected 7")
+112 |     else:
+113 |         for w, c in zip(PHDR_WORDS, h):
+    |                     ^^^^^^^^^^^^^^^^^^
+114 |             if w not in c.lower():
+115 |                 errs.append(f"column '{c}' should contain '{w}'")
+    |
+help: Add explicit value for parameter `strict=`
+
+SIM115 Use a context manager for opening files
+   --> docs/tests/T04/check_trace.py:338:10
+    |
+336 |             print(f"FAIL missing or empty {p}")
+337 |             return 1
+338 |     sa = open(opt["--sa"]).read()
+    |          ^^^^
+339 |     tr = open(opt["--tr"]).read()
+340 |     names = list(CHECKS) + ["unchanged"] if name == "all" else [name]
+    |
+
+SIM115 Use a context manager for opening files
+   --> docs/tests/T04/check_trace.py:339:10
+    |
+337 |             return 1
+338 |     sa = open(opt["--sa"]).read()
+339 |     tr = open(opt["--tr"]).read()
+    |          ^^^^
+340 |     names = list(CHECKS) + ["unchanged"] if name == "all" else [name]
+341 |     bad = 0
+    |
+
+E501 Line too long (102 > 100)
+ --> docs/tests/T04/selftest_trace.py:4:101
+  |
+2 | """Self-test of check_trace.py: a good miniature passes every check; each seeded defect is
+3 | rejected by the check meant to catch it. Passes today (it guards the checker, not the content).
+4 | The environment variable MINI=1 relaxes only the 49-row and 12-R-row size guards for the miniature."""
+  |                                                                                                     ^^
+5 |
+6 | import os
+  |
+
+E501 Line too long (105 > 100)
+  --> docs/tests/T04/selftest_trace.py:18:101
+   |
+16 | """
+17 | GOOD = """# Traceability
+18 | | Req | Requirement | Refined IDs (T02) | Tasks | Design element (T03) | Test cases | Evidence | Status |
+   |                                                                                                     ^^^^^
+19 | |---|---|---|---|---|---|---|---|
+20 | | R-01 | x | FR-01, NFR-01 | T10 | d | see FR-01, NFR-01 | | Open |
+   |
+
+E501 Line too long (116 > 100)
+  --> docs/tests/T04/selftest_trace.py:25:101
+   |
+23 | | ID | Parent R | Verifying task | Level(s) | Planned test | Planned case ID or pattern | Status |
+24 | |---|---|---|---|---|---|---|
+25 | | FR-01 | R-01 | T10, T12 | unit, contract | Watchlist change takes effect next run | TC-T10-*, TC-T12-* | Planned |
+   |                                                                                                     ^^^^^^^^^^^^^^^^
+26 | | NFR-01 | R-01 | T21a | performance | Measure run time with fake LLM | TC-T21a-* | Planned |
+27 | """
+   |
+
+E501 Line too long (104 > 100)
+  --> docs/tests/T04/selftest_trace.py:28:101
+   |
+26 | | NFR-01 | R-01 | T21a | performance | Measure run time with fake LLM | TC-T21a-* | Planned |
+27 | """
+28 | LAST = "| NFR-01 | R-01 | T21a | performance | Measure run time with fake LLM | TC-T21a-* | Planned |\n"
+   |                                                                                                     ^^^^
+29 | MUT = [  # (name, check expected to fail, transform)
+30 |     ("drop row", "ids", lambda t: t.replace(LAST, "")),
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04/selftest_trace.py:60:9
+   |
+58 |     with tempfile.TemporaryDirectory() as d:
+59 |         a, b = os.path.join(d, "sa.md"), os.path.join(d, "tr.md")
+60 |         open(a, "w").write(sa)
+   |         ^^^^
+61 |         open(b, "w").write(tr)
+62 |         env = dict(os.environ)
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04/selftest_trace.py:61:9
+   |
+59 |         a, b = os.path.join(d, "sa.md"), os.path.join(d, "tr.md")
+60 |         open(a, "w").write(sa)
+61 |         open(b, "w").write(tr)
+   |         ^^^^
+62 |         env = dict(os.environ)
+63 |         if mini:
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/check_assets.py:21:30
+   |
+19 | bad = []
+20 | for f in files:
+21 |     for n, line in enumerate(open(f).read().splitlines(), 1):
+   |                              ^^^^
+22 |         if hosts.search(line):
+23 |             bad.append(f"{f}:{n}: third-party host")
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/check_branch_name.py:20:42
+   |
+18 |     ).stdout.strip()
+19 | )
+20 | ids = set(re.findall(r"^## (T\d{2}a?):", open(a.tasks_file).read(), re.M))
+   |                                          ^^^^
+21 | m = re.match(r"^task/(T\d{2}a?)-[a-z0-9]+(-[a-z0-9]+)*$", b)
+22 | if b == "main" or (m and m.group(1) in ids):
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/check_commit_msg.py:13:42
+   |
+11 | ap.add_argument("--tasks-file", default="docs/TASKS.md")
+12 | a = ap.parse_args()
+13 | ids = set(re.findall(r"^## (T\d{2}a?):", open(a.tasks_file).read(), re.M))
+   |                                          ^^^^
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/check_commit_msg.py:31:12
+   |
+29 | bad = 0
+30 | if a.msg_file:
+31 |     subj = open(a.msg_file).read().split("\n")[0]
+   |            ^^^^
+32 |     e = check(subj, False)
+33 |     if e:
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/coverage_gate.py:36:16
+   |
+36 | walk(json.load(open(a.thresholds)), "")
+   |                ^^^^
+37 | bad = []
+38 | for ctx, v in floors:
+   |
+
+B007 Loop control variable `ctx` not used within loop body
+  --> docs/tests/T04a/reference/coverage_gate.py:38:5
+   |
+36 | walk(json.load(open(a.thresholds)), "")
+37 | bad = []
+38 | for ctx, v in floors:
+   |     ^^^
+39 |     fl = v / 100 if v > 1 else v
+40 |     for key in ("scoring", "risk", "lib", "components", "meridian_engine", "meridian_"):
+   |
+help: Rename unused `ctx` to `_ctx`
+
+B007 Loop control variable `key` not used within loop body
+  --> docs/tests/T04a/reference/coverage_gate.py:40:9
+   |
+38 | for ctx, v in floors:
+39 |     fl = v / 100 if v > 1 else v
+40 |     for key in ("scoring", "risk", "lib", "components", "meridian_engine", "meridian_"):
+   |         ^^^
+41 |         pass
+42 | # generic: every threshold carries a path prefix string next to the number
+   |
+help: Rename unused `key` to `_key`
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/coverage_gate.py:43:15
+   |
+41 |         pass
+42 | # generic: every threshold carries a path prefix string next to the number
+43 | d = json.load(open(a.thresholds))
+   |               ^^^^
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/exceptions_report.py:42:42
+   |
+40 | }
+41 | cfg = re.compile(r"^\s*-\s*[\"']?[\w./*-]+[\"']?\s*(#.*)?$|^exclude\s*=|:\s*\"off\"")
+42 | ids = set(re.findall(r"^## (T\d{2}a?):", open("docs/TASKS.md").read(), re.M))
+   |                                          ^^^^
+43 | ids |= set(re.findall(r"DEF-\d{3}", open("docs/tests/defects.md").read()))
+44 | cfgfiles = (".markdownlint-cli2.yaml", ".yamllint.yaml", ".spectral.yaml", "ruff.toml")
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/exceptions_report.py:43:37
+   |
+41 | cfg = re.compile(r"^\s*-\s*[\"']?[\w./*-]+[\"']?\s*(#.*)?$|^exclude\s*=|:\s*\"off\"")
+42 | ids = set(re.findall(r"^## (T\d{2}a?):", open("docs/TASKS.md").read(), re.M))
+43 | ids |= set(re.findall(r"DEF-\d{3}", open("docs/tests/defects.md").read()))
+   |                                     ^^^^
+44 | cfgfiles = (".markdownlint-cli2.yaml", ".yamllint.yaml", ".spectral.yaml", "ruff.toml")
+45 | files = subprocess.run(["git", "ls-files"], capture_output=True, text=True).stdout.split()
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/exceptions_report.py:52:30
+   |
+50 |     if f.startswith("docs/TASKS.md") or f.startswith("docs/tests/defects"):
+51 |         continue
+52 |     for n, line in enumerate(open(f).read().splitlines(), 1):
+   |                              ^^^^
+53 |         kind = next((k for k, rx in tok.items() if re.search(rx, line)), None)
+54 |         if (
+   |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+  --> docs/tests/T04a/reference/exceptions_report.py:54:9
+   |
+52 |       for n, line in enumerate(open(f).read().splitlines(), 1):
+53 |           kind = next((k for k, rx in tok.items() if re.search(rx, line)), None)
+54 | /         if (
+55 | |             kind is None
+56 | |             and f in cfgfiles
+57 | |             and (
+58 | |                 cfg.search(line)
+59 | |                 and (
+60 | |                     "ignore" in open(f).read()
+61 | |                     or "ignores" in open(f).read()
+62 | |                     or f == "ruff.toml"
+63 | |                     or f == ".spectral.yaml"
+64 | |                 )
+65 | |             )
+66 | |         ):
+67 | |             if re.match(r"^\s*-\s", line) or line.startswith("exclude") or '"off"' in line:
+   | |___________________________________________________________________________________________^
+68 |                   kind = "config exclude"
+69 |           if kind is None:
+   |
+help: Combine `if` statements using `and`
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/exceptions_report.py:60:33
+   |
+58 |                 cfg.search(line)
+59 |                 and (
+60 |                     "ignore" in open(f).read()
+   |                                 ^^^^
+61 |                     or "ignores" in open(f).read()
+62 |                     or f == "ruff.toml"
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reference/exceptions_report.py:61:37
+   |
+59 |                 and (
+60 |                     "ignore" in open(f).read()
+61 |                     or "ignores" in open(f).read()
+   |                                     ^^^^
+62 |                     or f == "ruff.toml"
+63 |                     or f == ".spectral.yaml"
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reflow_md.py:41:16
+   |
+39 |     risk = 0
+40 |     for p in paths:
+41 |         text = open(p, encoding="utf-8").read()
+   |                ^^^^
+42 |         res: list[str] = []
+43 |         fence = False
+   |
+
+SIM115 Use a context manager for opening files
+  --> docs/tests/T04a/reflow_md.py:60:9
+   |
+58 |             res.extend(new)
+59 |             n += 1
+60 |         open(p, "w", encoding="utf-8").write("\n".join(res))
+   |         ^^^^
+61 |         print(f"{p}: {n} lines reflowed")
+62 |     return 1 if risk else 0
+   |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+  --> scripts/check_assets.py:94:5
+   |
+92 |       if KNOWN_HOSTS.search(line) or any(rx.search(line) for rx in ASSET_CONTEXTS):
+93 |           reasons.append("third-party host (self-host fonts, styles, scripts and icons)")
+94 | /     if not allow_hex and not ID_SELECTOR.match(line):
+95 | |         if HEX.search(NOT_COLOUR.sub("", line)):
+   | |________________________________________________^
+96 |               reasons.append("hex colour outside the tokens file (use a design token)")
+97 |       return reasons
+   |
+help: Combine `if` statements using `and`
+
+Found 58 errors.
+[*] 4 fixable with the `--fix` option (8 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+ruff format.........................................................................Passed
+mypy................................................................................Failed
+- hook id: mypy
+- exit code: 1
+
+.claude/hooks/guard_paths.py:258: error: Missing type parameters for generic
+type "dict"  [type-arg]
+    def evaluate(payload: dict, allow: list[str], deny: list[str], bash_mo...
+                          ^
+.claude/hooks/tests/test_guard_paths.py:290: error: Item "None" of
+"Match[str] | None" has no attribute "group"  [union-attr]
+                cmd = re.search(r"command: '(.+)'", front).group(1)
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Found 2 errors in 2 files (checked 15 source files)
+
+shellcheck..........................................................................Failed
+- hook id: shellcheck
+- exit code: 1
+
+In docs/tests/T00/run-checks.sh line 5:
+cd "$(git rev-parse --show-toplevel)"
+^-- SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+
+Did you mean:
+cd "$(git rev-parse --show-toplevel)" || exit
+
+
+In docs/tests/T00/run-checks.sh line 44:
+actual="$(grep -oE '^\| T[0-9]+a? \|' docs/PROGRESS.md | tr -d '| ' | sort)"
+^----^ SC2034 (warning): actual appears unused. Verify use (or export if used externally).
+
+
+In docs/tests/T02/run-checks.sh line 9:
+cd "$(git rev-parse --show-toplevel)"
+^-- SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+
+Did you mean:
+cd "$(git rev-parse --show-toplevel)" || exit
+
+
+In docs/tests/T02/run-checks.sh line 26:
+sec() { [ -s "$1" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 30:
+rows() { sec "$1" "$2" | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 31:
+has_sec() { [ -n "$(sec "$1" "$2")" ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 32:
+mermaid_body() { [ -s "$SA" ] && awk '/^```mermaid/{on=1;next}/^```/{on=0}on' "$SA"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 33:
+adrf() { ls "$ADRDIR" 2>/dev/null | grep -E "^(ADR-)?000$1[-_].*\.md$" | head -1 | sed "s|^|$ADRDIR/|"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+         ^-- SC2010 (warning): Don't use ls | grep. Use a glob or a for loop with a condition to allow non-alphanumeric filenames.
+
+
+In docs/tests/T02/run-checks.sh line 34:
+six_adrs() { [ "$(ls $ADRDIR/ADR-000[1-6]-*.md 2>/dev/null | wc -l)" -eq 6 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                  ^-- SC2012 (info): Use find instead of ls to better handle non-alphanumeric filenames.
+                     ^-----^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+six_adrs() { [ "$(ls "$ADRDIR"/ADR-000[1-6]-*.md 2>/dev/null | wc -l)" -eq 6 ]; }
+
+
+In docs/tests/T02/run-checks.sh line 61:
+fr_check() { [ -s "$SA" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 82:
+nfr() { grep -E '^\| *N?FR-[0-9]+' "$SA" | grep -iE -- "$1" | grep -qE -- "$2"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 99:
+risk() { rows "$SA" "^#+ .*$RR" | grep -iE -- "$1" | grep -qiE -- "$2"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 111:
+risk_complete() { rows "$SA" "^#+ .*$RR" | awk -F'|' '
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 124:
+cost() { rows "$SA" "^#+ .*$CM" | grep -iE -- "$1" | tr -d '*`' | grep -qiE '\| *(free-with-limits|free with limits|free|paid) *\|'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 128:
+cost_cells() { rows "$SA" "^#+ .*$CM" | tail -n +2 | tr -d '*`' | awk -F'|' '
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 137:
+adr_topic() { local f; f="$(adrf "$1")"; [ -n "$f" ] && head -3 "$f" | grep -qiE -- "$2"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 146:
+adr_fields() { local f; f="$(adrf "$1")"; [ -n "$f" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 165:
+adr_has() { local f; f="$(adrf "$1")"; [ -n "$f" ] && shift && for p in "$@"; do grep -qiE -- "$p" "$f" || return 1; done; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 175:
+nrow() { grep -E '^\| *[0-9]+ *\|' "$NM" 2>/dev/null | grep -iE -- "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 176:
+nrow_ok() { local r l; r="$(nrow "$1")"; [ -n "$r" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 193:
+classify() { local l c=0; l="$(grep -iE "$OUTRE" "$NM" | head -1)"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 209:
+claims() { rows "$SA" "^#+ .*$CM" | tail -n +2
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 211:
+claims_ok() { local r l; r="$(claims)"; [ -n "$r" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 234:
+oq() { rows "$SA" "^#+ .*$OQ" | tail -n +2; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 235:
+oq_ok() { local r l; r="$(oq)"; [ -n "$r" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 241:
+ticket_exists() { local ids t; ids="$(oq | grep -oE '\bT[0-9]+a?\b' | sort -u)"; [ -n "$ids" ] || { [ -n "$(oq)" ]; return; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 247:
+so() { sec "$SA" '^#+ .*sign-off'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 260:
+tr_ids() { grep -E '^\| R-[0-9]+ \|' "$TR" | grep -oE 'N?FR-[0-9]+' | sort -u; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 261:
+sa_ids() { grep -E '^\| *N?FR-[0-9]+' "$SA" | grep -oE '^\| *N?FR-[0-9]+' | tr -d '| ' | sort -u; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 288:
+links_ok() { local f d l rc=0
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T02/run-checks.sh line 289:
+  for f in "$SA" "$NM" $ADRDIR/ADR-000[1-6]-*.md "$ADRDIR/README.md"; do
+                       ^-----^ SC2231 (info): Quote expansions in this for loop glob to prevent wordsplitting, e.g. "$dir"/*.txt .
+
+
+In docs/tests/T02/run-checks.sh line 292:
+    for l in $(grep -oE '\]\([^)#][^)]*\)' "$f" | sed -E 's/^\]\(//; s/\)$//; s/#.*//' | grep -vE '^(https?:|mailto:)'); do
+             ^-- SC2013 (info): To read lines rather than words, pipe/redirect to a 'while read' loop.
+
+
+In docs/tests/T02/run-checks.sh line 295:
+  done; return $rc; }
+               ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  done; return "$rc"; }
+
+
+In docs/tests/T03/run-checks.sh line 9:
+cd "$(git rev-parse --show-toplevel)"
+^-- SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+
+Did you mean:
+cd "$(git rev-parse --show-toplevel)" || exit
+
+
+In docs/tests/T03/run-checks.sh line 28:
+g() { [ -s "$1" ] && grep -qiE -- "$2" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T03/run-checks.sh line 30:
+sec() { [ -s "$1" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T03/run-checks.sh line 34:
+gs() { sec "$1" "$2" | grep -qiE -- "$3"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T03/run-checks.sh line 65:
+S='idempot'
+^-- SC2034 (warning): S appears unused. Verify use (or export if used externally).
+
+
+In docs/tests/T03/run-checks.sh line 102:
+spectral_rules_on() { [ -s "$SP" ] && ! grep -E "(operation-operationId|oas3-schema|oas3-valid-schema-example|no-[\$]ref-siblings|operation-success-response)['\"]?: *(off|false)" "$SP"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T03/run-checks.sh line 164:
+nfr_rows_ok() { [ -s "$SA" ] && [ "$(grep -E '^\| *NFR-0[45] *\|' "$SA" | grep -ciE 'technical-design')" -eq 2 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T03/run-checks.sh line 193:
+[ $? -ne 0 ] && fail=1
+  ^-- SC2181 (style): Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.
+
+
+In docs/tests/T04/run-checks.sh line 26:
+cd "$(git rev-parse --show-toplevel)"
+^-- SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+
+Did you mean:
+cd "$(git rev-parse --show-toplevel)" || exit
+
+
+In docs/tests/T04/run-checks.sh line 61:
+g() { [ -s "$1" ] && grep -qiE -- "$2" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 63:
+hd() { [ -s "$1" ] && grep -qiE -- "^#+ .*($2)" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 65:
+AWKSEC='/^#+ /{match($0,/^#+/); l=RLENGTH; if(on&&l<=lv)on=0; if(!on && tolower($0) ~ tolower(re)){on=1;lv=l}} on'
+       ^-- SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T04/run-checks.sh line 66:
+sec()  { [ -s "$1" ] || return 1; awk -v re="$2" "$AWKSEC" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 67:
+secs() { awk -v re="$1" "$AWKSEC"; }          # same, reading stdin (for sub-sections)
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 69:
+gs() { sec "$1" "$2" | grep -qiE -- "$3"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 71:
+gsall() { local f=$1 h=$2; shift 2; local s; s=$(sec "$f" "$h"); [ -n "$s" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 74:
+allin() { local f=$1; shift; [ -s "$f" ] || return 1; local p; for p in "$@"; do grep -qiE -- "$p" "$f" || return 1; done; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 76:
+level_ok() { local body; body=$(sec "$MP" 'test levels' | secs "^#+ .*($1)"); [ -n "$body" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 81:
+rowhas() { local lab=$1; shift; local row; row=$(sec "$MP" 'tools' | grep -iE "^\| *[^|]*($lab)" | head -3); [ -n "$row" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 84:
+prow()     { grep -E "^\| *$1 *\|" "$TR" | head -1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 85:
+prow_col() { local l; l=$(prow "$1"); [ -n "$l" ] || return 1; printf '%s\n' "$l" | awk -F'|' -v c="$2" '{print tolower($c)}' | grep -qiE -- "$3"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 87:
+no_markers() { [ -s "$1" ] && ! grep -nE '\b(TODO|TBD|FIXME|XXX)\b' "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 88:
+links_resolve() { python3 -I - "$@" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 101:
+first_commit() { git log --diff-filter=A --format=%H --reverse -- "$1" 2>/dev/null | head -1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 102:
+order_ok() {
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 104:
+  s=$(first_commit $T/run-checks.sh); c=$(first_commit $T/test-cases.md)
+                   ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+                                                       ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  s=$(first_commit "$T"/run-checks.sh); c=$(first_commit "$T"/test-cases.md)
+
+
+In docs/tests/T04/run-checks.sh line 110:
+changelog_ok() {   # if run-checks.sh changed after its first commit, test-cases.md needs a Change log row
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 111:
+  local n; n=$(git log --format=%H -- $T/run-checks.sh | wc -l)
+                                      ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  local n; n=$(git log --format=%H -- "$T"/run-checks.sh | wc -l)
+
+
+In docs/tests/T04/run-checks.sh line 114:
+  sec $T/test-cases.md 'change log' | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$' | tail -n +2 | grep -q .
+      ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  sec "$T"/test-cases.md 'change log' | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$' | tail -n +2 | grep -q .
+
+
+In docs/tests/T04/run-checks.sh line 116:
+design_msg_ok() { git log --format=%s -- $T/run-checks.sh | tail -1 | grep -qE '^T04:'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                         ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+design_msg_ok() { git log --format=%s -- "$T"/run-checks.sh | tail -1 | grep -qE '^T04:'; }
+
+
+In docs/tests/T04/run-checks.sh line 132:
+tools_table() { sec "$MP" 'tools' | grep -qE '^\|'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 158:
+envmatrix_ok() { local s; s=$(sec "$MP" 'environments' | grep '^|'); [ -n "$s" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 236:
+colall() { local c=$1 re=$2; shift 2; local i; for i; do prow_col "$i" "$c" "$re" || return 1; done; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 237:
+fr11_ok() { colall 5 'security' FR-11 && colall 6 'broker|static' FR-11 && colall 7 'tc-t18.*tc-t30.*tc-t33' FR-11; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04/run-checks.sh line 277:
+nobroker() { [ -s "$MP" ] && [ -s "$TR" ] && [ -s "$DF" ] && ! grep -niE "$BR" "$MP" "$TR" "$DF" "$TP" "$RD" $T/test-cases.md; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                                                             ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+nobroker() { [ -s "$MP" ] && [ -s "$TR" ] && [ -s "$DF" ] && ! grep -niE "$BR" "$MP" "$TR" "$DF" "$TP" "$RD" "$T"/test-cases.md; }
+
+
+In docs/tests/T04a/run-checks.sh line 64:
+g()  { [ -s "$1" ] && grep -qiE -- "$2" "$1"; }                       # file non-empty and has pattern
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 65:
+gF() { [ -s "$1" ] && grep -qF -- "$2" "$1"; }                        # fixed string
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 66:
+hd() { [ -s "$1" ] && grep -qiE -- "^#+ .*($2)" "$1"; }               # heading matches
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 67:
+AWKSEC='/^#+ /{match($0,/^#+/); l=RLENGTH; if(on&&l<=lv)on=0; if(!on && tolower($0) ~ tolower(re)){on=1;lv=l}} on'
+       ^-- SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T04a/run-checks.sh line 68:
+sec()  { [ -s "$1" ] || return 1; awk -v re="$2" "$AWKSEC" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 69:
+gsall(){ local f=$1 h=$2 s p; shift 2; s=$(sec "$f" "$h") || return 1; [ -n "$s" ] || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 71:
+allin(){ local f=$1 p; shift; [ -s "$f" ] || { echo "missing or empty: $f"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 73:
+exists_x() { [ -f "$1" ] && [ -x "$1" ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 76:
+rejects() { local out rc; out=$("$@" 2>&1); rc=$?
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 77:
+  [ $rc -ne 0 ] && [ $rc -ne 127 ] && [ -n "$out" ] && ! grep -qE "Traceback|can't open file" <<<"$out"; }
+    ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+                     ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$rc" -ne 0 ] && [ "$rc" -ne 127 ] && [ -n "$out" ] && ! grep -qE "Traceback|can't open file" <<<"$out"; }
+
+
+In docs/tests/T04a/run-checks.sh line 78:
+rejects_naming() { local pat=$1 out rc; shift; out=$("$@" 2>&1); rc=$?
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 79:
+  [ $rc -ne 0 ] && [ $rc -ne 127 ] && ! grep -qE "Traceback|can't open file" <<<"$out" && grep -qiE -- "$pat" <<<"$out"; }
+    ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+                     ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$rc" -ne 0 ] && [ "$rc" -ne 127 ] && ! grep -qE "Traceback|can't open file" <<<"$out" && grep -qiE -- "$pat" <<<"$out"; }
+
+
+In docs/tests/T04a/run-checks.sh line 80:
+accepts() { "$@" >/dev/null 2>&1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 106:
+nomark() { [ -s "$1" ] && ! grep -nE '\b(TODO|TBD|FIXME|XXX)\b' "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 132:
+tooltab() { local s r; s=$(sec "$SA" 'tool') || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 145:
+webvitals() { [ -s "$SA" ] && grep -iE 'web-vitals' "$SA" | grep -E 'Apache|MIT' | grep -qE '[0-9]+\.[0-9]+'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 155:
+json_ok() { python3 -I -c 'import json,sys; json.load(open(sys.argv[1]))' "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 157:
+thr_ok() { python3 -I - "$CT" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 181:
+nolow() { python3 -I - "$CT" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 201:
+ylist() { local n; n=$(grep -cE '^\s*(- \[ \]|[0-9]+\.|-) .*\?' "$RC"); echo "$n yes/no items"; [ "$n" -ge 30 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 212:
+nomodstrict() { [ -s mypy.ini ] && ! awk '/^\[/{m=($0 ~ /^\[mypy-/)} m && /^ *strict *=/{f=1} END{exit f?0:1}' mypy.ini; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 217:
+tsstrict() { python3 -I -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d["compilerOptions"]["strict"] is True else 1)' tsconfig.base.json; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 222:
+phpcs_ok() { python3 -I - apps/drupal/phpcs.xml.dist <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 231:
+nobase() { [ -s apps/drupal/phpstan.neon.dist ] && ! grep -qiE 'baseline|reportUnmatchedIgnoredErrors: *false' apps/drupal/phpstan.neon.dist; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 233:
+eslint_ok() { [ -s apps/web/eslint.config.mjs ] && node --check apps/web/eslint.config.mjs && grep -qi 'next' apps/web/eslint.config.mjs && grep -qi 'typescript-eslint' apps/web/eslint.config.mjs; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 237:
+pins_ok() { python3 -I - "$PC" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 265:
+mypy_args() { python3 -I - "$PC" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 273:
+verify_marks() { [ "$(grep -ciE '(^|[^-])verify' "$PC")" -ge 3 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 277:
+cmwire() { python3 -I - "$PC" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 290:
+msg_rc() { local f; f=$(mktemp -p "$WORK"); printf '%b' "$1" >"$f"; python3 "$S/check_commit_msg.py" --tasks-file "$FT" --msg-file "$f"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 291:
+ok_msg() { accepts msg_rc "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 292:
+bad_msg() { rejects msg_rc "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 323:
+realdef() { local f; f=$(mktemp -p "$WORK"); printf '%s\n' "$1" >"$f"; python3 "$S/check_commit_msg.py" --msg-file "$f"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 335:
+range_run() { (cd "$RR" && python3 "$S/check_commit_msg.py" --tasks-file "$FT" --range "$BASE..HEAD"); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 337:
+addc() { git -C "$RR" commit -q --allow-empty -m "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 338:
+range_case_rej() { addc "$1"; local r=1; rejects_naming "$2" range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return $r; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                                                                           ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+range_case_rej() { addc "$1"; local r=1; rejects_naming "$2" range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return "$r"; }
+
+
+In docs/tests/T04a/run-checks.sh line 339:
+range_case_ok() { addc "$1"; local r=1; accepts range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return $r; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                                                              ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+range_case_ok() { addc "$1"; local r=1; accepts range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return "$r"; }
+
+
+In docs/tests/T04a/run-checks.sh line 347:
+range_merge() { local r=1; git -C "$RR" checkout -q -b side && addc "T10: side" && git -C "$RR" checkout -q main \
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 349:
+  git -C "$RR" checkout -q main; git -C "$RR" reset -q --hard "$(git -C "$RR" rev-parse HEAD~1)"; git -C "$RR" branch -q -D side; return $r; }
+                                                                                                                                         ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  git -C "$RR" checkout -q main; git -C "$RR" reset -q --hard "$(git -C "$RR" rev-parse HEAD~1)"; git -C "$RR" branch -q -D side; return "$r"; }
+
+
+In docs/tests/T04a/run-checks.sh line 351:
+empty_range() { (cd "$RR" && python3 "$S/check_commit_msg.py" --tasks-file "$FT" --range HEAD..HEAD); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 357:
+printf '#!/usr/bin/env bash\nexec python3 "%s/check_commit_msg.py" --msg-file "$1"\n' "$S" >"$HR/.git/hooks/commit-msg"
+       ^-- SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T04a/run-checks.sh line 360:
+commit_bad() { git -C "$HR" commit --allow-empty -m "bad message"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 361:
+commit_good() { git -C "$HR" commit --allow-empty -m "T04a: x"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 363:
+nb() { [ "$(git -C "$HR" rev-list --count HEAD)" = "$n0" ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 366:
+na() { [ "$(git -C "$HR" rev-list --count HEAD)" = "$((n0+1))" ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 371:
+br_rc() { python3 "$S/check_branch_name.py" --tasks-file "$FT" --branch "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 372:
+ok_br() { accepts br_rc "$1"; }
+^-----------------------------^ SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 373:
+bad_br() { rejects br_rc "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 391:
+env_br() { (cd "$WORK" && env GITHUB_HEAD_REF="$1" python3 "$S/check_branch_name.py" --tasks-file "$FT"); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 394:
+git_br() { (cd "$HR" && env -u GITHUB_HEAD_REF python3 "$S/check_branch_name.py"); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 395:
+gb_bad() { local r; git -C "$HR" checkout -q -b feature/bad; rejects git_br; r=$?; git -C "$HR" checkout -q main; return $r; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                                                                         ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+gb_bad() { local r; git -C "$HR" checkout -q -b feature/bad; rejects git_br; r=$?; git -C "$HR" checkout -q main; return "$r"; }
+
+
+In docs/tests/T04a/run-checks.sh line 396:
+gb_ok() { local r; git -C "$HR" checkout -q -b task/T04a-demo; accepts git_br; r=$?; git -C "$HR" checkout -q main; return $r; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                                                                           ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+gb_ok() { local r; git -C "$HR" checkout -q -b task/T04a-demo; accepts git_br; r=$?; git -C "$HR" checkout -q main; return "$r"; }
+
+
+In docs/tests/T04a/run-checks.sh line 417:
+ex_run() { (cd "$1" && git add -A && git commit -qm "fixture" --allow-empty && python3 "$S/exceptions_report.py" --out "$1/exc-report.txt"); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 418:
+ex_line() { local file=$1 line=$2 d="$WORK/ex_$RANDOM$RANDOM"; mkrepo "$d" || return 1; put "$d/$file" "$line"; ex_run "$d"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 419:
+cleanrepo() { local d=$WORK/ex_clean; mkrepo "$d" && put "$d/ok.py" 'x: int = 1' && ex_run "$d"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 424:
+exfile_named() { local d=$WORK/ex_named; mkrepo "$d" && put "$d/pkg/mod.py" "$(printf 'a = 1\nimport os  # noqa: F401')" && git -C "$d" add -A && git -C "$d" commit -qm f \
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 441:
+exmany() { local d=$WORK/ex_many; mkrepo "$d" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 450:
+tagcase() { local d=$WORK/ex_tag_$RANDOM; mkrepo "$d" || return 1; put "$d/a.py" "$1"; ex_run "$d"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 461:
+cfg_case() { local d=$WORK/ex_cfg_$RANDOM; mkrepo "$d" || return 1; put "$d/$1" "$2"; ex_run "$d"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 473:
+mkcov() { python3 -I - "$@" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 488:
+gate() { python3 "$S/coverage_gate.py" --thresholds "${T04A_THRESHOLDS:-$ROOT/quality/coverage-thresholds.json}" "$1"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 490:
+gcase() { local f=$WORK/cov_$RANDOM.xml; mkcov "$f" "$@" || return 1; gate "$f"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 491:
+gcase_rej() { local pat=$1; shift; rejects_naming "$pat" gcase "$@"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 511:
+badxml() { printf '<coverage><packages>' >"$WORK/bad.xml"; gate "$WORK/bad.xml"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 512:
+emptyxml() { printf '<?xml version="1.0" ?><coverage line-rate="0" branch-rate="0"><packages/></coverage>' >"$WORK/empty.xml"; gate "$WORK/empty.xml"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 513:
+missingxml() { gate "$WORK/does-not-exist.xml"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 520:
+asset_case() { local file=$1 body=$2 d=$WORK/as_$RANDOM$RANDOM; mkrepo "$d" || return 1; put "$d/$file" "$body"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 547:
+tokpath() { grep -ohE 'apps/web/[A-Za-z0-9_./-]*tokens[A-Za-z0-9_.-]*' "$S/check_assets.py" "$S/README.md" 2>/dev/null | head -1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 548:
+tokens_ok() { local p; p=$(tokpath); [ -n "$p" ] || { echo "tokens file path not documented in check_assets.py or scripts/README.md"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 556:
+shebang() { head -1 "$1" | grep -qE '^#!/usr/bin/env bash|^#!/bin/bash'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 562:
+noswallow() { [ -s "$QS" ] && ! grep -nE '\|\| *true' "$QS" | grep -vE '^[0-9]+: *#'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 567:
+qs_run() {   # adapter A-3: steps-file content -> runs quality.sh, prints its output, returns its exit code
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 574:
+run_ok()  { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ $rc -eq 0 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                       ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+run_ok()  { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ "$rc" -eq 0 ]; }
+
+
+In docs/tests/T04a/run-checks.sh line 575:
+run_bad() { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ $rc -ne 0 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                       ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+run_bad() { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ "$rc" -ne 0 ]; }
+
+
+In docs/tests/T04a/run-checks.sh line 576:
+t1() { local o; o=$(run_ok "$OKSTEP") || return 1; grep -qE 'PASS.*qs_ok1' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 578:
+t2() { local o; o=$(run_ok "$OKSTEP$SKIPSTEP") || return 1; grep -qE 'PASS.*qs_ok1' <<<"$o" && grep -qE 'SKIP.*qs_skip1' <<<"$o" && ! grep -qE 'FAIL.*qs_' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 580:
+t3() { local o; o=$(run_bad "$OKSTEP$BADSTEP$OK2") || return 1; grep -qE 'PASS.*qs_ok1' <<<"$o" && grep -qE 'FAIL.*qs_bad1' <<<"$o" && grep -qE 'PASS.*qs_ok2' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 582:
+t4() { local o; o=$(run_bad "$MISSSTEP") || return 1; grep -qE 'FAIL.*qs_miss1' <<<"$o" && ! grep -qE 'SKIP.*qs_miss1' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 584:
+t5() { local o; o=$(run_bad "$FAILPRES") || return 1; grep -qE 'FAIL.*qs_fail1' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 586:
+t6() { local o; o=$(run_bad "$OKSTEP$SKIPSTEP$BADSTEP") || return 1; grep -q FAIL <<<"$o" && grep -q SKIP <<<"$o" && grep -q PASS <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 588:
+t7() { local o; o=$(run_bad "$OKSTEP$SKIPSTEP$BADSTEP") || return 1; grep -E 'PASS' <<<"$o" | grep -E 'FAIL' | grep -E 'SKIP' | grep -qE '[0-9]'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 590:
+t8() { local o; o=$(run_ok "$SKIPSTEP") || return 1; grep -qE 'SKIP.*qs_skip1' <<<"$o"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 592:
+t9() { qs_run "$OKSTEP" bogus; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 599:
+ckp "wrapper execs scripts/quality.sh with the arguments" gF "$WR" 'exec "$DDEV_APPROOT/scripts/quality.sh" "$@"'
+                                                                   ^-- SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T04a/run-checks.sh line 601:
+wrap() { printf '%b' "$1" >"$WORK/q/wsteps"; DDEV_APPROOT="$ROOT" QUALITY_STEPS="$WORK/q/wsteps" QUALITY_RUNNER=native bash "$WR"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 606:
+has_tests() { [ -f "$1" ] && [ "$(grep -cE '^\s+def test_' "$1")" -ge 3 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 611:
+compile_all() { shopt -s nullglob; local f=(scripts/*.py scripts/tests/*.py); [ ${#f[@]} -ge 10 ] && python3 -m py_compile "${f[@]}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 613:
+untyped() { python3 -I - "$@" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 625:
+selftest_untyped() { printf 'def add(a, b):\n    return a + b\n' >"$WORK/u.py"; printf 'def add(a: int, b: int) -> int:\n    return a + b\n' >"$WORK/t.py"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 628:
+allfiles() { shopt -s nullglob; local f=(scripts/*.py scripts/tests/*.py .claude/hooks/*.py .claude/hooks/tests/*.py); [ ${#f[@]} -ge 10 ] && untyped "${f[@]}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 632:
+mdlen() { python3 -I - "$@" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 650:
+mdself() { printf '%s\n' "$(printf 'word %.0s' $(seq 1 40))" >"$WORK/long.md"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 651:
+  printf '| %s |\n```\n%s\n```\n# %s\nhttps://%s\n' "$(printf 'c%.0s' $(seq 1 130))" "$(printf 'x%.0s' $(seq 1 130))" "$(printf 'h%.0s' $(seq 1 130))" "$(printf 'u%.0s' $(seq 1 130))" >"$WORK/exempt.md"
+         ^-- SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T04a/run-checks.sh line 654:
+mdfm() { local long; long=$(printf 'word %.0s' $(seq 1 40))
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 660:
+mdscan() { local F; mapfile -t F < <(git ls-files -co --exclude-standard -- '*.md' | grep -vE '^docs/TASKS\.md$|^docs/tests/[^/]+/evidence/'); [ ${#F[@]} -ge 50 ] || { echo "too few files (${#F[@]})"; return 1; }; mdlen "${F[@]}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 662:
+mdnew() { mdlen "$SA" "$RC" "$T/test-cases.md" docs/tasks/T04a/plan.md docs/tasks/T04a/decision-t04a-standards.md; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 667:
+line_has_ticket() { grep -E "$2" "$1" | grep -qE "$TICKET_RE"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 672:
+t32line() { grep -E 'TASKS\.md' "$MD_CFG" | grep -qE '\bT32: [^ ]'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 674:
+allexcl() { python3 -I - "$MD_CFG" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 692:
+realex() { python3 "$S/exceptions_report.py" --out "$REP" && [ -s "$REP" ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 694:
+indep() { python3 -I - "$REP" <<'PY'
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 739:
+has_t32() { grep -q 'T32' "$REP"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 744:
+same_count() { local task=$1 mode=$2 ev=$3 out n e rc; out=$(docs/tests/$task/run-checks.sh $mode 2>&1); rc=$?
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                                                        ^---^ SC2086 (info): Double quote to prevent globbing and word splitting.
+                                                                                            ^---^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+same_count() { local task=$1 mode=$2 ev=$3 out n e rc; out=$(docs/tests/"$task"/run-checks.sh "$mode" 2>&1); rc=$?
+
+
+In docs/tests/T04a/run-checks.sh line 746:
+  [ $rc -eq 0 ] && [ "$n" = "$e" ] && ! grep -q '^  FAIL' <<<"$out"; }
+    ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$rc" -eq 0 ] && [ "$n" = "$e" ] && ! grep -q '^  FAIL' <<<"$out"; }
+
+
+In docs/tests/T04a/run-checks.sh line 752:
+mypy_run() { mypy --strict --python-version 3.10 scripts .claude/hooks; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 753:
+sc_run() { shellcheck $(git ls-files '*.sh') .ddev/commands/host/quality; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                      ^--------------------^ SC2046 (warning): Quote this to prevent word splitting.
+
+
+In docs/tests/T04a/run-checks.sh line 754:
+md_run() { markdownlint-cli2 "**/*.md"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 767:
+trow() { grep -E "^\| *$1 " docs/TRACEABILITY.md | grep -q 'T04a'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 773:
+t4files() { git ls-files -co --exclude-standard -- docs/standards scripts quality .ddev ruff.toml mypy.ini .yamllint.yaml "$MD_CFG" .shellcheckrc "$PC" apps/drupal/phpcs.xml.dist apps/drupal/phpstan.neon.dist apps/web/eslint.config.mjs tsconfig.base.json .prettierrc.json "$T/test-cases.md"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 774:
+nobr() { local f; mapfile -t f < <(t4files); [ ${#f[@]} -ge 10 ] && ! grep -niE "$BR" "${f[@]}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 776:
+nosec() { local f; mapfile -t f < <(t4files); [ ${#f[@]} -ge 10 ] && ! grep -nE 'sk-ant-[A-Za-z0-9]|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20}|xox[bp]-' "${f[@]}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 778:
+envsame() { local first base   # review finding 6: base = parent of the first T04a commit, not local main
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 787:
+first_commit() { git log --diff-filter=A --format=%H --reverse -- "$1" 2>/dev/null | head -1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 788:
+order_ok() { local s c m f; s=$(first_commit $T/run-checks.sh); c=$(first_commit $T/test-cases.md)
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                             ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+                                                                                 ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+order_ok() { local s c m f; s=$(first_commit "$T"/run-checks.sh); c=$(first_commit "$T"/test-cases.md)
+
+
+In docs/tests/T04a/run-checks.sh line 791:
+    [ "$s" != "$m" ] && [ "$c" != "$m" ] && git merge-base --is-ancestor "$s" "$m" && git merge-base --is-ancestor "$c" "$m" || { echo "order violated for $f"; return 1; }
+                                                                                   ^-- SC2015 (info): Note that A && B || C is not if-then-else. C may run when A is true.
+
+
+In docs/tests/T04a/run-checks.sh line 794:
+review_ok() { [ -s docs/tasks/T04a/review.md ] && grep -qiE 'approved' docs/tasks/T04a/review.md; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 796:
+design_msg() { git log --format=%s -- $T/run-checks.sh | tail -1 | grep -qE '^T04a:'; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+                                      ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+design_msg() { git log --format=%s -- "$T"/run-checks.sh | tail -1 | grep -qE '^T04a:'; }
+
+
+In docs/tests/T04a/run-checks.sh line 800:
+absent() { [ ! -e "$1" ]; }
+^-------------------------^ SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 839:
+ob() { (cd "$OD" && scripts/bootstrap-dev.sh) 2>&1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 846:
+opc() { (cd "$OD" && .tools/pre-commit run --all-files); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 849:
+oq() { (cd "$OD" && git checkout -q -b task/T04a-owner-demo && scripts/quality.sh); }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 851:
+oqs() { local n; n=$(cd "$OD" && scripts/quality.sh 2>&1 | grep -cE 'SKIP.*(engine|drupal|web)'); [ "$n" -ge 3 ]; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 854:
+demo() { local tc=$1 file=$2 bad=$3 good=$4 x=${5:-} brc grc
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 860:
+  [ $brc -ne 0 ] && [ $grc -eq 0 ] || { echo "bad rc=$brc (want non-zero), control rc=$grc (want 0)"; return 1; }; }
+    ^--^ SC2086 (info): Double quote to prevent globbing and word splitting.
+                      ^--^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$brc" -ne 0 ] && [ "$grc" -eq 0 ] || { echo "bad rc=$brc (want non-zero), control rc=$grc (want 0)"; return 1; }; }
+
+
+In docs/tests/T04a/run-checks.sh line 875:
+sp() { local f=docs/architecture/openapi.yaml good bad; good=$(cat "$OD/$f"); bad=$(sed '0,/^info:/s//infox:/' "$OD/$f"); demo TC-T04a-45 "$f" "$bad" "$good"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 878:
+oc() { cd "$OD" || return 1; git checkout -q -b task/T04a-owner-commit; local n0 n1; n0=$(git rev-list --count HEAD)
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 884:
+ob2() { cd "$OD" || return 1; git checkout -q -b feature/bad; local ev="$ROOT/$T/evidence/TC-T04a-47-rejected.txt"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 885:
+  scripts/quality.sh >"$ev" 2>&1; local rc=$?; [ $rc -ne 0 ] && grep -qiE 'FAIL.*branch' "$ev"; }
+                                                 ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  scripts/quality.sh >"$ev" 2>&1; local rc=$?; [ "$rc" -ne 0 ] && grep -qiE 'FAIL.*branch' "$ev"; }
+
+
+In docs/tests/T04a/run-checks.sh line 890:
+hookrun() { put "$OD/$1" "$2"; git -C "$OD" add "$1"; HOUT=$(cd "$OD" && .tools/pre-commit run --files "$1" 2>&1); HRC=$?
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 893:
+cov() { local v=$WORK/venv; python3 -m venv "$v" && "$v/bin/pip" install -q coverage || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 898:
+  "$v/bin/coverage" run t.py && "$v/bin/coverage" report -m --include=x.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-pragma.txt" 2>&1 || { echo "pragma form did not exclude the line"; return 1; }
+                             ^-- SC2015 (info): Note that A && B || C is not if-then-else. C may run when A is true.
+
+
+In docs/tests/T04a/run-checks.sh line 902:
+hl() { hookrun zz/Dockerfile $'FROM alpine:3.20\n# hadolint ignore=DL3018 # T06: reason\nRUN apk add curl'; local a=$HOUT
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 909:
+ml() { hookrun docs/zz_ml.md "$(printf '# T\n\n<!-- markdownlint-disable-next-line MD013 --> <!-- T32: reason -->\n%s\n' "$LONGP")"; local a=$HOUT ra=$HRC
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 912:
+  [ $ra -eq 0 ] && [ $rb -ne 0 ]; }
+    ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+                     ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$ra" -eq 0 ] && [ "$rb" -ne 0 ]; }
+
+
+In docs/tests/T04a/run-checks.sh line 915:
+yl() { local cfg=$OD/.yamllint.yaml; cp "$cfg" "$WORK/yamllint.orig"
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T04a/run-checks.sh line 922:
+  [ $a -eq 0 ] && [ $b -ne 0 ] && [ $c -ne 0 ]; }
+    ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+                    ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+                                    ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+  [ "$a" -eq 0 ] && [ "$b" -ne 0 ] && [ "$c" -ne 0 ]; }
+
+
+In docs/tests/T05/run-checks.sh line 58:
+  CASE=$1; CASE_FAIL=0; ORDER+=("$1"); CSTAT["$1"]=PASS; NPASS["$1"]=0
+           ^-------^ SC2034 (warning): CASE_FAIL appears unused. Verify use (or export if used externally).
+
+
+In docs/tests/T05/run-checks.sh line 85:
+cleanup() { rm -rf "$WORK"; }
+^---------------------------^ SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 120:
+jget() { python3 -I "$WORK/h.py" j "$1" "${2:-}"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 121:
+eq() {   # DESC-less equality helper: eq ACTUAL EXPECTED LABEL
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 124:
+need_file() { [[ -s "$1" ]] || { echo "missing or empty: $1"; return 1; }; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 125:
+yeq() { local v; need_file "$1" || return 1; v=$(yget "$1" "$2") || { echo "$1: key '$2' missing or file unparsable"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 127:
+jeq() { local v; need_file "$1" || return 1; v=$(jget "$1" "$2") || { echo "$1: key '$2' missing or file unparsable"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 129:
+allin() { local f=$1 p; shift; need_file "$f" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 131:
+allout() { local f=$1 p; shift; need_file "$f" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 146:
+t05_files() { git ls-files -co --exclude-standard -- apps/drupal .ddev "$RB" "$QS" | grep -vE '^apps/drupal/composer\.lock$' || true; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 159:
+short_cfg() { need_file "$DDEVCFG" || return 1; local n; n=$(wc -l <"$DDEVCFG")
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 165:
+hook_ok() { local v; need_file "$DDEVCFG" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 167:
+  grep -q 'composer' <<<"$v" && grep -q 'install' <<<"$v" || { echo "post-start does not run composer install: $v"; return 1; }; }
+                             ^-- SC2015 (info): Note that A && B || C is not if-then-else. C may run when A is true.
+
+
+In docs/tests/T05/run-checks.sh line 169:
+no_dsm() { need_file "$DDEVCFG" || return 1; ! grep -qE '^\s*disable_settings_management\s*:\s*true' "$DDEVCFG" \
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 188:
+parity_php() { local p d c; need_file "$PANT" && need_file "$DDEVCFG" && need_file "$CJ" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 194:
+parity_db() { local p d; p=$(yget "$PANT" database.version) || return 1; d=$(yget "$DDEVCFG" database.version) || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 197:
+platform_full() { local c; c=$(jget "$CJ" config.platform.php) || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 200:
+php_floor() { local p; p=$(yget "$PANT" php_version) || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 204:
+db_floor() { local p; p=$(yget "$PANT" database.version) || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 208:
+skew_selftest() {   # harness self-test: a skewed fixture must not equal the expected value
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 221:
+req_ok() { local r p; r=$(jget "$CJ" require) || { echo "no require block"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 225:
+req_only() { local r; r=$(jget "$CJ" require) || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 235:
+allow_ok() { local a; a=$(jget "$CJ" config.allow-plugins) || { echo "config.allow-plugins missing"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 249:
+paths_ok() { local p s; p=$(jget "$CJ" extra.installer-paths) || { echo "extra.installer-paths missing"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 256:
+lock_pkgs() { need_file "$CL" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 268:
+lock_plat() { local c l; c=$(jget "$CJ" config.platform.php) || return 1; l=$(jget "$CL" platform-overrides.php) \
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 271:
+plugins_listed() { need_file "$CL" && need_file "$CJ" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 280:
+tools_in_lock() { python3 -I -c "
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 288:
+composer_validate_static() { command -v composer >/dev/null 2>&1 || return 42
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 296:
+nc() { grep -nE -- "$1" "$SET" | grep -vE '^[0-9]+:\s*(#|//|\*|/\*)' | head -1 | cut -d: -f1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 297:
+need_set() { need_file "$SET"; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 301:
+order_ok() { need_set || return 1; local a b c d
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 316:
+ckp "databases array is reset empty and not populated with literals" allin "$SET" '\$databases\s*=\s*\[\s*\]'
+                                                                                  ^-------------------------^ SC2016 (info): Expressions don't expand in single quotes, use double quotes for that.
+
+
+In docs/tests/T05/run-checks.sh line 321:
+ign() { git check-ignore -q -- "$1" || { echo "NOT ignored but must be: $1"; return 1; }; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 322:
+nign() { [[ -e "$1" ]] || { echo "owned file missing: $1"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 352:
+no_secret_sync() { [[ -d "$SYNC" ]] || { echo "missing $SYNC"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 404:
+ver_rows() { need_file "$ADR" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 415:
+env_unchanged() { local base; base=$(git merge-base HEAD main 2>/dev/null || true)
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 431:
+deny_files() { local f; f=$(t05_files); [[ -n "$f" ]] || { echo "no T05 files to scan yet"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 434:
+deny_lock() { need_file "$CL" || return 1
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 475:
+lock_size() { need_file "$CL" || return 1; local kb; kb=$(( ($(stat -c %s "$CL") + 1023) / 1024 ))
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 487:
+emails() { local f out; f=$(t05_files); [[ -n "$f" ]] || { echo "no T05 files"; return 1; }
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 512:
+dd() { ddev "$@"; }   # indirection to keep checks readable
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+
+In docs/tests/T05/run-checks.sh line 514:
+db_match() {   # VERSION() PANTHEON_VERSION: MariaDB reports e.g. 10.6.21-MariaDB
+^-- SC2329 (info): This function is never invoked. Check usage (or ignored if invoked indirectly).
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2010 -- Don't use ls | grep. Use a glob o...
+  https://www.shellcheck.net/wiki/SC2034 -- CASE_FAIL appears unused. Verify ...
+  https://www.shellcheck.net/wiki/SC2046 -- Quote this to prevent word splitt...
+
+yamllint............................................................................Failed
+- hook id: yamllint
+- exit code: 1
+
+docs/architecture/openapi.yaml
+  148:101   error    line too long (111 > 100 characters)  (line-length)
+  185:101   error    line too long (146 > 100 characters)  (line-length)
+  201:101   error    line too long (256 > 100 characters)  (line-length)
+  214:101   error    line too long (191 > 100 characters)  (line-length)
+  230:101   error    line too long (113 > 100 characters)  (line-length)
+  315:101   error    line too long (140 > 100 characters)  (line-length)
+  352:101   error    line too long (110 > 100 characters)  (line-length)
+  401:101   error    line too long (102 > 100 characters)  (line-length)
+  814:101   error    line too long (110 > 100 characters)  (line-length)
+
+.spectral.yaml
+  2:101     error    line too long (116 > 100 characters)  (line-length)
+
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...................................................................Failed
+- hook id: markdownlint-cli2
+- exit code: 1
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/tests/T05/test-cases.md apps/README.md docs/tests/T04a/test-report.md docs/adr/ADR-0001-headless-drupal-nextjs.md docs/tests/README.md services/engine/README.md docs/specs/data-model.md docs/tests/T04/test-report.md docs/tests/T01/test-cases.md docs/tests/T02/evidence/manual-review.md docs/tasks/T04/decision-t04-test-strategy.md docs/tests/T04a/evidence/manual-review.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 10 file(s)
+Summary: 0 error(s)
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/TASKS.md docs/tasks/T04a/plan.md docs/templates/adr.md docs/tests/T04/evidence/manual-review.md docs/specs/README.md docs/adr/ADR-0006-no-live-trading.md docs/tasks/T04a/decision-t04a-standards.md docs/tasks/T02/review.md docs/tests/T04/test-cases.md .claude/commands/review-task.md docs/tests/T02/evidence/TC-T02-34-main-session-spotcheck.md docs/tasks/T04a/review-standards.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 9 file(s)
+Summary: 11 error(s)
+docs/tasks/T02/review.md:65:101 MD013/line-length Line length [Expected: 100; Actual: 666]
+docs/tasks/T02/review.md:66:101 MD013/line-length Line length [Expected: 100; Actual: 334]
+docs/tasks/T02/review.md:67:101 MD013/line-length Line length [Expected: 100; Actual: 360]
+docs/tasks/T04a/decision-t04a-standards.md:139:57 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+docs/tasks/T04a/decision-t04a-standards.md:156:8 MD038/no-space-in-code Spaces inside code span elements [Context: "`Txx: `"]
+docs/tasks/T04a/decision-t04a-standards.md:174:86 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+docs/tasks/T04a/decision-t04a-standards.md:355:24 MD038/no-space-in-code Spaces inside code span elements [Context: "`Txx: `"]
+docs/tasks/T04a/decision-t04a-standards.md:355:64 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+docs/tasks/T04a/plan.md:46:65 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+docs/tasks/T04a/plan.md:85:1 MD029/ol-prefix Ordered list item prefix [Expected: 2; Actual: 6; Style: 1/2/3]
+docs/tasks/T04a/review-standards.md:36:81 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/tests/T01/test-report.md docs/architecture/README.md docs/adr/README.md docs/README.md .claude/commands/implement-task.md docs/templates/plan.md docs/tasks/T04/review.md .claude/agents/solution-architect.md docs/PROGRESS.md docs/adr/ADR-0004-monorepo-subtree-deploy-pantheon.md docs/tests/T02/test-report.md docs/tasks/T02/plan.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 12 file(s)
+Summary: 0 error(s)
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/tests/T00/test-cases.md docs/tasks/T04a/review.md docs/tasks/T01/plan.md docs/runbooks/local-setup.md docs/runbooks/README.md docs/TRACEABILITY.md docs/process/README.md docs/tests/defects.md apps/drupal/README.md docs/tasks/T03/review.md services/README.md docs/templates/test-report.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 12 file(s)
+Summary: 4 error(s)
+docs/tasks/T03/review.md:47:730 MD056/table-column-count Table column count [Expected: 6; Actual: 5; Too few cells, row will be missing data]
+docs/tasks/T03/review.md:48:884 MD056/table-column-count Table column count [Expected: 6; Actual: 5; Too few cells, row will be missing data]
+docs/tasks/T04a/review.md:40:61 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+docs/tasks/T04a/review.md:40:109 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/adr/ADR-0002-engine-on-github-actions.md docs/adr/ADR-0003-postgres-system-of-record.md .claude/agents/tester.md README.md docs/templates/defect.md .claude/README.md scripts/README.md docs/templates/runbook.md .github/README.md docs/architecture/technical-design.md CLAUDE.md .claude/agents/technical-architect.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 12 file(s)
+Summary: 2 error(s)
+docs/architecture/technical-design.md:504 MD032/blanks-around-lists Lists should be surrounded by blank lines [Context: "- The engine calls it with a 1..."]
+scripts/README.md:43:64 MD038/no-space-in-code Spaces inside code span elements [Context: "`Merge `"]
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: .claude/agents/developer.md docs/templates/README.md docs/tasks/T00/plan.md docs/process/WORKFLOW.md .claude/commands/design-tests.md docs/templates/review.md .claude/commands/close-task.md docs/tasks/T00/review.md docs/architecture/solution-architecture.md docs/tests/T04a/test-cases.md docs/tasks/T03/decision-t03-design.md docs/standards/README.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 12 file(s)
+Summary: 8 error(s)
+.claude/commands/design-tests.md:14:57 MD038/no-space-in-code Spaces inside code span elements [Context: "`. Each case needs an ID `"]
+docs/process/WORKFLOW.md:16:67 MD026/no-trailing-punctuation Trailing punctuation in heading [Punctuation: '.']
+docs/tests/T04a/test-cases.md:191:335 MD038/no-space-in-code Spaces inside code span elements [Context: "...e line, counted in a report, `"]
+docs/tests/T04a/test-cases.md:191:450 MD038/no-space-in-code Spaces inside code span elements [Context: "... only with squash disabled); `"]
+docs/tests/T04a/test-cases.md:191:585 MD038/no-space-in-code Spaces inside code span elements [Context: "...s helpers ruff only; py310); `"]
+docs/tests/T04a/test-cases.md:191:270 MD056/table-column-count Table column count [Expected: 2; Actual: 3; Too many cells, extra data will be missing]
+docs/tests/T04a/test-cases.md:315:201 MD038/no-space-in-code Spaces inside code span elements [Context: "`T04a: `"]
+docs/tests/T04a/test-cases.md:315:265 MD038/no-space-in-code Spaces inside code span elements [Context: "` T04a: x`"]
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/tests/T03/test-cases.md docs/tasks/T01/review.md .claude/commands/plan-task.md docs/tasks/README.md docs/tasks/T03/developer-handoff.md docs/design/README.md docs/tests/T03/fixtures/partial-data-model.md docs/tests/master-test-plan.md docs/tasks/T04/plan.md .claude/commands/test-task.md .ddev/README.md docs/tasks/T03/plan.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 12 file(s)
+Summary: 32 error(s)
+docs/tests/master-test-plan.md:21 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Test levels"]
+docs/tests/master-test-plan.md:112 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Tools per component"]
+docs/tests/master-test-plan.md:154 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Test layout"]
+docs/tests/master-test-plan.md:169 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Environments"]
+docs/tests/master-test-plan.md:195 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Entry criteria"]
+docs/tests/master-test-plan.md:215 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Exit criteria"]
+docs/tests/master-test-plan.md:240 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Defect severity scale"]
+docs/tests/master-test-plan.md:252 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Defect workflow"]
+docs/tests/master-test-plan.md:269 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Regression suite"]
+docs/tests/master-test-plan.md:315 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Test data strategy"]
+docs/tests/master-test-plan.md:356 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Reconciliation"]
+docs/tests/master-test-plan.md:372 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Conventions"]
+docs/tests/master-test-plan.md:444 MD025/single-title/single-h1 Multiple top-level headings in the same document [Context: "Decisions needed"]
+docs/tests/T03/fixtures/partial-data-model.md:1 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Below] [Context: "# Fixture only: partial data model, the checker must FAIL it on the missing parts"]
+docs/tests/T03/fixtures/partial-data-model.md:2 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Above] [Context: "## Drupal content model"]
+docs/tests/T03/fixtures/partial-data-model.md:2 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Below] [Context: "## Drupal content model"]
+docs/tests/T03/fixtures/partial-data-model.md:3 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Above] [Context: "### Decision"]
+docs/tests/T03/fixtures/partial-data-model.md:3 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Below] [Context: "### Decision"]
+docs/tests/T03/fixtures/partial-data-model.md:4 MD058/blanks-around-tables Tables should be surrounded by blank lines [Context: "| Field | Type | Validation | ..."]
+docs/tests/T03/fixtures/partial-data-model.md:8 MD058/blanks-around-tables Tables should be surrounded by blank lines [Context: "| raw_llm_output | text | max ..."]
+docs/tests/T03/fixtures/partial-data-model.md:9 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Above] [Context: "## Postgres schema"]
+docs/tests/T03/fixtures/partial-data-model.md:9 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Below] [Context: "## Postgres schema"]
+docs/tests/T03/fixtures/partial-data-model.md:10 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Above] [Context: "### decisions"]
+docs/tests/T03/fixtures/partial-data-model.md:10 MD022/blanks-around-headings Headings should be surrounded by blank lines [Expected: 1; Actual: 0; Below] [Context: "### decisions"]
+docs/tests/T03/fixtures/partial-data-model.md:11 MD058/blanks-around-tables Tables should be surrounded by blank lines [Context: "| Column | Type | Null |"]
+docs/tests/T03/fixtures/partial-data-model.md:14:1 MD055/table-pipe-style Table pipe style [Expected: leading_and_trailing; Actual: no_leading_or_trailing; Missing leading pipe]
+docs/tests/T03/fixtures/partial-data-model.md:14:62 MD055/table-pipe-style Table pipe style [Expected: leading_and_trailing; Actual: no_leading_or_trailing; Missing trailing pipe]
+docs/tests/T03/fixtures/partial-data-model.md:14:62 MD056/table-column-count Table column count [Expected: 3; Actual: 1; Too few cells, row will be missing data]
+docs/tests/T03/test-cases.md:241:130 MD056/table-column-count Table column count [Expected: 2; Actual: 4; Too many cells, extra data will be missing]
+docs/tests/T03/test-cases.md:541:181 MD038/no-space-in-code Spaces inside code span elements [Context: "`, then copy it to `"]
+docs/tests/T03/test-cases.md:541:225 MD038/no-space-in-code Spaces inside code span elements [Context: "`. 2. `"]
+docs/tests/T03/test-cases.md:541:135 MD056/table-column-count Table column count [Expected: 2; Actual: 3; Too many cells, extra data will be missing]
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/tests/T03/evidence/manual-review.md apps/web/README.md docs/templates/test-cases.md docs/architecture/naming.md docs/tasks/T05/review.md docs/tests/T03/test-report.md docs/standards/REVIEW_CHECKLIST.md docs/standards/CODING_STANDARDS.md docs/adr/ADR-0005-authentication.md docs/tests/T02/test-cases.md docs/tasks/T05/plan.md docs/tests/T00/test-report.md !docs/TASKS.md !docs/tests/*/evidence/**
+Linting: 11 file(s)
+Summary: 20 error(s)
+docs/architecture/naming.md:21:69 MD034/no-bare-urls Bare URL used [Context: "https://meridian.com"]
+docs/architecture/naming.md:22:67 MD034/no-bare-urls Bare URL used [Context: "https://meridian.in"]
+docs/architecture/naming.md:23:61 MD034/no-bare-urls Bare URL used [Context: "https://github.com/meridian"]
+docs/architecture/naming.md:23:213 MD034/no-bare-urls Bare URL used [Context: "https://github.com/meridian-we..."]
+docs/architecture/naming.md:24:165 MD034/no-bare-urls Bare URL used [Context: "https://docs.github.com/en/rep..."]
+docs/architecture/naming.md:25:112 MD034/no-bare-urls Bare URL used [Context: "https://meridian.vercel.app"]
+docs/architecture/naming.md:25:232 MD034/no-bare-urls Bare URL used [Context: "https://vercel.com/meridian"]
+docs/architecture/naming.md:26:165 MD034/no-bare-urls Bare URL used [Context: "https://ipindiaonline.gov.in/t..."]
+docs/architecture/naming.md:26:475 MD034/no-bare-urls Bare URL used [Context: "https://www.registerkaro.in/tr..."]
+docs/architecture/naming.md:27:91 MD034/no-bare-urls Bare URL used [Context: "https://www.producthunt.com/pr..."]
+docs/architecture/naming.md:27:395 MD034/no-bare-urls Bare URL used [Context: "https://trademarks.justia.com/..."]
+docs/architecture/naming.md:28:110 MD034/no-bare-urls Bare URL used [Context: "https://play.google.com/store/..."]
+docs/architecture/naming.md:29:100 MD034/no-bare-urls Bare URL used [Context: "https://apps.apple.com/in/"]
+docs/architecture/naming.md:61:49 MD034/no-bare-urls Bare URL used [Context: "https://lookup.icann.org/en/lo..."]
+docs/architecture/naming.md:63:35 MD034/no-bare-urls Bare URL used [Context: "https://www.registry.in"]
+docs/architecture/naming.md:67:11 MD034/no-bare-urls Bare URL used [Context: "https://ipindiaonline.gov.in/t..."]
+docs/architecture/naming.md:68:6 MD034/no-bare-urls Bare URL used [Context: "https://ipindia.gov.in"]
+docs/architecture/naming.md:76:29 MD034/no-bare-urls Bare URL used [Context: "https://play.google.com/store/..."]
+docs/standards/REVIEW_CHECKLIST.md:228:62 MD038/no-space-in-code Spaces inside code span elements [Context: "`Txx: `"]
+docs/tests/T02/test-cases.md:485:78 MD056/table-column-count Table column count [Expected: 2; Actual: 5; Too many cells, extra data will be missing]
+
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+Spectral (OpenAPI lint).............................................................Passed

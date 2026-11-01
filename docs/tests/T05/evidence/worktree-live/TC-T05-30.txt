@@ -1,0 +1,4 @@
+== TC-T05-30 live negative: second drupal-install without --force refuses and leaves the site intact (AC2)
+  PASS  exit code is non-zero (1) without --force
+  PASS  message explains the refusal and names --force
+  PASS  site intact: users table row count unchanged ( -> ) and bootstrap still Successful

@@ -1,0 +1,6 @@
+== TC-T05-02 DDEV hook, settings management and no secrets in config (AC1, C6)
+  PASS  post-start hook runs composer install (vendor matches the lock after ddev start)
+  PASS  settings management stays on
+  PASS  no web_environment secrets, tokens or keys in config.yaml
+  PASS  no extra hostnames or additional_hostnames (T06 owns meridian-web)
+  PASS  no Mutagen or performance_mode override

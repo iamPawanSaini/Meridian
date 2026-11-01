@@ -1,0 +1,14 @@
+== TC-T05-34 live: ddev quality exits 0; component-drupal PASS, tests SKIP (C4, TC-T04a-48)
+  FAIL  ddev quality exit 1
+        FAIL  pre-commit
+              bash: line 1: pre-commit: command not found
+        PASS  branch-name
+        PASS  commit-range
+        PASS  exceptions
+        PASS  assets
+        SKIP  component-engine (no services/engine/pyproject.toml)
+        PASS  component-drupal
+  PASS  PASS line for component-drupal
+  PASS  visible SKIP for component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  FAIL  no FAIL line anywhere
+        FAIL  pre-commit

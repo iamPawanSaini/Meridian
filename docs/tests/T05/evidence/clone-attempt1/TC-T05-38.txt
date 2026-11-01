@@ -1,0 +1,15 @@
+== TC-T05-38 clean clone: first install without --force, cex, git status (AC2, AC4, KD-7)
+        ddev drupal-install took 2 s
+  FAIL  install exit 1
+        Installing dependencies from lock file (including require-dev)
+        Verifying lock file contents can be installed on current platform.
+        Nothing to install, update or remove
+        Generating autoload files
+        97 packages you are using are looking for funding.
+        Use the `composer fund` command to find out more!
+        Scaffolding files for pantheon-systems/drupal-integrations:
+          - Skip [web-root]/sites/default/settings.php because it already exists and overwrite is false.
+  PASS  ddev drush cex -y leaves apps/drupal/config/sync untouched
+  PASS  git status --porcelain is empty for the whole clone (KD-7 invariant)
+  PASS  ddev drush uli prints the meridian.ddev.site reset URL
+  --- live checks inside the clone ---

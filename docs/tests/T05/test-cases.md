@@ -696,3 +696,8 @@ acceptance (OQ-T04a-1, unconfirmed).
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-01 | Initial design | n/a |
+| 2026-11-01 | `run-checks.sh` TC-T05-07: the `config_sync_directory` regex began with an unescaped `$`; now `[$]settings` | Check defect, review finding 8 |
+| 2026-11-01 | `run-checks.sh` TC-T05-10: the `password:` grep is replaced by a YAML parse requiring `mailer_dsn.password` null in `system.mail.yml`; salt and key greps kept | Check defect, review finding 9 |
+| 2026-11-01 | `run-checks.sh` clean-clone mode: runs `ddev delete -Oy meridian` after the unlist, so the clone starts with an empty database | First run: `ddev stop --unlist` keeps the old database volume, so TC-T05-38 `drupal-install` refused (correct behaviour) |
+| 2026-11-01 | `run-checks.sh` clean-clone mode: the uncommitted-tree flag covers T05 deliverable paths only | Pre-commit fixers had rewritten unrelated tracked files (DEF-004); those are not part of the clone test |
+| 2026-11-01 | `run-checks.sh`: file-level `shellcheck disable` for SC2329, SC2015, SC2016, SC2034, ticket T05 | The shellcheck hook failed on the tester script |

@@ -1,0 +1,36 @@
+== TC-T05-09 git ignore rules and the generated-file invariant (KD-7)
+  PASS  ignored: apps/drupal/vendor/autoload.php
+  PASS  ignored: apps/drupal/web/core/index.php
+  PASS  ignored: apps/drupal/web/modules/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/themes/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/profiles/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/libraries/x/x.js
+  PASS  ignored: apps/drupal/web/sites/default/settings.ddev.php
+  PASS  ignored: apps/drupal/web/sites/default/settings.local.php
+  PASS  ignored: apps/drupal/web/sites/default/settings.pantheon.php
+  PASS  ignored: apps/drupal/web/sites/default/files/x.txt
+  PASS  ignored: apps/drupal/private/x
+  PASS  ignored: apps/drupal/web/index.php
+  PASS  ignored: apps/drupal/web/update.php
+  PASS  ignored: apps/drupal/web/autoload.php
+  PASS  ignored: apps/drupal/web/.htaccess
+  PASS  ignored: apps/drupal/web/robots.txt
+  PASS  ignored: apps/drupal/web/web.config
+  PASS  ignored: apps/drupal/web/sites/default/default.settings.php
+  PASS  ignored: apps/drupal/web/sites/default/default.services.yml
+  PASS  ignored: apps/drupal/drush/Commands/contrib/x/x.php
+  PASS  NOT ignored (owned): apps/drupal/web/sites/default/settings.php
+  PASS  NOT ignored (owned): apps/drupal/web/modules/custom/.gitkeep
+  PASS  NOT ignored (owned): apps/drupal/composer.json
+  PASS  NOT ignored (owned): apps/drupal/composer.lock
+  PASS  NOT ignored (owned): apps/drupal/pantheon.yml
+  PASS  NOT ignored (owned): apps/drupal/config/sync/core.extension.yml
+  PASS  NOT ignored (owned): .ddev/config.yaml
+  PASS  NOT ignored (owned): .ddev/commands/web/drupal-install
+  PASS  NOT ignored (owned): .ddev/commands/host/quality
+  PASS  NOT ignored (owned): apps/drupal/phpcs.xml.dist
+  PASS  NOT ignored (owned): apps/drupal/phpstan.neon.dist
+  PASS  no tracked file matches an ignore rule (apps/drupal, .ddev)
+  PASS  no generated scaffold file is tracked
+  PASS  old rule apps/drupal/drush/contrib/ replaced by drush/Commands/contrib/
+  PASS  apps/drupal/private/ is ignored in .gitignore

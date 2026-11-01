@@ -1,0 +1,9 @@
+== TC-T05-03 pantheon.yml keys (AC3)
+  PASS  api_version 1
+  PASS  web_docroot true
+  PASS  build_step true (Integrated Composer)
+  PASS  php_version is a major.minor number
+  PASS  database.version present
+  PASS  no drush_version key (Drush comes from vendor)
+  PASS  no pantheon.upstream.yml is tracked
+  PASS  pantheon.yml is at the composer root apps/drupal (subtree split root, ADR-0004)

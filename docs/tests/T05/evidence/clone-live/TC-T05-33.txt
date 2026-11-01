@@ -1,0 +1,3 @@
+== TC-T05-33 live: git status clean after start, install and cex (KD-7 invariant)
+  PASS  git status --porcelain is empty for the whole repository
+  PASS  settings.php unchanged by DDEV (git diff --quiet)

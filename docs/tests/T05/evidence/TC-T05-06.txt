@@ -1,0 +1,8 @@
+== TC-T05-06 composer.lock committed and consistent (AC5, KD-1)
+  PASS  composer.lock is valid JSON with a content-hash
+  PASS  lock holds core 11.x, Drush 13 or later, the Pantheon integration, core-dev
+  PASS  lock platform-overrides.php equals composer.json config.platform.php
+  PASS  every composer-plugin package in the lock has an explicit allow-plugins decision
+  PASS  lock contains phpcs, Drupal coder, PHPStan, phpstan-drupal, deprecation rules, PHPUnit
+  PASS  host composer validate (lock matches composer.json)
+  PASS  vendor/ and web/core are not tracked

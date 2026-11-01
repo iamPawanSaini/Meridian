@@ -1,0 +1,7 @@
+== TC-T05-19 empty custom tree and PHP tooling configs (KD-6)
+  PASS  web/modules/custom/.gitkeep tracked (phpcs/PHPStan path exists)
+  PASS  phpcs.xml.dist and phpstan.neon.dist unchanged in scope: level 6, no baseline, ignores need comments
+  PASS  phpstan.neon.dist has no baseline
+  PASS  phpstan config loads phpstan-drupal (explicit include or extension-installer comment)
+  PASS  [at-close] phpunit.xml.dist is absent until T09 (the SKIP is visible, T05 does not add it)
+  PASS  [at-close] no custom module exists yet (T09)

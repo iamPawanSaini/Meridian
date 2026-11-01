@@ -1,0 +1,8 @@
+== TC-T05-07 settings.php include order and config sync directory (AC4, KD-4)
+  PASS  settings.php exists and lints (php -l, if PHP present)
+  PASS  config_sync_directory is '../config/sync' (resolves to apps/drupal/config/sync)
+  PASS  order: settings.pantheon.php < settings.ddev.php < config_sync_directory < settings.local.php
+  PASS  pantheon, ddev and local includes are guarded by file_exists()
+  PASS  DDEV block is conditional on IS_DDEV_PROJECT
+  PASS  skip_permissions_hardening set as in the upstream
+  PASS  file_private_path and OAuth key paths are NOT set yet (T10)

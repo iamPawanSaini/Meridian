@@ -1,0 +1,4 @@
+== TC-T05-28 live: ddev drush status (AC5)
+  PASS  ddev drush status exits 0, Drupal bootstrap Successful, database Connected
+  PASS  config-sync resolves to apps/drupal/config/sync
+  PASS  drush comes from vendor (apps/drupal/vendor/bin/drush)

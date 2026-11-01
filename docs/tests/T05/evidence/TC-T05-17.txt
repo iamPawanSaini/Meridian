@@ -1,0 +1,5 @@
+== TC-T05-17 naming (C-criteria, section 0)
+  PASS  scripts/check-names.sh passes
+  PASS  .ddev/config.yaml name is exactly meridian (not a placeholder name)
+  PASS  composer name uses the meridian vendor
+  PASS  no old placeholder names in T05 files (case-insensitive)

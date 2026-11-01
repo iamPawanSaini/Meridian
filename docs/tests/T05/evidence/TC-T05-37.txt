@@ -1,0 +1,5 @@
+== TC-T05-37 clean clone: ddev start without manual steps (AC1, C7)
+        ddev start took 21 s (NFR-17 data point)
+  PASS  ddev start exit 0 on a fresh clone with no manual steps
+  PASS  git status --porcelain empty after ddev start (DDEV wrote no tracked change)
+  PASS  ddev drush status works straight after start (post-start composer install ran)

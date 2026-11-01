@@ -1,0 +1,7 @@
+== TC-T05-38 clean clone: first install without --force, cex, git status (AC2, AC4, KD-7)
+        ddev drupal-install took 5 s
+  PASS  ddev drupal-install exit 0 on an empty database (no --force needed)
+  PASS  ddev drush cex -y leaves apps/drupal/config/sync untouched
+  PASS  git status --porcelain is empty for the whole clone (KD-7 invariant)
+  PASS  ddev drush uli prints the meridian.ddev.site reset URL
+  --- live checks inside the clone ---

@@ -1,0 +1,2 @@
+== TC-T05-20 composer.lock size vs check-added-large-files (KD-7)
+  PASS  lock under 1024 KB, or narrowly excluded with a T05 comment and the global limit unchanged

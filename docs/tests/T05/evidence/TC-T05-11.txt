@@ -1,0 +1,13 @@
+== TC-T05-11 drupal-install command, static (AC2, KD-5)
+  PASS  exists and is executable
+  PASS  header: ## Description, ## Usage with [--force], ## Example (DDEV command format)
+  PASS  strict mode: set -euo pipefail
+  PASS  runs composer install --no-interaction
+  PASS  one call does site install plus config import: site:install --existing-config
+  PASS  installs the minimal profile or uses the config profile, as admin with an example.com mail
+  PASS  refuses (exit 1) when Drupal is already installed unless --force
+  PASS  installed-check uses drush status bootstrap
+  PASS  rebuilds cache and fails on config:status differences
+  PASS  prints the next step: ddev drush uli
+  PASS  negative: no password argument and no hard-coded password
+  PASS  negative: not named like the drush command (ddev drupal-install, not site-install)

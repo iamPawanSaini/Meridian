@@ -1,0 +1,6 @@
+== TC-T05-23 scope discipline: no extra services, no deploy config (non-goals)
+  PASS  no docker-compose or extra DDEV services added (T06)
+  PASS  no providers/pantheon.yaml and no deploy-drupal workflow content (T07)
+  PASS  no ci.yml Drupal job added (T08)
+  PASS  no ddev engine/pg/next/e2e commands (T06)
+  PASS  only the planned DDEV commands under .ddev/commands
