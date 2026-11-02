@@ -133,6 +133,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | 2026-11-01 | TC-29 independent scan skips `docs/tasks/` | Main-session scope decision: task plans, decisions and reviews quote invalid forms on purpose. Not a loosening: `docs/standards` and all code and config stay scanned |
 | 2026-11-01 | Prose lines in `docs/tests/T02`, `T03`, `T04` test-cases and test-report reflowed to 100 characters | Review finding 5: word-neutral (0 word changes in `git diff --word-diff=porcelain`; PASS counts of the three `run-checks.sh` unchanged; `evidence/reflow-*.txt`) |
 | 2026-11-02 | `run-checks.sh`, `reflow_md.py`, `reference/*.py`: Formatting, lint hygiene and typing only (DEF-004): ruff format and check, shellcheck and markdownlint made clean. No check was added, removed or loosened. Case text in TC-T04a-xx rows: pipes in a code span escaped, two code spans with edge spaces reworded (MD038, MD056) | DEF-004. Inline suppressions: one file-level SC2329 and four SC2016, each with a `T04a:` reason |
+| 2026-11-02 | TC-30 rule 1: the T03 and T04 re-runs now FAIL on any FAIL line, a non-zero exit, or a PASS count below the count at close; both numbers are printed. Equal or higher PASS passes. Four negative controls added (equal, higher, dropped, FAIL line or non-zero exit). | DEF-005: the exact-count rule failed when SKIP checks became PASS once the hooks were available (354 to 355, 118 to 119). A drop in PASS still fails, so it is not loosened for regressions. |
 
 ## Cases: standards and review checklist
 

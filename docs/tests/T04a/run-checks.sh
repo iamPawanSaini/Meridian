@@ -746,11 +746,20 @@ ckp "report lists the TASKS.md exclusion and its ticket T32" has_t32
 
 echo "== TC-T04a-30 helper regression after the baseline cleanup (T01 guard, T03 and T04 checks behave the same)"
 ckp "T01 guard unit tests pass" python3 -m unittest discover -s .claude/hooks/tests
-same_count() { local task=$1 mode=$2 ev=$3 out n e rc; out=$(docs/tests/"$task"/run-checks.sh ${mode:+"$mode"} 2>&1); rc=$?
-  n=$(grep -c '^  PASS' <<<"$out"); e=$(grep -c '^  PASS' "$ev"); echo "$task $mode: PASS now $n, at close $e, exit $rc"
-  [ "$rc" -eq 0 ] && [ "$n" = "$e" ] && ! grep -q '^  FAIL' <<<"$out"; }
-ckp "T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)" same_count T04 --regression docs/tests/T04/evidence/run-checks-regression.txt
-ckp "T03 run-checks.sh: exit 0, same PASS count as at close" same_count T03 "" docs/tests/T03/evidence/run-checks.txt
+# DEF-005: regression means "no earlier check got worse": no FAIL line, exit 0 and PASS >= the count
+# recorded at close. A SKIP turning into PASS is not a regression; a PASS dropping is.
+count_ok() {   # LABEL RC PASS_NOW PASS_AT_CLOSE FAIL_LINES
+  echo "$1: exit $2, PASS now $3, at close $4, FAIL lines $5"
+  [ "$2" -eq 0 ] && [ "$5" -eq 0 ] && [ "$3" -ge "$4" ]; }
+same_count() { local task=$1 mode=$2 ev=$3 out n e rc f; out=$(docs/tests/"$task"/run-checks.sh ${mode:+"$mode"} 2>&1); rc=$?
+  n=$(grep -c '^  PASS' <<<"$out"); e=$(grep -c '^  PASS' "$ev"); f=$(grep -c '^  FAIL' <<<"$out")
+  count_ok "$task $mode" "$rc" "$n" "$e" "$f"; }
+ckp "T04 run-checks.sh --regression: exit 0, no FAIL, PASS not below the count at close (118)" same_count T04 --regression docs/tests/T04/evidence/run-checks-regression.txt
+ckp "T03 run-checks.sh: exit 0, no FAIL, PASS not below the count at close" same_count T03 "" docs/tests/T03/evidence/run-checks.txt
+ckp "count rule accepts equal and higher PASS counts (control)" accepts count_ok ctl 0 118 118 0
+ckp "count rule accepts a SKIP turned into PASS (control)" accepts count_ok ctl 0 119 118 0
+ckp "count rule rejects a PASS that dropped (control)" rejects count_ok ctl 0 117 118 0
+ckp "count rule rejects a FAIL line or a non-zero exit (control)" bash -c "$(declare -f count_ok); ! count_ok c 0 119 118 1 && ! count_ok c 1 119 118 0"
 
 echo "== TC-T04a-31 optional linters on the tree (AC3, C4); SKIP only when the tool is absent"
 opt() { local name=$1 tool=$2; shift 2; if command -v "$tool" >/dev/null 2>&1; then ckp "$name clean" "$@"; else skip "$name: $tool not installed"; fi; }
