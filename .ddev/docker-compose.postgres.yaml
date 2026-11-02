@@ -1,0 +1,37 @@
+# T06: meridian-postgres, the local Postgres 16 (the engine's system of record).
+# Final service for T06. T14 adds the schema through Alembic; T28 mirrors major version 16
+# on Neon. The password comes from MERIDIAN_POSTGRES_PASSWORD (root .env, else .env.example).
+services:
+  meridian-postgres:
+    container_name: ddev-${DDEV_SITENAME}-meridian-postgres
+    image: postgres:16.15-trixie@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}
+    env_file:
+      - ${DDEV_APPROOT}/.env.example
+      - path: ${DDEV_APPROOT}/.env
+        required: false
+    environment:
+      POSTGRES_DB: meridian
+      POSTGRES_USER: meridian
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C.UTF-8
+    entrypoint:
+      - sh
+      - -c
+      - export POSTGRES_PASSWORD="$$MERIDIAN_POSTGRES_PASSWORD"; exec docker-entrypoint.sh postgres
+    volumes:
+      - meridian-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "meridian", "-d", "meridian", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  meridian-postgres-data:
+    name: ${DDEV_SITENAME}-postgres-data
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}
