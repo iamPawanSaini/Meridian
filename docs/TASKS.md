@@ -299,9 +299,9 @@ Add Postgres, Python engine and Next.js containers through `.ddev/docker-compose
 
 **Acceptance criteria**
 - [ ] Pantheon sandbox site created from the Composer-managed Drupal upstream; `pantheon.yml` committed
-- [ ] Terminus machine token setup documented; token never committed (secret scan passes)
-- [ ] `ddev auth pantheon` and `ddev pull pantheon` pull database and files into local DDEV (tested)
-- [ ] Code in `apps/drupal` deploys to Pantheon dev by the decided mechanism (for example subtree push from CI); site loads on its dev URL
+- [ ] Terminus personal access token (PAT, formerly machine token) setup and 90-day rotation documented; token never committed (secret scan passes)
+- [ ] Terminus authentication for DDEV is set up (PAT in the global DDEV config; `ddev auth ssh` loads the SSH key) and `ddev pull pantheon` pulls database and files into local DDEV (tested)
+- [ ] Code in `apps/drupal` deploys to Pantheon dev by the decided mechanism (subtree split pushed by `scripts/deploy-drupal.sh`, run with `ddev deploy-drupal` or from `deploy-drupal.yml`); site loads on its dev URL
 - [ ] Config imported on Pantheon dev matches local (`drush config:status` clean)
 - [ ] Rollback procedure and sandbox sleep and limits behaviour documented in `docs/runbooks/deploy.md`
 

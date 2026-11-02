@@ -14,7 +14,7 @@ Statuses: Not started, Planned, In progress, In review, In test, Blocked, Done.
 | T04a | Coding standards and quality gates | M | 1 Architecture and planning | T04 | In test | `task/T04a-coding-standards` | Both reviews approved; DEF-004 fixed on `task/T04a-def004-baseline` (pre-commit --all-files and ddev quality exit 0); retest now passes TC-T04a-36/37/39/40/42-48/56; still blocked: TC-T04a-38, 41, 53, 54, 55 (owner env) and deferred cases; report not yet rewritten |
 | T05 | DDEV Drupal project | M | 2 Local platform (DDEV and Docker) | T03 | In test | `task/T05-ddev-drupal` | Review approved; 38 pass, 0 fail, 2 blocked owner-run (TC-T05-39 runbook verbatim, TC-T05-40 Windows browser login); DEF-003, DEF-004, DEF-005 retest passed; not signed off until owner runs 39/40 |
 | T06 | Extra Docker services in DDEV | M | 2 Local platform (DDEV and Docker) | T05 | Done (2026-11-02) | `task/T06-ddev-services` | AC6 partial: HTTPS route verified with placeholder; Next.js dev server re-run (TC-T06-42) owed by T21, owner-accepted. 51 pass, 0 fail; TC-T06-48, 49 owner-run, deferred (owner-accepted) |
-| T07 | Pantheon dev environment and deployment path | M | 2 Local platform (DDEV and Docker) | T05 | Not started |  |  |
+| T07 | Pantheon dev environment and deployment path | M | 2 Local platform (DDEV and Docker) | T05 | Planned | `task/T07-pantheon-dev` | Plan approved 2026-11-02; owner accepted starting with T05 in test; AC2 to AC4 wording updated in TASKS.md |
 | T08 | Continuous integration baseline | M | 2 Local platform (DDEV and Docker) | T05, T06 | Not started |  |  |
 | T09 | Content model as configuration | M | 3 Drupal backend | T03, T05 | Not started |  |  |
 | T10 | Ingest API and authentication | L | 3 Drupal backend | T09 | Not started |  |  |
