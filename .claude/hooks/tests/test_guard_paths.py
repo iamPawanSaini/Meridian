@@ -21,21 +21,33 @@ PROFILES = {
     "solution-architect": ["--allow", "docs/*", "--bash", "none"],
     "technical-architect": ["--allow", "docs/*", "--bash", "readonly"],
     "developer": [
-        "--allow", "*",
-        "--deny", "docs/tests/*/test-cases.md",
-        "--deny", "docs/tests/*/test-report.md",
-        "--bash", "developer",
+        "--allow",
+        "*",
+        "--deny",
+        "docs/tests/*/test-cases.md",
+        "--deny",
+        "docs/tests/*/test-report.md",
+        "--bash",
+        "developer",
     ],
     "tester": [
-        "--allow", "docs/tests/*", "--allow", "tests/*", "--allow", "*/tests/*",
-        "--allow", "*/e2e/*", "--bash", "tester",
+        "--allow",
+        "docs/tests/*",
+        "--allow",
+        "tests/*",
+        "--allow",
+        "*/tests/*",
+        "--allow",
+        "*/e2e/*",
+        "--bash",
+        "tester",
     ],
 }
 
 
 def run_guard(
     agent: str, tool: str, tool_input: dict[str, str]
-) -> "subprocess.CompletedProcess[str]":
+) -> subprocess.CompletedProcess[str]:
     payload = {
         "hook_event_name": "PreToolUse",
         "tool_name": tool,
@@ -46,7 +58,11 @@ def run_guard(
     env = dict(os.environ, CLAUDE_PROJECT_DIR=str(REPO))
     return subprocess.run(
         [sys.executable, str(GUARD), "--agent", agent, *PROFILES[agent]],
-        input=json.dumps(payload), capture_output=True, text=True, env=env, check=False,
+        input=json.dumps(payload),
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
     )
 
 
@@ -65,10 +81,18 @@ class TesterGuard(GuardTestCase):
     """AC2: tester cannot write application source."""
 
     def test_blocks_edit_of_engine_source(self) -> None:
-        self.assertBlocked("tester", "Edit", {"file_path": str(REPO / "services/engine/meridian_engine/scoring.py")})
+        self.assertBlocked(
+            "tester",
+            "Edit",
+            {"file_path": str(REPO / "services/engine/meridian_engine/scoring.py")},
+        )
 
     def test_blocks_write_of_drupal_module_source(self) -> None:
-        self.assertBlocked("tester", "Write", {"file_path": "apps/drupal/web/modules/custom/meridian_ingest/src/Foo.php"})
+        self.assertBlocked(
+            "tester",
+            "Write",
+            {"file_path": "apps/drupal/web/modules/custom/meridian_ingest/src/Foo.php"},
+        )
 
     def test_blocks_write_to_task_plan(self) -> None:
         self.assertBlocked("tester", "Write", {"file_path": "docs/tasks/T05/plan.md"})
@@ -77,51 +101,94 @@ class TesterGuard(GuardTestCase):
         self.assertAllowed("tester", "Write", {"file_path": "docs/tests/T05/test-cases.md"})
 
     def test_allows_test_code_folders(self) -> None:
-        self.assertAllowed("tester", "Write", {"file_path": "services/engine/tests/test_scoring.py"})
+        self.assertAllowed(
+            "tester", "Write", {"file_path": "services/engine/tests/test_scoring.py"}
+        )
         self.assertAllowed("tester", "Write", {"file_path": "apps/web/e2e/login.spec.ts"})
-        self.assertAllowed("tester", "Edit", {"file_path": "apps/drupal/web/modules/custom/meridian_ingest/tests/src/Kernel/IngestTest.php"})
+        self.assertAllowed(
+            "tester",
+            "Edit",
+            {
+                "file_path": (
+                    "apps/drupal/web/modules/custom/meridian_ingest/tests/src/Kernel/IngestTest.php"
+                )
+            },
+        )
 
     def test_blocks_path_traversal(self) -> None:
-        self.assertBlocked("tester", "Write", {"file_path": "docs/tests/../../services/engine/x.py"})
+        self.assertBlocked(
+            "tester", "Write", {"file_path": "docs/tests/../../services/engine/x.py"}
+        )
 
     def test_bash_redirect_into_source_blocked(self) -> None:
-        self.assertBlocked("tester", "Bash", {"command": "echo x > services/engine/meridian_engine/x.py"})
+        self.assertBlocked(
+            "tester", "Bash", {"command": "echo x > services/engine/meridian_engine/x.py"}
+        )
 
     def test_bash_sed_in_place_on_source_blocked(self) -> None:
         self.assertBlocked("tester", "Bash", {"command": "sed -i 's/a/b/' apps/web/app/page.tsx"})
 
     def test_bash_cp_into_source_blocked(self) -> None:
-        self.assertBlocked("tester", "Bash", {"command": "cp /tmp/x.py services/engine/meridian_engine/x.py"})
+        self.assertBlocked(
+            "tester", "Bash", {"command": "cp /tmp/x.py services/engine/meridian_engine/x.py"}
+        )
 
     def test_bash_git_commit_blocked(self) -> None:
         self.assertBlocked("tester", "Bash", {"command": "git commit -am 'x'"})
 
     def test_bash_running_tests_with_evidence_allowed(self) -> None:
-        self.assertAllowed("tester", "Bash", {"command": "python3 -m pytest services/engine 2>&1 | tee docs/tests/T13/evidence/pytest.txt"})
-        self.assertAllowed("tester", "Bash", {"command": "docs/tests/T00/run-checks.sh > /tmp/out.txt 2>&1"})
+        self.assertAllowed(
+            "tester",
+            "Bash",
+            {
+                "command": (
+                    "python3 -m pytest services/engine 2>&1"
+                    " | tee docs/tests/T13/evidence/pytest.txt"
+                )
+            },
+        )
+        self.assertAllowed(
+            "tester", "Bash", {"command": "docs/tests/T00/run-checks.sh > /tmp/out.txt 2>&1"}
+        )
 
 
 class ArchitectGuards(GuardTestCase):
     """AC3: architects are read-only on source; writes only under docs/."""
 
     def test_solution_architect_writes_docs(self) -> None:
-        self.assertAllowed("solution-architect", "Write", {"file_path": "docs/adr/ADR-0001-headless.md"})
+        self.assertAllowed(
+            "solution-architect", "Write", {"file_path": "docs/adr/ADR-0001-headless.md"}
+        )
 
     def test_solution_architect_blocked_on_source(self) -> None:
-        self.assertBlocked("solution-architect", "Edit", {"file_path": "services/engine/meridian_engine/llm.py"})
+        self.assertBlocked(
+            "solution-architect", "Edit", {"file_path": "services/engine/meridian_engine/llm.py"}
+        )
         self.assertBlocked("solution-architect", "Write", {"file_path": "CLAUDE.md"})
 
     def test_solution_architect_has_no_bash(self) -> None:
         self.assertBlocked("solution-architect", "Bash", {"command": "ls"})
 
     def test_technical_architect_readonly_commands_allowed(self) -> None:
-        for cmd in ["git diff main...HEAD", "git log --oneline -5", "ls -la docs", "grep -rn TODO services | head",
-                    "scripts/check-names.sh 2>&1"]:
+        for cmd in [
+            "git diff main...HEAD",
+            "git log --oneline -5",
+            "ls -la docs",
+            "grep -rn TODO services | head",
+            "scripts/check-names.sh 2>&1",
+        ]:
             self.assertAllowed("technical-architect", "Bash", {"command": cmd})
 
     def test_technical_architect_mutations_blocked(self) -> None:
-        for cmd in ["echo x > services/engine/x.py", "rm -rf apps", "git commit -m x", "git checkout main",
-                    "sed -i 's/a/b/' README.md", "npm install left-pad", "ls && touch apps/x"]:
+        for cmd in [
+            "echo x > services/engine/x.py",
+            "rm -rf apps",
+            "git commit -m x",
+            "git checkout main",
+            "sed -i 's/a/b/' README.md",
+            "npm install left-pad",
+            "ls && touch apps/x",
+        ]:
             self.assertBlocked("technical-architect", "Bash", {"command": cmd})
 
     def test_technical_architect_writes_plan(self) -> None:
@@ -133,18 +200,37 @@ class QuotedShellParsing(GuardTestCase):
     """DEF-001: quoted operators must not break parsing or count as redirects."""
 
     def test_quoted_pipe_and_gt_allowed_for_readonly(self) -> None:
-        for cmd in ['grep -rnE "kiteconnect|zerodha|upstox" docs', "awk '$1 > 5' docs/x.txt",
-                    'git log --format="%h > %s" -3', 'grep -c "a|b" docs/x.md | head -1',
-                    "ls docs 2>&1 | head", "grep -rn x docs 2>/dev/null"]:
+        for cmd in [
+            'grep -rnE "kiteconnect|zerodha|upstox" docs',
+            "awk '$1 > 5' docs/x.txt",
+            'git log --format="%h > %s" -3',
+            'grep -c "a|b" docs/x.md | head -1',
+            "ls docs 2>&1 | head",
+            "grep -rn x docs 2>/dev/null",
+        ]:
             self.assertAllowed("technical-architect", "Bash", {"command": cmd})
 
     def test_real_operators_still_detected(self) -> None:
-        for cmd in ['grep "a|b" docs > apps/x.txt', 'echo "x" ; touch apps/y', "ls\nrm -rf apps",
-                    "echo $(touch apps/z)", "ls `rm apps/q`", "true && git commit -m x"]:
+        for cmd in [
+            'grep "a|b" docs > apps/x.txt',
+            'echo "x" ; touch apps/y',
+            "ls\nrm -rf apps",
+            "echo $(touch apps/z)",
+            "ls `rm apps/q`",
+            "true && git commit -m x",
+        ]:
             self.assertBlocked("technical-architect", "Bash", {"command": cmd})
 
     def test_tester_quoted_pattern_with_tee_into_evidence(self) -> None:
-        self.assertAllowed("tester", "Bash", {"command": 'grep -rniE "zerodha|upstox" docs 2>&1 | tee docs/tests/T02/evidence/broker.txt'})
+        self.assertAllowed(
+            "tester",
+            "Bash",
+            {
+                "command": (
+                    'grep -rniE "zerodha|upstox" docs 2>&1 | tee docs/tests/T02/evidence/broker.txt'
+                )
+            },
+        )
         self.assertBlocked("tester", "Bash", {"command": 'grep -E "a|b" x | tee apps/web/out.txt'})
 
     def test_unbalanced_quote_blocks(self) -> None:
@@ -153,7 +239,9 @@ class QuotedShellParsing(GuardTestCase):
 
 class DeveloperGuard(GuardTestCase):
     def test_developer_writes_source(self) -> None:
-        self.assertAllowed("developer", "Write", {"file_path": "services/engine/meridian_engine/cli.py"})
+        self.assertAllowed(
+            "developer", "Write", {"file_path": "services/engine/meridian_engine/cli.py"}
+        )
         self.assertAllowed("developer", "Bash", {"command": "git commit -m 'T13: add cli'"})
 
     def test_developer_cannot_edit_test_cases_or_report(self) -> None:
@@ -183,8 +271,13 @@ class CommonGuards(GuardTestCase):
             self.assertAllowed(agent, "Read", {"file_path": "services/engine/meridian_engine/x.py"})
 
     def test_malformed_input_blocks(self) -> None:
-        result = subprocess.run([sys.executable, str(GUARD), *PROFILES["tester"]], input="not json",
-                                capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            [sys.executable, str(GUARD), *PROFILES["tester"]],
+            input="not json",
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         self.assertEqual(result.returncode, 2)
 
 
@@ -201,11 +294,16 @@ class AgentFrontmatter(unittest.TestCase):
             for field in ("name:", "description:", "tools:", "model:", "hooks:"):
                 self.assertIn(field, front, f"{agent} missing {field}")
             self.assertIn(f"name: {agent}\n", front)
-            cmd = re.search(r"command: '(.+)'", front).group(1)
+            found = re.search(r"command: '(.+)'", front)
+            self.assertIsNotNone(found, f"{agent} has no guard command")
+            assert found is not None  # narrows the type for mypy
+            cmd = found.group(1)
             args = shlex.split(cmd)
             self.assertTrue(args[1].endswith(".claude/hooks/guard_paths.py"))
             self.assertEqual(args[2:4], ["--agent", agent])
-            self.assertEqual(args[4:], expected, f"{agent} frontmatter args differ from tested profile")
+            self.assertEqual(
+                args[4:], expected, f"{agent} frontmatter args differ from tested profile"
+            )
 
 
 if __name__ == "__main__":

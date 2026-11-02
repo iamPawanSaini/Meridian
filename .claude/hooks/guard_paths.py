@@ -28,6 +28,7 @@ import re
 import shlex
 import sys
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
 
@@ -50,13 +51,48 @@ WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 
 # Commands that change files or state. Used in readonly mode.
 MUTATING_COMMANDS = {
-    "rm", "rmdir", "mv", "cp", "touch", "mkdir", "chmod", "chown", "ln", "tee",
-    "truncate", "dd", "install", "patch", "unzip", "tar",
+    "rm",
+    "rmdir",
+    "mv",
+    "cp",
+    "touch",
+    "mkdir",
+    "chmod",
+    "chown",
+    "ln",
+    "tee",
+    "truncate",
+    "dd",
+    "install",
+    "patch",
+    "unzip",
+    "tar",
 }
 GIT_MUTATING = {
-    "commit", "push", "reset", "checkout", "switch", "rebase", "merge", "add", "rm",
-    "mv", "stash", "tag", "clean", "apply", "am", "cherry-pick", "restore", "pull",
-    "revert", "worktree", "update-ref", "filter-branch", "gc", "prune",
+    "commit",
+    "push",
+    "reset",
+    "checkout",
+    "switch",
+    "rebase",
+    "merge",
+    "add",
+    "rm",
+    "mv",
+    "stash",
+    "tag",
+    "clean",
+    "apply",
+    "am",
+    "cherry-pick",
+    "restore",
+    "pull",
+    "revert",
+    "worktree",
+    "update-ref",
+    "filter-branch",
+    "gc",
+    "prune",
 }
 PKG_MUTATING = re.compile(
     r"^(npm|pnpm|yarn)\s+(i|install|add|remove|uninstall|update|ci)\b"
@@ -134,7 +170,12 @@ def parse_command(command: str) -> tuple[list[list[str]], list[str]]:
                 if current and current[-1].isdigit():
                     current.pop()  # file descriptor, as in 2>&1
                 nxt = tokens[i + 1] if i + 1 < len(tokens) else ""
-                if ">" in tok and nxt and nxt not in SAFE_TARGETS and not (tok.endswith("&") and nxt.isdigit()):
+                if (
+                    ">" in tok
+                    and nxt
+                    and nxt not in SAFE_TARGETS
+                    and not (tok.endswith("&") and nxt.isdigit())
+                ):
                     targets.append(nxt)
                 i += 2
                 continue
@@ -150,7 +191,9 @@ def parse_command(command: str) -> tuple[list[list[str]], list[str]]:
 
     cleaned = []
     for seg in segments:
-        while seg and (re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", seg[0]) or seg[0] in WRAPPERS or seg[0] == "$"):
+        while seg and (
+            re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", seg[0]) or seg[0] in WRAPPERS or seg[0] == "$"
+        ):
             seg = seg[1:]
         if seg:
             cleaned.append(seg)
@@ -176,7 +219,10 @@ def check_bash(command: str, mode: str, cwd: str | None, allow: list[str], deny:
 
     for target in targets:
         if readonly:
-            raise Denied(f"read-only agent: output redirect to '{target}' is not allowed. Use the Write tool for docs/.")
+            raise Denied(
+                f"read-only agent: output redirect to '{target}' is not allowed. "
+                "Use the Write tool for docs/."
+            )
         check_path(target, cwd, allow, deny)
 
     for tokens in segments:
@@ -184,12 +230,19 @@ def check_bash(command: str, mode: str, cwd: str | None, allow: list[str], deny:
         joined = " ".join(tokens)
         if name == "git" and len(tokens) > 1:
             sub = next((t for t in tokens[1:] if not t.startswith("-")), "")
-            if sub in GIT_MUTATING or (sub == "branch" and any(t in {"-d", "-D", "-m", "-M"} for t in tokens)):
-                raise Denied(f"'git {sub}' changes repository state; only the main session or developer may do that.")
+            if sub in GIT_MUTATING or (
+                sub == "branch" and any(t in {"-d", "-D", "-m", "-M"} for t in tokens)
+            ):
+                raise Denied(
+                    f"'git {sub}' changes repository state; "
+                    "only the main session or developer may do that."
+                )
             continue
         if PKG_MUTATING.search(joined):
             raise Denied("installing or removing packages is not allowed for this agent.")
-        in_place = name in {"sed", "perl", "ruby"} and any(t == "-i" or t.startswith("-i") for t in tokens[1:])
+        in_place = name in {"sed", "perl", "ruby"} and any(
+            t == "-i" or t.startswith("-i") for t in tokens[1:]
+        )
         if readonly and (name in MUTATING_COMMANDS or in_place):
             raise Denied(f"read-only agent: '{name}' modifies files. Use the Write tool for docs/.")
         if not readonly:
@@ -205,7 +258,7 @@ def check_bash(command: str, mode: str, cwd: str | None, allow: list[str], deny:
                     check_path(arg, cwd, allow, deny)
 
 
-def evaluate(payload: dict, allow: list[str], deny: list[str], bash_mode: str) -> None:
+def evaluate(payload: dict[str, Any], allow: list[str], deny: list[str], bash_mode: str) -> None:
     tool = payload.get("tool_name", "")
     tool_input = payload.get("tool_input") or {}
     cwd = payload.get("cwd")
@@ -225,7 +278,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--agent", default="subagent", help="agent name for messages")
     parser.add_argument("--allow", action="append", default=[], help="glob of writable paths")
     parser.add_argument("--deny", action="append", default=[], help="glob of protected paths")
-    parser.add_argument("--bash", choices=["none", "readonly", "tester", "developer", "full"], default="readonly")
+    parser.add_argument(
+        "--bash", choices=["none", "readonly", "tester", "developer", "full"], default="readonly"
+    )
     args = parser.parse_args(argv)
 
     try:
