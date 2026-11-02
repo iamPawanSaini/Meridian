@@ -5,8 +5,9 @@
 # A missing document makes every dependent check FAIL; nothing passes vacuously.
 # Conventions assumed (from the plan): '##' section headings, Markdown tables for
 # FR/NFR, risks, cost map, open questions and naming checks; ADR files docs/adr/ADR-000N-*.md.
+# shellcheck disable=SC2329 # T04a: functions are invoked indirectly through ck/py/check ("$@")
 set -uo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel)" || exit 2
 
 fail=0
 pass() { printf '  PASS  %s\n' "$1"; }
@@ -30,8 +31,11 @@ sec() { [ -s "$1" ] || return 1
 rows() { sec "$1" "$2" | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$'; }
 has_sec() { [ -n "$(sec "$1" "$2")" ]; }
 mermaid_body() { [ -s "$SA" ] && awk '/^```mermaid/{on=1;next}/^```/{on=0}on' "$SA"; }
-adrf() { ls "$ADRDIR" 2>/dev/null | grep -E "^(ADR-)?000$1[-_].*\.md$" | head -1 | sed "s|^|$ADRDIR/|"; }
-six_adrs() { [ "$(ls $ADRDIR/ADR-000[1-6]-*.md 2>/dev/null | wc -l)" -eq 6 ]; }
+adrf() { local f b
+  for f in "$ADRDIR"/*; do b=${f##*/}
+    if [[ $b =~ ^(ADR-)?000$1[-_].*\.md$ ]]; then echo "$ADRDIR/$b"; return 0; fi
+  done; return 0; }
+six_adrs() { local a=("$ADRDIR"/ADR-000[1-6]-*.md); [ -e "${a[0]}" ] && [ "${#a[@]}" -eq 6 ]; }
 
 echo "== TC-T02-01 required sections in solution-architecture.md"
 ck "file exists and non-empty" test -s "$SA"
@@ -286,16 +290,16 @@ ck "no key-like strings in T02 docs" bash -c "[ -s $SA ] && ! grep -rnE 'AKIA[0-
 
 echo "== TC-T02-30 C7 links resolve; markdown lint when available"
 links_ok() { local f d l rc=0
-  for f in "$SA" "$NM" $ADRDIR/ADR-000[1-6]-*.md "$ADRDIR/README.md"; do
+  for f in "$SA" "$NM" "$ADRDIR"/ADR-000[1-6]-*.md "$ADRDIR/README.md"; do
     [ -s "$f" ] || { echo "missing $f"; rc=1; continue; }
     d="$(dirname "$f")"
-    for l in $(grep -oE '\]\([^)#][^)]*\)' "$f" | sed -E 's/^\]\(//; s/\)$//; s/#.*//' | grep -vE '^(https?:|mailto:)'); do
+    while IFS= read -r l; do
       [ -e "$d/$l" ] || { echo "$f: broken link $l"; rc=1; }
-    done
-  done; return $rc; }
+    done < <(grep -oE '\]\([^)#][^)]*\)' "$f" | sed -E 's/^\]\(//; s/\)$//; s/#.*//' | grep -vE '^(https?:|mailto:)')
+  done; return "$rc"; }
 ck "relative links in T02 docs resolve" links_ok
 if command -v markdownlint >/dev/null 2>&1; then
-  ck "markdownlint clean on T02 docs" markdownlint "$SA" "$NM" $ADRDIR/ADR-000[1-6]-*.md
+  ck "markdownlint clean on T02 docs" markdownlint "$SA" "$NM" "$ADRDIR"/ADR-000[1-6]-*.md
 else
   printf '  SKIP  markdownlint not installed (plan says "if available"; record in report)\n'
 fi

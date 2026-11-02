@@ -5,8 +5,9 @@
 # A missing document makes every dependent check FAIL; nothing passes vacuously.
 # Layout assumed (plan): docs/architecture/technical-design.md with sections D1..D8 as '#' headings;
 # docs/specs/data-model.md (see check_data_model.py); docs/architecture/openapi.yaml; .spectral.yaml.
+# shellcheck disable=SC2329 # T04a: functions are invoked indirectly through ck/py/check ("$@")
 set -uo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel)" || exit 2
 T=docs/tests/T03
 
 fail=0
@@ -62,7 +63,6 @@ ck "forward-only in dev stated" g "$TD" 'forward-only|forward only'
 ck "migration plan is in a headed section" g "$TD" '^#+ .*(migration)'
 
 echo "== TC-T03-05 idempotency rule (D3)"
-S='idempot'
 ck "idempotency section exists (heading)" g "$TD" '^#+ .*idempoten'
 ck "external ID per record type, deterministic format with dec- prefix" g "$TD" 'dec-\{?[a-z_]*date'
 ck "external ID formats for position and run" bash -c "grep -qiE 'pos-' $TD && grep -qiE 'run-' $TD"
@@ -168,7 +168,7 @@ ck "T02 follow-ups: SA sign-off has a T03 amendment line" gs "$SA" '^#+ .*sign-o
 
 echo "== TC-T03-18 TRACEABILITY: design element (T03) non-empty for R-01..R-12"
 ck "TRACEABILITY header has 'Design element (T03)' column" g "$TR" 'Design element \(T03\)'
-python3 -I - "$TR" <<'PY'
+if ! python3 -I - "$TR" <<'PY'
 import re, sys
 rows = [l for l in open(sys.argv[1]).read().splitlines() if l.startswith("|")]
 cells = lambda l: [c.strip() for c in l.strip().strip("|").split("|")]
@@ -190,7 +190,7 @@ for n in range(1, 13):
     out(bool(c) and len(c) > i and bool(re.search(r"technical-design|data-model|openapi|\bD[1-8]\b|ADR|solution-architecture", c[i])), f"{r} design element cites a document or D-section")
 sys.exit(1 if bad else 0)
 PY
-[ $? -ne 0 ] && fail=1
+then fail=1; fi
 
 echo "== TC-T03-19 solution-architect sign-off recorded"
 ck "sign-off section in technical-design.md" g "$TD" '^#+ .*sign-off'

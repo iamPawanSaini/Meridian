@@ -238,7 +238,7 @@ available.
 | Linked criterion | AC3, C4 |
 | Type | Owner-run |
 | Preconditions | Network access to the npm registry; `.spectral.yaml` and `openapi.yaml` present. Record the Spectral version (pinned in T04a if available) |
-| Steps | 1. `npx @stoplight/spectral-cli lint docs/architecture/openapi.yaml --ruleset .spectral.yaml --fail-severity=warn 2>&1 | tee docs/tests/T03/evidence/TC-T03-10.txt; echo "exit=${PIPESTATUS[0]}" | tee -a docs/tests/T03/evidence/TC-T03-10.txt` |
+| Steps | 1. `npx @stoplight/spectral-cli lint docs/architecture/openapi.yaml --ruleset .spectral.yaml --fail-severity=warn 2>&1 \| tee docs/tests/T03/evidence/TC-T03-10.txt; echo "exit=${PIPESTATUS[0]}" \| tee -a docs/tests/T03/evidence/TC-T03-10.txt` |
 | Expected result | Exit 0 with no errors and no warnings; the evidence file shows the tool version (add `npx @stoplight/spectral-cli --version`) and the exit code. Any finding is a defect against the contract and is not suppressed in the ruleset. If the owner has not run it, the case is Blocked and the task is not signed off |
 | Actual result | Not run by tester: no network, npx download denied. Owner-run command unchanged. |
 | Evidence | `evidence/TC-T03-10.txt` |
@@ -538,7 +538,7 @@ available.
 | Linked criterion | C3, C7 |
 | Type | Manual |
 | Preconditions | All other cases executed; work committed on `task/T03-technical-design` |
-| Steps | 1. `git clone --branch task/T03-technical-design . $SCRATCH/clean && cd $SCRATCH/clean && docs/tests/T03/run-checks.sh 2>&1 | tee $SCRATCH/clean-run.txt`, then copy it to `docs/tests/T03/evidence/TC-T03-30.txt`. 2. `ls docs/tests/T03/evidence/` and tick every case id 01 to 32. 3. Confirm each report row has an Evidence path that exists |
+| Steps | 1. `git clone --branch task/T03-technical-design . $SCRATCH/clean && cd $SCRATCH/clean && docs/tests/T03/run-checks.sh 2>&1 \| tee $SCRATCH/clean-run.txt`, then copy it to `docs/tests/T03/evidence/TC-T03-30.txt`. 2. `ls docs/tests/T03/evidence/` and tick every case id 01 to 32. 3. Confirm each report row has an Evidence path that exists |
 | Expected result | Same results as in the working tree using only documented commands; every case has a stored evidence file; no Pass without evidence |
 | Actual result | Deviation: T03 not yet committed, so a clone plus overlay of modified and untracked files was used. run-checks.sh: all PASS, 2 SKIP. Evidence list complete (see report). |
 | Evidence | `evidence/TC-T03-30.txt` |
@@ -583,3 +583,4 @@ available.
 | 2026-11-01 | `run-checks.sh` TC-T03-17: the NFR-04/05 follow-up check now uses a shell function that counts only table rows whose first cell is NFR-04 or NFR-05 and that cite `technical-design` (exactly 2). | Script defect found by the T03 author: the nested quoting in `bash -c` broke the anchor, so the check matched any line containing NFR-04 or NFR-05 (3 hits, including the OQ-07 row). No content check was loosened; the check is stricter and still requires both rows. |
 | 2026-11-01 | `run-checks.sh` TC-T03-09: the ".spectral.yaml does not switch off core rules wholesale" check now uses a shell function (`spectral_rules_on`) instead of an inline `bash -c` string. The rule list and the `off`/`false` test are unchanged; the file must still exist and be non-empty. | Script defect found by the T03 author: a single quote inside the quoted pattern closed the grep argument early, so the check exited with a shell syntax error whatever `.spectral.yaml` contained. No content check was loosened. All other `bash -c` strings were parse-checked with `bash -n -c` (41 of 41 parse); none had the hazard. |
 | 2026-11-01 | Added `def002_retest.py` (sqlite model of the partial-index runs constraints). | Retest of DEF-002; not a check change. |
+| 2026-11-02 | `run-checks.sh`, `check_data_model.py`, `check_env_parity.py`, `def002_retest.py`, `selftest_validator.py`, `validate_openapi.py`: Formatting, lint hygiene and typing only (DEF-004): ruff format and check, shellcheck and markdownlint made clean. No check was added, removed or loosened. Pipes in two code spans escaped (MD056). | DEF-004: the T04a baseline must be clean under the real hooks. `l` renamed `ln` (E741), `S` unused variable removed, `$?` test turned into `if !`. |

@@ -132,6 +132,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | 2026-11-01 | TC-53 to 58 added for the addendum rows marked "verify" (OQ-T04a-6) | New cases; coverage.py, hadolint, markdownlint, yamllint owner-run; TypeScript and phpcs deferred |
 | 2026-11-01 | TC-29 independent scan skips `docs/tasks/` | Main-session scope decision: task plans, decisions and reviews quote invalid forms on purpose. Not a loosening: `docs/standards` and all code and config stay scanned |
 | 2026-11-01 | Prose lines in `docs/tests/T02`, `T03`, `T04` test-cases and test-report reflowed to 100 characters | Review finding 5: word-neutral (0 word changes in `git diff --word-diff=porcelain`; PASS counts of the three `run-checks.sh` unchanged; `evidence/reflow-*.txt`) |
+| 2026-11-02 | `run-checks.sh`, `reflow_md.py`, `reference/*.py`: Formatting, lint hygiene and typing only (DEF-004): ruff format and check, shellcheck and markdownlint made clean. No check was added, removed or loosened. Case text in TC-T04a-xx rows: pipes in a code span escaped, two code spans with edge spaces reworded (MD038, MD056) | DEF-004. Inline suppressions: one file-level SC2329 and four SC2016, each with a `T04a:` reason |
 
 ## Cases: standards and review checklist
 
@@ -188,7 +189,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | Type | Automated |
 | Preconditions | As TC-01 |
 | Steps | 1. Read block `== TC-T04a-04` |
-| Expected result | A tools table with Version, Source and Date checked columns and a dated row (`YYYY-MM-DD`) for ruff, mypy, PHP_CodeSniffer, PHPStan, ESLint, Prettier, tsc, hadolint, yamllint, shellcheck, markdownlint, Spectral; the literal ticket regex `\b(T\d{2}a?|DEF-\d{3}): \S`; exception rule (same line, counted in a report, `DEF-` must exist); commit rules (72, Merge, Revert, `fixup!`, PR range, merge commits only with squash disabled); `task/Txx-slug`; section 0b asset rules (self-hosted, no third-party host, tokens); scope table (docs/tests helpers ruff only; py310); `web-vitals` licence (Apache or MIT) with a version, closing OQ-T04-5 |
+| Expected result | A tools table with Version, Source and Date checked columns and a dated row (`YYYY-MM-DD`) for ruff, mypy, PHP_CodeSniffer, PHPStan, ESLint, Prettier, tsc, hadolint, yamllint, shellcheck, markdownlint, Spectral; the literal ticket regex `\b(T\d{2}a?\|DEF-\d{3}): \S`; exception rule (same line, counted in a report, `DEF-` must exist); commit rules (72, Merge, Revert, `fixup!`, PR range, merge commits only with squash disabled); `task/Txx-slug`; section 0b asset rules (self-hosted, no third-party host, tokens); scope table (docs/tests helpers ruff only; py310); `web-vitals` licence (Apache or MIT) with a version, closing OQ-T04-5 |
 | Actual result | 9 PASS, 0 FAIL (HEAD e56df69, also 9 PASS in a clean clone) |
 | Evidence | `evidence/TC-T04a-04.txt` |
 | Status | Pass |
@@ -312,7 +313,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | Type | Automated |
 | Preconditions | `scripts/check_commit_msg.py`; python3.10; fixture TASKS file with T04, T04a, T10, T32 |
 | Steps | 1. Read block `== TC-T04a-12`: it calls `check_commit_msg.py --tasks-file F --msg-file M` for each message |
-| Expected result | Accepted: `T04a: x`, `T10: add ingest upsert endpoint`, a subject with a 150-character body line. Rejected (non-zero, message, no traceback): `bad message`, empty, `T04a:x`, `T04a: ` (no text), `t04: x`, `T4: x`, `Initial commit`, `T04ab: x`, ` T04a: x`; the rejection text explains the format |
+| Expected result | Accepted: `T04a: x`, `T10: add ingest upsert endpoint`, a subject with a 150-character body line. Rejected (non-zero, message, no traceback): `bad message`, empty, `T04a:x`, `T04a:` followed by one space (no text), `t04: x`, `T4: x`, `Initial commit`, `T04ab: x`, `T04a: x` with a leading space; the rejection text explains the format |
 | Actual result | 14 PASS, 0 FAIL (HEAD e56df69, also 14 PASS in a clean clone) |
 | Evidence | `evidence/TC-T04a-12.txt` |
 | Status | Pass |

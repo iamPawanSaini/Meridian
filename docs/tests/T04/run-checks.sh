@@ -22,8 +22,9 @@
 # Reconciliation, Conventions, and a defect-workflow section. docs/TRACEABILITY.md has a heading
 # "Planned tests" followed by a 7-column table (ID, Parent R, Verifying task, Level(s), Planned test,
 # Planned case ID or pattern, Status). Helpers: check_trace.py, check_defects.py, selftest_trace.py.
+# shellcheck disable=SC2329 # T04a: functions are invoked indirectly through ck/py/check ("$@")
 set -uo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel)" || exit 2
 T=docs/tests/T04
 
 REG=0
@@ -62,6 +63,7 @@ g() { [ -s "$1" ] && grep -qiE -- "$2" "$1"; }
 # hd FILE ERE: a Markdown heading matching the pattern exists
 hd() { [ -s "$1" ] && grep -qiE -- "^#+ .*($2)" "$1"; }
 # AWKSEC: section from the matching heading to the next heading of the same or higher level
+# shellcheck disable=SC2016 # T04a: awk program, deliberately single-quoted
 AWKSEC='/^#+ /{match($0,/^#+/); l=RLENGTH; if(on&&l<=lv)on=0; if(!on && tolower($0) ~ tolower(re)){on=1;lv=l}} on'
 sec()  { [ -s "$1" ] || return 1; awk -v re="$2" "$AWKSEC" "$1"; }
 secs() { awk -v re="$1" "$AWKSEC"; }          # same, reading stdin (for sub-sections)
@@ -101,19 +103,19 @@ PY
 first_commit() { git log --diff-filter=A --format=%H --reverse -- "$1" 2>/dev/null | head -1; }
 order_ok() {
   local s c m
-  s=$(first_commit $T/run-checks.sh); c=$(first_commit $T/test-cases.md)
+  s=$(first_commit "$T/run-checks.sh"); c=$(first_commit "$T/test-cases.md")
   [ -n "$s" ] && [ -n "$c" ] || return 1               # design must be committed
   m=$(first_commit "$MP")
   [ -z "$m" ] && return 0                              # plan not committed yet: order holds
   [ "$s" != "$m" ] && [ "$c" != "$m" ] && git merge-base --is-ancestor "$s" "$m" && git merge-base --is-ancestor "$c" "$m"
 }
 changelog_ok() {   # if run-checks.sh changed after its first commit, test-cases.md needs a Change log row
-  local n; n=$(git log --format=%H -- $T/run-checks.sh | wc -l)
+  local n; n=$(git log --format=%H -- "$T/run-checks.sh" | wc -l)
   [ "$n" -ge 1 ] || return 1
   [ "$n" -le 1 ] && return 0
-  sec $T/test-cases.md 'change log' | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$' | tail -n +2 | grep -q .
+  sec "$T/test-cases.md" 'change log' | grep -E '^\|' | grep -vE '^\|[ :|-]+\|?[ ]*$' | tail -n +2 | grep -q .
 }
-design_msg_ok() { git log --format=%s -- $T/run-checks.sh | tail -1 | grep -qE '^T04:'; }
+design_msg_ok() { git log --format=%s -- "$T/run-checks.sh" | tail -1 | grep -qE '^T04:'; }
 
 echo "== TC-T04-01 master-test-plan.md: eight test levels, each with owning tasks and a pass rule"
 ckp "master-test-plan.md exists and is non-empty" test -s "$MP"
@@ -274,7 +276,7 @@ ckp "T04 documents use current names (meridian_engine / meridian-web, not the ol
 
 echo "== TC-T04-23 simulation only: no broker names or trading domains"
 BR='zerodha|kite ?connect|\bkite\b|upstox|angel ?(one|broking)|groww|fyers|5paisa|dhanhq|\bdhan\b|alice ?blue|interactive ?brokers|alpaca|icici ?direct|smartapi|kite\.trade'
-nobroker() { [ -s "$MP" ] && [ -s "$TR" ] && [ -s "$DF" ] && ! grep -niE "$BR" "$MP" "$TR" "$DF" "$TP" "$RD" $T/test-cases.md; }
+nobroker() { [ -s "$MP" ] && [ -s "$TR" ] && [ -s "$DF" ] && ! grep -niE "$BR" "$MP" "$TR" "$DF" "$TP" "$RD" "$T/test-cases.md"; }
 ckp "no broker vendor names or trading hostnames in master plan, TRACEABILITY, defects, template, README, test-cases" nobroker
 ckp "master plan states FR-11 static broker check without naming a vendor, simulation-only" gs "$MP" 'security|regression' 'FR-11'
 ckp "no network URL to a trading host anywhere in docs/tests/T04 scripts" bash -c "! grep -niE 'https?://[a-z0-9.-]*(zerodha|kite|upstox|angelone|groww|fyers)' $T/*.py $T/run-checks.sh"

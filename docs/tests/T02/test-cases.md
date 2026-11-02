@@ -482,7 +482,7 @@ reviewed, branch `task/T02-solution-architecture`, run from the repo root.
 | Linked criterion | C1, C2 |
 | Type | Automated |
 | Preconditions | Standard |
-| Steps | 1. Standard steps; block `== TC-T02-27`<br>2. `grep -n -iE 'blocker|major|open|unresolved' docs/tasks/T02/review.md` and read hits |
+| Steps | 1. Standard steps; block `== TC-T02-27`<br>2. `grep -n -iE 'blocker\|major\|open\|unresolved' docs/tasks/T02/review.md` and read hits |
 | Expected result | `plan.md` says Approved; `review.md` exists and records approval; step 2 shows every finding with a resolution (none left open) |
 | Actual result | PASS: plan Approved; review records approval; all findings resolved (none open). |
 | Evidence | `evidence/TC-T02-27.txt`, `evidence/extra-steps.txt` |
@@ -620,3 +620,4 @@ Test-script corrections after the technical-architect review (`docs/tasks/T02/re
 | 2026-11-01 | TC-T02-09 `risk_complete` | awk does not support the `/regex/i` flag (the `i` is parsed as a variable, so the owner test was wrong) | Lower-case the owner cell with `tolower()` and match a lower-case regex |
 | 2026-11-01 | TC-T02-17 `nrow()` | Matched any table row, including the naming.md metadata row (the Scope row names app stores) | Restricted to numbered rows of the Checks table (`\| <n> \|`) |
 | 2026-11-01 | TC-T02-29 `.env.example` | Compared with `main`, where `.env.example` does not exist | Compare with the T02 base branch `task/T01-agents` (also TC-T02-29 step 2) |
+| 2026-11-02 | `run-checks.sh` shellcheck (DEF-004) | `cd` without an exit guard, `ls` piped to `grep` in `adrf` and `six_adrs`, unquoted expansions, `for l in $(grep ...)` in `links_ok`; SC2329 false positive for functions run through `ck` | Fixed with globs, quoting and a `while read` loop (same results); one file-level SC2329 suppression citing T04a for the indirect calls. Prose in this file: pipes in code spans escaped (MD056). No check loosened |

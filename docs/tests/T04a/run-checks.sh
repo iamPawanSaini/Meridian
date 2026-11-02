@@ -31,6 +31,7 @@
 #   A-4 coverage_gate.py --thresholds quality/coverage-thresholds.json COBERTURA.xml (adapter gate).
 #   A-5 Cobertura fixture file names follow the D-1 path column (meridian_engine/scoring/...,
 #       web/modules/custom/meridian_*/..., apps/web/lib/...).
+# shellcheck disable=SC2329 # T04a: functions are invoked indirectly through ck, ckp and the adapters ("$@")
 set -u
 ROOT=$(git rev-parse --show-toplevel) || exit 2
 cd "$ROOT" || exit 2
@@ -64,6 +65,7 @@ cka() { local d=$1 out rc; shift
 g()  { [ -s "$1" ] && grep -qiE -- "$2" "$1"; }                       # file non-empty and has pattern
 gF() { [ -s "$1" ] && grep -qF -- "$2" "$1"; }                        # fixed string
 hd() { [ -s "$1" ] && grep -qiE -- "^#+ .*($2)" "$1"; }               # heading matches
+# shellcheck disable=SC2016 # T04a: awk program, deliberately single-quoted
 AWKSEC='/^#+ /{match($0,/^#+/); l=RLENGTH; if(on&&l<=lv)on=0; if(!on && tolower($0) ~ tolower(re)){on=1;lv=l}} on'
 sec()  { [ -s "$1" ] || return 1; awk -v re="$2" "$AWKSEC" "$1"; }
 gsall(){ local f=$1 h=$2 s p; shift 2; s=$(sec "$f" "$h") || return 1; [ -n "$s" ] || return 1
@@ -74,9 +76,9 @@ exists_x() { [ -f "$1" ] && [ -x "$1" ]; }
 put() { mkdir -p "$(dirname "$1")"; printf '%s\n' "$2" >"$1"; }
 # rejects CMD...: non-zero exit (not 127), a message, no Python traceback, no missing-script error.
 rejects() { local out rc; out=$("$@" 2>&1); rc=$?
-  [ $rc -ne 0 ] && [ $rc -ne 127 ] && [ -n "$out" ] && ! grep -qE "Traceback|can't open file" <<<"$out"; }
+  [ "$rc" -ne 0 ] && [ "$rc" -ne 127 ] && [ -n "$out" ] && ! grep -qE "Traceback|can't open file" <<<"$out"; }
 rejects_naming() { local pat=$1 out rc; shift; out=$("$@" 2>&1); rc=$?
-  [ $rc -ne 0 ] && [ $rc -ne 127 ] && ! grep -qE "Traceback|can't open file" <<<"$out" && grep -qiE -- "$pat" <<<"$out"; }
+  [ "$rc" -ne 0 ] && [ "$rc" -ne 127 ] && ! grep -qE "Traceback|can't open file" <<<"$out" && grep -qiE -- "$pat" <<<"$out"; }
 accepts() { "$@" >/dev/null 2>&1; }
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/t04a.XXXXXX"); trap 'rm -rf "$WORK"' EXIT
 mkrepo() {   # DIR: throwaway git repo with fixture TASKS.md and defects.md
@@ -335,8 +337,8 @@ range_setup
 range_run() { (cd "$RR" && python3 "$S/check_commit_msg.py" --tasks-file "$FT" --range "$BASE..HEAD"); }
 ckp "good commits pass; legacy bad and over-long commits before the base are not checked" accepts range_run
 addc() { git -C "$RR" commit -q --allow-empty -m "$1"; }
-range_case_rej() { addc "$1"; local r=1; rejects_naming "$2" range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return $r; }
-range_case_ok() { addc "$1"; local r=1; accepts range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return $r; }
+range_case_rej() { addc "$1"; local r=1; rejects_naming "$2" range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return "$r"; }
+range_case_ok() { addc "$1"; local r=1; accepts range_run && r=0; git -C "$RR" reset -q --hard HEAD~1; return "$r"; }
 ckp "range rejects a new 'bad message' commit and names it" range_case_rej 'bad message' 'bad message'
 ckp "range rejects 'fixup! T04a: first'" range_case_rej 'fixup! T04a: first' 'fixup'
 ckp "range rejects 'squash! T10: second'" range_case_rej 'squash! T10: second' 'squash|fixup'
@@ -346,7 +348,7 @@ ckp "range accepts a 72-character subject" range_case_ok "$(sub 72 'T10: ')"
 ckp "range accepts Revert \"T10: second\"" range_case_ok 'Revert "T10: second"'
 range_merge() { local r=1; git -C "$RR" checkout -q -b side && addc "T10: side" && git -C "$RR" checkout -q main \
   && git -C "$RR" merge -q --no-ff side -m "Merge branch 'side'" && accepts range_run && r=0
-  git -C "$RR" checkout -q main; git -C "$RR" reset -q --hard "$(git -C "$RR" rev-parse HEAD~1)"; git -C "$RR" branch -q -D side; return $r; }
+  git -C "$RR" checkout -q main; git -C "$RR" reset -q --hard "$(git -C "$RR" rev-parse HEAD~1)"; git -C "$RR" branch -q -D side; return "$r"; }
 ckp "range accepts a no-ff merge commit and the commits it brings" range_merge
 empty_range() { (cd "$RR" && python3 "$S/check_commit_msg.py" --tasks-file "$FT" --range HEAD..HEAD); }
 ckp "empty range (HEAD..HEAD) is not an error" accepts empty_range
@@ -354,6 +356,7 @@ ckp "empty range (HEAD..HEAD) is not an error" accepts empty_range
 echo "== TC-T04a-15 installed commit-msg hook in a throwaway repo (AC4, plan: 'bad message' vs 'T04a: x')"
 HR=$WORK/hookrepo
 mkrepo "$HR"
+# shellcheck disable=SC2016 # T04a: $1 must stay literal in the generated hook
 printf '#!/usr/bin/env bash\nexec python3 "%s/check_commit_msg.py" --msg-file "$1"\n' "$S" >"$HR/.git/hooks/commit-msg"
 chmod +x "$HR/.git/hooks/commit-msg"
 n0=$(git -C "$HR" rev-list --count HEAD 2>/dev/null || echo 0)
@@ -392,8 +395,8 @@ env_br() { (cd "$WORK" && env GITHUB_HEAD_REF="$1" python3 "$S/check_branch_name
 ckp "CI: GITHUB_HEAD_REF=task/T10-ingest accepted" accepts env_br task/T10-ingest
 ckp "CI: GITHUB_HEAD_REF=feature/x rejected" rejects env_br feature/x
 git_br() { (cd "$HR" && env -u GITHUB_HEAD_REF python3 "$S/check_branch_name.py"); }
-gb_bad() { local r; git -C "$HR" checkout -q -b feature/bad; rejects git_br; r=$?; git -C "$HR" checkout -q main; return $r; }
-gb_ok() { local r; git -C "$HR" checkout -q -b task/T04a-demo; accepts git_br; r=$?; git -C "$HR" checkout -q main; return $r; }
+gb_bad() { local r; git -C "$HR" checkout -q -b feature/bad; rejects git_br; r=$?; git -C "$HR" checkout -q main; return "$r"; }
+gb_ok() { local r; git -C "$HR" checkout -q -b task/T04a-demo; accepts git_br; r=$?; git -C "$HR" checkout -q main; return "$r"; }
 ckp "no argument, no env: current git branch feature/bad rejected" gb_bad
 ckp "no argument, no env: current git branch task/T04a-demo accepted" gb_ok
 
@@ -571,8 +574,8 @@ OKSTEP=$(qline ok1 - true); BADSTEP=$(qline bad1 - false); OK2=$(qline ok2 - tru
 SKIPSTEP=$(qline skip1 "$WORK/q/absent.manifest" false)
 MISSSTEP=$(qline miss1 "$WORK/q/present.manifest" meridian-no-such-tool-xyz)
 FAILPRES=$(qline fail1 "$WORK/q/present.manifest" false)
-run_ok()  { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ $rc -eq 0 ]; }
-run_bad() { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ $rc -ne 0 ]; }
+run_ok()  { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ "$rc" -eq 0 ]; }
+run_bad() { local o rc; o=$(qs_run "$1"); rc=$?; printf '%s\n' "$o"; [ "$rc" -ne 0 ]; }
 t1() { local o; o=$(run_ok "$OKSTEP") || return 1; grep -qE 'PASS.*qs_ok1' <<<"$o"; }
 ckp "all steps pass: exit 0 and a PASS line for the step" t1
 t2() { local o; o=$(run_ok "$OKSTEP$SKIPSTEP") || return 1; grep -qE 'PASS.*qs_ok1' <<<"$o" && grep -qE 'SKIP.*qs_skip1' <<<"$o" && ! grep -qE 'FAIL.*qs_' <<<"$o"; }
@@ -596,6 +599,7 @@ echo "== TC-T04a-25 .ddev/commands/host/quality wrapper (AC5; ddev quality itsel
 WR=.ddev/commands/host/quality
 ckp "wrapper exists and is executable" exists_x "$WR"
 ckp "wrapper has a bash shebang" shebang "$WR"
+# shellcheck disable=SC2016 # T04a: fixed-string pattern, $-variables must stay literal
 ckp "wrapper execs scripts/quality.sh with the arguments" gF "$WR" 'exec "$DDEV_APPROOT/scripts/quality.sh" "$@"'
 ckp "wrapper has the DDEV '## Description' header" g "$WR" '^## Description:'
 wrap() { printf '%b' "$1" >"$WORK/q/wsteps"; DDEV_APPROOT="$ROOT" QUALITY_STEPS="$WORK/q/wsteps" QUALITY_RUNNER=native bash "$WR"; }
@@ -648,6 +652,7 @@ print(f"{len(bad)} line(s) over 100 characters in {len(sys.argv) - 1} files"); s
 PY
 }
 mdself() { printf '%s\n' "$(printf 'word %.0s' $(seq 1 40))" >"$WORK/long.md"
+  # shellcheck disable=SC2016 # T04a: backticks are literal markdown fence text
   printf '| %s |\n```\n%s\n```\n# %s\nhttps://%s\n' "$(printf 'c%.0s' $(seq 1 130))" "$(printf 'x%.0s' $(seq 1 130))" "$(printf 'h%.0s' $(seq 1 130))" "$(printf 'u%.0s' $(seq 1 130))" >"$WORK/exempt.md"
   ! mdlen "$WORK/long.md" >/dev/null && mdlen "$WORK/exempt.md" >/dev/null; }
 ckp "checker self-test: prose line flagged; table, code, heading and bare URL exempt" mdself
@@ -741,16 +746,16 @@ ckp "report lists the TASKS.md exclusion and its ticket T32" has_t32
 
 echo "== TC-T04a-30 helper regression after the baseline cleanup (T01 guard, T03 and T04 checks behave the same)"
 ckp "T01 guard unit tests pass" python3 -m unittest discover -s .claude/hooks/tests
-same_count() { local task=$1 mode=$2 ev=$3 out n e rc; out=$(docs/tests/$task/run-checks.sh $mode 2>&1); rc=$?
+same_count() { local task=$1 mode=$2 ev=$3 out n e rc; out=$(docs/tests/"$task"/run-checks.sh ${mode:+"$mode"} 2>&1); rc=$?
   n=$(grep -c '^  PASS' <<<"$out"); e=$(grep -c '^  PASS' "$ev"); echo "$task $mode: PASS now $n, at close $e, exit $rc"
-  [ $rc -eq 0 ] && [ "$n" = "$e" ] && ! grep -q '^  FAIL' <<<"$out"; }
+  [ "$rc" -eq 0 ] && [ "$n" = "$e" ] && ! grep -q '^  FAIL' <<<"$out"; }
 ckp "T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)" same_count T04 --regression docs/tests/T04/evidence/run-checks-regression.txt
 ckp "T03 run-checks.sh: exit 0, same PASS count as at close" same_count T03 "" docs/tests/T03/evidence/run-checks.txt
 
 echo "== TC-T04a-31 optional linters on the tree (AC3, C4); SKIP only when the tool is absent"
 opt() { local name=$1 tool=$2; shift 2; if command -v "$tool" >/dev/null 2>&1; then ckp "$name clean" "$@"; else skip "$name: $tool not installed"; fi; }
 mypy_run() { mypy --strict --python-version 3.10 scripts .claude/hooks; }
-sc_run() { shellcheck $(git ls-files '*.sh') .ddev/commands/host/quality; }
+sc_run() { local f; mapfile -t f < <(git ls-files '*.sh'); shellcheck "${f[@]}" .ddev/commands/host/quality; }
 md_run() { markdownlint-cli2 "**/*.md"; }
 opt "ruff check (lint)" ruff ruff check .
 opt "ruff format --check" ruff ruff format --check .
@@ -785,15 +790,17 @@ ckp "check-names.sh clean" scripts/check-names.sh
 echo "== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]"
 cka "plan.md status Approved" g docs/tasks/T04a/plan.md '^\| Status \| Approved'
 first_commit() { git log --diff-filter=A --format=%H --reverse -- "$1" 2>/dev/null | head -1; }
-order_ok() { local s c m f; s=$(first_commit $T/run-checks.sh); c=$(first_commit $T/test-cases.md)
+order_ok() { local s c m f; s=$(first_commit "$T"/run-checks.sh); c=$(first_commit "$T"/test-cases.md)
   [ -n "$s" ] && [ -n "$c" ] || { echo "design not committed"; return 1; }
   for f in "$SA" "$RC" scripts/quality.sh scripts/check_commit_msg.py; do m=$(first_commit "$f"); [ -z "$m" ] && continue
-    [ "$s" != "$m" ] && [ "$c" != "$m" ] && git merge-base --is-ancestor "$s" "$m" && git merge-base --is-ancestor "$c" "$m" || { echo "order violated for $f"; return 1; }
+    if ! { [ "$s" != "$m" ] && [ "$c" != "$m" ] && git merge-base --is-ancestor "$s" "$m" && git merge-base --is-ancestor "$c" "$m"; }; then
+      echo "order violated for $f"; return 1
+    fi
   done; }
 cka "run-checks.sh and test-cases.md committed before the standards, checklist and scripts (git order)" order_ok
 review_ok() { [ -s docs/tasks/T04a/review.md ] && grep -qiE 'approved' docs/tasks/T04a/review.md; }
 cka "technical-architect review exists and is Approved" review_ok
-design_msg() { git log --format=%s -- $T/run-checks.sh | tail -1 | grep -qE '^T04a:'; }
+design_msg() { git log --format=%s -- "$T"/run-checks.sh | tail -1 | grep -qE '^T04a:'; }
 cka "design commit message starts with T04a:" design_msg
 
 echo "== TC-T04a-35 no component scaffolds yet (plan non-goal; makes the SKIP rule real) [snapshot]"
@@ -857,7 +864,7 @@ demo() { local tc=$1 file=$2 bad=$3 good=$4 x=${5:-} brc grc
   put "$OD/$file" "$good"; [ -n "$x" ] && chmod +x "$OD/$file"; git -C "$OD" add "$file"
   (cd "$OD" && .tools/pre-commit run --files "$file") >"$ROOT/$T/evidence/$tc-control.txt" 2>&1; grc=$?
   git -C "$OD" rm -q -f --cached "$file"; rm -f "$OD/$file"
-  [ $brc -ne 0 ] && [ $grc -eq 0 ] || { echo "bad rc=$brc (want non-zero), control rc=$grc (want 0)"; return 1; }; }
+  [ "$brc" -ne 0 ] && [ "$grc" -eq 0 ] || { echo "bad rc=$brc (want non-zero), control rc=$grc (want 0)"; return 1; }; }
 echo "== TC-T04a-39 untyped Python rejected by mypy --strict (control: typed)"
 ckp "scripts/zz_demo.py untyped refused; typed twin accepted" demo TC-T04a-39 scripts/zz_demo.py $'def add(a, b):\n    return a + b' $'def add(a: int, b: int) -> int:\n    """Add."""\n    return a + b'
 echo "== TC-T04a-40 ruff lint rejection"
@@ -882,7 +889,7 @@ oc() { cd "$OD" || return 1; git checkout -q -b task/T04a-owner-commit; local n0
 ckp "'bad message' refused (no commit created); 'T04a: owner demo' accepted" oc
 echo "== TC-T04a-47 bad branch name through quality.sh"
 ob2() { cd "$OD" || return 1; git checkout -q -b feature/bad; local ev="$ROOT/$T/evidence/TC-T04a-47-rejected.txt"
-  scripts/quality.sh >"$ev" 2>&1; local rc=$?; [ $rc -ne 0 ] && grep -qiE 'FAIL.*branch' "$ev"; }
+  scripts/quality.sh >"$ev" 2>&1; local rc=$?; [ "$rc" -ne 0 ] && grep -qiE 'FAIL.*branch' "$ev"; }
 ckp "branch feature/bad: quality.sh exits non-zero with a FAIL on the branch step" ob2
 
 # ----- real-tool checks of the D-4 addendum rows marked 'verify' (OQ-T04a-6) -----
@@ -895,7 +902,9 @@ cov() { local v=$WORK/venv; python3 -m venv "$v" && "$v/bin/pip" install -q cove
   printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:  # pragma: no cover  # T13: reason\n        return 2\n    return 0\n' >x.py
   printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:\n        return 2\n    return 0\n' >y.py
   printf 'import x, y\nx.f(1); x.f(0); y.f(1); y.f(0)\n' >t.py
-  "$v/bin/coverage" run t.py && "$v/bin/coverage" report -m --include=x.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-pragma.txt" 2>&1 || { echo "pragma form did not exclude the line"; return 1; }
+  if ! { "$v/bin/coverage" run t.py && "$v/bin/coverage" report -m --include=x.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-pragma.txt" 2>&1; }; then
+    echo "pragma form did not exclude the line"; return 1
+  fi
   "$v/bin/coverage" report -m --include=y.py --fail-under=100 >"$ROOT/$T/evidence/TC-T04a-53-control.txt" 2>&1 && { echo "control without pragma reached 100"; return 1; }; return 0; }
 ckp "x.py with the ticketed pragma reaches 100 percent; the same code without it does not" cov
 echo "== TC-T04a-54 hadolint ignore with a ticket comment"
@@ -909,7 +918,7 @@ LONGP=$(printf 'word %.0s' $(seq 1 40))
 ml() { hookrun docs/zz_ml.md "$(printf '# T\n\n<!-- markdownlint-disable-next-line MD013 --> <!-- T32: reason -->\n%s\n' "$LONGP")"; local a=$HOUT ra=$HRC
   hookrun docs/zz_ml.md "$(printf '# T\n\n%s\n' "$LONGP")"; local b=$HOUT rb=$HRC
   printf '%s\n' "$a" >"$ROOT/$T/evidence/TC-T04a-55-ignored.txt"; printf '%s\n' "$b" >"$ROOT/$T/evidence/TC-T04a-55-control.txt"
-  [ $ra -eq 0 ] && [ $rb -ne 0 ]; }
+  [ "$ra" -eq 0 ] && [ "$rb" -ne 0 ]; }
 ckp "long line passes with the disable-next-line plus ticket comment; fails without" ml
 echo "== TC-T04a-56 yamllint ignore: path list and the inline ticket form"
 yl() { local cfg=$OD/.yamllint.yaml; cp "$cfg" "$WORK/yamllint.orig"
@@ -919,7 +928,7 @@ yl() { local cfg=$OD/.yamllint.yaml; cp "$cfg" "$WORK/yamllint.orig"
   hookrun docs/zz_other.yaml "$(printf '%b' "$long")"; local b=$HRC; printf '%s\n' "$HOUT" >"$ROOT/$T/evidence/TC-T04a-56-control.txt"
   hookrun docs/zz_inline.yaml "$(printf '%b # yamllint disable-line rule:line-length # T32: x' "$long" | sed 's/"$/"/')"; local c=$HRC; printf '%s\n' "$HOUT" >"$ROOT/$T/evidence/TC-T04a-56-inline.txt"
   cp "$WORK/yamllint.orig" "$cfg"
-  [ $a -eq 0 ] && [ $b -ne 0 ] && [ $c -ne 0 ]; }
+  [ "$a" -eq 0 ] && [ "$b" -ne 0 ] && [ "$c" -ne 0 ]; }
 ckp "ignored path passes; other path fails; inline directive with trailing ticket text is silently ignored (still fails)" yl
 fi
 

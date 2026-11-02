@@ -18,13 +18,13 @@ to place, a live order (FR-11).
 Planned tests are kept at FR/NFR level: 49 rows, one per requirement, in the "Planned tests"
 table of `TRACEABILITY.md` (decision D-1). Each R row links to its FR and NFR rows.
 
-# Test levels
+## Test levels
 
 Eight levels. Each sub-section gives the purpose, the owning tasks, the tools and the pass rule.
 A level passes only when every case at that level for the task under test is Pass with stored
 evidence (see "Exit criteria").
 
-## Unit
+### Unit
 
 - **Purpose:** one function, class or component in isolation, with time, network and the LLM
   replaced by fakes. Rules, scoring, sizing, costs, state machines, UI components.
@@ -34,7 +34,7 @@ evidence (see "Exit criteria").
   above). The coverage target of NFR-18 (90% line coverage on `scoring` and `risk`) is met, and
   T04a sets the other component targets. No unit test opens a socket.
 
-## Integration
+### Integration
 
 - **Purpose:** two or more real parts together: the engine with Postgres, the publisher with a
   running Drupal, Drupal Kernel and Functional tests with a real database, the outbox, replay.
@@ -44,7 +44,7 @@ evidence (see "Exit criteria").
   holds (0 duplicates after two runs). Integration tests that need Drupal run in the heavier set
   (see "Regression suite").
 
-## Contract
+### Contract
 
 - **Purpose:** the engine, Drupal and the dashboard agree on the HTTP interface in
   `docs/architecture/openapi.yaml`. Request bodies, response bodies, status codes, error
@@ -56,7 +56,7 @@ evidence (see "Exit criteria").
   disposable DDEV site. The PHPUnit Functional cases in T10 (idempotency, 401, 403, 422, rate
   limit, audit log, concurrent 409) still pass: Schemathesis does not replace them.
 
-## End-to-end
+### End-to-end
 
 - **Purpose:** a user-visible flow across all components: login, pages, filters, empty, loading
   and error states, CSV export, a full run through to the dashboard.
@@ -66,7 +66,7 @@ evidence (see "Exit criteria").
   seeded data and the fake LLM. T27 passes `ddev e2e` from a clean clone. T28 shows one
   unattended scheduled run in the deployed dashboard (FR-27).
 
-## Security
+### Security
 
 - **Purpose:** simulation-only rule (FR-11), authentication and least privilege (FR-19, FR-20,
   FR-21), secret hygiene (NFR-10), known vulnerabilities (NFR-11), prompt injection (FR-07).
@@ -79,7 +79,7 @@ evidence (see "Exit criteria").
   security case may not be Blocked at close; until then the T00 to T02 precedent in "Blocked at
   close" applies.
 
-## Performance
+### Performance
 
 - **Purpose:** measure the NFR targets for run duration, page load, ingest time, read API time
   and CI duration. Single-client latency percentiles over a fixed sample size, not load.
@@ -89,7 +89,7 @@ evidence (see "Exit criteria").
   samples kept in the evidence. Evidence also records the environment, the seeded record count
   (5,000) and tool versions. Performance runs on DDEV or deployed dev, never in the PR set.
 
-## Data reconciliation
+### Data reconciliation
 
 - **Purpose:** the same numbers appear at every hop: Postgres, Drupal and the dashboard.
 - **Owning tasks:** T19 (publish, FR-14), T23 and T25 (dashboard against `report`, FR-18), T27
@@ -98,7 +98,7 @@ evidence (see "Exit criteria").
   differences are at most 0.01 for amounts and 0.01 percentage points for returns. Method and
   tolerances are in "Reconciliation".
 
-## Manual simulation
+### Manual simulation
 
 - **Purpose:** checks that need a person, real time or real platforms: the 10 to 15 trading day
   window, the real-LLM smoke test, the deployed dev platforms, backup and restore drills, and
@@ -109,7 +109,7 @@ evidence (see "Exit criteria").
   target. The tester or owner records the evidence (logs, screenshots, run records). Manual
   cases are marked as manual and never run in CI.
 
-# Tools per component
+## Tools per component
 
 One row per component. Tools are named by purpose. Versions are pinned in T04a, which also
 confirms each tool installs in DDEV and CI. The selection rule: free, maintained, self-hostable,
@@ -151,7 +151,7 @@ Tool decisions (D-2, D-3, D-4):
   Schemathesis and mkcert (T10), the 429 exception of the market data library (T15), the
   container network block (T15), `web-vitals` licence and offline install (T04a or T26).
 
-# Test layout
+## Test layout
 
 A convention for later tasks. Test code lives with its component. Documentation-only tasks keep
 their checks next to their cases.
@@ -166,7 +166,7 @@ their checks next to their cases.
 Case IDs are `TC-Txx-nn`. A test function or file names its case ID in a docstring or comment,
 so that evidence can be traced from the case to the code.
 
-# Environments
+## Environments
 
 | Environment | What it is | Limits |
 |---|---|---|
@@ -192,7 +192,7 @@ Rules: a case states the environment it needs. If the executing context lacks it
 Blocked, not Fail (see "Conventions"). No environment other than deployed dev and the owner-run
 capture steps uses live market data or a real LLM.
 
-# Entry criteria
+## Entry criteria
 
 Per task:
 
@@ -212,7 +212,7 @@ Per milestone (M1 to M7, see `docs/TASKS.md` section 3.5):
 - Every Blocked case that the milestone depends on has Passed (see "Exit criteria").
 - No open Critical or High defect.
 
-# Exit criteria
+## Exit criteria
 
 Per task (all must hold before `/close-task`):
 
@@ -237,7 +237,7 @@ Per milestone:
 - Carried-over Blocked cases are scheduled in a named task and every such case Passes before the
   gate that depends on it. All Blocked cases must Pass by T32 (FR-29, zero gaps).
 
-# Defect severity scale
+## Defect severity scale
 
 This table is the single source of severity. `docs/tests/defects.md` links here and repeats the
 same meanings next to its triage times.
@@ -249,7 +249,7 @@ same meanings next to its triage times.
 | Medium | Function impaired, workaround exists | A filter fails but export works, a retry needed |
 | Low | Cosmetic or documentation issue | A typo, a misaligned label |
 
-# Defect workflow
+## Defect workflow
 
 Defects are logged in `docs/tests/defects.md` using `docs/templates/defect.md`. A failed case
 (Fail) creates a defect; a Blocked case does not. The log defines who moves each state and the
@@ -266,7 +266,7 @@ States, in order: Open, Triaged, In progress, Fixed, Retest passed, Closed, Reop
 - Defects differ from review findings (Blocker, Major, Minor, Note), which are raised in
   `docs/tasks/Txx/review.md` and resolved in the same task. A Fail in a test report is a defect.
 
-# Regression suite
+## Regression suite
 
 The regression suite is what CI runs to detect that a change broke something that worked. T08
 implements the jobs in `ci.yml` (and the heavier-set triggers). This plan defines the content.
@@ -312,7 +312,7 @@ the job; the technical-architect reviews each retag.
 Failure rule: a red PR set blocks merge. A red heavier set creates a defect; High if it blocks a
 milestone gate.
 
-# Test data strategy
+## Test data strategy
 
 Four kinds of data plus one shared file. All data is deterministic and committed.
 
@@ -353,7 +353,7 @@ set. T13 compares the new engine to it; a change to the file needs a reviewed re
 in CI; data is deterministic (fixed dates, fixed seeds, no wall clock without an injected
 clock); personal data is never used.
 
-# Reconciliation
+## Reconciliation
 
 Reconciliation proves that numbers agree across hops. It is used by T27 (full stack on DDEV) and
 T31 (every trading day of the window), with parts earlier in T19, T23 and T25.
@@ -369,11 +369,11 @@ Method: take the engine output for one trade date as the reference, then compare
 Rules: the script prints each difference with the key and both values and exits non-zero on any
 breach. Tolerance never widens to make a case pass. Output goes to the evidence file.
 
-# Conventions
+## Conventions
 
 Codified from the practice of T00 to T03. A rule marked **new** has not been used yet.
 
-## Statuses
+### Statuses
 
 Pass, Fail, Blocked, Not run. Fail means the product, document or script is wrong and creates a
 defect. Blocked means a precondition or tool is missing (no network, no DDEV, a tool not
@@ -383,13 +383,13 @@ signed off"
 until each is listed in a complete "Blocked at close" table (below); it then reads "Signed off with
 accepted Blocked cases".
 
-## Owner-run cases
+### Owner-run cases
 
 A case the executing context cannot run (for example Spectral without network) is typed
 "Owner-run". It gives the exact command, the expected output and the evidence path. The owner
 runs it and stores the output, with the tool version, in `evidence/`. Until then it is Blocked.
 
-## Main-session execution and independence
+### Main-session execution and independence
 
 When an agent lacks a tool or a restart is needed, the main session executes the case, and
 "Executed by" names who ran it (for example "tester (role played by the main session)"). The
@@ -397,7 +397,7 @@ cases are executed by a session other than the one that authored the documents u
 (independence); the report states who executed. Where this was not possible, the report records
 the deviation.
 
-## Evidence naming
+### Evidence naming
 
 `evidence/TC-Txx-nn.txt` for one case. `evidence/run-checks.txt` for the full script output. A
 `-static` suffix for evidence from reading files without running the product, and a
@@ -405,27 +405,27 @@ the deviation.
 `manual-review.md` collects manual case notes. Retests add the defect ID
 (`DEF-nnn-retest.txt`).
 
-## Script style (`run-checks.sh`)
+### Script style (`run-checks.sh`)
 
 No vacuous pass: a missing file or section fails. A non-zero exit when any check fails. `SKIP`
 is allowed only for optional tools (pre-commit, markdownlint), and the report lists every SKIP.
 Checks are designed from the criteria before the documents exist, and the script is committed
 before authoring (git order).
 
-## Change log and no loosening
+### Change log and no loosening
 
 A script defect found later is fixed only through a "Change log" row in `test-cases.md`. A check
 may never be loosened to hide a content gap; a gap is a defect in the content. **New:** tags
 `ckp`/`pyp` (invariant) and `cka`/`pya` (snapshot) and the `--regression` flag (see "Regression
 suite").
 
-## Live-API cases
+### Live-API cases
 
 A case that calls a live service (the T17 real-LLM smoke test, owner-run market data capture) is
 manual, marked "Manual" and "live", and never run in CI. Its evidence is the redacted output; no
 key is stored.
 
-## Blocked at close
+### Blocked at close
 
 Precedent (T00 to T02): the task closed with Blocked cases, each accepted by the owner, case by
 case. The test report lists them in a "Blocked at close" table with the columns case ID,
@@ -441,7 +441,7 @@ no Critical or High defect is open and every such case passes before the gate th
 and by T32. This policy takes effect only after the owner confirms it in their own message (open
 question OQ-T04-1). Until owner confirmation, the T00 to T02 precedent above is the rule.
 
-# Decisions needed
+## Decisions needed
 
 None open for the content of this plan except the owner confirmation of decision D-6 (above) and
 the questions OQ-T04-2 to OQ-T04-5 in the decision record, each with a named resolving task.

@@ -87,3 +87,9 @@ Cases TC-T00-01, 02, 03, 06, 07 and 08 are automated in `docs/tests/T00/run-chec
 | Linked criterion | AC7 |
 | Steps | `docs/tests/T00/run-checks.sh` (section TC-T00-08) |
 | Expected result | CLAUDE.md has sections for goal, simulation-only rule, repository layout, commands, per-task loop, and where documents live. |
+
+## Change log
+
+| Date | Change | Reason |
+|---|---|---|
+| 2026-11-02 | `run-checks.sh`: `cd` now exits when it fails (SC2164) and a deliberate eval'd variable carries an inline SC2034 suppression that cites T04a. No check was added, removed or loosened. | DEF-004: the T04a baseline must be clean under the real hooks. |

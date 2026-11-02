@@ -1,15 +1,17 @@
 """Reference model (NOT production) used only to prove the T04a run-checks harness can pass."""
+
 import argparse
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--msg-file")
 ap.add_argument("--range")
 ap.add_argument("--tasks-file", default="docs/TASKS.md")
 a = ap.parse_args()
-ids = set(re.findall(r"^## (T\d{2}a?):", open(a.tasks_file).read(), re.M))
+ids = set(re.findall(r"^## (T\d{2}a?):", Path(a.tasks_file).read_text(), re.M))
 
 
 def check(subject: str, rng: bool) -> str:
@@ -27,13 +29,15 @@ def check(subject: str, rng: bool) -> str:
 
 bad = 0
 if a.msg_file:
-    subj = open(a.msg_file).read().split("\n")[0]
+    subj = Path(a.msg_file).read_text().split("\n")[0]
     e = check(subj, False)
     if e:
         print(f"{e}: {subj!r}")
         bad = 1
 else:
-    out = subprocess.run(["git", "log", "--format=%H%x09%s", a.range], capture_output=True, text=True).stdout
+    out = subprocess.run(
+        ["git", "log", "--format=%H%x09%s", a.range], capture_output=True, text=True
+    ).stdout
     for line in out.splitlines():
         sha, subj = line.split("\t", 1)
         e = "fixup/squash commit" if re.match(r"(fixup|squash)! ", subj) else check(subj, True)

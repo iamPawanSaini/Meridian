@@ -3,8 +3,10 @@
 Tables, headings, fenced code and lines MD013 would not flag are untouched. Inline code spans
 with spaces are kept whole. Usage: python3 docs/tests/T04a/reflow_md.py FILE...
 """
+
 import re
 import sys
+from pathlib import Path
 
 TOK = re.compile(r"(?:`[^`]*`|\S)+")
 LIMIT = 100
@@ -19,7 +21,7 @@ def reflow(line: str) -> list[str]:
     assert m is not None
     ind, mark = m.group(1), m.group(2) or ""
     cont = " " * (len(ind) + len(mark))
-    words = TOK.findall(line[len(m.group(0)):])
+    words = TOK.findall(line[len(m.group(0)) :])
     out: list[str] = []
     cur = ind + mark
     empty = True
@@ -37,7 +39,7 @@ def reflow(line: str) -> list[str]:
 def main(paths: list[str]) -> int:
     risk = 0
     for p in paths:
-        text = open(p, encoding="utf-8").read()
+        text = Path(p).read_text(encoding="utf-8")
         res: list[str] = []
         fence = False
         n = 0
@@ -56,7 +58,7 @@ def main(paths: list[str]) -> int:
                     risk += 1
             res.extend(new)
             n += 1
-        open(p, "w", encoding="utf-8").write("\n".join(res))
+        Path(p).write_text("\n".join(res), encoding="utf-8")
         print(f"{p}: {n} lines reflowed")
     return 1 if risk else 0
 

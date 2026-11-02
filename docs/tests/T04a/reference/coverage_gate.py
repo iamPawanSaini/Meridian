@@ -1,8 +1,10 @@
 """Reference model (NOT production) used only to prove the T04a run-checks harness can pass."""
+
 import argparse
 import json
 import sys
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--thresholds", required=True)
@@ -13,7 +15,10 @@ try:
 except (OSError, ET.ParseError) as e:
     print(f"cannot read coverage: {e}")
     sys.exit(1)
-files = [(c.get("filename", ""), [int(ln.get("hits", "0")) for ln in c.iter("line")]) for c in root.iter("class")]
+files = [
+    (c.get("filename", ""), [int(ln.get("hits", "0")) for ln in c.iter("line")])
+    for c in root.iter("class")
+]
 if not files:
     print("no files in coverage report")
     sys.exit(1)
@@ -29,14 +34,14 @@ def walk(o: object, ctx: str) -> None:
                 walk(v, ctx + " " + k)
 
 
-walk(json.load(open(a.thresholds)), "")
+walk(json.loads(Path(a.thresholds).read_text()), "")
 bad = []
-for ctx, v in floors:
+for _ctx, v in floors:
     fl = v / 100 if v > 1 else v
-    for key in ("scoring", "risk", "lib", "components", "meridian_engine", "meridian_"):
+    for _key in ("scoring", "risk", "lib", "components", "meridian_engine", "meridian_"):
         pass
 # generic: every threshold carries a path prefix string next to the number
-d = json.load(open(a.thresholds))
+d = json.loads(Path(a.thresholds).read_text())
 
 
 def prefixes(o: object):

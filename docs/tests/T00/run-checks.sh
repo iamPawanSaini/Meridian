@@ -2,7 +2,7 @@
 # Automated structural checks for T00 (TC-T00-01, 02, 03, 06, 07, 08).
 # Usage: docs/tests/T00/run-checks.sh   (exits non-zero if any check fails)
 set -uo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel)" || exit 2
 
 fail=0
 pass() { printf '  PASS  %s\n' "$1"; }
@@ -41,6 +41,7 @@ fields runbook.md     "When to use" "Prerequisites" "Steps" "Verification" "Roll
 
 echo "== TC-T00-03 progress board and traceability"
 expected="$(grep -oE '^## T[0-9]+a?:' docs/TASKS.md | tr -d '#: ' | sort)"
+# shellcheck disable=SC2034 # T04a: actual is read by the eval'd check string below
 actual="$(grep -oE '^\| T[0-9]+a? \|' docs/PROGRESS.md | tr -d '| ' | sort)"
 check "PROGRESS task IDs match TASKS.md ($(echo "$expected" | wc -l) tasks)" "[ \"\$expected\" = \"\$actual\" ]"
 check "PROGRESS includes T00 and T33" "grep -q '^| T00 |' docs/PROGRESS.md && grep -q '^| T33 |' docs/PROGRESS.md"

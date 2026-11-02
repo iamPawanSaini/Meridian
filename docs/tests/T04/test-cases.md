@@ -594,3 +594,4 @@ Automated cases: 01 to 25. Manual or owner-run: 26 to 32. Total 32.
 |---|---|---|
 | 2026-11-01 | Design committed (initial version). | None yet. Entries here are required for any later edit to `run-checks.sh` or the helpers. |
 | 2026-11-01 | Execution: no change to any script or helper since 418ad25. | `git log` shows one commit for each. |
+| 2026-11-02 | `run-checks.sh`, `check_defects.py`, `check_trace.py`, `selftest_trace.py`: Formatting, lint hygiene and typing only (DEF-004): ruff format and check, shellcheck and markdownlint made clean. No check was added, removed or loosened. | DEF-004. `zip(..., strict=True)` in `check_trace.py` (both sides have 7 items, guarded by the column-count test); the self-test miniature is built by string concatenation (same text). |
