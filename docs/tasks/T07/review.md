@@ -179,3 +179,109 @@ A re-review covers:
 The live part is then judged in `/test-task` against items L-1 to L-14.
 
 technical-architect, 2026-11-02.
+
+## Re-review 2026-11-02 (`55d7b62..2c02701`)
+
+Commits:
+
+- ea4107f: the build is confirmed on every run (including a re-run), and the host-key and auth
+  checks are hardened.
+- d965f95: runbook, `.env.example`, D8 and the new `docs/tasks/T07/terminus-4.3.3-facts.md`.
+- 2c02701: the usage comment is reworded so the token-echo check stays quiet. Comment only.
+
+Checks run (read-only, offline):
+
+- `python3 -m unittest scripts/tests/test_deploy_drupal.py`: 21 tests, OK. The 6 new tests
+  cover:
+  - a re-run with a failed, timed-out or missing build;
+  - the strict SSH command on `push` and `ls-remote`;
+  - an `ssh://` URL with no pinned key;
+  - an unexpected URL form;
+  - a run from a subdirectory;
+  - budget validation.
+- Tools: actionlint 1.7.12, shellcheck, hadolint 2.12.1 and `exceptions_report.py` all exit 0.
+- `docs/tests/T07/run-checks.sh` (static, run 20261102T175438Z): 16 PASS, 11 FAIL, 29 BLOCKED.
+  The failing cases are TC-T07-07, 09, 13, 14, 15, 16, 18, 19, 23, 24 and 27. The six new ones
+  (13 to 16, 18, 19) come from the tester's fake `terminus` and assertions that predate the fix,
+  not from the product (see "Suspected test defects, re-review" below).
+- New fact from the main session (2026-11-02): the owner's new PAT logs in with Terminus 4.3.3
+  in the web container. Read-only `site:info meridian-trade` shows the upstream
+  `drupal-composer-managed`, the framework "Drupal 8 or later" and dev connection mode git. No
+  push, wipe or backup has run. That partly settles L-1 (login works); the evidence redaction
+  part of L-1 is still for `/test-task`.
+
+| # | Was | Now | Evidence and notes |
+|---|---|---|---|
+| 1 | Major | **Closed in code.** Live proof owed (L-4, L-10) | `deploy-drupal.sh`, stage 6, now runs on every path. A re-run adds `--start=1`. Success requires the Terminus notice "completed successfully for commit". A non-zero exit (Failed or Aborted), "giving up" (timeout) and a missing success line (no matching workflow) each exit 1 before any drush command. `env:code-log` is checked on both paths. Facts b to d, read from the extracted 4.3.3 phar, explain why exit 0 alone is not enough and why the default `--start` (now minus 60 s) misses an older workflow. Fact g explains why `workflow:list` cannot be used (it has no commit field). The new unit test covers all three failure modes on the re-run: exit 1, no drush, no backup, no push, no curl, and no "deployed". The runbook (re-run step, emergency step 4, troubleshooting) and D8 steps 4 and 5 match. One residual risk, for L-4: on a first deploy, Terminus gives up after about 50 s if Pantheon has not yet registered the workflow. The script then exits 1 safely, and a re-run with `--start=1` recovers. Record whether this happens |
+| 2 | Minor | **Closed** | The script tests that stdout of `auth:whoami --field=email` holds an email. The `\|\| true` has a comment explaining it. Fact f records the 4.3.3 source and a container observation (logged out: exit 0, empty stdout). The fake now mimics that, and the test asserts exit 1, the message, and no `connection:info` |
+| 3 | Minor | **Closed** | `GlobalKnownHostsFile=/dev/null` is in `GIT_SSH_COMMAND` and in both runbook push commands. A unit test asserts the full strict command on `push` and `ls-remote` |
+| 4 | Minor | **Closed** | The script changes to `git -C "$SCRIPT_DIR" rev-parse --show-toplevel` after argument parsing, so `-h` still works anywhere. Tests run `--dry-run` from `apps/drupal/config` and a full deploy from `apps` |
+| 5 | Minor | **Closed** | `DEPLOY_REF` arrives through `env:`, and the step runs `--ref "$DEPLOY_REF"`. The static test now rejects any `${{` inside `run:` and asserts that `run:` blocks exist. actionlint passes |
+| 6 | Minor | **Closed** | The O-4 and emergency push commands carry the full pinned `GIT_SSH_COMMAND`. "Accept the key once" is gone, and "Host keys" says every push, including O-4, uses the pin. The tester checks that the multi-line emergency command (backslash continuations inside single quotes) pastes and runs as one command when it is first used. It is not run in T07 unless an emergency happens |
+| 7 | Minor | **Closed** | The bypass is limited to `/*` and `file://*`. Any other form exits 2 with "unexpected git_url form". Tests cover scp-style and https URLs, plus `ssh://` with a missing file or a comment-only file: exit 2 before `env:wake`, the backup, `ls-remote` or the push |
+| 8 | Minor | **Closed** | The budget is validated as whole seconds (exit 2, tested with `abc`, `-5` and `1.5`). The workflow passes `vars.DEPLOY_SMOKE_BUDGET` and `vars.DEPLOY_SMOKE_HEADER` (unset gives empty, so the defaults apply). `.env.example`, the runbook and the script header say how to set them for DDEV and CI. Choosing between a constant and variables after KD-12 stays as plan addendum item 5 |
+| 9 | Minor | **Closed** | The full exit-2 list is the same in the script header, `scripts/README.md` and the runbook |
+| 10 | Minor | **Closed** | `docs/tasks/T07/terminus-4.3.3-facts.md` records facts a to h with files, methods and the method used (phar extraction, no credentials). The register row points at it. Fact a confirms that the 4.3.3 `ssh_command` comes first, so SA-4 holds. Fact h (newest first) is still a live check (L-5) |
+| 11 | Minor | **Closed** | See findings 3 and 7. The fake `git` logs `GIT_SSH_COMMAND` for `push` and `ls-remote` |
+| 12 | Note | **Done** | The `.hadolint.yaml` comment now says "permanent ... (re-decide in T13)". The exceptions report exits 0 |
+| 13 | Minor | **Ticketed (T04a)**, unchanged | Still with the solution-architect for a D-4 addendum |
+
+No new findings in the fix commits. I checked:
+
+- The empty `wait_args` array is expanded safely under `set -u`.
+- The budget check runs before any network call.
+- `--start=1` is truthy for the PHP `if (!$startTime)` default (fact d).
+- No token, `set -x`, `--force` or broker reference was added to the script, workflow or
+  provider.
+
+### Suspected test defects, re-review (tester-owned; not edited here)
+
+The static run now also fails in the harness cases TC-T07-13 to 16, 18 and 19, in addition to
+the earlier list (TC-T07-07, 09, 23, 24 and 27). All of these are **check problems** caused by
+finding 1's required behaviour change, not product defects. The unit tests show the product
+behaves as the plan addendum (item 3) requires.
+
+| Case | Verdict | Reason and fix |
+|---|---|---|
+| TC-T07-13, 14, 16, 18, 19 (harness cases that need a successful deploy first) | Check problem | The harness fake `workflow:wait` (`docs/tests/T07/run-checks.sh`, around line 173) prints `workflow done`. The script now requires the 4.3.3 notice `Workflow <id> completed successfully for commit <sha>` (facts b and c), so every fixture deploy exits 1. The `--allow-unmerged` path, rewind, config-diff, token and `TERMINUS_SSH_COMMAND` checks then fail as a cascade (reproduced). Fix: make the fake print `Workflow w1 completed successfully for commit <sha>` on success. Add `FAKE_WAIT_TIMEOUT` ("Waited '900' seconds, giving up waiting", exit 0) and `FAKE_WAIT_NOTFOUND` (a "not found after 10 attempts" warning, exit 0), both expecting exit 1 with no drush. The fake `workflow:info:status` branch is now unused and can go |
+| TC-T07-15 and TC-T07-34 | Check problem (plan change) | They assert that the re-run makes **no** `workflow:wait`. Per the plan addendum item 3 and finding 1, the re-run must call `workflow:wait --commit=<sha> --start=1` and `env:code-log`, and still make no backup and no push. Add the negative re-run case (build failed, timed out or not found: exit 1, no drush, master unchanged). For TC-T07-34 (live), also assert that the output contains "completed successfully for commit" |
+| TC-T07-07 and the live `GIT_SSH_COMMAND` strings (around lines 816, 935, 937, 1092) | Check problem (minor) | They lack `-o GlobalKnownHostsFile=/dev/null`. The TH-6 wrong-key test should use the same command as the script, or a global known-hosts entry could make a wrong-key test pass. Fix: add the option and expect it in the static check |
+| TC-T07-09 | Check problem (extends the earlier row) | Besides 3.6.2 (now 4.3.3), expect `--ref "$DEPLOY_REF"` with `DEPLOY_REF: ${{ inputs.ref \|\| github.sha }}` in `env:`, and the optional `vars.DEPLOY_SMOKE_*` in `env:` |
+| (missing cases) | Test gap | Add static or harness cases for: the budget check (exit 2, no `terminus` call); a run from a subdirectory; an unexpected `git_url` form (exit 2); and `ssh://` with no key (exit 2 before `env:wake`). The developer's unit tests cover these, but no TC case is linked to them |
+
+The earlier rows (TC-T07-10, 23, 24 via TC-T04a-33, TC-T05-02, 21, 23, TC-T06-12, 19, the
+Terminus version case) are unchanged and still open with the tester.
+
+### Common criteria after the re-review
+
+| Criterion | Met? | Notes |
+|---|---|---|
+| C1 Plan before code | Yes | Unchanged |
+| C2 Review findings resolved | Yes | Findings 1 to 11 closed, 12 done, 13 ticketed to T04a |
+| C3 Criteria mapped to executed tests | Not yet | The live cases wait for O-3 and O-4. The harness needs the check fixes above first |
+| C4 CI green | Partly | Stand-ins pass (unit tests, actionlint, shellcheck, hadolint, exceptions report). The `run-checks.sh` failures are check problems. `ddev quality` exit 0 is owed in `/test-task` |
+| C5 Docs updated | Yes (offline part) | Runbook, D8, register, facts record, READMEs. Live results and `TRACEABILITY.md` come at close |
+| C6 No secrets | Yes (offline) | L-14 (gitleaks on the split history) is still live |
+| C7 Clean-checkout works | Not yet | TC-T07-55 runs in `/test-task` |
+
+### Approval (re-review)
+
+**Approved with conditions.** No Blocker or Major finding is open. The code may go to the
+live part (plan steps 8 to 10). The conditions:
+
+1. Before any real push, including O-4, the code server key is captured on two days and from a
+   second network and committed with its fingerprint comment (L-3). The script refuses to push
+   without it.
+2. The tester fixes the harness fakes and assertions above before `/test-task` counts
+   TC-T07-13 to 16, 18 and 19.
+3. In `/test-task`, L-4 and L-10 must show:
+   - "completed successfully for commit" on the first deploy and on the re-run;
+   - `env:code-log` newest first (L-5);
+   - the same split SHA across git versions (L-12).
+
+   If L-4 shows that the success notice text or the `--start` matching differs from facts b
+   to d, finding 1 reopens as Major.
+4. Finding 13 stays with the solution-architect (T04a). The CI run case needs the owner's
+   written acceptance (SA-7) at close.
+
+technical-architect, 2026-11-02.
