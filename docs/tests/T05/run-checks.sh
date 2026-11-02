@@ -419,7 +419,7 @@ env_unchanged() { local base; base=$(git merge-base HEAD main 2>/dev/null || tru
   local first; first=$(git log --reverse --format=%H --grep='^T05: ' -- apps/drupal .ddev | head -1 || true)
   [[ -n "$first" ]] || { echo "no T05 implementation commit yet"; return 1; }
   git diff --quiet "$first^" HEAD -- .env.example || { echo ".env.example changed since the first T05 commit"; git diff --stat "$first^" HEAD -- .env.example; return 1; }; }
-ckp ".env.example unchanged by T05 commits" env_unchanged
+cka ".env.example unchanged by T05 commits" env_unchanged
 ckp "no .env file tracked" bash -c "[[ -z \$(git ls-files | grep -E '(^|/)\.env\$' || true) ]]"
 ckp "no secret-shaped strings in T05 files" bash -c \
   "t05() { git ls-files -co --exclude-standard -- apps/drupal .ddev '$RB' '$QS' | grep -v composer.lock; }; f=\$(t05); [[ -n \"\$f\" ]] && ! echo \"\$f\" | xargs grep -IEn 'BEGIN [A-Z ]*PRIVATE KEY|sk-ant-[A-Za-z0-9]|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20}|xox[bp]-[0-9A-Za-z-]{10}' "
@@ -493,11 +493,11 @@ ckp "every e-mail address in T05 files is example.com/org/net (or github.com for
 ckp "drupal-install uses admin@example.com for site and account mail" allin "$DI" 'admin@example\.com'
 
 case_start TC-T05-23 "scope discipline: no extra services, no deploy config (non-goals)"
-ckp "no docker-compose or extra DDEV services added (T06)" bash -c "[[ -z \$(git ls-files .ddev | grep -E 'docker-compose\.[a-z_-]+\.yaml' || true) ]]"
+cka "no docker-compose or extra DDEV services added (T06)" bash -c "[[ -z \$(git ls-files .ddev | grep -E 'docker-compose\.[a-z_-]+\.yaml' || true) ]]"
 ckp "no providers/pantheon.yaml and no deploy-drupal workflow content (T07)" bash -c "[[ ! -e .ddev/providers/pantheon.yaml ]]"
 ckp "no ci.yml Drupal job added (T08)" bash -c "[[ ! -e .github/workflows/ci.yml ]] || ! grep -qi 'ddev' .github/workflows/ci.yml"
-ckp "no ddev engine/pg/next/e2e commands (T06)" bash -c "[[ -z \$(ls .ddev/commands/web .ddev/commands/host 2>/dev/null | grep -E '^(engine|pg|next|e2e)\$' || true) ]]"
-ckp "only the planned DDEV commands under .ddev/commands" bash -c \
+cka "no ddev engine/pg/next/e2e commands (T06)" bash -c "[[ -z \$(ls .ddev/commands/web .ddev/commands/host 2>/dev/null | grep -E '^(engine|pg|next|e2e)\$' || true) ]]"
+cka "only the planned DDEV commands under .ddev/commands" bash -c \
   "ls .ddev/commands/*/ | grep -vE '^(\.\.?|.*:|)\$' | grep -vE '^(drupal-install|quality|README\.txt|\.gitattributes|\.gitignore|README\.md)\$' | grep -q . && { echo 'unplanned command files:'; ls .ddev/commands/*/; exit 1; } || exit 0"
 
 case_start TC-T05-24 "pre-commit hooks over the T05 changes (C4)"
