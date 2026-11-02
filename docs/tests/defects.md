@@ -129,7 +129,7 @@ update `data-model.md` runs and design D2 accordingly.
 | ID | DEF-003 |
 | Severity | High (blocks every commit once hooks are installed) |
 | Found in | T05 build (main session), first real run of `scripts/bootstrap-dev.sh` hooks |
-| Status | Closed (retested 2026-11-01, T05 `/test-task`) |
+| Status | Retest passed |
 | Fix commit | `git log --grep DEF-003` (T05) |
 | Retest result | 2026-11-01 (tester, T05 `/test-task`, HEAD bfb5f7b): Pass. `scripts/bootstrap-dev.sh` passes its Python check and exits 0, installs both hooks, and `.tools/pre-commit run` builds every hook environment and runs all hooks (evidence `docs/tests/T05/evidence/DEF-003-retest.txt`, `TC-T05-24-full.txt`). Note: the script still warns that `PRE_COMMIT_SHA256` is not pinned |
 
@@ -161,7 +161,7 @@ fix: Python 3.11 or newer on the dev host, or a pre-commit installed with pip in
 | ID | DEF-004 |
 | Severity | Medium (blocks `ddev quality` exit 0 and TC-T05-21/24/34; does not block commits of other files) |
 | Found in | T05 build (main session), first full `.tools/pre-commit run --all-files` on 2026-11-01 |
-| Status | Open (owner to decide: fix under T04a or a follow-up task) |
+| Status | In progress |
 | Fix commit | |
 | Retest result | 2026-11-01 (tester, T05 `/test-task`): still reproduces, status stays Open. `TC-T05-24-full.txt` and `TC-T05-34-full.txt` show the same hook failures (ruff check, mypy, shellcheck, yamllint, markdownlint) on T00 to T04a files only. No T05 product file fails. Side effect: `pre-commit run --all-files`, and so `ddev quality`, rewrote 25 tracked T00 to T04a files (fixers); the main session must revert them |
 
