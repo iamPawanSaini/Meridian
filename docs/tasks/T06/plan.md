@@ -648,3 +648,28 @@ close until it has done all of these:
   runbook commands
 - [ ] `docs/tests/T05/run-checks.sh --regression` passes after the tester re-tag
 - [ ] `git status --porcelain` is empty after `ddev start`, `ddev restart` and a dump
+
+## Addendum 2026-11-02 (technical-architect, from the T06 review)
+
+Exit codes through `ddev`. DDEV v1.24.4 turns every non-zero exit of a host command into exit
+status 1. It also writes `Failed to run <cmd> ...; error=exit status N` to **stderr**. This
+amends KD-7 and KD-10:
+
+- Through `ddev <cmd>`: success is 0, and every failure is 1. The original status N shows only
+  in that stderr line. The stdout of the command is unchanged, so the last line of
+  `ddev meridian-status` stdout still names the bad services.
+- Run directly (`DDEV_SITENAME=meridian .ddev/commands/host/<cmd> ...`): the script's own codes
+  apply. Usage errors are 2, a failed restore check is 1, and the status of the container
+  command passes through.
+- Tests assert the script codes (2, N) by direct invocation. Through `ddev`, they assert exit 1
+  and the `exit status N` text on stderr. The "last line" checks read stdout only.
+- No acceptance criterion needs a specific code. AC3 needs the commands to exist and be
+  documented. AC5 needs the stopped service to be reported, which means a non-zero exit and an
+  `exited` line on stdout.
+- T13 and T27 must not depend on engine exit codes seen through `ddev engine`. CI and
+  `daily-run.yml` call the engine directly.
+
+Restore validation (review finding 1). `pg_restore --list` reads only the archive's table of
+contents. A dump streamed through a pipe has no data offsets, so a truncated data section
+passes `--list`. KD-8 step 1 now reads the whole archive (`pg_restore -f /dev/null`) before the
+drop.
