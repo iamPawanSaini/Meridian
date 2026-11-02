@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+## Description: Run a command in the meridian-engine (Python 3.12) container
+## Usage: engine <command> [args...]
+## Example: ddev engine python3 --version
+
+# T06 (AC3). Arguments are handed to the container unchanged ("$@"); no flag parsing by DDEV.
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: ddev engine <command> [args...]
+
+Runs <command> in the meridian-engine container, in /var/www/html/services/engine.
+Everything after "engine" is passed through unchanged, for example:
+  ddev engine python3 --version
+  ddev engine bash -c 'echo "$HOME"'
+A bare "ddev engine --help" prints this text. T13 adds the engine CLI.
+USAGE
+}
+
+if [[ $# -eq 0 ]]; then
+  usage >&2
+  exit 2
+fi
+if [[ "$1" == -h || "$1" == --help ]]; then
+  usage
+  exit 0
+fi
+
+# docker exec, not ddev exec: "ddev exec --raw" drops stdin, and without --raw it mangles the
+# arguments (T06 verified facts). -t only when both stdin and stdout are terminals.
+flags=(-i)
+if [[ -t 0 && -t 1 ]]; then
+  flags+=(-t)
+fi
+exec docker exec "${flags[@]}" -w /var/www/html/services/engine "ddev-${DDEV_SITENAME:-meridian}-meridian-engine" "$@"

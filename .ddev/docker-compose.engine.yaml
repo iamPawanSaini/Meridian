@@ -1,0 +1,47 @@
+# T06: meridian-engine, the Python 3.12 runtime for meridian_engine. It idles until a command
+# is run with `ddev engine ...`. T13 adds services/engine/Dockerfile and switches this service
+# from image: to build:. Drupal is reached over HTTPS by its public name through ddev-router;
+# the entrypoint adds the mkcert root to a CA bundle that Python uses.
+services:
+  meridian-engine:
+    container_name: ddev-${DDEV_SITENAME}-meridian-engine
+    image: python:3.12.16-slim-trixie@sha256:8523d6abeb48ceae0b7240d30c5808fc26cb79c1a635bacdf19cf3baecfbec07
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}
+    env_file:
+      - ${DDEV_APPROOT}/.env.example
+      - path: ${DDEV_APPROOT}/.env
+        required: false
+    environment:
+      HOME: /tmp
+      SSL_CERT_FILE: /tmp/meridian-ca-bundle.pem
+      REQUESTS_CA_BUNDLE: /tmp/meridian-ca-bundle.pem
+    user: ${DDEV_UID}:${DDEV_GID}
+    init: true
+    working_dir: /var/www/html/services/engine
+    entrypoint: ["/var/www/html/.ddev/meridian-engine/entrypoint.sh"]
+    command: ["sleep", "infinity"]
+    external_links:
+      - ddev-router:meridian.ddev.site
+    volumes:
+      - ${DDEV_APPROOT}:/var/www/html
+      - ddev-global-cache:/mnt/ddev-global-cache:ro
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - >-
+          import os, sys;
+          sys.exit(0 if os.access('/tmp/meridian-ca-bundle.pem', os.R_OK)
+          and os.path.isdir('/var/www/html/services/engine') else 1)
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  ddev-global-cache:
+    external: true
+    name: ddev-global-cache
