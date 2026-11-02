@@ -105,12 +105,12 @@ split of `main`. This is the only forced push outside an emergency.
    --field=git_url`), then push the split SHA over the old history:
 
    ```bash
-   ddev exec git push --force <git_url> <split_sha>:refs/heads/master
+   ddev exec 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/var/www/html/scripts/pantheon_known_hosts -o BatchMode=yes" git push --force <git_url> <split_sha>:refs/heads/master'
    ```
 
-   The host key of the code server must be in `scripts/pantheon_known_hosts` first (see "Host
-   keys"). Run the push with `GIT_SSH_COMMAND` as the script sets it, or accept the key once
-   after comparing the fingerprint with the file.
+   Before this push, the code server key must be captured, verified and committed in
+   `scripts/pantheon_known_hosts` (see "Host keys"). There is no "accept the key once" option:
+   with the key missing or wrong, the push fails closed.
 5. Wait for the build in the dashboard (or `terminus workflow:wait meridian-trade.dev
    --commit=<split_sha> --max=900`). Then follow "Reinstall Pantheon dev".
 
@@ -152,9 +152,16 @@ config/sync/system.site.yml>` and `config:import`. That fallback needs a review 
    not yet on `main`, T07 testing only: merge that branch with a merge commit or the next
    deploy of `main` is rejected), `-h`.
 4. The script prints one `stage N` line per step and ends with `deployed <split sha>`. A repeat
-   of the same commit skips the backup and the push and still runs the drush and smoke checks.
+   of the same commit skips the backup and the push, but it still confirms that the Pantheon
+   workflow (build) for that commit succeeded (`workflow:wait --commit=<sha> --start=1`, which
+   must report "completed successfully for commit") and checks `env:code-log`. If the build
+   failed, was aborted or cannot be found, the run exits 1 before any drush command. Then run the
+   other stages as before.
 
-Exit codes: 0 deployed and verified; 1 a step or check failed; 2 usage error or a ref guard.
+Exit codes: 0 deployed and verified; 1 a step or check failed (including a build that is not
+confirmed); 2 usage error or a guard (unknown argument, `PANTHEON_SITE` unset,
+`DEPLOY_SMOKE_BUDGET` not whole seconds, unknown ref, missing `origin/main`, ref not merged into
+`origin/main`, no code server key in `scripts/pantheon_known_hosts`, unexpected `git_url` form).
 Through `ddev`, any failure is shown as exit status 1.
 
 The workflow `deploy-drupal.yml` runs the same script on a push to `main` that touches
@@ -189,8 +196,12 @@ against that file. The **app server** (drush) is deliberately not pinned, becaus
 changes its key at container migrations; `terminus env:code-log` (HTTPS) and the HTTPS smoke
 check verify the result instead (`docs/tasks/T07/decision-host-keys.md`).
 
-The file holds no key yet. Fetch it once the PAT works (day 1), repeat on a second day and from a
-second network, and compare the SHA256 fingerprints:
+The file holds no key yet. Capture it once the PAT works (day 1), repeat on a second day and from
+a second network, compare the SHA256 fingerprints, and only then commit the key line (with the
+fingerprint in a comment) to `scripts/pantheon_known_hosts` through a reviewed change. Every push,
+including the first one (O-4) and the emergency push, then runs with the pinned
+`GIT_SSH_COMMAND` shown in the first-push step and in "Emergency force push". Capture the key
+with:
 
 ```bash
 ddev exec terminus connection:info meridian-trade.dev --fields=git_host,git_port
@@ -259,10 +270,18 @@ update.
 1. `terminus backup:create meridian-trade.dev --element=db --keep-for=30`.
 2. Get the split SHA of a commit **that is on `main`**: `ddev deploy-drupal --ref <commit>
    --dry-run`.
-3. `git push --force <git_url> <split_sha>:refs/heads/master` (from the web container).
-4. Run stages 7 to 9 by hand (`updatedb`, `config:import`, `cache:rebuild`, `config:status`,
-   smoke check), or rerun `ddev deploy-drupal --ref <commit>`: it sees master already at the
-   split and skips the push.
+3. From the web container, with the pinned host key (never a bare `git push`):
+
+   ```bash
+   ddev exec 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null \
+     -o UserKnownHostsFile=/var/www/html/scripts/pantheon_known_hosts -o BatchMode=yes" \
+     git push --force <git_url> <split_sha>:refs/heads/master'
+   ```
+
+4. Rerun `ddev deploy-drupal --ref <commit>`: it sees master already at the split, skips the
+   backup and the push, **waits for and confirms the build of that commit** (exit 1 if it
+   failed or cannot be found), then runs stages 7 to 9 (`updatedb`, `config:import`,
+   `cache:rebuild`, `config:status`, smoke check).
 5. Add a row to the event log below.
 
 Because the target is on `main`, the next normal deploy fast-forwards again.
@@ -288,7 +307,10 @@ warning page. Automated tools can send the header `Deterrence-Bypass`; its value
 Whether `curl` or API clients (JSON:API, OAuth, ingest) are intercepted is not yet measured
 (T07 result pending). The smoke check therefore requires HTTP 200 **and** the marker
 `user-login-form`, and `DEPLOY_SMOKE_HEADER="Deterrence-Bypass: <value>"` adds the header if the
-measurement shows it is needed. If API requests are intercepted, T10 and T21 must send the header.
+measurement shows it is needed. The web container does not read `.env`: locally run
+`ddev exec env DEPLOY_SMOKE_HEADER="Deterrence-Bypass: <value>" scripts/deploy-drupal.sh` (same
+for `DEPLOY_SMOKE_BUDGET`, whole seconds), and in CI set the repository variables of the same
+names (the workflow passes them). If API requests are intercepted, T10 and T21 must send the header.
 
 **Before the T31 window.** Ingest requests are not Git activity, so a Sandbox freeze can hit a
 long run. Confirm that the last Git activity on Pantheon is under 60 days old (
@@ -302,12 +324,13 @@ Also rotate any PAT that expires within the window plus 7 days.
 | `terminus auth:login` fails with `HTTP request POST .../machine-token has failed with error Undefined` | Old Terminus 3.x in the web container: `ddev exec terminus --version` must say 4.3.3; `ddev restart` rebuilds the image. If it still fails with 4.3.3, the PAT is expired or was stored wrongly: create a new one (see Rotation) |
 | `origin/main is missing; run git fetch origin first` | Run `git fetch origin` |
 | `ref is not merged into origin/main` (exit 2) | Merge the branch first. `--allow-unmerged` is for T07 testing only |
-| `pantheon_known_hosts holds no host key line` | Record the code server key (see "Host keys") |
+| `workflow:wait failed` / `build of <sha> not confirmed` (re-run or first run) | The Pantheon build of that commit failed, was aborted, or no workflow was found (Terminus gives up after about 50 s without one). Read the workflow log in the dashboard, fix the cause, push a new commit |
+| `pantheon_known_hosts holds no host key line` (exit 2) | Record the code server key (see "Host keys") |
 | `Host key verification failed` on push or ls-remote | The code server key differs from the file. Do not bypass: compare fingerprints from two networks and fix the file in a reviewed pull request |
 | Push rejected (non-fast-forward) | Pantheon master has a commit that is not in your split (a rewind, a dashboard update, an SFTP commit). See "Roll back code" and "Emergency force push" |
 | `database backup failed; nothing was pushed` | Fix the Pantheon error and rerun. The deploy never pushes without a backup |
 | `env:code-log newest commit ... expected ...` | The push did not arrive or another commit is newer. Check the dashboard Commits list |
-| `the workflow ... did not finish within 900 s` | `terminus workflow:wait` returns 0 on timeout; the script treats it as a failure. Look at the Pantheon workflow log, then rerun (the push is skipped) |
+| `the workflow ... did not finish within 900 s` | `terminus workflow:wait` returns 0 on timeout; the script treats it as a failure. Look at the Pantheon workflow log, then rerun: the push and backup are skipped, and the rerun checks the build of that commit again (it exits 1 if the build failed or is not found) |
 | Smoke check never shows `user-login-form` | The site is asleep or the Sandbox warning page is shown. Set `DEPLOY_SMOKE_HEADER`, or open the URL in a browser |
 | `530 Site Frozen` | Unfreeze from the workspace Sites tab |
 

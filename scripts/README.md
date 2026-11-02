@@ -65,7 +65,11 @@ each running lint, types, tests and the coverage gate.
 
 `scripts/deploy-drupal.sh [--ref REF] [--dry-run] [--allow-unmerged] [-h]`. Needs
 `PANTHEON_SITE`; uses `TERMINUS_MACHINE_TOKEN` if set. Exit 0 deployed and verified, 1 a step or
-check failed, 2 usage error or a ref guard. `--dry-run` splits and checks the tree and prints the
+check failed (including a build that is not confirmed), 2 usage error or a guard (unknown
+argument, `PANTHEON_SITE` unset, `DEPLOY_SMOKE_BUDGET` not whole seconds, unknown ref, missing
+`origin/main`, ref not merged into `origin/main`, no code server key in
+`scripts/pantheon_known_hosts`, unexpected `git_url` form).
+`--dry-run` splits and checks the tree and prints the
 split SHA with no network access. Tests: `scripts/tests/test_deploy_drupal.py` (fake `terminus`
 and `curl` on `PATH`, a local bare repository as Pantheon) and
 `docs/tests/T07/run-checks.sh`.

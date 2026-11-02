@@ -619,10 +619,14 @@ Monorepo per ADR-0004. Developers commit only to GitHub.
      the push. Load the Pantheon deploy key (`PANTHEON_DEPLOY_KEY`) into the SSH agent, then
      `git push <git_url> <split sha>:refs/heads/master`. This is a normal, non-force push, so
      a manual commit on Pantheon makes it fail loudly. If master is already at the split SHA,
-     the backup and the push are skipped.
+     the backup and the push are skipped, but step 5 still runs (a re-run must confirm the
+     build or exit 1).
   5. Wait for the Integrated Composer build (`terminus workflow:wait --commit=<sha>`; a failed
-     workflow exits non-zero, a timeout exits 0 with a "giving up" warning, so the script
-     checks for it), then `env:code-log` as above, then run `terminus remote:drush` for
+     workflow exits non-zero; a timeout or a missing workflow exits 0 with a warning, so the
+     script requires the line "completed successfully for commit"; on a re-run it adds
+     `--start=1` so the earlier workflow of that commit counts; see
+     `docs/tasks/T07/terminus-4.3.3-facts.md`), then `env:code-log` as above, then run
+     `terminus remote:drush` for
      `updatedb -y`, `config:import -y` and `cache:rebuild`.
   6. Check that `config:status` is clean, then the smoke check: HTTPS GET of `/user/login`
      with certificate verification, status 200 and the marker `user-login-form` in the body.
@@ -707,7 +711,7 @@ yet.
 | Pantheon edge body limit (8 MB needed) | D5, D8 | T07 (live run pending) |
 | Machine user on a Sandbox site; code server SSH host key | D7, D8 | T07 (owner steps O-3 and O-5 pending) |
 | Sandbox interstitial and API requests | D8 | T07 (live run pending) |
-| Terminus `ssh_command` placement, `workflow:wait` failure and timeout exit codes, `env:code-log` and `connection:info` commands (closed 2026-11-02: read in the Terminus 4.3.3 source and help; see `docs/tasks/T07/`) | D8 | T07 (closed) |
+| Terminus `ssh_command` placement, `workflow:wait` failure and timeout exit codes, `env:code-log` and `connection:info` commands (closed 2026-11-02: read in the Terminus 4.3.3 source and help; see `docs/tasks/T07/terminus-4.3.3-facts.md`) | D8 | T07 (closed) |
 | DDEV in-container resolution of `meridian.ddev.site` (resolved by T06, 2026-11-02) | D7 | T06 |
 | Alembic over a direct or pooled Neon connection | D2 | T28 |
 
