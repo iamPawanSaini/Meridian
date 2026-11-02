@@ -1,0 +1,84 @@
+# Deploy apps/drupal to Pantheon dev (T07, plan KD-8).
+# A thin wrapper: scripts/deploy-drupal.sh is the only implementation of the deploy steps, and
+# `ddev deploy-drupal` runs the same script on the owner's machine.
+#
+# The deploy job runs only when the repository variable PANTHEON_SITE is set. Until the owner
+# sets it (plan O-6, after a machine user exists), the skip job runs and the workflow is green.
+# Secrets (the machine user's PAT and RSA key) are read only through env:, never inline in run:.
+name: deploy-drupal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/drupal/**
+      - scripts/deploy-drupal.sh
+      - scripts/pantheon_known_hosts
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, branch or tag to deploy. It must be merged into main.
+        required: false
+        default: main
+
+concurrency:
+  group: deploy-drupal
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  skip:
+    if: ${{ vars.PANTHEON_SITE == '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Report that the deploy is not configured
+        run: |
+          echo "deploy-drupal: not configured (PANTHEON_SITE unset), skipped"
+
+  deploy:
+    if: ${{ vars.PANTHEON_SITE != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      # actions/checkout v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Pinned Terminus 4.x phar: version 4.3.3 (2026-08-20), source
+      # https://github.com/pantheon-systems/terminus/releases/tag/4.3.3, checked 2026-11-02.
+      # The same version is pinned for the DDEV web container in .ddev/web-build/Dockerfile.
+      - name: Install Terminus
+        env:
+          TERMINUS_VERSION: 4.3.3
+          TERMINUS_SHA256: e7ca9bcad3acbb1cfc0cec32550eeb2351e578dc6d5f79cd3a5303201893bade
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/terminus.phar" \
+            "https://github.com/pantheon-systems/terminus/releases/download/${TERMINUS_VERSION}/terminus.phar"
+          cd "$RUNNER_TEMP"
+          printf '%s  terminus.phar\n' "$TERMINUS_SHA256" >terminus.sha256
+          sha256sum --check --strict terminus.sha256
+          sudo install -m 0755 "$RUNNER_TEMP/terminus.phar" /usr/local/bin/terminus
+          terminus --version
+
+      # No third-party action and no key file on disk: the key goes from the secret to the agent
+      # through stdin.
+      - name: Load the deploy key into ssh-agent
+        env:
+          PANTHEON_DEPLOY_KEY: ${{ secrets.PANTHEON_DEPLOY_KEY }}
+        run: |
+          ssh-agent -a "$RUNNER_TEMP/ssh-agent.sock" >/dev/null
+          export SSH_AUTH_SOCK="$RUNNER_TEMP/ssh-agent.sock"
+          printf '%s\n' "$PANTHEON_DEPLOY_KEY" | ssh-add - >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >>"$GITHUB_ENV"
+
+      # The unmerged-ref override is never passed: an unmerged ref fails the ancestor guard.
+      - name: Deploy to Pantheon dev
+        env:
+          PANTHEON_SITE: ${{ vars.PANTHEON_SITE }}
+          TERMINUS_MACHINE_TOKEN: ${{ secrets.TERMINUS_MACHINE_TOKEN }}
+        run: scripts/deploy-drupal.sh --ref "${{ inputs.ref || github.sha }}"
