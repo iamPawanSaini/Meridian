@@ -1,0 +1,13 @@
+T07 static rc=0
+T07 regression rc=1
+T02 regression rc=0
+T03 regression rc=0
+T04 regression rc=0
+T04a regression rc=0
+T05 regression rc=0
+T06 regression rc=1
+pre-commit --all-files rc=0
+finished
+T07 regression (rerun) rc=0
+ddev quality rc=0
+finished2

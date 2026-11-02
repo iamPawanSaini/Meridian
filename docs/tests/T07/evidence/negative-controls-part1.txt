@@ -1,0 +1,16 @@
+# Negative controls for the T07 harness: the same run-checks.sh against deliberately broken copies of scripts/deploy-drupal.sh (T07_SKIP_NESTED=1, T07_SCRIPT=<mutant>).
+# The mutants live outside the repo. Each must make the named harness cases FAIL.
+
+## mutant1: stage 6 no longer requires 'completed successfully for commit' and ignores 'giving up'
+  FAIL     TC-T07-15
+  FAIL     TC-T07-18
+SUMMARY: mode=static run=20261102T185850Z cases: 28 PASS, 2 FAIL, 31 BLOCKED; checks executed: 139; SKIP (optional tools): 5; BLOCKED lines: 33
+
+## mutant2: an unexpected git_url form is accepted
+  FAIL     TC-T07-62
+SUMMARY: mode=static run=20261102T190306Z cases: 29 PASS, 1 FAIL, 31 BLOCKED; checks executed: 139; SKIP (optional tools): 5; BLOCKED lines: 33
+
+## mutant3: GlobalKnownHostsFile=/dev/null removed from GIT_SSH_COMMAND
+  FAIL     TC-T07-14
+SUMMARY: mode=static run=20261102T190728Z cases: 29 PASS, 1 FAIL, 31 BLOCKED; checks executed: 139; SKIP (optional tools): 5; BLOCKED lines: 33
+finished

@@ -1,0 +1,2 @@
+== TC-T07-32 AC4 live (phase 2): ddev deploy-drupal deploys the branch to Pantheon dev
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

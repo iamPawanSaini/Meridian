@@ -1,0 +1,2 @@
+== TC-T07-37 KD-5 live: config_sync_directory on Pantheon resolves to /code/config/sync
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

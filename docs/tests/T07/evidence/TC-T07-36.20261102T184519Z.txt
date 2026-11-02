@@ -1,0 +1,2 @@
+== TC-T07-36 AC5 live: config:status is clean on Pantheon dev and locally; site UUIDs agree
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

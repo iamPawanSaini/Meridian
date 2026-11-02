@@ -1,0 +1,5 @@
+== TC-T07-45 KD-12 live: edge body size 8 MB and 9 MB, post_max_size and upload_max_filesize
+        POST 8,388,608 bytes -> 302 ; POST 9,437,184 bytes -> 302 (2026-11-02); path /user/login, no data changes
+  PASS  8 MB body: the response is not 413 from the edge (design value met; got 302)
+        9 MB result recorded only (the limit may be higher or lower): 302
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

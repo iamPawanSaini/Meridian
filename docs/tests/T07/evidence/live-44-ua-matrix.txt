@@ -1,0 +1,25 @@
+# UTC 2026-11-02T18:05:42Z, this machine's network. Pantheon dev: Drupal not installed (302 to /core/install.php) - these measure the edge, not our code.
+## which user agents does the Cloudflare edge challenge? (GET /jsonapi, no Accept, no bypass)
+UA=curl/8.5.0 -> 302
+UA=node -> 302
+UA=undici -> 403
+UA=Go-http-client/2.0 -> 403
+UA=Wget/1.21 -> 302
+UA=Mozilla/5.0 (compatible; X) -> 403
+UA=python-httpx/0.27.0 -> 403
+UA=meridian-engine/0.1 -> 403
+UA=Python-urllib/3.12 -> 403
+UA=aiohttp/3.9 -> 403
+## empty User-Agent
+UA=(empty) -> 403
+## UA python-httpx with Authorization header and JSON accept (dummy value)
+403
+## POST (JSON, small), curl UA, with Accept: text/html vs none, with and without bypass
+POST /jsonapi accept=none hdr=none -> 302 | <title>Redirecting to /core/install.php
+POST /jsonapi accept=none hdr=bypass1 -> 302 | <title>Redirecting to /core/install.php
+POST /jsonapi accept=html hdr=none -> 302 | <title>Redirecting to /core/install.php
+POST /jsonapi accept=html hdr=bypass1 -> 302 | <title>Redirecting to /core/install.php
+## cookie form of the bypass (what the notice page sets)
+GET Accept text/html + Cookie Deterrence-Bypass=1 -> 302
+## HTTP method HEAD and OPTIONS (curl UA)
+HEAD Accept text/html -> 302

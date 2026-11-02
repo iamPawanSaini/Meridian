@@ -1,0 +1,6 @@
+# L-12: split SHA agreement across git versions (dry run, no network). UTC 2026-11-02T19:12:09Z
+host git: git version 2.34.1
+container git: git version 2.39.5
+ref: HEAD 3794178ee992e9e1decd085234fa9062d080ea99
+ref HEAD: host 2a60eba8574d39928deb7898cc6af185c13be904 | container 2a60eba8574d39928deb7898cc6af185c13be904 | equal: yes
+ref origin/main: host 308a49a3e6587db506c40aadf071aa73180b1ef1 | container 308a49a3e6587db506c40aadf071aa73180b1ef1 | equal: yes

@@ -1,0 +1,157 @@
+== TC-T07-30 AC1 live: the Sandbox site exists on the Composer-managed upstream
+  PASS  site:info succeeds for meridian-trade
+        {
+            "id": "904ad1a6-f47f-4807-af26-a9986348c59d",
+            "name": "meridian-trade",
+            "framework": "drupal8",
+            "upstream": "bde48795-b16d-443f-af01-8b1790caa1af: https://github.com/pantheon-upstreams/drupal-composer-managed.git",
+            "plan_name": "Sandbox"
+        }
+  PASS  framework is drupal-composer-managed (or the upstream label says Composer Managed); plan is sandbox
+  PASS  dev connection mode is git (SFTP mode is forbidden)
+== TC-T07-31 KD-1/R5 live discovery: dev branch name; backup:create exit code on failure with a real call
+  PASS  connection:info returns a ssh:// git URL on codeserver.dev.<uuid>.drush.in:2222
+  BLOCKED  awaiting L-3: scripts/pantheon_known_hosts holds no key yet. Part 1 ran the same ls-remote with a temporary pin of host-key copy 1 (evidence/live-31-discovery.txt)
+  FAIL  backup:create against a non-existent environment exits non-zero (record the exact exit code)
+        
+== TC-T07-32 AC4 live (phase 2): ddev deploy-drupal deploys the branch to Pantheon dev
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-33 AC4 live: independent verification of the deploy (code-log, ls-remote, smoke)
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-34 AC4 live: idempotent re-run takes no backup and pushes nothing
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-35 AC4 live negative: an older ancestor of origin/main is rejected by Pantheon, never forced
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-36 AC5 live: config:status is clean on Pantheon dev and locally; site UUIDs agree
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-37 KD-5 live: config_sync_directory on Pantheon resolves to /code/config/sync
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-38 KD-7 live: Integrated Composer build facts
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-39 KD-6 live (destructive): wipe and reinstall Pantheon dev from config/sync; admin password redacted
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-40 TH-6 live: SSH host key pinning blocks git push with a wrong key (negative) and accepts the real key (control)
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-41 KD-2 live: the committed code-server key matches ssh-keyscan today
+  BLOCKED  awaiting L-3: no key is committed yet. Copy 1 is in evidence/host-key-copy1.txt; copy 2 (next UTC day) and the second network are owner/tester steps in the report
+== TC-T07-42 AC3 live: ddev pull pantheon from a fresh shell pulls database and files (no manual terminus auth:login)
+  PASS  local snapshot taken first (runbook: ddev snapshot before a pull)
+  PASS  precondition: the Terminus session is logged out (4.3.3: whoami exits 0 with empty stdout), so the provider's auth_command is what authenticates
+        ddev auth ssh exit 1 (owner key already loaded; passphrase prompts need the owner)
+        2026-11-02 18:47:09 UTC[+0000] [notice] Logged in via machine token.
+        Obtaining databases...
+         0/2 [>---------------------------] Exporting database/files from "dev"2026-11-02 18:48:13 UTC[+0000] [notice] Created a backup of the dev environment.
+        Importing databases [/home/pawan/Meridian/.ddev/.downloads/db.sql.gz]
+        
+        [33mUser-managed /home/pawan/Meridian/.ddev/.gitignore will not be managed/overwritten by ddev[0m
+        Obtaining files...
+         0/2 [>---------------------------] Exporting database/files from "dev"2026-11-02 18:49:22 UTC[+0000] [notice] Created a backup of the dev environment.
+  PASS  ddev pull pantheon -y exits 0
+  BLOCKED  awaiting O-4 (part 2): UUID and config:status after the pull hold only once Pantheon dev is reinstalled from config/sync (KD-6); before that dev is a different (dashboard-installed) site
+  FAIL  files were pulled: sites/default/files exists locally and the pull log names files
+        
+        [31mFailed to execute command `test -d web/sites/default/files`: exit status 1[0m
+  BLOCKED  awaiting O-4 (part 2): the pulled database has users only after the reinstall
+        AC3 reading (SA-5/KD-11): ddev auth pantheon does not exist in DDEV v1.24.4; the report records this note
+== TC-T07-43 AC3 live: pull provider takes a fresh backup, never pushes, leaks nothing
+  PASS  pull log shows backup:create for db and for files before backup:get
+  PASS  pull log has no terminus push, env:wipe, backup:restore, or set -x trace (+ terminus lines)
+  PASS  pull log contains no token, key or password text
+  PASS  static provider check TC-T07-04 already proved there is no push command; ddev push help is informational (exit 0)
+== TC-T07-44 KD-12 live: Sandbox warning page and edge behaviour (GET, POST, /jsonapi, Accept, User-Agent, with and without Deterrence-Bypass)
+        Part 1 measurement (edge level; valid whatever Drupal is installed behind it). UTC 2026-11-02T18:49:39Z
+        GET /user/login default curl (Accept */*), no header -> 302 ; title: Redirecting to /core/install.php
+  PASS  default curl GET (no Accept: text/html) is not the Sandbox warning page
+        GET /user/login Accept: text/html, no header -> 200 ; title: Sandbox Environment Notice
+  PASS  GET with Accept: text/html and no header returns the Sandbox warning page (title 'Sandbox Environment Notice')
+        GET /user/login Accept: text/html + Deterrence-Bypass: 1 -> 302 ; title: Redirecting to /core/install.php
+  PASS  the header 'Deterrence-Bypass: 1' removes the warning page for an HTML GET
+        POST /user/login (Accept: text/html) header=none -> 302 text/html; charset=utf-8 ; title: Redirecting to /core/install.php
+  PASS  POST /user/login header=none is not the Sandbox warning page
+        POST /user/login (Accept: text/html) header=bypass -> 302 text/html; charset=utf-8 ; title: Redirecting to /core/install.php
+  PASS  POST /user/login header=bypass is not the Sandbox warning page
+        POST /jsonapi (Accept: text/html) header=none -> 302 text/html; charset=utf-8 ; title: Redirecting to /core/install.php
+  PASS  POST /jsonapi header=none is not the Sandbox warning page
+        POST /jsonapi (Accept: text/html) header=bypass -> 302 text/html; charset=utf-8 ; title: Redirecting to /core/install.php
+  PASS  POST /jsonapi header=bypass is not the Sandbox warning page
+        GET /jsonapi User-Agent='curl/8.5.0' header=none -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='curl/8.5.0' header=bypass -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='node' header=none -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='node' header=bypass -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='Wget/1.21' header=none -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='Wget/1.21' header=bypass -> 302 ; title: Redirecting to /core/install.php
+        GET /jsonapi User-Agent='undici' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='undici' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-httpx/0.27.0' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-httpx/0.27.0' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-requests/2.32.3' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-requests/2.32.3' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0' header=bypass -> 403 ; title: Just a moment...
+        RESULT recorded for T10 and T21: see the User-Agent lines above; a 403 with title 'Just a moment...' is a Cloudflare challenge that Deterrence-Bypass does not remove
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-45 KD-12 live: edge body size 8 MB and 9 MB, post_max_size and upload_max_filesize
+        POST 8,388,608 bytes -> 302 ; POST 9,437,184 bytes -> 302 (2026-11-02); path /user/login, no data changes
+  PASS  8 MB body: the response is not 413 from the edge (design value met; got 302)
+        9 MB result recorded only (the limit may be higher or lower): 302
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-46 KD-12 live: wake time and warm GET latency (p50, p95 over 20 requests)
+        env:wake exit 0 in 3.7 s (from asleep only if the env was idle > 1 h; record which)
+  PASS  env:wake exits 0 within the 120 s retry budget
+        status codes of the 20 warm GETs:      20 302 
+  PASS  20 warm GETs return no 4xx or 5xx (the status itself depends on what is installed: 302 before install, 200 after)
+        warm GET /user/login: p50=0.455017s p95=1.155035s (n=20, 2026-11-02)
+  PASS  p95 below the 59 s edge timeout (recorded value 1.155035s)
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-47 KD-12 live: the private files path is not served
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-48 TH-8 live (destructive): database-only restore changes the value back and leaves code untouched
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-49 O-4 result: Pantheon master descends only from a split of main (history replaced once)
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)
+== TC-T07-50 AC4 CI run: workflow_dispatch of deploy-drupal.yml on main deploys to Pantheon dev (SA-7)
+  BLOCKED  Blocked (accepted, owner-run after O-6): the owner accepts this deferral in writing at T07 close; an agent message is not acceptance. Procedure: after O-5 and O-6 (secrets TERMINUS_MACHINE_TOKEN and PANTHEON_DEPLOY_KEY, variable PANTHEON_SITE=meridian-trade) the owner runs 'Run workflow' on main (O-7) and sends the URL; expect job success, the last log line is the split SHA, env:code-log newest hash equals it, config:status clean, no token in the log. If deploys stay local-only the case becomes 'Not run: deploys are local-only by decision'. T28 cannot close until this is Pass (machine user branch).
+== TC-T07-51 Addendum: first push-triggered run of deploy-drupal.yml on main after the merge is 'skipped' (not a close condition)
+  BLOCKED  owner-run after merge: the first run on main must show the skip step 'deploy-drupal: not configured (PANTHEON_SITE unset), skipped' and a green job; record the run URL as an addendum
+== TC-T07-52 KD-2 owner-run: code server host key fingerprints equal on two days and from a second network
+  BLOCKED  owner-run: ssh-keyscan -p 2222 of the code server on day 1 (committed in scripts/pantheon_known_hosts comments), on day 2, and once from a second network (phone hotspot or GitHub runner); record the three SHA256 fingerprints and dates; any difference is raised at review (SA-4 decision 4)
+== TC-T07-53 O-5 owner-run: machine user result (SA-1 branch)
+  BLOCKED  owner-run: create the machine user and invite it (terminus site:team:add meridian-trade <bot email> [role]); record terminus site:team:list output and role, or the exact error, date and command (then deploys are local-only). The report states 'machine user', 'local-only' or 'owner credentials accepted (date)'. Also: owner reads the account and acceptable-use sections and records 'read, no conflict found' with the date
+== TC-T07-54 KD-7 owner-run: dashboard upstream-updates notice observed once after O-4
+  BLOCKED  owner-run: open the Pantheon dashboard for meridian-trade after O-4, record what the upstream-updates notice says (screenshot or note) and that ignoring it is harmless; do not click Apply Updates
+== TC-T07-56 AC2 owner-run: the PAT table in the runbook holds real creation and expiry dates and no value; the PAT works from the global DDEV config
+  BLOCKED  owner-run: after O-1, the owner states the creation date; the runbook table shows creation plus 90 days as the expiry; terminus auth:whoami succeeds in ddev exec; the owner confirms by message that no PAT value was pasted into chat or a file
+== TC-T07-57 C7 owner-run: docs/runbooks/deploy.md followed verbatim from a fresh clone (ddev deploy-drupal --dry-run, ddev pull pantheon)
+  BLOCKED  owner-run (or tester with the owner's credentials loaded): follow the runbook word for word on a fresh clone through the dry run and the pull; record each command, output and the total time. TC-T07-55 automates the credential-free half
+
+== Roll-up per case
+  PASS     TC-T07-30
+  FAIL     TC-T07-31
+  BLOCKED  TC-T07-32
+  BLOCKED  TC-T07-33
+  BLOCKED  TC-T07-34
+  BLOCKED  TC-T07-35
+  BLOCKED  TC-T07-36
+  BLOCKED  TC-T07-37
+  BLOCKED  TC-T07-38
+  BLOCKED  TC-T07-39
+  BLOCKED  TC-T07-40
+  BLOCKED  TC-T07-41
+  FAIL     TC-T07-42
+  PASS     TC-T07-43
+  BLOCKED  TC-T07-44
+  BLOCKED  TC-T07-45
+  BLOCKED  TC-T07-46
+  BLOCKED  TC-T07-47
+  BLOCKED  TC-T07-48
+  BLOCKED  TC-T07-49
+  BLOCKED  TC-T07-50
+  BLOCKED  TC-T07-51
+  BLOCKED  TC-T07-52
+  BLOCKED  TC-T07-53
+  BLOCKED  TC-T07-54
+  BLOCKED  TC-T07-56
+  BLOCKED  TC-T07-57
+
+SUMMARY: mode=liveonly run=20261102T184519Z cases: 2 PASS, 2 FAIL, 23 BLOCKED; checks executed: 24; SKIP (optional tools): 0; BLOCKED lines: 26
+RESULT: ONE OR MORE CHECKS FAILED

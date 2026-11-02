@@ -1,0 +1,14 @@
+/usr/local/bin/terminus
+Terminus 4.3.3
+login_exit=0
+{
+    "name": "meridian-trade",
+    "framework": "drupal8",
+    "upstream": "bde48795-b16d-443f-af01-8b1790caa1af: https://github.com/pantheon-upstreams/drupal-composer-managed.git",
+    "plan_name": "Sandbox",
+    "created": 1793550838
+}
+2026-11-02 18:03:14 UTC[+0000] [error]  The requested field, 'on_server_dev', is not defined. 
+
+[31mFailed to execute command `terminus env:info meridian-trade.dev --fields=id,connection_mode,php_version,on_server_dev 2>&1`: exit status 1[0m
+git

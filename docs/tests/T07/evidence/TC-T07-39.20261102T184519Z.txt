@@ -1,0 +1,2 @@
+== TC-T07-39 KD-6 live (destructive): wipe and reinstall Pantheon dev from config/sync; admin password redacted
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

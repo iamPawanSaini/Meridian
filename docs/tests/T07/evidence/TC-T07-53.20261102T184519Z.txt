@@ -1,0 +1,2 @@
+== TC-T07-53 O-5 owner-run: machine user result (SA-1 branch)
+  BLOCKED  owner-run: create the machine user and invite it (terminus site:team:add meridian-trade <bot email> [role]); record terminus site:team:list output and role, or the exact error, date and command (then deploys are local-only). The report states 'machine user', 'local-only' or 'owner credentials accepted (date)'. Also: owner reads the account and acceptable-use sections and records 'read, no conflict found' with the date
