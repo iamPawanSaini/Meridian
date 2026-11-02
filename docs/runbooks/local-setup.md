@@ -3,13 +3,14 @@
 | Field | Value |
 |---|---|
 | Owner | developer |
-| Last verified | 2026-11-01 by developer: the commands were run in the existing working tree only. A clean-clone run (AC6) is not done yet; the tester records it in `/test-task` |
+| Last verified | 2026-11-02 by developer: the T06 commands were run in the existing working tree only. A clean-clone run is not done yet; the tester records it in `/test-task` |
 | Applies to | Local DDEV |
 
 ## When to use
 
 You have a fresh clone of the Meridian repository and want the Drupal part of the local stack
-running, or you want to reset it. The engine, Postgres and Next.js services join in T06.
+running, or you want to reset it. Since T06 the stack has five containers: `web`, `db`,
+`meridian-postgres`, `meridian-engine` and `meridian-web`.
 
 ## Prerequisites
 
@@ -76,7 +77,9 @@ running, or you want to reset it. The engine, Postgres and Next.js services join
    ```
 
    Expected: `Successfully started meridian` and `https://meridian.ddev.site`. `git status`
-   shows a clean tree.
+   shows a clean tree. `ddev start` waits for the health checks of the three extra services.
+   No `.env` is needed: the services read `.env.example`, then `.env` if it exists. Port 3001
+   must be free on the host (`ss -ltn | grep 3001`; if not, `ddev poweroff`).
 
 4. Install Drupal from the committed config.
 
@@ -95,7 +98,16 @@ running, or you want to reset it. The engine, Postgres and Next.js services join
 
    Expected: a `https://meridian.ddev.site/user/reset/...` link. Open it.
 
-6. Install the git hooks and dev tooling (needed for commits and for `ddev quality`).
+6. Check the five services.
+
+   ```bash
+   ddev meridian-status
+   ```
+
+   Expected: five lines, each `running healthy`, and `OK`. If a service is not, the last line
+   names it and the exit status is 1.
+
+7. Install the git hooks and dev tooling (needed for commits and for `ddev quality`).
 
    ```bash
    scripts/bootstrap-dev.sh
@@ -121,9 +133,38 @@ ddev quality
   `git status --porcelain` empty.
 - `ddev quality` exits 0 with `PASS component-drupal` and
   `SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist)`. The engine and web steps SKIP
-  until T13 and T21. `ddev quality` also runs pre-commit (step 6). Run it on a committed tree:
+  until T13 and T21. `ddev quality` also runs pre-commit (step 7). Run it on a committed tree:
   the pre-commit fixers rewrite files in place. Until DEF-004 is fixed, `ddev quality` exits 1 on
   the pre-commit step because of older files; the two Drupal step lines above are what T05 needs.
+
+## Engine, Postgres and web commands (T06)
+
+```bash
+ddev engine python3 --version        # run a command in meridian-engine
+ddev next node --version             # run a command in meridian-web
+ddev pg psql -c 'select 1'           # psql as meridian on database meridian
+ddev pg dump                         # writes db-dumps/meridian-postgres-<UTC>.dump
+ddev pg restore db-dumps/FILE.dump --yes
+ddev meridian-status
+```
+
+- `https://meridian.ddev.site:3001` serves a placeholder until T21 (the Next.js dashboard
+  arrives then). The text names T21.
+- `ddev pg restore` replaces the whole `meridian` database. It refuses without `--yes` and
+  checks the file is a `pg_dump` archive before touching the database.
+- **`ddev delete` removes the Postgres data** together with the Drupal database. Run
+  `ddev pg dump` first. Dumps are local developer data: they stay out of git (`db-dumps/` is
+  ignored) and out of chat and tickets.
+- Data survives `ddev restart`, `ddev stop` and `ddev poweroff`.
+- The three extra containers read the whole root `.env`, so every one of them sees every
+  variable in it. This is accepted for local DDEV only. Deployed environments use per-component
+  secret stores (D7).
+- The password in `MERIDIAN_POSTGRES_PASSWORD` is applied only when the volume is first
+  created. To change it later: `ddev pg psql -c "ALTER ROLE meridian PASSWORD 'new'"`, then
+  change both `MERIDIAN_POSTGRES_PASSWORD` and `MERIDIAN_DATABASE_URL` in `.env`.
+- `meridian-engine` and `meridian-web` reach Drupal at `https://meridian.ddev.site` through
+  `ddev-router` and trust the DDEV mkcert root. The root's folder also holds its key, so the
+  containers mount it read-only. Local development only.
 
 ## Reinstall
 
@@ -136,6 +177,8 @@ ddev quality
 - Reset the Drupal database only: `ddev drupal-install --force`.
 - Remove the project containers and database: `ddev delete -Oy meridian`, then repeat the steps.
 - Ports clash or the router is unhealthy: `ddev poweroff`, then `ddev start`.
+- Reset local Postgres only: `ddev pg dump` first if you want to keep it, then
+  `ddev stop && docker volume rm meridian-postgres-data && ddev start`.
 
 ## Escalation
 
@@ -143,4 +186,9 @@ ddev quality
   (ADR-0004, T07).
 - If `ddev start` fails in the composer hook, read the hook output, run `ddev composer install`
   and fix the cause (usually network). Do not bypass with `fail_on_hook_fail: false`.
+- HTTPS errors inside `meridian-engine` or `meridian-web` (certificate verify failed): run
+  `mkcert -install` on the host, then `ddev restart`. `meridian-engine` prints a warning on
+  start when the mkcert root is missing.
+- A service shows `exited` or `unhealthy` in `ddev meridian-status`: `ddev logs -s <service>`,
+  then `ddev start`.
 - Anything else: open an issue with the output of `ddev describe` and `ddev logs`.

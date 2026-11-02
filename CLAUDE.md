@@ -60,6 +60,9 @@ docs/               all project documentation (see below)
 | Start the local stack | `ddev start` (clone on the WSL2 Linux filesystem; see `docs/runbooks/local-setup.md`) |
 | Install Drupal from `config/sync` | `ddev drupal-install` (`--force` reinstalls and drops the local database) |
 | Admin login link | `ddev drush uli` |
+| Run in the engine or web container | `ddev engine <cmd>`, `ddev next <cmd>` (T06) |
+| Local Postgres | `ddev pg psql`, `ddev pg dump [FILE]`, `ddev pg restore FILE --yes` (T06) |
+| State and health of the five services | `ddev meridian-status` (T06) |
 | Full quality suite | `ddev quality` (runs in DDEV; `scripts/quality.sh` is the single implementation) |
 | Coding standards and review checklist | `docs/standards/CODING_STANDARDS.md`, `docs/standards/REVIEW_CHECKLIST.md` |
 

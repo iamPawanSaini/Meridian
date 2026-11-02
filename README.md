@@ -29,7 +29,9 @@ scripts/bootstrap-dev.sh       # installs pinned pre-commit into .tools/ and the
 
 The Drupal part of the local stack runs in DDEV (Docker and DDEV v1.24 or newer needed). Follow
 `docs/runbooks/local-setup.md`: `ddev start`, then `ddev drupal-install`, then `ddev drush uli`.
-The engine, Postgres and Next.js services join in T06.
+Since T06 `ddev start` also runs `meridian-postgres`, `meridian-engine` and `meridian-web`
+(check with `ddev meridian-status`). `https://meridian.ddev.site:3001` serves a placeholder until
+T21.
 
 ## Repository layout
 
