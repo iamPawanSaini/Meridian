@@ -150,8 +150,12 @@ ddev meridian-status
 
 - `https://meridian.ddev.site:3001` serves a placeholder until T21 (the Next.js dashboard
   arrives then). The text names T21.
-- `ddev pg restore` replaces the whole `meridian` database. It refuses without `--yes` and
-  checks the file is a `pg_dump` archive before touching the database.
+- `ddev pg restore` replaces the whole `meridian` database. It refuses without `--yes`. Before
+  the drop it reads the whole dump (`pg_restore -f /dev/null`), so a truncated or corrupt file
+  is refused and the database stays unchanged. If the restore itself fails after the drop, the
+  database may be empty or partial: restore again from a good dump.
+- `ddev pg dump FILE` and `ddev pg restore FILE`: FILE must be a file name (a directory is
+  refused). A relative FILE is resolved against the directory you ran `ddev` from.
 - **`ddev delete` removes the Postgres data** together with the Drupal database. Run
   `ddev pg dump` first. Dumps are local developer data: they stay out of git (`db-dumps/` is
   ignored) and out of chat and tickets.

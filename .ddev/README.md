@@ -69,7 +69,9 @@ Images are pinned by tag and digest (official Docker Hub images only). Each serv
 
 `ddev engine` and `ddev next` use `docker exec` (see the facts below). DDEV reports every failed
 host command as exit status 1, so the exit codes 2 (usage) and N (command status) are visible
-only when a script is run directly, for example `.ddev/commands/host/pg bogus`.
+only when a script is run directly, for example `.ddev/commands/host/pg bogus`. Through
+`ddev`, a failure is exit 1, and the original status N appears only in the stderr line
+`Failed to run ...; error=exit status N`.
 
 ## Verified facts (T06)
 
@@ -91,7 +93,8 @@ on WSL2. Sources are the commands run, recorded in `docs/tests/T06/` evidence.
 | `ddev exec` without `--raw` | Mangles quoted arguments | probe |
 | `docker exec -i -w` | Keeps arguments, stdin and cwd; used by `ddev engine` and `ddev next` | probe |
 | No `## Flags` line passes `--version`, `--help`, `-h` to a host command unparsed | Yes | probe host command |
-| Exit codes of host commands | DDEV v1.24.4 maps every non-zero exit to 1 and prints `Failed to run ...` as the last line | probe host command, `ddev exec` |
+| Exit codes of host commands | DDEV v1.24.4 maps every non-zero exit to 1 and writes `Failed to run ...; error=exit status N` to stderr; stdout is unchanged, so the last line of stdout is still the script's own | probe host command, `ddev exec` |
 | `ddev start` waits for custom health checks | Yes: "Waiting 120s for additional project containers [...] to become ready" | `ddev restart` output |
 | `ddev delete` removes the labelled volume | Yes: `<site>-postgres-data` is gone after `ddev delete -Oy` (throwaway project `t06probe`) | `docker volume ls` before and after |
+| Mount only the `mkcert` folder (compose `volume.subpath`) to hide the CA key | `subpath: mkcert` works with Compose 2.34 and Docker 28, but `rootCA-key.pem` sits in the same folder as `rootCA.pem`, so the key stays visible. A volume cannot select one file. Kept the read-only mount of the whole volume | tried and reverted, 2026-11-02 |
 | Containers resolve `meridian.ddev.site` to `ddev-router` with `external_links`; mkcert root trusted | Yes for Python (`SSL_CERT_FILE` bundle) and Node (`NODE_EXTRA_CA_CERTS`); without the variables verification fails | `ddev engine`, `ddev next` |
