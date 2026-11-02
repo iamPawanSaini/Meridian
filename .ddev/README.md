@@ -76,7 +76,9 @@ only when a script is run directly, for example `.ddev/commands/host/pg bogus`. 
 ## Verified facts (T06)
 
 Checked by the developer on 2026-11-02 with DDEV v1.24.4, Docker 28.1.1, docker-compose v2.34.0
-on WSL2. Sources are the commands run, recorded in `docs/tests/T06/` evidence.
+on WSL2. Sources are the commands run. The tester's evidence for the network and TLS facts is
+in `docs/tests/T06/evidence/`: TC-T06-23, TC-T06-24 and TC-T06-40 (run 20261102T064955Z), all
+Pass; the full list is in `docs/tests/T06/test-report.md`.
 
 | Fact | Result | Source |
 |---|---|---|

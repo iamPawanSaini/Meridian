@@ -575,7 +575,8 @@ Rotation (RK-07, T29 runbook): each secret has one owner store per environment, 
 in one place. OAuth client secrets are rotated in Drupal and then in GitHub Secrets or Vercel
 env. `MERIDIAN_REVALIDATE_SECRET` is changed in both GitHub Secrets and Vercel env together.
 DDEV containers resolve `meridian.ddev.site` internally (verified in T06, 2026-11-02, evidence
-in `docs/tests/T06/`): `meridian-engine` and `meridian-web` resolve it to `ddev-router` through
+in `docs/tests/T06/evidence/`: TC-T06-23, TC-T06-24 and TC-T06-40 (run 20261102T064955Z), all
+Pass): `meridian-engine` and `meridian-web` resolve it to `ddev-router` through
 `external_links` and trust the mkcert root (`SSL_CERT_FILE` bundle for Python,
 `NODE_EXTRA_CA_CERTS` for Node). The two Drupal base URL variables keep
 `https://meridian.ddev.site` inside the containers; `http://web` is not used.

@@ -159,6 +159,13 @@ Each has a row in the Change log of `docs/tests/T06/test-cases.md` (and in
 
 ## Sign-off
 
+**Signed off at close, 2026-11-02, with owner-accepted deferrals.** The owner accepted in writing
+in the session: "I accept AC6b deferred to T21" (TC-T06-42, re-run owed by T21) and "I accept
+TC-T06-48 and TC-T06-49 as owner-run, deferred". No case is Fail. Recorded by the main session at
+`/close-task`.
+
+Tester's sign-off text at execution (kept unchanged):
+
 Not signed off. 51 of 54 cases Pass, none Fail, and 3 are Blocked (TC-T06-42 until the owner accepts
 the AC6b deferral in writing and T21 re-runs it;
 TC-T06-48 and 49 are owner-run). By the rule that a report is not signed off while a case is
