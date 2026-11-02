@@ -1,0 +1,6 @@
+== TC-T05-21 T04a regression suite still green (C4)
+  FAIL  T04a run-checks.sh --regression exits 0 (no invariant regression)
+          FAIL  markdownlint 'ignores': only TASKS.md and evidence, each with a ticket
+          FAIL  T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)
+          FAIL  T03 run-checks.sh: exit 0, same PASS count as at close
+  PASS  T03 and T04 regression sets exit 0

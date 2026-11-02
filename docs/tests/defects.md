@@ -161,9 +161,10 @@ fix: Python 3.11 or newer on the dev host, or a pre-commit installed with pip in
 | ID | DEF-004 |
 | Severity | Medium (blocks `ddev quality` exit 0 and TC-T05-21/24/34; does not block commits of other files) |
 | Found in | T05 build (main session), first full `.tools/pre-commit run --all-files` on 2026-11-01 |
-| Status | In progress |
-| Fix commit | |
-| Retest result | 2026-11-01 (tester, T05 `/test-task`): still reproduces, status stays Open. `TC-T05-24-full.txt` and `TC-T05-34-full.txt` show the same hook failures (ruff check, mypy, shellcheck, yamllint, markdownlint) on T00 to T04a files only. No T05 product file fails. Side effect: `pre-commit run --all-files`, and so `ddev quality`, rewrote 25 tracked T00 to T04a files (fixers); the main session must revert them |
+| Status | Retest passed |
+| Fix commit | `623ffdd..c614327` (DEF-004; `git log --grep DEF-004`: e6b3158 plan, 623ffdd path guard, 35517dc scripts, OpenAPI and docs, a89e6e2 test scripts and test docs; c614327 added a fixture exclude). Uncommitted at the second retest: `.markdownlint-cli2.yaml` (fixture exclude removed) and `docs/tests/T03/fixtures/partial-data-model.md` (markdown formatting only), recorded in the T03 Change log |
+| State history | Open, In progress (c614327), Fixed (review-def004, Approved with conditions), Reopened (tester retest 2026-11-02), Fixed (fixture exclude removed, fixture reformatted), Retest passed (tester, 2026-11-02, second retest) |
+| Retest result | Second retest 2026-11-02 (tester, tree with the fixture exclude removed and the fixture reformatted): Retest passed. `.tools/pre-commit run --all-files` exit 0 and the tree unchanged afterwards; T04a `--regression` TC-T04a-28 now passes. TC-T05-24 and TC-T05-34 pass. TC-T05-21 still fails, but no longer from DEF-004: only the two count checks of TC-T04a-30 fail (T04 119 vs 118, T03 355 vs 354); the extra PASS is the "pre-commit run on T0x files passes" check, which was SKIP at close and now runs. Logged as DEF-005. Evidence: `docs/tests/T05/evidence/retest-def004/`. First retest 2026-11-02 (HEAD c614327): Reopened, the defect as logged was fixed but one case still failed. Verified: `.tools/pre-commit run --all-files` exit 0, tracked tree unchanged; `ddev quality` exit 0 (PASS 6, FAIL 0, SKIP 3); TC-T05-24 and TC-T05-34 now Pass; TC-T04a-37 and TC-T04a-48 Pass. Still failing: TC-T05-21, through its T04a regression check TC-T04a-28, check "markdownlint 'ignores': only TASKS.md and evidence", because c614327 added `docs/tests/T03/fixtures/partial-data-model.md` to `.markdownlint-cli2.yaml` (ticketed, but the test and TC-T04a-28 allow only TASKS.md and evidence). Decision needed: either accept the exclusion and update the TC-T04a-28 expectation through the owner and architect, or remove it. The PASS-count differences in TC-T04a-30 (354 to 355, 118 to 119) are content added since close and are not counted as a failure. Evidence: `docs/tests/T05/evidence/DEF-004-retest-*.txt`, `docs/tests/T05/evidence/retest-def004/`. Earlier row (2026-11-01) (tester, T05 `/test-task`): still reproduces, status stays Open. `TC-T05-24-full.txt` and `TC-T05-34-full.txt` show the same hook failures (ruff check, mypy, shellcheck, yamllint, markdownlint) on T00 to T04a files only. No T05 product file fails. Side effect: `pre-commit run --all-files`, and so `ddev quality`, rewrote 25 tracked T00 to T04a files (fixers); the main session must revert them |
 
 **Steps to reproduce:** after DEF-003's workaround, run `.tools/pre-commit run --all-files` on
 `task/T05-ddev-drupal` (39e6f68). Full output: owner-side scratch file, summarised here.
@@ -187,7 +188,55 @@ T04a recorded this as owner-run (TC-36) because the hooks could not be installed
 
 The auto-fixes from this run were reverted; nothing outside T05 was changed.
 
+**Test-script shellcheck directives (review-def004 finding 1).** `scripts/exceptions_report.py`
+skips `docs/tests/T04a/run-checks.sh`, so its 5 directives are not in the report. All 10
+directives in the T00 to T04a test scripts (every one cites T04a):
+
+| File:line | Rule |
+|---|---|
+| `docs/tests/T00/run-checks.sh:44` | SC2034 |
+| `docs/tests/T02/run-checks.sh:8` | SC2329 |
+| `docs/tests/T03/run-checks.sh:8` | SC2329 |
+| `docs/tests/T04/run-checks.sh:25` | SC2329 |
+| `docs/tests/T04/run-checks.sh:66` | SC2016 |
+| `docs/tests/T04a/run-checks.sh:34` | SC2329 |
+| `docs/tests/T04a/run-checks.sh:68` | SC2016 |
+| `docs/tests/T04a/run-checks.sh:359` | SC2016 |
+| `docs/tests/T04a/run-checks.sh:602` | SC2016 |
+| `docs/tests/T04a/run-checks.sh:655` | SC2016 |
+
+(`docs/tests/T05/run-checks.sh:27` also has one, SC2329,SC2015,SC2016,SC2034, citing T05; it is not
+in the review's count of 10. Lines 415 and 446 of the T04a script are test strings, not directives.)
+
 **Suggested fix:** under T04a (it owns the baseline), exclude `docs/tests/*/evidence/` from the
 fixer hooks; decide per path whether tester scripts follow the same ruff profile or a relaxed one
 (recorded exception with a ticket); fix the rest. `.claude/hooks/*` is protected from subagents,
 so the main session applies those changes.
+
+### DEF-005: TC-T04a-30 compares PASS counts with the T03 and T04 close evidence
+
+| Field | Value |
+|---|---|
+| ID | DEF-005 |
+| Severity | Low (test-design defect; made TC-T05-21 and TC-T04a-30 print FAIL) |
+| Found in | DEF-004 retest, TC-T05-21, TC-T04a-30 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T04a/run-checks.sh` (TC-T04a-30 rule 1) and the T04a Change log row. Ruling by the main session: a regression check fails on any FAIL line, a non-zero exit or a PASS count below the count at close; SKIP turning into PASS is not a regression |
+| State history | Open (tester, 2026-11-02), Fixed (main session ruling and tester script change, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: T04a `--regression` exit 0, no FAIL (`retest-def004/T04a-regression-4.txt`). TC-T04a-30 prints both numbers and passes with PASS now 119 and 355 against 118 and 354 at close. Four negative controls pass: equal and higher accepted, a PASS drop rejected, a FAIL line or non-zero exit rejected. TC-T05-21 passes (`retest-def004/static-run-4.txt`) |
+
+**Steps to reproduce**
+
+1. `docs/tests/T04a/run-checks.sh --regression`
+2. See the two FAIL lines under TC-T04a-30: "T04 --regression: PASS now 119, at close 118, exit 0" and
+   "T03 : PASS now 355, at close 354, exit 0".
+
+**Expected:** a regression check fails when a check regresses.
+
+**Actual:** both runs exit 0 with no FAIL line. They differ by one PASS each because the check
+"pre-commit run on T03/T04 files passes" was SKIP when the stored close evidence was captured (hooks
+unavailable) and now passes. The fixed counts in `docs/tests/T04a/run-checks.sh` make an
+improvement look like a regression. The DEF-004 review says TC-T04a-30 rule 1 should be judged
+against the scripts as of 990e95c, not the counts. Needs a decision by the technical-architect and
+owner on how the rule is expressed (for example, no FAIL and exit 0, or refreshed close evidence).
+I have not changed the expected result.

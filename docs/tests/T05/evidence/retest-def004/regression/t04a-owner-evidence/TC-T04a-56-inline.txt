@@ -1,0 +1,58 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml..........................................................................Passed
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck......................................................(no files to check)Skipped
+yamllint............................................................................Failed
+- hook id: yamllint
+- exit code: 1
+
+docs/zz_inline.yaml
+  2:81      warning  too few spaces before comment: expected 2  (comments)
+  2:41      error    line too long (129 > 40 characters)  (line-length)
+
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Failed
+- hook id: meridian-exceptions
+- exit code: 1
+
+docs/zz_inline.yaml:2: yamllint: inline yamllint disables are not allowed (use ignore: in .yamllint.yaml)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+@phpstan-ignore: 1
+@ts-expect-error: 1
+config exclude: 8
+eslint-disable: 1
+hadolint: 1
+noqa: 1
+phpcs:ignore: 1
+pragma: no cover: 1
+shellcheck: 7
+type: ignore: 1
+yamllint: 1
+total: 24
+
+ticket T04a: 8
+ticket T05: 5
+ticket T06: 1
+ticket T09: 2
+ticket T13: 2
+ticket T20: 1
+ticket T21: 1
+ticket T29: 1
+ticket T32: 2
+1 suppression(s) without a valid ticket
+
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

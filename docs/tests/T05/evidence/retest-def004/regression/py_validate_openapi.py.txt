@@ -1,0 +1,51 @@
+  PASS  file exists and is non-empty
+  PASS  YAML parses to a mapping
+  PASS  openapi version is 3.1.x
+  PASS  info.title present
+  PASS  info.version present
+  PASS  paths present and non-empty
+  PASS  components present
+  PASS  document uses at least one $ref (components reused)
+  PASS  all $ref are internal (no external files or URLs)
+  PASS  every internal $ref resolves
+  PASS  at least 2 operations (ingest + watchlist read)
+  PASS  every operation has operationId
+  PASS  operationIds are unique
+  PASS  every operation has non-empty responses
+  PASS  every operation has security (own or global, non-empty)
+  PASS  every operation has tags
+  PASS  securitySchemes declared
+  PASS  an oauth2 clientCredentials scheme is declared
+  PASS  clientCredentials flow has tokenUrl
+  PASS  every security requirement names a declared scheme
+  PASS  every scope used in security is declared in securitySchemes
+  PASS  at least one scope is actually used
+  PASS  scope names follow meridian_* convention
+  PASS  scope meridian_ingest declared
+  PASS  scope meridian_watchlist_read declared
+  PASS  exactly one POST .../ingest operation exists
+  PASS  ingest path is /api/meridian/v1/ingest
+  PASS  ingest has a 2xx response
+  PASS  ingest documents 401
+  PASS  ingest documents 403
+  PASS  ingest documents 413
+  PASS  ingest documents 422
+  PASS  ingest documents 429
+  PASS  ingest requires scope meridian_ingest
+  PASS  ingest has a required JSON requestBody
+  PASS  ingest requestBody carries an example or examples
+  PASS  request batch array declares maxItems
+  PASS  request batch maxItems >= 500 (NFR-04 / T10)
+  PASS  request batch array declares minItems >= 1
+  PASS  typed items use a discriminator
+  PASS  2xx response schema has a per-item result list (array property)
+  PASS  413 description mentions body size limit
+  PASS  an error schema exists that carries field paths
+  PASS  exactly one GET .../watchlist_item operation exists
+  PASS  watchlist path is /jsonapi/node/watchlist_item
+  PASS  watchlist requires scope meridian_watchlist_read
+  PASS  watchlist documents a 2xx, 401 and 403
+  PASS  request examples include their schema's required top-level properties
+
+RESULT: PASS (0 failed checks)
+exit 0

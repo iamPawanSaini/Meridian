@@ -1,0 +1,5 @@
+== TC-T05-34 live: ddev quality exits 0; component-drupal PASS, tests SKIP (C4, TC-T04a-48)
+  PASS  ddev quality exit 0
+  PASS  PASS line for component-drupal
+  PASS  visible SKIP for component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  PASS  no FAIL line anywhere

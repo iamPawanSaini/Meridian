@@ -37,10 +37,10 @@ Run order: static mode, live-only mode in the working tree, then the clean clone
 | TC-T05-18 | C4 (shell) | Pass | `evidence/TC-T05-18.txt` |
 | TC-T05-19 | C4 (KD-6), scope | Pass | `evidence/TC-T05-19.txt` |
 | TC-T05-20 | C4 (KD-7) | Pass | `evidence/TC-T05-20.txt` |
-| TC-T05-21 | C4 | Fail (DEF-004) | `evidence/TC-T05-21.txt` |
+| TC-T05-21 | C4 | Pass (retest 2026-11-02; was Fail) | `evidence/TC-T05-21.txt`; retest `evidence/retest-def004/static-run-4.txt` |
 | TC-T05-22 | C6 (KD-5) | Pass | `evidence/TC-T05-22.txt` |
 | TC-T05-23 | Plan non-goals | Pass | `evidence/TC-T05-23.txt` |
-| TC-T05-24 | C4, C6 | Fail (DEF-004) | `evidence/TC-T05-24.txt`, `evidence/TC-T05-24-full.txt` |
+| TC-T05-24 | C4, C6 | Pass (retest 2026-11-02; was Fail) | `evidence/TC-T05-24.txt`, `evidence/TC-T05-24-full.txt`; retest `evidence/retest-def004/TC-T05-24.txt` |
 | TC-T05-25 | AC3 | Pass | `evidence/TC-T05-25.txt` |
 | TC-T05-26 | AC1 | Pass | `evidence/TC-T05-26.txt` |
 | TC-T05-27 | AC5 | Pass | `evidence/TC-T05-27.txt` |
@@ -50,7 +50,7 @@ Run order: static mode, live-only mode in the working tree, then the clean clone
 | TC-T05-31 | AC2 | Pass | `evidence/TC-T05-31.txt` |
 | TC-T05-32 | AC4 | Pass | `evidence/TC-T05-32.txt` |
 | TC-T05-33 | KD-7 invariant, C7 | Pass (clean clone) | `evidence/clone-live/TC-T05-33.txt` |
-| TC-T05-34 | C4 | Fail (DEF-004) | `evidence/TC-T05-34.txt`, `evidence/TC-T05-34-full.txt` |
+| TC-T05-34 | C4 | Pass (retest 2026-11-02; was Fail) | `evidence/TC-T05-34.txt`, `evidence/TC-T05-34-full.txt`; retest `evidence/retest-def004/TC-T05-34.txt` |
 | TC-T05-35 | C4, negative | Pass (clean clone) | `evidence/clone-live/TC-T05-35.txt` |
 | TC-T05-36 | Plan DoD (security) | Pass | `evidence/TC-T05-36.txt` |
 | TC-T05-37 | AC1, C7 | Pass | `evidence/TC-T05-37.txt` |
@@ -58,7 +58,9 @@ Run order: static mode, live-only mode in the working tree, then the clean clone
 | TC-T05-39 | AC6, C7 | Blocked (owner-run) | `evidence/TC-T05-39.txt` |
 | TC-T05-40 | AC6 (HTTPS on WSL2) | Blocked (owner-run) | `evidence/TC-T05-40.txt` |
 
-Totals: 35 pass, 3 fail, 2 blocked, 0 not run (40 cases).
+Totals at first run (2026-11-01): 35 pass, 3 fail, 2 blocked, 0 not run (40 cases).
+Totals after the DEF-004 and DEF-005 retests (2026-11-02, see "DEF-004 retest"): 38 pass, 0 fail,
+2 blocked (TC-T05-39, 40), 0 not run.
 
 Evidence for TC-T05-25 to 36 comes from the working-tree live run (`evidence/worktree-live/`,
 copied to `evidence/TC-T05-nn.txt`). The same set ran again inside the clean clone
@@ -154,16 +156,70 @@ scoped check `git status --porcelain -- apps/drupal .ddev docs/runbooks` was emp
 - DEF-003: Pass. `scripts/bootstrap-dev.sh` passes its Python check, exits 0 and installs the
   hooks. The hook environments build and all hooks run (`evidence/DEF-003-retest.txt`). The
   defect row is updated to Closed.
-- DEF-004: still Open; the retest row records the reproduction.
+- DEF-004: first retest (2026-11-01) still reproduced. Second retest (2026-11-02): see below.
 - Review findings 8 and 9 (check defects): TC-T05-07 and TC-T05-10 are fixed and now Pass.
+
+## DEF-004 retest (2026-11-02)
+
+Commit `c614327` on `task/T04a-def004-baseline`, same environment. Original Fail evidence is
+unchanged; retest evidence is in `evidence/DEF-004-retest-*.txt` and `evidence/retest-def004/`.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `.tools/pre-commit run --all-files` | exit 0, all hooks Passed (Hadolint skipped: no files); no tracked file changed (only the new evidence files are untracked) | `DEF-004-retest-precommit.txt`, `DEF-004-retest-status.txt` |
+| `ddev quality` | exit 0; PASS pre-commit, branch-name, commit-range, exceptions, assets, component-drupal; SKIP component-engine, component-drupal-tests, component-web; PASS 6 FAIL 0 SKIP 3 | `DEF-004-retest-quality.txt` |
+| TC-T05-24 | Pass (was Fail) | `retest-def004/TC-T05-24.txt`, `static-run.txt` |
+| TC-T05-34 | Pass (was Fail) | `retest-def004/TC-T05-34.txt`, `live-run.txt`, `live-run2.txt` |
+| TC-T05-21 | Fail | `retest-def004/TC-T05-21.txt`, `T04a-regression.txt` |
+
+TC-T05-21 failure at the first retest: the T04a regression check
+"markdownlint 'ignores': only TASKS.md and evidence,
+each with a ticket" (TC-T04a-28) fails on `docs/tests/T03/fixtures/partial-data-model.md`, added
+to `.markdownlint-cli2.yaml` by `c614327` with a T04a/DEF-004 ticket. The same run shows TC-T04a-30
+counting PASS 119 (T04) and 355 (T03) against 118 and 354 at close; per the DEF-004 review these are
+content added since close, so I do not count them as a failure, but the check still compares against
+fixed numbers and prints FAIL. Whether the exclusion is accepted is a decision for the owner and
+architect; I did not change any expected result.
+
+Notes on the live reruns. TC-T05-28 failed once in `live-run.txt` (drush status output not parsed,
+"None None") and passed in `live-run2.txt` and by hand (`ddev drush status`: bootstrap Successful,
+database Connected); recorded as a transient. TC-T05-33 and 35 fail in the working tree only because
+the rerun itself runs on a tree with modified and untracked files (evidence files and other edits);
+their Pass status rests on the clean-clone evidence in `evidence/clone-live/` and I did not rerun the
+clean clone. The rerun overwrote the original `evidence/TC-T05-nn.txt` files; I restored them byte
+for byte from a copy, and the new copies are in `evidence/retest-def004/`.
+
+Regression after the fix (`evidence/retest-def004/regression/`): guard tests 30 OK; `scripts/tests`
+65 OK; T00, T03 and T04 pass; T02 exits 1 on the existing `.env.example` base-branch check (the same
+as before the fix); T04a --regression and T05 --regression fail only on the TC-T04a-28 check above;
+the eight Python checks are unchanged.
+
+Second retest (2026-11-02, after the main session removed the fixture exclude from
+`.markdownlint-cli2.yaml` and I reformatted `docs/tests/T03/fixtures/partial-data-model.md`, formatting
+only, T03 Change log row added; nothing committed): `.tools/pre-commit run --all-files` exit 0 and
+the tree unchanged afterwards (`retest-def004/precommit-after-fixture.txt`); T04a `--regression`
+now passes TC-T04a-28 (`retest-def004/T04a-regression-2.txt`; final T05 static run
+`retest-def004/static-run-3.txt`). Only the two TC-T04a-30 count checks
+still print FAIL (T04 119 vs 118, T03 355 vs 354, both exit 0, no FAIL line inside). The extra PASS
+is the "pre-commit run on T0x files passes" check, SKIP at close and now running. This is not the
+DEF-004 baseline problem, so DEF-004 is Retest passed and the count rule is logged as DEF-005.
+TC-T05-21 stays Fail as written.
+
+Third retest (2026-11-02): the main session ruled that TC-T04a-30 rule 1 is a no-regression
+check. I changed it in `docs/tests/T04a/run-checks.sh` (FAIL on any FAIL line, non-zero exit or a
+PASS count below the count at close; both numbers printed; four negative controls) and added a
+T04a Change log row citing DEF-005. T04a `--regression` exits 0 (`retest-def004/T04a-regression-4.txt`)
+and TC-T05-21 passes (`retest-def004/static-run-4.txt`, 24 cases PASS, 2 BLOCKED).
+
+Final counts: 38 pass, 0 fail, 2 blocked (TC-T05-39, 40; owner-run), 0 not run.
 
 ## Defects raised
 
 | Defect | Severity | Status |
 |---|---|---|
 | DEF-003 | High | Closed after retest |
-| DEF-004 | Medium | Open, cited by TC-T05-21, 24, 34 |
-| New | | None |
+| DEF-004 | Medium | Retest passed (2026-11-02); not cited by any failing case |
+| DEF-005 | Low | Retest passed (2026-11-02); TC-T04a-30 now fails only on a real regression |
 
 ## Coverage notes
 
@@ -176,6 +232,8 @@ scoped check `git status --porcelain -- apps/drupal .ddev docs/runbooks` was emp
 
 ## Sign-off
 
-Not signed off. Three cases are Fail (TC-T05-21, 24, 34), all caused by DEF-004 in the T00 to
-T04a baseline and not by T05 files, and two cases are Blocked (owner-run TC-T05-39 and 40).
-AC1 to AC5 are verified; AC6 awaits the owner run. tester, 2026-11-01.
+Not signed off. No case is Fail and DEF-004 and DEF-005 are Retest passed, but TC-T05-39 and 40 are
+Blocked (owner-run) and the sign-off rule does not allow a sign-off while any case is Blocked; the
+earlier task reports (T03) stayed "Not signed off" in the same situation. AC1 to AC5 are verified;
+AC6 awaits the owner run, after which the report can be signed off. tester, 2026-11-02 (first run
+2026-11-01).

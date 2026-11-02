@@ -1,0 +1,79 @@
+== TC-T05-25 live PHP and database versions equal pantheon.yml (AC3)
+  PASS  ddev PHP '8.3' == pantheon php_version '8.3'
+  PASS  ddev DB '10.6.21-MariaDB-ubu2004-log' starts with pantheon database.version '10.6' and is MariaDB
+== TC-T05-26 live: web and db healthy (AC1)
+  PASS  ddev describe lists web and db as OK/running
+  PASS  project name is meridian and URL is https://meridian.ddev.site
+== TC-T05-27 live: ddev composer validate (AC5)
+  PASS  ddev composer validate exits 0
+  PASS  ddev composer validate --check-lock (lock matches composer.json)
+  PASS  composer install is a no-op when vendor is current (post-start hook idempotent)
+== TC-T05-28 live: ddev drush status (AC5)
+  PASS  ddev drush status exits 0, Drupal bootstrap Successful, database Connected
+  PASS  config-sync resolves to apps/drupal/config/sync
+  PASS  drush comes from vendor (apps/drupal/vendor/bin/drush)
+== TC-T05-29 live: one documented install command, --force (AC2)
+  PASS  ddev drupal-install --force exits 0
+  PASS  output points at ddev drush uli
+  PASS  site is installed from the minimal profile with the committed UUID
+  PASS  profile is minimal
+== TC-T05-30 live negative: second drupal-install without --force refuses and leaves the site intact (AC2)
+  PASS  exit code is non-zero (1) without --force
+  PASS  message explains the refusal and names --force
+  PASS  site intact: users table row count unchanged ( -> ) and bootstrap still Successful
+== TC-T05-31 live: ddev drush uli logs in as admin (AC2)
+  PASS  uli prints https://meridian.ddev.site/user/reset/... URL
+  PASS  following the link with curl -k -L (cookie jar) reaches a logged-in page
+  PASS  negative: a garbage reset token is refused (no session)
+== TC-T05-32 live: cex after a fresh install produces no diff (AC4)
+  PASS  ddev drush config:status reports no differences
+  PASS  ddev drush cex -y exits 0 and says nothing to export
+  PASS  git status --porcelain apps/drupal/config/sync is empty
+  PASS  negative control: a config change shows up in cex (harness proves detection), then is reverted
+== TC-T05-33 live: git status clean after start, install and cex (KD-7 invariant)
+  FAIL  git status --porcelain is empty for the whole repository
+         M docs/tests/T05/evidence/TC-T05-21.txt
+         M docs/tests/T05/evidence/TC-T05-24.txt
+         M docs/tests/T05/evidence/TC-T05-33.txt
+         M docs/tests/T05/evidence/TC-T05-34.txt
+        ?? docs/tasks/T04a/review-def004.md
+        ?? docs/tests/T05/bak.md5
+        ?? docs/tests/T05/bak/
+        ?? docs/tests/T05/evidence/DEF-004-retest-precommit.txt
+  PASS  settings.php unchanged by DDEV (git diff --quiet)
+== TC-T05-34 live: ddev quality exits 0; component-drupal PASS, tests SKIP (C4, TC-T04a-48)
+  PASS  ddev quality exit 0
+  PASS  PASS line for component-drupal
+  PASS  visible SKIP for component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  PASS  no FAIL line anywhere
+== TC-T05-35 live negative: a PHP style/type violation makes ddev quality fail (TC-T04a-49)
+  PASS  ddev quality exits non-zero with a violating custom PHP file (rc=1)
+  PASS  FAIL line names component-drupal
+  FAIL  probe file removed; working tree clean again
+        
+== TC-T05-36 live: ddev composer audit recorded, no high or critical advisory (plan DoD)
+        audit exit code: 0
+  PASS  composer audit exit 0 (no advisories)
+== TC-T05-39 AC6: runbook followed verbatim on a clean machine or container (owner-run)
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word and record each command, output and the total time; not automatable
+== TC-T05-40 WSL2 browser login over HTTPS with mkcert (owner-run)
+  BLOCKED  owner-run: open the ddev drush uli URL in a Windows browser; confirm no certificate warning after the runbook's mkcert step
+
+== Roll-up per case
+  PASS     TC-T05-25
+  PASS     TC-T05-26
+  PASS     TC-T05-27
+  PASS     TC-T05-28
+  PASS     TC-T05-29
+  PASS     TC-T05-30
+  PASS     TC-T05-31
+  PASS     TC-T05-32
+  FAIL     TC-T05-33
+  PASS     TC-T05-34
+  FAIL     TC-T05-35
+  PASS     TC-T05-36
+  BLOCKED  TC-T05-39
+  BLOCKED  TC-T05-40
+
+SUMMARY: mode=liveonly cases: 10 PASS, 2 FAIL, 2 BLOCKED; checks executed: 34; SKIP (optional tools): 0; BLOCKED lines: 2
+RESULT: ONE OR MORE CHECKS FAILED

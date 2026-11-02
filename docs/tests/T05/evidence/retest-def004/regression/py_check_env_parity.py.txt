@@ -1,0 +1,33 @@
+  PASS  technical-design.md exists and non-empty
+  PASS  .env.example exists
+  PASS  section heading with 'environment' and 'secrets' found
+  PASS  matrix table with Name/Variable first column found
+  PASS  matrix column present: consumer
+  PASS  matrix column present: purpose
+  PASS  matrix column present: secret
+  PASS  matrix column present: ddev
+  PASS  matrix column present: pantheon
+  PASS  matrix column present: vercel
+  PASS  matrix column present: github
+  PASS  matrix column present: task
+  PASS  matrix has at least 12 variables
+  PASS  no duplicate variable names in matrix
+  PASS  no empty cells or malformed rows (use 'n/a' explicitly)
+  PASS  .env.example has no duplicate names
+  PASS  .env.example has at least 12 variables
+  PASS  every .env.example name is in the matrix
+  PASS  every matrix name is in .env.example
+  PASS  no NEXT_PUBLIC_ variable names Drupal (FR-21, server-only base URL)
+  PASS  matrix lists revalidation secret
+  PASS  matrix lists revalidate interval
+  PASS  matrix lists Terminus token
+  PASS  matrix lists Pantheon deploy key
+  PASS  matrix lists Postgres URL
+  PASS  matrix lists Claude key
+  PASS  matrix lists OAuth ingest client
+  PASS  matrix lists OAuth read client
+  PASS  matrix lists OAuth key files/paths
+  PASS  .env.example secret-like variables are blank or obvious placeholders
+
+RESULT: PASS
+exit 0

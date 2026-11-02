@@ -1,0 +1,46 @@
+Detect hardcoded secrets........................................(no files to check)Skipped
+trim trailing whitespace........................................(no files to check)Skipped
+fix end of files................................................(no files to check)Skipped
+mixed line ending...............................................(no files to check)Skipped
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts.......................................(no files to check)Skipped
+check for added large files.....................................(no files to check)Skipped
+detect private key..............................................(no files to check)Skipped
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck......................................................(no files to check)Skipped
+yamllint........................................................(no files to check)Skipped
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+Spectral (OpenAPI lint).........................................(no files to check)Skipped
+Detect hardcoded secrets............................................................Passed
+mixed line ending...................................................................Passed
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+detect private key..................................................................Passed
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck......................................................(no files to check)Skipped
+yamllint........................................................(no files to check)Skipped
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian commit message (Txx - subject).............................................Failed
+- hook id: meridian-commit-msg
+- exit code: 1
+
+commit message rejected: 'bad message': subject must start with a task ID prefix such as 'T04a: ' followed by text
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

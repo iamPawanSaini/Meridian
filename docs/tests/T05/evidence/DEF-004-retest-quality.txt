@@ -1,0 +1,11 @@
+PASS  pre-commit
+PASS  branch-name
+PASS  commit-range
+PASS  exceptions
+PASS  assets
+SKIP  component-engine (no services/engine/pyproject.toml)
+PASS  component-drupal
+SKIP  component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+SKIP  component-web (no apps/web/package.json)
+summary: PASS 6 FAIL 0 SKIP 3
+exit 0
