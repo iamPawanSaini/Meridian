@@ -107,3 +107,70 @@ tester logs each one as a `DEF-nnn` in `docs/tests/defects.md` and fixes the che
 ticket them, and finding 7 is a close-step item. After that, the tester fixes the six check
 defects and runs `/test-task`. A re-review covers the changed lines of `pg` and the runbook only.
 technical-architect, 2026-11-02.
+
+## Re-review 2026-11-02 (`c6d4fbb..5bf194e`)
+
+Commits:
+
+- 68ab8c0: `pg` validates the whole archive, uses a safe trap and refuses a directory target.
+- 5bf194e: docs, stderr wording, relative-path note and the `subpath` fact.
+
+The developer sent no report, so I checked the diff myself.
+
+Checks run (read-only):
+
+- `.tools/pre-commit run --files` on `.ddev/README.md`, `.ddev/commands/host/pg` and
+  `docs/runbooks/local-setup.md` passes, including shellcheck, markdownlint and the
+  suppressions check.
+- From `docs/`, `ddev pg dump tasks/T06` refuses with `'tasks/T06' is a directory` and exits 2.
+  DDEV reports this as exit 1. No file was written, and `git status --porcelain` is empty.
+- The same probe shows that a relative `FILE` resolves against the caller's directory, not the
+  repo root. `tasks/T06` exists only under `docs/`. The new usage text and runbook line say
+  this correctly.
+- I ran no service-stopping command. The tester's live suite was running.
+
+| # | Was | Now | Evidence and notes |
+|---|---|---|---|
+| 1 | Major | **Fixed in 68ab8c0, closed in code.** Behavioural proof is owed by TC-T06-34 | `pg:93-99` validates with `pg_restore -f /dev/null` before any change, and on failure exits 1 with "database unchanged". `restore_into_db` (`pg:62-66`) chains drop, create and restore with `&&`. Because it is called in an `if !` context, it reports "FAILED after the old database was dropped ... may be empty or partial" and exits 1. Runbook lines 153-156 now describe both cases accurately. **Condition:** the tester's TC-T06-34 gets the extra case: a seeded dump of at least 1 MB cut at about half its size, which must give a non-zero exit with the checksum unchanged. That case must pass in `/test-task`. If it fails, finding 1 reopens as Major |
+| 2 | Minor | **Partly fixed, still open (Minor)** | Fixed: the `.ddev/README.md` paragraph (lines 70-74) and the exit-code fact row now say the `Failed to run ...` line goes to stderr and stdout is unchanged. Not changed: runbook step 6 (`local-setup.md:107-108`), the `.ddev/README.md:68` table row and the `meridian-status` usage text (lines 15-16) still say "the last line" without "of standard output". At a terminal, DDEV's red stderr line shows last. Resolution: add "of standard output" in those three places, or ticket it. This does not block approval |
+| 3 | Minor | **Closed** | The trap now calls `cleanup_tmp`, which reads the global `TMP_DUMP` (`pg:37-40`, `:54-58`). No path is put into an evaluated string. The SC2064 suppression is gone, so T06 now has no suppression |
+| 4 | Minor | **Closed** | `pg:49-52` refuses `-d "$file"` with exit 2 before `mktemp`. Verified live (see above) |
+| 5 | Minor | **Closed** | The usage text and runbook say a relative `FILE` resolves against the directory `ddev` was run from. This was verified live. The default path still uses `$root/db-dumps` |
+| 6 | Minor | **Closed (residual risk accepted and recorded)** | `.ddev/README.md` adds a verified-facts row: `subpath: mkcert` works, but `rootCA-key.pem` is in the same folder, so it gives no benefit. The whole volume stays mounted read-only. This local-only exposure is already the case for DDEV's own `web` container and is documented in the runbook. The T32 known-limitations review should list it |
+| 7 | Minor | **Open, close step** | Unchanged by design. At `/close-task`, cite TC-T06-23, 24 and 40 and their evidence files in D7 (`technical-design.md:577`) and `.ddev/README.md:79` |
+| 8 to 12 | Note | No change | Finding 8 is resolved by the plan addendum. Findings 9 to 12 need no action |
+
+Notes on the new code:
+
+- `pg:86` (an error message) is 105 characters. No rule covers it, so this needs no action.
+- After a successful dump, the `EXIT` trap stays set with `TMP_DUMP=""`, which is harmless.
+
+The suspected test defects table above still stands. These are tester-owned check fixes and
+are not part of this re-review.
+
+### Common criteria after the re-review
+
+| Criterion | Met? | Notes |
+|---|---|---|
+| C1 Plan before code | Yes | Unchanged |
+| C2 Review findings resolved | Yes, with conditions | No Blocker or Major is open. Finding 2 (Minor) must be fixed or ticketed. Finding 7 is done at close. Finding 1 depends on TC-T06-34 passing |
+| C3 Criteria mapped to executed tests | Not yet | Owed in `/test-task`. AC6b needs the owner's written acceptance |
+| C4 CI green | Partly | pre-commit passes on the changed files. `ddev quality` and the regression runs are owed in `/test-task` |
+| C5 Docs updated | Yes | Except the finding 2 wording and the finding 7 close-step citation |
+| C6 No secrets | Yes | Unchanged. gitleaks passes |
+| C7 Clean-checkout works | Not yet | Owed in `/test-task` |
+
+### Approval after the re-review
+
+**Approved with conditions.**
+
+- TC-T06-34, extended with the truncated-archive case, passes in `/test-task`. If it fails,
+  finding 1 reopens as Major.
+- Finding 2's remaining wording is fixed, or ticketed with an ID, before `/close-task`.
+- Finding 7 is applied at `/close-task`.
+- C3, C4 and C7 are met by the test report. The tester fixes the six check defects above
+  first, and the T05 and T04a regression checks are re-tagged.
+- The owner accepts AC6b (`Blocked (accepted, re-run in T21)`) in writing before T06 is marked
+  `Done`.
+
+technical-architect, 2026-11-02.
