@@ -13,11 +13,12 @@
 
 | Command | Covers |
 |---|---|
-| `docs/tests/T07/run-checks.sh` | Static and offline-harness cases 01 to 28. No network, no DDEV, no credentials. Live and owner-run cases are listed as BLOCKED with the reason |
+| `docs/tests/T07/run-checks.sh` | Static and offline-harness cases 01 to 28 and 58 to 62. No network, no DDEV, no credentials. Live and owner-run cases are listed as BLOCKED with the reason |
 | `docs/tests/T07/run-checks.sh --regression` | Invariant checks only (`ckp`); the `cka` snapshot checks (TC-T07-23 diff, TC-T07-27) are skipped and counted |
 | `T07_OWNER_OK=1 T07_O4_DONE=1 docs/tests/T07/run-checks.sh --live` | Static cases, then live cases 30 to 49 against Pantheon `meridian-trade` |
 | `T07_CONFIRM_WIPE=1`, `T07_CONFIRM_RESTORE=1`, `T07_CONFIRM_PULL=1` | Extra confirm variable for the destructive live cases 39, 48 and 42 |
 | `T07_CONFIRM=1 docs/tests/T07/run-checks.sh --clean-clone` | Case 55 |
+| `T07_CLOSE=1` | Enables the three at-close checks of TC-T07-27 (otherwise Blocked until `/close-task`) |
 | `T07_EVIDENCE=1` | Writes `evidence/TC-T07-nn.<UTC run id>.txt` per case (redacted) |
 
 Rules that apply to every case:
@@ -32,10 +33,10 @@ Rules that apply to every case:
   result (TC-T07-49) and need `T07_O4_DONE=1`.
 - Wipe and reinstall of Pantheon dev is owner-approved for T07 testing (owner facts 2026-11-02);
   it still needs the explicit confirm variable, so an accidental run cannot wipe.
-- Live steps were written from the plan and Terminus 3.6.2 help and could not run at design time.
-  If a Terminus JSON field name differs from the assumed one (`backup:list` `file`/`date`,
-  `env:code-log` `hash`), correct the script and log it in the change log; do not change the
-  expected result.
+- Live steps were written from the plan and Terminus 3.6.2 help (updated for 4.3.3 on 2026-11-02,
+  see the Change log) and could not run at design time. If a Terminus JSON field name differs from
+  the assumed one (`backup:list` `file`/`date`, `env:code-log` `hash`), correct the script and log
+  it in the change log; do not change the expected result.
 - TC-T07-29 is unused (reserved gap); numbering keeps the script and this file aligned.
 - Tags: `ckp` invariant, runs in every static mode; `cka` snapshot true only at close, skipped by
   `--regression`; `n/a` for live and owner-run cases (never part of a regression pass).
@@ -46,14 +47,14 @@ Rules that apply to every case:
 |---|---|
 | AC1: Pantheon sandbox site created from the Composer-managed Drupal upstream; `pantheon.yml` committed | TC-T07-01, 30 |
 | AC2: Terminus PAT setup and 90-day rotation documented; token never committed (secret scan passes) | TC-T07-02, 03, 19, 28, 53, 56 |
-| AC3: Terminus authentication for DDEV set up (PAT in global DDEV config; `ddev auth ssh`) and `ddev pull pantheon` pulls database and files (tested) | TC-T07-04, 05, 42, 43, 55 |
-| AC4: Code in `apps/drupal` deploys to Pantheon dev by the decided mechanism; site loads on its dev URL | TC-T07-05 to 19, 31 to 35, 38, 40, 41, 49; CI run: TC-T07-50 (Blocked, accepted), 51, 52 |
+| AC3: Terminus authentication for DDEV set up (PAT in global DDEV config; `ddev auth ssh`) and `ddev pull pantheon` pulls database and files (tested) | TC-T07-04, 05, 42, 43, 55, 58, 59 |
+| AC4: Code in `apps/drupal` deploys to Pantheon dev by the decided mechanism; site loads on its dev URL | TC-T07-05 to 19, 31 to 35, 38, 40, 41, 49, 58, 60 to 62; CI run: TC-T07-50 (Blocked, accepted), 51, 52 |
 | AC5: Config imported on Pantheon dev matches local (`drush config:status` clean) | TC-T07-23, 36, 37, 39 |
 | AC6: Rollback procedure and sandbox sleep and limits documented in `docs/runbooks/deploy.md` | TC-T07-20, 21, 44 to 48, 54 |
 | C1: plan exists and was reviewed before coding | Process: `docs/tasks/T07/plan.md` (Approved), `docs/tasks/T07/review.md`; checked by the tester at execution (no automated case) |
 | C2: code reviewed, findings resolved | Process: `docs/tasks/T07/review.md`; checked at execution |
 | C3: every criterion maps to an executed case with evidence | This table; TC-T07-28 (evidence hygiene); the test report |
-| C4: CI green, no new warnings (stand-in until T08) | TC-T07-10, 24 |
+| C4: CI green, no new warnings (stand-in until T08) | TC-T07-10, 24, 58 |
 | C5: docs and traceability updated | TC-T07-22, 23, 26, 27 |
 | C6: no secrets; `.env.example` updated; gitleaks passes | TC-T07-03, 19, 25, 28 |
 | C7: works from a clean checkout with documented commands | TC-T07-55, 57 |
@@ -182,7 +183,7 @@ Reading notes recorded for the report:
 | Tag | ckp |
 | Preconditions | Script and `scripts/pantheon_known_hosts` exist |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | `GIT_SSH_COMMAND` has StrictHostKeyChecking=yes, UserKnownHostsFile pointing at `scripts/pantheon_known_hosts`, BatchMode=yes; `TERMINUS_SSH_COMMAND` is exactly `ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR`; `TERMINUS_ALTERNATE_NAMESERVER` is never set; the known-hosts file holds only `[codeserver.dev.<uuid>.drush.in]:2222` key lines, with comments giving SHA256 fingerprint, date, ssh-keyscan, the statement that the app server is deliberately not pinned, and a link to `decision-host-keys.md`; no app server entry and no private key. |
+| Expected result | `GIT_SSH_COMMAND` has StrictHostKeyChecking=yes, `GlobalKnownHostsFile=/dev/null`, UserKnownHostsFile pointing at `scripts/pantheon_known_hosts`, BatchMode=yes; `TERMINUS_SSH_COMMAND` is exactly `ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR`; `TERMINUS_ALTERNATE_NAMESERVER` is never set; the known-hosts file holds only `[codeserver.dev.<uuid>.drush.in]:2222` key lines, with comments giving SHA256 fingerprint, date, ssh-keyscan, the statement that the app server is deliberately not pinned, and a link to `decision-host-keys.md`; no app server entry and no private key. The three known-hosts-file checks are Blocked ("awaiting L-3") while the file holds no key line; they run once the developer commits the key after the two-day, two-network comparison. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-07.<run id>.txt` |
 | Status | Not run |
@@ -216,7 +217,7 @@ Reading notes recorded for the report:
 | Tag | ckp |
 | Preconditions | `.github/workflows/deploy-drupal.yml` exists |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | Parses as YAML; triggers: push to main with the three paths, workflow_dispatch input `ref` default `main`; `concurrency` group `deploy-drupal`, cancel-in-progress false; `permissions: contents: read`; `timeout-minutes: 30`; an `if:` on `vars.PANTHEON_SITE` and a skip step printing `deploy-drupal: not configured (PANTHEON_SITE unset), skipped`; a step runs `scripts/deploy-drupal.sh --ref "${{ inputs.ref \|\| github.sha }}"`; `secrets.*` and `vars.*` only in `env:`, none inside `run:`; every `uses:` pinned by 40-hex SHA and only `actions/*`; Terminus 3.6.2 with pinned SHA-256; `ssh-add -` from stdin; `fetch-depth: 0`; no `--allow-unmerged`, `--force`, `set -x`. |
+| Expected result | Parses as YAML; triggers: push to main with the three paths, workflow_dispatch input `ref` default `main`; `concurrency` group `deploy-drupal`, cancel-in-progress false; `permissions: contents: read`; `timeout-minutes: 30`; an `if:` on `vars.PANTHEON_SITE` and a skip step printing `deploy-drupal: not configured (PANTHEON_SITE unset), skipped`; the deploy step runs `scripts/deploy-drupal.sh --ref "$DEPLOY_REF"` with `DEPLOY_REF: ${{ inputs.ref \|\| github.sha }}`, `DEPLOY_SMOKE_BUDGET` and `DEPLOY_SMOKE_HEADER` (`vars.*`) in its `env:`; no `${{` expression of any kind inside a `run:` block; `secrets.*` only in `env:`; every `uses:` pinned by 40-hex SHA and only `actions/*`; `TERMINUS_VERSION: 4.3.3` with SHA-256 `e7ca9bca...bade` verified with `sha256sum --check --strict` (no 3.6.2); `ssh-add -` from stdin; `fetch-depth: 0`; no `--allow-unmerged`, `--force`, `set -x`. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-09.<run id>.txt` |
 | Status | Not run |
@@ -233,7 +234,7 @@ Reading notes recorded for the report:
 | Tag | ckp |
 | Preconditions | actionlint installed at the pinned version (Blocked, not Pass, if absent) |
 | Steps | 1. `actionlint -version`<br>2. `actionlint .github/workflows/deploy-drupal.yml`<br>3. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | actionlint exits 0 and its version is the one written down in the repo; yamllint clean (also via pre-commit in TC-T07-24). Missing actionlint is Blocked, never Pass. |
+| Expected result | actionlint exits 0 and its version is the one written down in the repo; yamllint clean (also via pre-commit in TC-T07-24). The runner uses `.tools/actionlint` (the repo-documented binary) before `actionlint` on PATH. Missing actionlint is Blocked, never Pass. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-10.<run id>.txt` |
 | Status | Not run |
@@ -318,7 +319,7 @@ Reading notes recorded for the report:
 | Tag | ckp |
 | Preconditions | As TC-T07-14 |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | Second run exits 0; no `backup:create`, no `git push`, no `workflow:wait`; drush stages and smoke check still run; Pantheon master unchanged; split SHA is the last line. |
+| Expected result | Second run exits 0; no `backup:create`, no `git push`; `workflow:wait --commit=<sha> --start=1` and `env:code-log` still run and the output holds "completed successfully for commit"; drush stages and smoke check run; Pantheon master unchanged; split SHA is the last line. Negative re-runs (build failed, `workflow:wait` gives up, no matching workflow): exit 1, no drush, no smoke check, no backup, no push, no "deployed", master unchanged. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-15.<run id>.txt` |
 | Status | Not run |
@@ -369,7 +370,7 @@ Reading notes recorded for the report:
 | Tag | ckp |
 | Preconditions | As TC-T07-11. The two smoke-check cases may take up to the 120 s retry budget each |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | `env:code-log` with another newest hash: exit 1, no drush stage. `workflow:wait` failing: exit 1, no drush stage. `config:status` with differences: exit 1, no smoke check. Smoke check with HTTP 200 and an interstitial body (no `user-login-form`): exit 1. Smoke check with HTTP 503: exit 1. |
+| Expected result | `env:code-log` with another newest hash: exit 1, no drush stage. `workflow:wait` failing: exit 1, no drush stage. `workflow:wait` giving up ("giving up waiting", exit 0) or finding no workflow ("not found after 10 attempts", exit 0), so no success notice: exit 1, no drush stage, no "deployed". The fake `workflow:wait` prints `Workflow w1 completed successfully for commit <sha>` on success (Terminus 4.3.3 facts b and c). `config:status` with differences: exit 1, no smoke check. Smoke check with HTTP 200 and an interstitial body (no `user-login-form`): exit 1. Smoke check with HTTP 503: exit 1. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-18.<run id>.txt` |
 | Status | Not run |
@@ -454,7 +455,7 @@ Reading notes recorded for the report:
 | Tag | ckp (order) and cka (diff) |
 | Preconditions | Implementation done |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | `config_sync_directory = '../config/sync'` is still set, on a line after the `settings.pantheon.php` include, with a nearby comment about the order; against the branch point the diff adds comment lines only (snapshot, skipped by `--regression`). |
+| Expected result | `$settings['config_sync_directory'] = '../config/sync';` is still set, on a line after the `settings.pantheon.php` include, with a nearby comment about the order; against the branch point the diff adds comment lines only (snapshot, skipped by `--regression`). |
 | Actual result | |
 | Evidence | `evidence/TC-T07-23.<run id>.txt` |
 | Status | Not run |
@@ -522,7 +523,7 @@ Reading notes recorded for the report:
 | Tag | cka |
 | Preconditions | Run at close, after `/close-task` |
 | Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-{n}` |
-| Expected result | R-11 and FR-27 evidence cells hold "T07: AC4 Pass by local deploy (TC-T07-nn); CI run TC-T07-nn Blocked (accepted, owner-run after O-6)" and R-11 stays Open; PROGRESS T07 notes hold "AC4 by local deploy; CI deploy run owed after O-6 (owner-accepted)"; the test report states the SA-1 branch (machine user, local-only, or owner credentials accepted with date). Skipped by `--regression`. |
+| Expected result | R-11 and FR-27 evidence cells hold "T07: AC4 Pass by local deploy (TC-T07-nn); CI run TC-T07-nn Blocked (accepted, owner-run after O-6)" and R-11 stays Open; PROGRESS T07 notes hold "AC4 by local deploy; CI deploy run owed after O-6 (owner-accepted)"; the test report states the SA-1 branch (machine user, local-only, or owner credentials accepted with date). Skipped by `--regression`; Blocked in a normal static run until `T07_CLOSE=1` is set at `/close-task`. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-27.<run id>.txt` |
 | Status | Not run |
@@ -624,7 +625,7 @@ Reading notes recorded for the report:
 | Tag | n/a |
 | Preconditions | As TC-T07-32 |
 | Steps | 1. `T07_OWNER_OK=1 T07_EVIDENCE=1 docs/tests/T07/run-checks.sh --live-only`; read block `== TC-T07-{n}` |
-| Expected result | Second `ddev deploy-drupal` of the same ref exits 0; the count of database backups is unchanged; output says the push was skipped. |
+| Expected result | Second `ddev deploy-drupal` of the same ref exits 0; the count of database backups is unchanged; output says the push was skipped and still holds "completed successfully for commit" (the build is confirmed again with `--start=1`). |
 | Actual result | |
 | Evidence | `evidence/TC-T07-34.<run id>.txt` |
 | Status | Not run |
@@ -794,7 +795,7 @@ Reading notes recorded for the report:
 | Tag | n/a |
 | Preconditions | As TC-T07-32. Optional `T07_BYPASS_VALUE` (default 1) |
 | Steps | 1. `T07_OWNER_OK=1 T07_EVIDENCE=1 docs/tests/T07/run-checks.sh --live-only`; read block `== TC-T07-{n}` |
-| Expected result | Every request is logged with status, content type and first 80 bytes. With the header: `/user/login` is 200 with `user-login-form`; `/jsonapi` is 200/401/403 with a JSON content type. Without the header the result is recorded: if the body is not Drupal's, the script sends `Deterrence-Bypass` and an item for T10 and T21 is in the technical design; if it is Drupal's, the report says curl is not intercepted. The runbook records the result. |
+| Expected result | Measured in part 1 at the edge, whatever Drupal is installed: a default `curl` GET (Accept `*/*`) is not the Sandbox warning page; a GET with `Accept: text/html` and no header returns the "Sandbox Environment Notice" page, and `Deterrence-Bypass: 1` removes it; POSTs (also with `Accept: text/html`) are not intercepted; a User-Agent matrix on `/jsonapi` is recorded (a Cloudflare challenge, 403 "Just a moment...", for unknown agents such as python-httpx is a recorded finding for T10 and T21; the header does not remove it). After O-4 on the installed site: with the header `/user/login` is 200 with `user-login-form` and `/jsonapi` is 200/401/403 with a JSON content type. The runbook records the result. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-44.<run id>.txt` |
 | Status | Not run |
@@ -811,7 +812,7 @@ Reading notes recorded for the report:
 | Tag | n/a |
 | Preconditions | As TC-T07-32; warm site |
 | Steps | 1. `T07_OWNER_OK=1 T07_EVIDENCE=1 docs/tests/T07/run-checks.sh --live-only`; read block `== TC-T07-{n}` |
-| Expected result | POST of 8,388,608 bytes to `/user/login` is not answered 413 and not a connection failure (design value met); the 9 MB result is recorded with the date; `post_max_size` and `upload_max_filesize` are recorded. |
+| Expected result | POST of 8,388,608 bytes to `/user/login` (no header, nothing changes on the server) is not answered 413 and not a connection failure (design value met); the 9 MB result is recorded with the date (measured in part 1). After O-4: `post_max_size` and `upload_max_filesize` are recorded. |
 | Actual result | |
 | Evidence | `evidence/TC-T07-45.<run id>.txt` |
 | Status | Not run |
@@ -828,7 +829,7 @@ Reading notes recorded for the report:
 | Tag | n/a |
 | Preconditions | As TC-T07-32 |
 | Steps | 1. `T07_OWNER_OK=1 T07_EVIDENCE=1 docs/tests/T07/run-checks.sh --live-only`; read block `== TC-T07-{n}` |
-| Expected result | `env:wake` exits 0 within 120 s (time recorded, and whether the env was asleep); 20 warm GETs of `/user/login` all return 200; p50 and p95 recorded; p95 below the 59 s edge timeout. |
+| Expected result | `env:wake` exits 0 within 120 s (time recorded, and whether the env was asleep); 20 warm GETs of `/user/login` return no 4xx or 5xx (302 before the site is installed, 200 after; all 200 is asserted after O-4); p50 and p95 recorded; p95 below the 59 s edge timeout (measured in part 1). |
 | Actual result | |
 | Evidence | `evidence/TC-T07-46.<run id>.txt` |
 | Status | Not run |
@@ -1022,6 +1023,81 @@ Reading notes recorded for the report:
 | Date | |
 | Executed by | |
 
+### TC-T07-58: Terminus 4.3.3 pin agrees in Dockerfile, workflow and runbook
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC3, AC4, C4 (review finding 14, missing case) |
+| Type | Static, automated |
+| Preconditions | Repo root |
+| Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-58` |
+| Expected result | `.ddev/web-build/Dockerfile` has `ARG TERMINUS_VERSION=4.3.3` and the SHA-256 `e7ca9bca...bade`; the workflow has the same version and digest; the runbook names Terminus 4.3.3 and the digest; both build paths verify the file with `sha256sum --check --strict`; the Dockerfile fails the build unless `terminus --version` equals `Terminus ${TERMINUS_VERSION}`; no 3.6.2 remains; each file pins exactly one digest |
+| Actual result | |
+| Evidence | `evidence/TC-T07-58.txt` |
+| Status | Not run |
+| Date | |
+| Executed by | |
+
+### TC-T07-59: Terminus 4.3.3 in the DDEV web container
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC3 (review finding 14, missing case) |
+| Type | Automated (needs a running DDEV project, no credentials) |
+| Preconditions | `ddev start` done |
+| Steps | 1. `ddev exec terminus --version`<br>2. `ddev exec 'which -a terminus'`<br>3. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-59` |
+| Expected result | Step 1 prints exactly `Terminus 4.3.3`; step 2 prints exactly one path. Blocked if DDEV is not running |
+| Actual result | |
+| Evidence | `evidence/TC-T07-59.txt` |
+| Status | Not run |
+| Date | |
+| Executed by | |
+
+### TC-T07-60: Harness: DEPLOY_SMOKE_BUDGET validation
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC4 (review finding 8) |
+| Type | Offline harness, negative |
+| Preconditions | as TC-T07-11 |
+| Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-60` (values `abc`, `-5`, `1.5`) |
+| Expected result | Exit 2 with a message that names `DEPLOY_SMOKE_BUDGET`; the fake log holds no `terminus`, `curl` or `git push`/`ls-remote` call |
+| Actual result | |
+| Evidence | `evidence/TC-T07-60.txt` |
+| Status | Not run |
+| Date | |
+| Executed by | |
+
+### TC-T07-61: Harness: run from a subdirectory
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC4, C7 (review finding 4) |
+| Type | Offline harness |
+| Preconditions | as TC-T07-11 |
+| Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-61` |
+| Expected result | `--dry-run` started in `apps/drupal/config` prints a split SHA with exit 0; `-h` from `scripts/` exits 0; a full deploy started in `apps/` exits 0 and Pantheon master is set |
+| Actual result | |
+| Evidence | `evidence/TC-T07-61.txt` |
+| Status | Not run |
+| Date | |
+| Executed by | |
+
+### TC-T07-62: Harness: unexpected git_url forms and ssh:// without a pinned key
+
+| Field | Value |
+|---|---|
+| Linked criterion | AC4, SA-4 (review findings 7 and 11) |
+| Type | Offline harness, negative |
+| Preconditions | as TC-T07-11 |
+| Steps | 1. `docs/tests/T07/run-checks.sh`; read block `== TC-T07-62` (scp-style URL, https URL, `ssh://` with a comment-only known-hosts file, `ssh://` with the file missing) |
+| Expected result | Exit 2 in every case; the scp-style and https cases print "unexpected git_url form"; the fake log holds no `env:wake`, `backup:create`, `ls-remote`, `git push` or later stage |
+| Actual result | |
+| Evidence | `evidence/TC-T07-62.txt` |
+| Status | Not run |
+| Date | |
+| Executed by | |
+
 ## Plan ambiguities found while designing
 
 | ID | Ambiguity | How the cases handle it |
@@ -1029,7 +1105,7 @@ Reading notes recorded for the report:
 | A1 | KD-1 says exit 2 is "usage or guard error" and exit 1 is "a deploy or verification step failed", but TH-2 says the split-tree guard (vendor, `.env`) "exits 1 before any network step". | TC-T07-12 accepts 1 or 2 for the tree guard and missing required files, and requires no network call. The review should pick one; if the plan intends exit 1, tighten the test |
 | A2 | The smoke-check "wake retry budget 120 s" (KD-1 stage 9) means the two negative smoke cases in TC-T07-18 can each take about two minutes, and the plan gives no override. | The harness runs each with a 200 s timeout. A script flag or env override for the budget would be a cheap improvement |
 | A3 | How the token reaches Terminus is not fixed (`auth:login --machine-token=...` puts it in the process list; env var does not). | TC-T07-19 accepts either, only requires that script output never shows it. Reviewer may prefer the env route |
-| A4 | The format of `workflow:info:status` and when `workflow:wait` exits non-zero are unverified. | The fake `workflow:wait` fails with exit 1; the `workflow:info:status` path is not asserted. The developer's source check goes to the unverified register (TC-T07-22) |
+| A4 | The format of `workflow:info:status` and when `workflow:wait` exits non-zero are unverified. | Resolved 2026-11-02 by `docs/tasks/T07/terminus-4.3.3-facts.md` (items b to d): the fake `workflow:wait` prints the 4.3.3 success notice, and the timeout and not-found fakes exit 0 without it. Live proof is L-4 (TC-T07-32 and 34) |
 | A5 | "TERMINUS_ALTERNATE_NAMESERVER must be unset": the plan does not say whether the script unsets an inherited value or only never sets it. | TC-T07-07 and 19 check that the script never sets it and that it is unset when the caller did not set it |
 | A6 | `ddev pull pantheon` has no `ddev auth pantheon`; the provider's `auth_command` only runs inside the pull. The "fresh shell" is not defined. | TC-T07-42 runs `terminus auth:logout` first, then the pull with `env -i` plus `HOME` and `PATH`, which only proves login happens inside the pull |
 | A7 | KD-12 says "record which value works" for the bypass header but the value is unverified; the script's constant depends on the result. | TC-T07-44 tests value `1` (or `T07_BYPASS_VALUE`); if the interstitial still shows, the tester tries other values and logs them |
@@ -1042,3 +1118,5 @@ Reading notes recorded for the report:
 | Date | Change |
 |---|---|
 | 2026-11-02 | Initial design (tester, design mode) |
+| 2026-11-02 | Part 1 corrections (suspected test defects in `review.md`, "Re-review 2026-11-02"): fake `workflow:wait` prints `Workflow w1 completed successfully for commit <sha>`; timeout and not-found fakes added (TC-T07-18, 15); TC-T07-15 and 34 now expect `workflow:wait --commit=<sha> --start=1` and `env:code-log` on a re-run, with no backup and no push, plus three negative re-run cases; fake `auth:whoami` logged out exits 0 with empty stdout; `GlobalKnownHostsFile=/dev/null` in TC-T07-07 and every live `GIT_SSH_COMMAND`; the fake `git` logs `GIT_SSH_COMMAND` for push and ls-remote and TC-T07-14 asserts it; TC-T07-09 expects Terminus 4.3.3, SHA-256 `e7ca9bca...bade`, `--ref "$DEPLOY_REF"` with the expression in `env:` and no `${{` inside any `run:`; TC-T07-10 uses `.tools/actionlint`; TC-T07-23 regex matches `$settings['config_sync_directory']`; TC-T07-07 known-hosts checks and TC-T07-27 are Blocked (not Fail) until the key is committed and until `T07_CLOSE=1`; new cases TC-T07-58 to 62; TC-T07-44 to 46 split into a part 1 edge measurement and an after-O-4 part. Reason: reviewer's suspected-test-defects tables (check problems, not product defects); plan addendum items 1, 3 and 5; Terminus 4.3.3 facts record. |
+| 2026-11-02 | TC-T07-44 expectations rewritten from the measured behaviour: the Sandbox warning page is served for `Accept: text/html` GETs (not for default curl or POST), `Deterrence-Bypass: 1` removes it, and a Cloudflare challenge (403) hits unknown User-Agents regardless of the header. Reason: part 1 measurement (A7 resolved for the header value); the original expectation assumed default curl was intercepted |

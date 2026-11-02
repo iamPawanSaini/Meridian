@@ -26,6 +26,7 @@
 #     T07_CONFIRM_PULL=1    allows TC-T07-42 (ddev pull pantheon replaces the LOCAL database; the case takes a snapshot first).
 #     T07_DEPLOY_REF=REF    ref for the real deploy (default task/T07-pantheon-dev, run with --allow-unmerged).
 #     T07_BYPASS_VALUE=V    value for the Sandbox bypass header in the KD-12 measurements (default 1).
+#     T07_SKIP_NESTED=1     skip the (slow) nested T02 to T06 regression in TC-T07-24; only for negative-control runs against a mutated script
 #     T07_BASE=SHA          commit that snapshot checks compare against (default 1200ad0, the T07 branch point).
 #   Live steps were written from the plan and the Terminus 3.6.2 help; they could not be run at design time. Field names of
 #   Terminus JSON output (backup:list, env:code-log) are assumptions; a mismatch is a test-script correction, not a defect.
@@ -137,6 +138,9 @@ SETTINGS=apps/drupal/web/sites/default/settings.php
 PUB="https://dev-$SITE.pantheonsite.io"
 SIM_BR='zerodha|kite ?connect|\bkite\b|kiteconnect|upstox|angel ?(one|broking)|groww|fyers|5paisa|dhanhq|\bdhan\b|alice ?blue|interactive ?brokers|ibkr|alpaca|icici ?direct|smartapi|kite\.trade|place[_ -]?order|order[_ -]?placement'
 
+kh_has_key() { [[ -s "$KH" ]] && grep -qvE '^\s*(#|$)' "$KH"; }
+atclose() {   # DESCRIPTION CMD...: snapshot checks that become true at /close-task; BLOCKED until T07_CLOSE=1
+  if [[ "${T07_CLOSE:-0}" == 1 ]]; then cka "$@"; else blk "runs at /close-task with T07_CLOSE=1: $1"; fi; }
 t07_files() {   # files T07 adds or changes, relative to the branch point (plus untracked)
   { git diff --name-only "$BASE" -- . 2>/dev/null; git ls-files -o --exclude-standard; } | sort -u \
     | grep -vE '^docs/tests/(T0[0-6]|T04a)/|^docs/tasks/|^docs/PROGRESS|^docs/TRACEABILITY|^docs/tests/T07/evidence/' || true
@@ -164,16 +168,21 @@ case "$cmd" in
     [[ -z ${FAKE_AUTH_FAIL:-} ]] || { echo "login failed" >&2; exit 1; }
     echo "Logging in via machine token" ;;
   auth:whoami)
-    [[ -z ${FAKE_NO_SESSION:-} ]] || { echo "You are not logged in." >&2; exit 1; }
+    # Terminus 4.3.3 logged out: notice on stderr, exit 0, empty stdout (facts record, item f)
+    [[ -z ${FAKE_NO_SESSION:-} ]] || { echo "You are not logged in." >&2; exit 0; }
     echo "fake@example.invalid" ;;
-  connection:info) echo "$FAKE_BARE" ;;
+  connection:info) echo "${FAKE_GIT_URL:-$FAKE_BARE}" ;;
   backup:create)
     [[ -z ${FAKE_BACKUP_FAIL:-} ]] || { echo "backup failed" >&2; exit 1; }
     echo "backup created" ;;
   workflow:wait)
-    [[ -z ${FAKE_WAIT_FAIL:-} ]] || { echo "workflow failed" >&2; exit 1; }
-    echo "workflow done" ;;
-  workflow:info:status) echo "succeeded" ;;
+    # 4.3.3 WaitCommand (facts b and c): success prints the notice below; a failed or aborted
+    # workflow exits 1; a timeout or no matching workflow warns and exits 0 without the notice
+    wsha=""; for a in "$@"; do case "$a" in --commit=*) wsha=${a#--commit=} ;; esac; done
+    [[ -z ${FAKE_WAIT_FAIL:-} ]] || { echo "Workflow w1 failed for commit $wsha" >&2; exit 1; }
+    [[ -z ${FAKE_WAIT_TIMEOUT:-} ]] || { echo "[warning] Waited '900' seconds, giving up waiting for workflow to finish." >&2; exit 0; }
+    [[ -z ${FAKE_WAIT_NOTFOUND:-} ]] || { echo "[warning] Workflow with commit $wsha not found after 10 attempts." >&2; exit 0; }
+    echo "[notice] Workflow w1 completed successfully for commit $wsha" ;;
   env:code-log)
     real=$("$FAKE_REALGIT" --git-dir "$FAKE_BARE" rev-parse refs/heads/master 2>/dev/null || echo none)
     if [[ -n ${FAKE_CODELOG_OTHER:-} ]]; then
@@ -214,6 +223,7 @@ SH
 cat >"$STUB/git" <<'SH'
 #!/usr/bin/env bash
 { printf 'git'; printf ' %s' "$@"; printf '\n'; } >>"$FAKE_LOG"
+case "${1:-}" in push|ls-remote) printf 'GSC %s :: %s\n' "$1" "${GIT_SSH_COMMAND-<unset>}" >>"$FAKE_LOG" ;; esac
 exec "$FAKE_REALGIT" "$@"
 SH
 chmod +x "$STUB/terminus" "$STUB/curl" "$STUB/git"
@@ -265,10 +275,10 @@ run_deploy() {
   local -a ev=(HOME="$d" PATH="$STUB:$PATH" LC_ALL=C FAKE_LOG="$d/log.txt" FAKE_ENVLOG="$d/envlog.txt" FAKE_BARE="$d/pan.git" FAKE_REALGIT="$REALGIT" PANTHEON_SITE="${F_SITE-$SITE}")
   [[ -z "${F_TOKEN:-}" ]] || ev+=(TERMINUS_MACHINE_TOKEN="$F_TOKEN")
   [[ -z "${F_ALT:-}" ]] || ev+=(TERMINUS_ALTERNATE_NAMESERVER="$F_ALT")
-  local v; for v in FAKE_BACKUP_FAIL FAKE_WAIT_FAIL FAKE_CODELOG_OTHER FAKE_CONFIG_DIFF FAKE_NO_SESSION FAKE_SMOKE_CODE; do
+  local v; for v in FAKE_BACKUP_FAIL FAKE_WAIT_FAIL FAKE_WAIT_TIMEOUT FAKE_WAIT_NOTFOUND FAKE_CODELOG_OTHER FAKE_CONFIG_DIFF FAKE_NO_SESSION FAKE_SMOKE_CODE FAKE_GIT_URL DEPLOY_SMOKE_BUDGET; do
     [[ -z "${!v:-}" ]] || ev+=("$v=${!v}"); done
   [[ -z "${FAKE_SMOKE_BODY+x}" ]] || ev+=("FAKE_SMOKE_BODY=$FAKE_SMOKE_BODY")
-  OUT=$( cd "$d/work" && env -i "${ev[@]}" timeout "${F_TIMEOUT:-60}" bash scripts/deploy-drupal.sh "$@" 2>&1 </dev/null ) && RC=0 || RC=$?
+  OUT=$( cd "$d/work/${F_SUBDIR:-}" && env -i "${ev[@]}" timeout "${F_TIMEOUT:-60}" bash "$d/work/scripts/deploy-drupal.sh" "$@" 2>&1 </dev/null ) && RC=0 || RC=$?
   LOG=$d/log.txt; ENVLOG=$d/envlog.txt
 }
 lineno() { grep -nE -- "$2" "$1" | head -1 | cut -d: -f1; }
@@ -325,6 +335,15 @@ h_first_deploy() {   # TH-3 first deploy
   [[ $(lineno "$d/log.txt" '^terminus backup:create') -lt $(lineno "$d/log.txt" '^git push') ]] || { echo "backup is not before the push"; return 1; }
   [[ $(lineno "$d/log.txt" '^terminus env:wake') -lt $(lineno "$d/log.txt" '^git push') ]] || { echo "wake is not before the push"; return 1; }
   grep -qE "^terminus workflow:wait .*--commit=$want" "$d/log.txt" || { echo "no workflow:wait --commit=<split sha>"; return 1; }
+  ! grep -E '^terminus workflow:wait' "$d/log.txt" | grep -q -- '--start' || { echo "first deploy passed --start (only a re-run needs it)"; return 1; }
+  grep -q 'completed successfully for commit' <<<"$OUT" || { echo "output lacks 'completed successfully for commit'"; return 1; }
+  local g; for g in push ls-remote; do
+    l=$(grep -E "^GSC $g " "$d/log.txt" | head -1)
+    [[ -n $l ]] || { echo "no GIT_SSH_COMMAND logged for git $g"; return 1; }
+    for a in 'StrictHostKeyChecking=yes' 'GlobalKnownHostsFile=/dev/null' "UserKnownHostsFile=$d/work/scripts/pantheon_known_hosts" 'BatchMode=yes'; do
+      grep -qF -- "$a" <<<"$l" || { echo "git $g: GIT_SSH_COMMAND lacks $a: $l"; return 1; }
+    done
+  done
   [[ $(lineno "$d/log.txt" '^git push') -lt $(lineno "$d/log.txt" '^terminus workflow:wait') ]] || { echo "wait before push"; return 1; }
   grep -qE '^terminus env:code-log .*--format=json' "$d/log.txt" || { echo "no env:code-log --format=json"; return 1; }
   local a b c e
@@ -345,11 +364,60 @@ h_idempotent() {   # TH-3 re-run
   local d=$WORK/idem
   ! grep -qE '^terminus backup:create' "$d/log.txt" || { echo "re-run took a backup"; return 1; }
   ! grep -qE '^git push' "$d/log.txt" || { echo "re-run pushed"; return 1; }
-  ! grep -qE '^terminus workflow:wait' "$d/log.txt" || { echo "re-run waited for a workflow"; return 1; }
+  grep -qE '^terminus workflow:wait .*--commit='"$before"' .*--start=1' "$d/log.txt" || { echo "re-run did not call workflow:wait --commit=<sha> --start=1: $(grep '^terminus workflow:wait' "$d/log.txt")"; return 1; }
+  grep -qE '^terminus env:code-log' "$d/log.txt" || { echo "re-run skipped env:code-log"; return 1; }
+  grep -q 'completed successfully for commit' <<<"$OUT" || { echo "re-run output lacks 'completed successfully for commit'"; return 1; }
   grep -qE 'remote:drush .*-- updatedb' "$d/log.txt" && grep -qE 'remote:drush .*-- config:status' "$d/log.txt" && grep -q '^curl' "$d/log.txt" \
     || { echo "re-run skipped stages 7 to 9"; return 1; }
   [[ "$(pan_master idem)" == "$before" ]] || { echo "master moved on re-run"; return 1; }
   tail -n1 <<<"$OUT" | grep -q "$before" || { echo "last line lacks the split SHA"; return 1; }
+}
+h_rerun_fail() {   # finding 1 negative: a re-run whose build is not confirmed; arg: fail|timeout|notfound
+  fix_new "rf$1" || return 1
+  run_deploy "rf$1"; [[ $RC -eq 0 ]] || { echo "first run rc=$RC: ${OUT:0:300}"; return 1; }
+  local before; before=$(pan_master "rf$1")
+  case "$1" in
+    fail) FAKE_WAIT_FAIL=1 run_deploy "rf$1" ;;
+    timeout) FAKE_WAIT_TIMEOUT=1 run_deploy "rf$1" ;;
+    notfound) FAKE_WAIT_NOTFOUND=1 run_deploy "rf$1" ;;
+  esac
+  [[ $RC -eq 1 ]] || { echo "$1 re-run: want exit 1, got $RC: ${OUT:0:300}"; return 1; }
+  local d=$WORK/rf$1
+  ! grep -qE 'remote:drush' "$d/log.txt" || { echo "$1 re-run: drush ran although the build was not confirmed"; return 1; }
+  ! grep -qE '^terminus backup:create|^git push' "$d/log.txt" || { echo "$1 re-run took a backup or pushed"; return 1; }
+  ! grep -q '^curl' "$d/log.txt" || { echo "$1 re-run: smoke check ran"; return 1; }
+  ! grep -q 'deployed' <<<"$OUT" || { echo "$1 re-run printed 'deployed'"; return 1; }
+  [[ "$(pan_master "rf$1")" == "$before" ]] || { echo "master moved"; return 1; }
+}
+h_budget() {   # validation before any network call; arg: bad value
+  fix_new "bud" || return 1
+  DEPLOY_SMOKE_BUDGET="$1" run_deploy bud; [[ $RC -eq 2 ]] || { echo "budget '$1': want exit 2, got $RC: ${OUT:0:200}"; return 1; }
+  grep -q 'DEPLOY_SMOKE_BUDGET' <<<"$OUT" || { echo "budget '$1': message does not name DEPLOY_SMOKE_BUDGET: ${OUT:0:200}"; return 1; }
+  ! grep -qE '^terminus|^curl|^git (push|ls-remote)' "$WORK/bud/log.txt" || { echo "budget '$1': a network step ran"; return 1; }
+}
+h_subdir() {   # finding 4: the script resolves the repository root itself
+  fix_new sub || return 1
+  F_SUBDIR=apps/drupal/config run_deploy sub --dry-run; [[ $RC -eq 0 ]] || { echo "dry-run from apps/drupal/config rc=$RC: ${OUT:0:300}"; return 1; }
+  cand_sha "$OUT" "$WORK/sub/work" "$(head_tree sub)" >/dev/null || { echo "dry-run from a subdirectory printed no split SHA"; return 1; }
+  F_SUBDIR=scripts run_deploy sub -h; [[ $RC -eq 0 ]] || { echo "-h from scripts/ rc=$RC"; return 1; }
+  F_SUBDIR=apps run_deploy sub; [[ $RC -eq 0 ]] || { echo "full deploy from apps/ rc=$RC: ${OUT:0:300}"; return 1; }
+  [[ "$(pan_master sub)" != none ]] || { echo "nothing pushed when run from a subdirectory"; return 1; }
+}
+h_url_form() {   # finding 7: arg: scp|https|sshnokey|sshmissing
+  fix_new "u$1" || return 1
+  local k="$WORK/u$1/work/scripts/pantheon_known_hosts"
+  case "$1" in
+    scp) FAKE_GIT_URL='codeserver.dev.x@codeserver.dev.x.drush.in:repository.git' run_deploy "u$1" ;;
+    https) FAKE_GIT_URL='https://example.invalid/repository.git' run_deploy "u$1" ;;
+    sshnokey) printf '# comments only, no key line\n' >"$k"
+      FAKE_GIT_URL='ssh://codeserver.dev.x@codeserver.dev.x.drush.in:2222/~/repository.git' run_deploy "u$1" ;;
+    sshmissing) rm -f "$k"
+      FAKE_GIT_URL='ssh://codeserver.dev.x@codeserver.dev.x.drush.in:2222/~/repository.git' run_deploy "u$1" ;;
+  esac
+  [[ $RC -eq 2 ]] || { echo "$1: want exit 2, got $RC: ${OUT:0:300}"; return 1; }
+  ! grep -qE '^terminus (env:wake|backup:create|workflow:wait|remote:drush)|^git (push|ls-remote)|^curl' "$WORK/u$1/log.txt" \
+    || { echo "$1: wake, backup, ls-remote, push or later stage ran: $(grep -E 'env:wake|backup|ls-remote|push' "$WORK/u$1/log.txt" | head -3)"; return 1; }
+  case "$1" in scp|https) grep -q 'unexpected git_url form' <<<"$OUT" || { echo "$1: no 'unexpected git_url form' message: ${OUT:0:200}"; return 1; } ;; esac
 }
 h_rewind() {   # TH-3 rewind rejected
   fix_new rew || return 1
@@ -378,13 +446,16 @@ h_verify_fail() {   # arg: kind
     codelog) FAKE_CODELOG_OTHER=1 run_deploy "v$1" ;;
     config) FAKE_CONFIG_DIFF=1 run_deploy "v$1" ;;
     wait) FAKE_WAIT_FAIL=1 run_deploy "v$1" ;;
+    timeout) FAKE_WAIT_TIMEOUT=1 run_deploy "v$1" ;;
+    notfound) FAKE_WAIT_NOTFOUND=1 run_deploy "v$1" ;;
   esac
   [[ $RC -eq 1 ]] || { echo "$1: want exit 1, got $RC: ${OUT:0:300}"; return 1; }
   case "$1" in
     codelog) ! grep -qE 'remote:drush' "$WORK/v$1/log.txt" || { echo "drush ran although code-log did not show the split SHA"; return 1; } ;;
     config) grep -qE 'remote:drush .*-- config:status' "$WORK/v$1/log.txt" || { echo "config:status never ran"; return 1; }
       ! grep -q '^curl' "$WORK/v$1/log.txt" || { echo "smoke check ran after a config difference"; return 1; } ;;
-    wait) ! grep -qE 'remote:drush' "$WORK/v$1/log.txt" || { echo "drush ran after a failed wait"; return 1; } ;;
+    wait|timeout|notfound) ! grep -qE 'remote:drush' "$WORK/v$1/log.txt" || { echo "drush ran after a failed, timed-out or unmatched wait"; return 1; }
+      ! grep -q 'deployed' <<<"$OUT" || { echo "'deployed' printed although the build was not confirmed"; return 1; } ;;
   esac
 }
 h_smoke_fail() {   # arg: kind (interstitial|status)
@@ -419,7 +490,9 @@ h_usage() {
   run_deploy use --bogus; [[ $RC -eq 2 ]] || { echo "--bogus: want 2, got $RC"; return 1; }
   run_deploy use --ref no-such-ref-xyz; [[ $RC -eq 2 ]] || { echo "bad ref: want 2, got $RC: ${OUT:0:200}"; return 1; }
   F_SITE="" run_deploy use; [[ $RC -eq 2 ]] || { echo "PANTHEON_SITE unset: want 2, got $RC: ${OUT:0:200}"; return 1; }
-  FAKE_NO_SESSION=1 run_deploy use; [[ $RC -ne 0 ]] || { echo "no token and no session: want non-zero, got 0"; return 1; }
+  FAKE_NO_SESSION=1 run_deploy use; [[ $RC -eq 1 ]] || { echo "no token and no session (whoami exits 0 with empty stdout, as 4.3.3 does): want exit 1, got $RC"; return 1; }
+  grep -q 'no Terminus session' <<<"$OUT" || { echo "message lacks 'no Terminus session': ${OUT:0:200}"; return 1; }
+  ! grep -qE '^terminus connection:info' "$WORK/use/log.txt" || { echo "connection:info ran without a session"; return 1; }
   ! grep -qE '^git push' "$WORK/use/log.txt" || { echo "pushed without a session"; return 1; }
   run_deploy use -h; [[ $RC -eq 0 ]] || { echo "-h: want 0, got $RC"; return 1; }
   grep -qE -- '--dry-run' <<<"$OUT" && grep -qE -- '--allow-unmerged' <<<"$OUT" && grep -q 'PANTHEON_SITE' <<<"$OUT" || { echo "-h text lacks options or env names"; return 1; }
@@ -486,8 +559,14 @@ for jn, j in jobs.items():
         if "scripts/deploy-drupal.sh" in r:
             runline = True
             if "--allow-unmerged" in r: probs.append("run step passes --allow-unmerged")
-            if "inputs.ref" not in r or "github.sha" not in r: probs.append("run step does not use inputs.ref || github.sha for --ref")
-        if re.search(r"\$\{\{\s*(secrets|vars)\.", r): probs.append(f"job {jn}: secret or variable expression inside run: {r[:60]!r}")
+            if '--ref "$DEPLOY_REF"' not in r: probs.append('run step does not pass --ref "$DEPLOY_REF"')
+            env = s.get("env") or {}
+            dr = str(env.get("DEPLOY_REF", ""))
+            if "inputs.ref" not in dr or "github.sha" not in dr: probs.append("env DEPLOY_REF is not 'inputs.ref || github.sha'")
+            for ev in ("DEPLOY_SMOKE_BUDGET", "DEPLOY_SMOKE_HEADER"):
+                if f"vars.{ev}" not in str(env.get(ev, "")): probs.append(f"deploy step env lacks {ev}: ${{{{ vars.{ev} }}}}")
+        if "${{" in r: probs.append(f"job {jn}: a GitHub expression is expanded inside run: {r[:60]!r}")
+        if s.get("run") is not None and not str(s.get("run")).strip(): probs.append("empty run: block")
         u = s.get("uses")
         if u and not re.match(r"^[\w.-]+/[\w./-]+@[0-9a-f]{40}$", str(u)): probs.append(f"action not pinned by commit SHA: {u}")
         if u and not str(u).startswith("actions/"): probs.append(f"third-party action: {u}")
@@ -505,8 +584,11 @@ for m in re.finditer(r"\$\{\{\s*secrets\.(\w+)", text):
 for sec in ("TERMINUS_MACHINE_TOKEN", "PANTHEON_DEPLOY_KEY"):
     if f"secrets.{sec}" not in text: probs.append(f"secrets.{sec} not used")
 if "vars.PANTHEON_SITE" not in text: probs.append("vars.PANTHEON_SITE not used")
-if not re.search(r"3\.6\.2", text): probs.append("Terminus 3.6.2 is not pinned")
-if not re.search(r"\b[0-9a-f]{64}\b", text): probs.append("no pinned SHA-256 for the Terminus phar")
+if "TERMINUS_VERSION: 4.3.3" not in text: probs.append("TERMINUS_VERSION: 4.3.3 is not pinned (owner requirement; 3.6.2 cannot log in with a PAT)")
+if "e7ca9bcad3acbb1cfc0cec32550eeb2351e578dc6d5f79cd3a5303201893bade" not in text: probs.append("Terminus 4.3.3 SHA-256 e7ca9bca...bade is not pinned")
+if "sha256sum --check --strict" not in text: probs.append("checksum is not verified with sha256sum --check --strict")
+if "3.6.2" in text: probs.append("Terminus 3.6.2 still mentioned")
+if not any(isinstance(j.get("steps"), list) and any(isinstance(x.get("run"), str) and "run" in x for x in j["steps"]) for j in jobs.values()): probs.append("no run: blocks found")
 if not re.search(r"ssh-add\s+-(\s|$)", text): probs.append("key is not loaded with 'ssh-add -' from stdin")
 if "fetch-depth: 0" not in text: probs.append("checkout lacks fetch-depth: 0")
 if probs:
@@ -611,12 +693,16 @@ ckp "smoke check uses https:// with certificate verification: no -k, --insecure 
 ckp "script contains no real-order or broker API call and only pantheon, drush.in, pantheonsite.io, github hosts" bash -c "[[ -s $DS ]] && ! grep -iEn \"$SIM_BR\" $DS && ! grep -hoE 'https?://[^ \"'\\'')]+' $DS | grep -vE 'pantheonsite\.io|getpantheon|pantheon\.io|github\.com|\\\$'"
 
 case_start TC-T07-07 "SA-4: SSH host key pinning statics and TERMINUS_SSH_COMMAND"
-ckp "script sets GIT_SSH_COMMAND with StrictHostKeyChecking=yes, UserKnownHostsFile pointing at scripts/pantheon_known_hosts, BatchMode=yes" allin "$DS" 'GIT_SSH_COMMAND' 'StrictHostKeyChecking=yes' 'pantheon_known_hosts' 'BatchMode=yes'
+ckp "script sets GIT_SSH_COMMAND with StrictHostKeyChecking=yes, GlobalKnownHostsFile=/dev/null, UserKnownHostsFile pointing at scripts/pantheon_known_hosts, BatchMode=yes" allin "$DS" 'GIT_SSH_COMMAND' 'StrictHostKeyChecking=yes' 'GlobalKnownHostsFile=/dev/null' 'pantheon_known_hosts' 'BatchMode=yes'
 ckp "script sets TERMINUS_SSH_COMMAND to exactly: ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR" bash -c "grep -qF 'TERMINUS_SSH_COMMAND' $DS && grep -F 'TERMINUS_SSH_COMMAND' $DS | grep -qF 'ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR'"
 ckp "script never sets TERMINUS_ALTERNATE_NAMESERVER (it swaps names for IPs and breaks pinning); the wrapper and workflow do not either" bash -c "[[ -s $DS ]] && ! grep -nE 'TERMINUS_ALTERNATE_NAMESERVER *=|export TERMINUS_ALTERNATE_NAMESERVER' $DS $WRAP $WF 2>/dev/null"
+if ! kh_has_key; then
+  blk "awaiting L-3 (review condition 1): the key is committed only after copies from two days and two networks match; the developer owns $KH. Copy 1 is in evidence/host-key-copy1.txt"
+else
 ckp "known hosts file exists, holds only [codeserver.dev.<uuid>.drush.in]:2222 key lines (ssh-rsa or ecdsa)" bash -c "need=\$(grep -vE '^\s*(#|\$)' $KH); [[ -n \"\$need\" ]] && ! grep -vE '^\s*(#|\$)' $KH | grep -vE '^\[codeserver\.dev\.[0-9a-f-]{36}\.drush\.in\]:2222 (ssh-rsa|ecdsa-sha2-nistp[0-9]+|ssh-ed25519) [A-Za-z0-9+/=]+\$'"
 ckp "known hosts file comments: SHA256 fingerprint, date, how fetched, 'app server' deliberately not pinned, link to decision-host-keys.md" bash -c "grep -E '^\s*#' $KH | grep -qE 'SHA256:[A-Za-z0-9+/]+' && grep -E '^\s*#' $KH | grep -qE '20[0-9]{2}-[0-9]{2}-[0-9]{2}' && grep -E '^\s*#' $KH | grep -qiE 'ssh-keyscan' && grep -E '^\s*#' $KH | grep -qi 'app server' && grep -E '^\s*#' $KH | grep -q 'decision-host-keys.md'"
 ckp "known hosts file holds no app server entry and no private key" bash -c "[[ -s $KH ]] && ! grep -vE '^\s*#' $KH | grep -E 'appserver|PRIVATE KEY' "
+fi
 
 case_start TC-T07-08 "AC4 static: ddev deploy-drupal wrapper (KD-1)"
 ckp "wrapper exists, is executable, passes bash -n, is a DDEV web-container command (## Description / ## Usage header)" bash -c "[[ -f $WRAP && -x $WRAP ]] && bash -n $WRAP && grep -q '## Description' $WRAP"
@@ -627,7 +713,7 @@ ckp ".ddev/README.md lists ddev deploy-drupal (or the commands index does)" bash
 
 case_start TC-T07-09 "AC4 static: deploy-drupal.yml is a thin, guarded, pinned wrapper (TH-9, KD-8)"
 ckp "workflow file exists and parses" bash -c "python3 -I -c 'import yaml,sys; yaml.safe_load(open(\"$WF\"))'"
-ckp "triggers (push main + 3 paths, dispatch ref default main), concurrency deploy-drupal no-cancel, permissions contents:read, timeout 30, if: vars.PANTHEON_SITE, skip line, run step, secrets in env only, actions pinned by SHA, no third-party action, Terminus 3.6.2 + SHA-256, ssh-add -, fetch-depth 0, no --allow-unmerged" python3 -I "$WORK/wf.py" "$WF"
+ckp "triggers (push main + 3 paths, dispatch ref default main), concurrency deploy-drupal no-cancel, permissions contents:read, timeout 30, if: vars.PANTHEON_SITE, skip line, run step passes --ref DEPLOY_REF (from env:) with DEPLOY_SMOKE_* in env:, no GitHub expression inside any run:, secrets in env only, actions pinned by SHA, no third-party action, Terminus 4.3.3 + SHA-256 e7ca9bca...bade checked with --strict, ssh-add -, fetch-depth 0, no --allow-unmerged" python3 -I "$WORK/wf.py" "$WF"
 ckp "workflow has no 'set -x', no --force, no inline secret, no broker host" bash -c "[[ -s $WF ]] && ! grep -nE 'set -x|--force|--allow-unmerged' $WF && ! grep -iEn \"$SIM_BR\" $WF"
 ckp "no secrets.* or vars.* expression is used inside a run: block (they arrive through env:)" bash -c "python3 -I -c '
 import yaml,re,sys
@@ -638,9 +724,10 @@ for j in w[\"jobs\"].values():
 '"
 
 case_start TC-T07-10 "C4 stand-in: pinned actionlint, yamllint and check-yaml on the workflow"
-if command -v actionlint >/dev/null 2>&1; then
-  ckp "actionlint exits 0 on $WF (record the version in the report; it must be the pinned version)" actionlint "$WF"
-  note "actionlint version: $(actionlint -version 2>&1 | head -1)"
+AL=""; if [[ -x .tools/actionlint ]]; then AL=.tools/actionlint; elif command -v actionlint >/dev/null 2>&1; then AL=$(command -v actionlint); fi
+if [[ -n "$AL" ]]; then
+  ckp "actionlint ($AL) exits 0 on $WF (record the version in the report; it must be the pinned version)" "$AL" "$WF"
+  note "actionlint version: $("$AL" -version 2>&1 | head -1)"
 else blk "actionlint is not on PATH; the report must attach the pinned-version run (plan C4 stand-in). Install the pinned version and re-run"; fi
 ckp "the pinned actionlint version is written down (runbook, scripts/README.md or tool-versions)" bash -c "grep -rqiE 'actionlint[ =@v:-]*[0-9]+\.[0-9]+\.[0-9]+' $RB scripts/README.md scripts/tool-versions.env .github/README.md 2>/dev/null"
 if command -v yamllint >/dev/null 2>&1; then ckp "yamllint -c .yamllint.yaml on the workflow and the provider" yamllint -c .yamllint.yaml "$WF" "$PRV"; else skip "yamllint not on PATH: covered by pre-commit in TC-T07-24"; fi
@@ -665,7 +752,10 @@ case_start TC-T07-14 "AC4 offline harness: first deploy runs every stage, in ord
 ckp "exit 0; pushed tree equals HEAD:apps/drupal; one non-force push of <sha>:refs/heads/master; backup (--element=db --keep-for=30) then wake then push then workflow:wait --commit then code-log then updatedb, config:import -y, cache:rebuild, config:status; smoke URL https, no -k; split SHA is the last line" h_first_deploy
 
 case_start TC-T07-15 "AC4 offline harness: idempotent re-run (TH-3, KD-1 stage 4)"
-ckp "second run: exit 0, no backup, no push, no workflow:wait, still runs drush stages and smoke check; master unchanged; split SHA last" h_idempotent
+ckp "second run: exit 0, no backup, no push; workflow:wait --commit=<sha> --start=1 and env:code-log still run and the output holds 'completed successfully for commit'; drush stages and smoke check run; master unchanged; split SHA last" h_idempotent
+ckp "negative re-run, build failed: exit 1, no drush, no smoke check, no backup, no push, no 'deployed', master unchanged" h_rerun_fail fail
+ckp "negative re-run, workflow:wait gives up (timeout, exit 0): exit 1 and the same absences" h_rerun_fail timeout
+ckp "negative re-run, no matching workflow (not found, exit 0): exit 1 and the same absences" h_rerun_fail notfound
 
 case_start TC-T07-16 "AC4 offline harness: a rewind push is rejected, never forced (TH-3, SA-2)"
 ckp "deploying an older ancestor of origin/main after a newer deploy: exit 1, master unchanged, message points to 'Roll back code' and 'Emergency force push' in docs/runbooks/deploy.md, no forced push, no later stage" h_rewind
@@ -676,6 +766,8 @@ ckp "backup:create exits 1: script exits 1, no git push, nothing on Pantheon" h_
 case_start TC-T07-18 "AC4 offline harness: verification failures exit 1 (TH-3, SA-4, R5)"
 ckp "env:code-log shows another newest hash: exit 1 and no drush stage" h_verify_fail codelog
 ckp "workflow:wait fails: exit 1 and no drush stage" h_verify_fail wait
+ckp "workflow:wait gives up (timeout, exit 0, no success notice): exit 1, no drush stage, no 'deployed'" h_verify_fail timeout
+ckp "workflow:wait finds no workflow (not found, exit 0, no success notice): exit 1, no drush stage, no 'deployed'" h_verify_fail notfound
 ckp "config:status reports differences: exit 1 and no smoke check" h_verify_fail config
 ckp "smoke check: HTTP 200 with the Sandbox interstitial body (no user-login-form marker): exit 1 (can take up to the 120 s wake retry budget)" h_smoke_fail interstitial
 ckp "smoke check: HTTP 503: exit 1 (can take up to the 120 s wake retry budget)" h_smoke_fail status
@@ -720,7 +812,7 @@ ckp "CLAUDE.md Commands table lists ddev deploy-drupal and ddev pull pantheon" a
 ckp "docs/tests/T07/test-cases.md exists and has one case per TC id run here" bash -c "for i in \$(grep -oE 'case_start TC-T07-[0-9]+' $T/run-checks.sh | awk '{print \$2}' | sort -u); do grep -q \"### \$i:\" $T/test-cases.md || { echo \"no case doc for \$i\"; exit 1; }; done"
 
 case_start TC-T07-23 "KD-5: settings.php changed by a comment only; config_sync_directory still set after the Pantheon include"
-ckp "settings.php: config_sync_directory = '../config/sync' still set, after the settings.pantheon.php include, with a comment saying it must stay after the include" bash -c "f=$SETTINGS; a=\$(grep -n 'settings.pantheon.php' \$f | head -1 | cut -d: -f1); b=\$(grep -nE \"config_sync_directory *= *'\\.\\./config/sync'\" \$f | tail -1 | cut -d: -f1); [[ -n \$a && -n \$b && \$b -gt \$a ]] || { echo \"include line=\$a, config_sync_directory line=\$b\"; exit 1; }; sed -n \"\$((b-6)),\$((b))p\" \$f | grep -qiE '^\s*(//|#|\*).*(after|pantheon)'"
+ckp "settings.php: config_sync_directory = '../config/sync' still set, after the settings.pantheon.php include, with a comment saying it must stay after the include" bash -c "f=$SETTINGS; a=\$(grep -n 'settings.pantheon.php' \$f | head -1 | cut -d: -f1); b=\$(grep -nE \"config_sync_directory'\\] *= *'\\.\\./config/sync'\" \$f | tail -1 | cut -d: -f1); [[ -n \$a && -n \$b && \$b -gt \$a ]] || { echo \"include line=\$a, config_sync_directory line=\$b\"; exit 1; }; sed -n \"\$((b-6)),\$((b))p\" \$f | grep -qiE '^\s*(//|#|\*).*(after|pantheon)'"
 cka "settings.php diff against the branch point adds comment lines only" bash -c "d=\$(git diff -U0 $BASE -- $SETTINGS | grep -E '^[-+]' | grep -vE '^(\+\+\+|---)'); [[ -n \$d ]] || { echo 'no change at all (the KD-5 comment is missing)'; exit 1; }; ! grep -vE '^\+\s*(//|#|\*|/\*)' <<<\"\$d\""
 
 case_start TC-T07-24 "C4: pre-commit on T07 files, bash -n, earlier regression sets (stand-in for CI until T08)"
@@ -732,7 +824,9 @@ if [[ -x "$PC" ]]; then
   ckp "pre-commit run --files <every T07 file> exits 0 (shellcheck, yamllint, check-yaml, gitleaks, check-names)" pc_run
 else blk ".tools/pre-commit not bootstrapped: run scripts/bootstrap-dev.sh"; fi
 ckp "bash -n on the deploy script, the wrapper and this test script" bash -c "bash -n $DS && bash -n $WRAP && bash -n $T/run-checks.sh"
+if [[ "${T07_SKIP_NESTED:-0}" == 1 ]]; then blk "T07_SKIP_NESTED=1: the nested T02 to T06 regression run is skipped (negative-control runs only)"; else
 ckp "T02 to T06 run-checks.sh --regression exit 0" bash -c "for t in T02 T03 T04 T04a T05 T06; do docs/tests/\$t/run-checks.sh --regression >'$WORK/r.txt' 2>&1 || { echo \"\$t regression failed\"; grep -E '^\s+FAIL' '$WORK/r.txt' | head -5; exit 1; }; done"
+fi
 note "ddev quality (scripts/quality.sh) is run by the tester at execution time and attached as TC-T07-24 evidence (needs DDEV)"
 
 case_start TC-T07-25 "SIM: no broker domain, SDK or order call; only Pantheon and GitHub hosts (ADR-0006, CLAUDE.md)"
@@ -755,9 +849,9 @@ ckp "scripts/check-names.sh passes" scripts/check-names.sh
 ckp "no old placeholder names in T07 files (case-insensitive); the DDEV project is meridian, the site is meridian-trade" bash -c "f=\$(ls $DS $KH $WF $PRV $WRAP $RB 2>/dev/null); [[ -n \"\$f\" ]] && ! echo \"\$f\" | xargs grep -IinE 'trading''-agent|trading''_engine|trading''_ingest'"
 
 case_start TC-T07-27 "C5 close step: TRACEABILITY and PROGRESS carry the SA-7 wording (snapshot at close)"
-cka "TRACEABILITY R-11 and FR-27 evidence cells: 'T07: AC4 Pass by local deploy (TC-T07-nn); CI run TC-T07-nn Blocked (accepted, owner-run after O-6)'; R-11 stays Open" bash -c "grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -q 'AC4 Pass by local deploy' && grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -q 'Blocked (accepted, owner-run after O-6)' && grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -qi 'open' && grep -E '^\| FR-27 ' docs/TRACEABILITY.md | grep -q 'AC4 Pass by local deploy'"
-cka "PROGRESS T07 notes: 'AC4 by local deploy; CI deploy run owed after O-6 (owner-accepted)'" bash -c "grep -E '^\| T07 ' docs/PROGRESS.md | grep -q 'AC4 by local deploy; CI deploy run owed after O-6'"
-cka "the T07 test report states which SA-1 branch applied: machine user, local-only, or owner credentials accepted (date)" bash -c "grep -qE 'machine user|local-only|owner credentials accepted' $T/test-report.md"
+atclose "TRACEABILITY R-11 and FR-27 evidence cells: 'T07: AC4 Pass by local deploy (TC-T07-nn); CI run TC-T07-nn Blocked (accepted, owner-run after O-6)'; R-11 stays Open" bash -c "grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -q 'AC4 Pass by local deploy' && grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -q 'Blocked (accepted, owner-run after O-6)' && grep -E '^\| R-11 ' docs/TRACEABILITY.md | grep -qi 'open' && grep -E '^\| FR-27 ' docs/TRACEABILITY.md | grep -q 'AC4 Pass by local deploy'"
+atclose "PROGRESS T07 notes: 'AC4 by local deploy; CI deploy run owed after O-6 (owner-accepted)'" bash -c "grep -E '^\| T07 ' docs/PROGRESS.md | grep -q 'AC4 by local deploy; CI deploy run owed after O-6'"
+atclose "the T07 test report states which SA-1 branch applied: machine user, local-only, or owner credentials accepted (date)" bash -c "grep -qE 'machine user|local-only|owner credentials accepted' $T/test-report.md"
 
 case_start TC-T07-28 "evidence hygiene: no PAT, key, admin password or env dump in docs/tests/T07/evidence (R7)"
 ev_clean() {
@@ -769,6 +863,38 @@ ev_clean() {
   done; return "$bad"; }
 ckp "no secret-shaped text and no environment dump in any evidence file (empty folder passes; the report must say so)" ev_clean
 if command -v gitleaks >/dev/null 2>&1; then ckp "gitleaks over docs/tests/T07" gitleaks detect --no-git --source "$T" --no-banner --redact; else skip "gitleaks not on PATH"; fi
+
+
+case_start TC-T07-58 "Terminus 4.3.3 pin: Dockerfile, workflow and runbook agree; checksum verified with --strict"
+TSHA=e7ca9bcad3acbb1cfc0cec32550eeb2351e578dc6d5f79cd3a5303201893bade
+DF=.ddev/web-build/Dockerfile
+ckp "Dockerfile pins ARG TERMINUS_VERSION=4.3.3 and ARG TERMINUS_SHA256=$TSHA" allin "$DF" '^ARG TERMINUS_VERSION=4\.3\.3$' "^ARG TERMINUS_SHA256=$TSHA\$"
+ckp "workflow pins TERMINUS_VERSION: 4.3.3 and the same SHA-256" allin "$WF" '^\s+TERMINUS_VERSION: 4\.3\.3$' "^\s+TERMINUS_SHA256: $TSHA\$"
+ckp "runbook 'Tool versions' names Terminus 4.3.3 and the same SHA-256" allin "$RB" 'Terminus 4\.3\.3' "$TSHA"
+ckp "Dockerfile and workflow verify the checksum from a file with sha256sum --check --strict" bash -c "grep -q 'sha256sum --check --strict' $DF && grep -q 'sha256sum --check --strict' $WF"
+ckp "Dockerfile fails the build unless terminus --version equals Terminus \${TERMINUS_VERSION}; workflow runs terminus --version" bash -c "grep -qF 'terminus --version' $DF && grep -qF 'Terminus \${TERMINUS_VERSION}' $DF && grep -qF 'terminus --version' $WF"
+ckp "no 3.x pin remains: no 3.x TERMINUS_VERSION value in the Dockerfile or workflow, no 3.6.2 in the workflow (the Dockerfile comment may name 3.6.2 as the reason)" bash -c "! grep -nE 'TERMINUS_VERSION[=: ]+3\.' $DF $WF && ! grep -n '3\.6\.2' $WF"
+ckp "the same 64-hex digest is the only one pinned in all three files" bash -c "for f in $DF $WF; do [[ \$(grep -oE '[0-9a-f]{64}' \$f | sort -u | wc -l) -eq 1 ]] || { echo \"\$f: not exactly one digest\"; exit 1; }; done"
+
+case_start TC-T07-59 "Terminus 4.3.3 in the DDEV web container (one terminus on PATH)"
+if have_ddev && ddev describe >/dev/null 2>&1; then
+  rcof ddev exec 'terminus --version'
+  ckp "ddev exec terminus --version prints exactly 'Terminus 4.3.3'" eq "$OUT" "Terminus 4.3.3" version
+  rcof ddev exec 'which -a terminus'
+  ckp "which -a terminus lists exactly one path (the pinned phar replaces the DDEV copy)" bash -c "[[ \$(grep -c . <<<\"\$1\") -eq 1 ]]" _ "$OUT"
+else blk "DDEV is not running here"; fi
+
+case_start TC-T07-60 "Harness: DEPLOY_SMOKE_BUDGET must be whole seconds (exit 2 before any network call)"
+for bv in abc -5 1.5; do ckp "DEPLOY_SMOKE_BUDGET='$bv': exit 2, message names the variable, no terminus, curl or push" h_budget "$bv"; done
+
+case_start TC-T07-61 "Harness: the script runs from a subdirectory of the repository"
+ckp "dry-run from apps/drupal/config, -h from scripts/, a full deploy from apps/ all work" h_subdir
+
+case_start TC-T07-62 "Harness: unexpected git_url forms and ssh:// without a pinned key fail closed"
+ckp "scp-style git_url: exit 2 'unexpected git_url form', no wake, backup, ls-remote or push" h_url_form scp
+ckp "https git_url: exit 2 'unexpected git_url form' and the same absences" h_url_form https
+ckp "ssh:// git_url with a comment-only pantheon_known_hosts: exit 2 before env:wake, backup, ls-remote and push" h_url_form sshnokey
+ckp "ssh:// git_url with pantheon_known_hosts missing: exit 2 and the same absences" h_url_form sshmissing
 
 fi   # static
 
@@ -783,7 +909,7 @@ live_gate() {   # sets GATE_MSG; returns 0 when live cases may run
   have_ddev || { GATE_MSG="DDEV or Docker not available here"; return 1; }
   ddev exec 'test -n "${TERMINUS_MACHINE_TOKEN:-}"' >/dev/null 2>&1 || { GATE_MSG="TERMINUS_MACHINE_TOKEN is not set in the web container (plan O-1); value not read"; return 1; }
   ddev exec 'ssh-add -l 2>/dev/null | grep -qE "RSA|ECDSA"' >/dev/null 2>&1 || { GATE_MSG="no RSA or ECDSA key loaded in the ddev ssh agent (plan O-2: ddev auth ssh)"; return 1; }
-  ddev exec 'terminus auth:login >/dev/null 2>&1 && terminus auth:whoami >/dev/null 2>&1' || { GATE_MSG="terminus auth:login failed (expired PAT?)"; return 1; }
+  ddev exec 'terminus auth:login --machine-token="$TERMINUS_MACHINE_TOKEN" >/dev/null 2>&1 && [[ -n "$(terminus auth:whoami --field=email 2>/dev/null)" ]]' || { GATE_MSG="terminus auth:login failed (expired PAT?)"; return 1; }
   return 0; }
 need_o4() { [[ "${T07_O4_DONE:-0}" == 1 ]] || { GATE_MSG="T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)"; return 1; }; }
 need_confirm() { [[ "${!1:-0}" == 1 ]] || { GATE_MSG="$1=1 not set: destructive step needs an explicit confirm variable and owner approval"; return 1; }; }
@@ -813,10 +939,12 @@ live_checks() {
     dxs 'terminus connection:info "$PANTHEON_SITE.dev" --field=git_url'
     ckp "connection:info returns a ssh:// git URL on codeserver.dev.<uuid>.drush.in:2222" bash -c "grep -qE '^ssh://codeserver\.dev\.[0-9a-f-]+@codeserver\.dev\.[0-9a-f-]+\.drush\.in:2222/~/repository\.git' <<<\"\$1\"" _ "$OUT"
     local url=$OUT
-    dxs "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/var/www/html/scripts/pantheon_known_hosts -o BatchMode=yes' git ls-remote '$url' 2>&1 | head -5"
-    note "ls-remote (host part only shown by redaction rule: refs below): $(printf '%s' "$OUT" | cut -c1-200 | head -3)"
-    ckp "dev branch is master (ls-remote lists refs/heads/master, pinned known_hosts accepted)" bash -c "grep -q 'refs/heads/master' <<<\"\$1\"" _ "$OUT"
-    dxs 'terminus backup:create "$PANTHEON_SITE.no-such-env-t07" --element=db --keep-for=1; echo "EXIT=$?"'
+    if kh_has_key; then
+      dxs "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/var/www/html/scripts/pantheon_known_hosts -o BatchMode=yes' git ls-remote '$url' 2>&1 | head -5"
+      note "ls-remote (host part only shown by redaction rule: refs below): $(printf '%s' "$OUT" | cut -c1-200 | head -3)"
+      ckp "dev branch is master (ls-remote lists refs/heads/master, pinned known_hosts accepted)" bash -c "grep -q 'refs/heads/master' <<<\"\$1\"" _ "$OUT"
+    else blk "awaiting L-3: $KH holds no key yet. Part 1 ran the same ls-remote with a temporary pin of host-key copy 1 (evidence/live-31-discovery.txt)"; fi
+    dxs 'terminus backup:create "$PANTHEON_SITE.no-such-env-t07" --element=db --keep-for=1 2>&1 || echo "EXIT=$?"'
     ckp "backup:create against a non-existent environment exits non-zero (record the exact exit code)" bash -c "grep -E 'EXIT=[1-9]' <<<\"\$1\"" _ "$OUT"
   fi
 
@@ -831,6 +959,7 @@ live_checks() {
     ckp "output names every stage and a warning about merge commits (--allow-unmerged)" bash -c "grep -qiE 'warn' '$WORK/deploy1.txt' && grep -qi 'merge commit' '$WORK/deploy1.txt'"
     ckp "output contains no token, no private key and no full git URL user part" bash -c "! grep -E 'BEGIN [A-Z ]*PRIVATE|machine-token|TERMINUS_MACHINE_TOKEN=' '$WORK/deploy1.txt'"
     ckp "a backup was created by the script before the push (backup stage printed)" bash -c "grep -qiE 'backup' '$WORK/deploy1.txt'"
+    ckp "the build was confirmed: output holds 'completed successfully for commit' (review condition 3, L-4)" bash -c "grep -q 'completed successfully for commit' '$WORK/deploy1.txt'"
   fi
 
   case_start TC-T07-33 "AC4 live: independent verification of the deploy (code-log, ls-remote, smoke)"
@@ -858,6 +987,7 @@ live_checks() {
     local n2; n2=$(python3 -I -c 'import json,sys; print(len(json.loads(sys.argv[1] or "[]")))' "$OUT" 2>/dev/null || echo "?")
     ckp "database backup count unchanged ($n1 before, $n2 after)" eq "$n2" "$n1" count
     ckp "output says the push was skipped (already at the split SHA)" bash -c "grep -qiE 'skip|already|up to date|idempotent' '$WORK/deploy2.txt'"
+    ckp "the re-run still confirmed the build: output holds 'completed successfully for commit' (workflow:wait --start=1; review condition 3, L-4/L-10)" bash -c "grep -q 'completed successfully for commit' '$WORK/deploy2.txt'"
   fi
 
   case_start TC-T07-35 "AC4 live negative: an older ancestor of origin/main is rejected by Pantheon, never forced"
@@ -932,14 +1062,15 @@ live_checks() {
     dxs "cd /var/www/html && head -c 0 /dev/null; mkdir -p /tmp/t07 && cat > /tmp/t07/kh_wrong <<'EOF'
 $(cat "$WORK/kh_wrong")
 EOF
-GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/t07/kh_wrong -o BatchMode=yes' git ls-remote '$url' 2>&1; echo EXIT=\$?"
+GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/tmp/t07/kh_wrong -o BatchMode=yes' git ls-remote '$url' 2>&1; echo EXIT=\$?"
     ckp "wrong pinned key: connection refused with a host key error (REMOTE HOST IDENTIFICATION or Host key verification failed), non-zero exit" bash -c "grep -qiE 'host key verification failed|REMOTE HOST IDENTIFICATION' <<<\"\$1\" && grep -qE 'EXIT=[1-9]' <<<\"\$1\"" _ "$OUT"
-    dxs "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/var/www/html/$KH -o BatchMode=yes' git ls-remote '$url' 2>&1 | head -2; echo EXIT=\${PIPESTATUS[0]}"
+    dxs "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/var/www/html/$KH -o BatchMode=yes' git ls-remote '$url' 2>&1 | head -2; echo EXIT=\${PIPESTATUS[0]}"
     ckp "control: the committed known_hosts file lets git ls-remote succeed" bash -c "grep -q 'EXIT=0' <<<\"\$1\" && grep -q 'refs/' <<<\"\$1\"" _ "$OUT"
   fi
 
   case_start TC-T07-41 "KD-2 live: the committed code-server key matches ssh-keyscan today"
-  if gate; then
+  if ! kh_has_key; then blk "awaiting L-3: no key is committed yet. Copy 1 is in evidence/host-key-copy1.txt; copy 2 (next UTC day) and the second network are owner/tester steps in the report"
+  elif gate; then
     dxs 'terminus connection:info "$PANTHEON_SITE.dev" --field=git_url'
     local host; host=$(sed -E 's#^ssh://[^@]+@([^:/]+):([0-9]+).*#\1#' <<<"$OUT")
     o=$(ssh-keyscan -p 2222 -t rsa,ecdsa "$host" 2>/dev/null | ssh-keygen -lf - 2>/dev/null | awk '{print $2}' | sort -u | tr '\n' ' ')
@@ -953,20 +1084,24 @@ GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/t07
     rcof ddev snapshot --name "t07-before-pull-$RUNID"
     ckp "local snapshot taken first (runbook: ddev snapshot before a pull)" eq "$RC" 0 rc
     dx 'terminus auth:logout' >/dev/null 2>&1 || true
-    dxs 'terminus auth:whoami'
-    ckp "precondition: the Terminus session is logged out, so the provider's auth_command is what authenticates (whoami fails)" bash -c "[[ $RC -ne 0 ]]"
+    dxs 'terminus auth:whoami --field=email 2>/dev/null'
+    ckp "precondition: the Terminus session is logged out (4.3.3: whoami exits 0 with empty stdout), so the provider's auth_command is what authenticates" bash -c "[[ -z \"\${1//[[:space:]]/}\" ]]" _ "$OUT"
     rcof ddev auth ssh
     note "ddev auth ssh exit $RC (owner key already loaded; passphrase prompts need the owner)"
     rcof env -i HOME="$HOME" PATH="$PATH" ddev pull pantheon -y
     printf '%s\n' "$OUT" >"$WORK/pull.txt"; show_out "$(tail -10 "$WORK/pull.txt")"
     ckp "ddev pull pantheon -y exits 0" eq "$RC" 0 rc
-    rcof ddev drush config:get system.site uuid --format=string
-    ckp "local site UUID equals config/sync after the pull (both sides share the UUID since the KD-6 reinstall)" bash -c "grep -q \"\$(grep -E '^uuid:' apps/drupal/config/sync/system.site.yml | awk '{print \$2}')\" <<<\"\$1\"" _ "$OUT"
-    rcof ddev drush config:status
-    ckp "local config:status says No differences after the pull" bash -c "grep -qi 'No differences' <<<\"\$1\"" _ "$OUT"
-    ckp "files were pulled: sites/default/files exists locally and the pull log names files" bash -c "ddev exec 'test -d web/sites/default/files' && grep -qiE 'files' '$WORK/pull.txt'"
-    rcof ddev exec 'drush sql:query "select count(*) from users_field_data"'
-    ckp "the pulled database has users (count >= 1)" bash -c "grep -qE '^[1-9]' <<<\"\$1\"" _ "$OUT"
+    if need_o4; then
+      rcof ddev drush config:get system.site uuid --format=string
+      ckp "local site UUID equals config/sync after the pull (both sides share the UUID since the KD-6 reinstall)" bash -c "grep -q \"\$(grep -E '^uuid:' apps/drupal/config/sync/system.site.yml | awk '{print \$2}')\" <<<\"\$1\"" _ "$OUT"
+      rcof ddev drush config:status
+      ckp "local config:status says No differences after the pull" bash -c "grep -qi 'No differences' <<<\"\$1\"" _ "$OUT"
+    else blk "awaiting O-4 (part 2): UUID and config:status after the pull hold only once Pantheon dev is reinstalled from config/sync (KD-6); before that dev is a different (dashboard-installed) site"; fi
+    ckp "files were pulled: apps/drupal/web/sites/default/files exists locally and the pull log names files" bash -c "ddev exec 'test -d apps/drupal/web/sites/default/files' && grep -qiE 'Obtaining files' '$WORK/pull.txt'"
+    if need_o4; then
+      rcof ddev exec 'drush sql:query "select count(*) from users_field_data"'
+      ckp "the pulled database has users (count >= 1)" bash -c "grep -qE '^[1-9]' <<<\"\$1\"" _ "$OUT"
+    else blk "awaiting O-4 (part 2): the pulled database has users only after the reinstall"; fi
     note "AC3 reading (SA-5/KD-11): ddev auth pantheon does not exist in DDEV v1.24.4; the report records this note"
   fi
 
@@ -979,69 +1114,77 @@ GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/t07
     ckp "static provider check TC-T07-04 already proved there is no push command; ddev push help is informational (exit $RC)" true
   else blk "TC-T07-42 did not run in this invocation (its pull log is the input); run --live with T07_CONFIRM_PULL=1"; fi
 
-  case_start TC-T07-44 "KD-12 live: Sandbox interstitial measurement (GET, POST, /jsonapi, with and without Deterrence-Bypass)"
-  if gate O4; then
-    local u m h code ctype
-    for u in /user/login /jsonapi; do
-      for h in none bypass; do
-        local args=(-sS --max-time 90 -o "$WORK/m.body" -w '%{http_code} %{content_type}' )
-        [[ $h == bypass ]] && args+=(-H "Deterrence-Bypass: $BYPASS")
-        o=$(curl "${args[@]}" "$PUB$u" 2>&1) || true
-        note "GET $u header=$h -> $o ; first 80 bytes: $(head -c 80 "$WORK/m.body" | tr '\n' ' ')"
-      done
-    done
-    head -c 1024 /dev/zero >"$WORK/post.bin"
-    for h in none bypass; do
-      local args=(-sS --max-time 90 -o "$WORK/m.body" -w '%{http_code}' -X POST --data-binary @"$WORK/post.bin" -H 'Content-Type: application/x-www-form-urlencoded')
-      [[ $h == bypass ]] && args+=(-H "Deterrence-Bypass: $BYPASS")
-      o=$(curl "${args[@]}" "$PUB/user/login" 2>&1) || true
-      note "POST /user/login 1 KB header=$h -> $o ; first 80 bytes: $(head -c 80 "$WORK/m.body" | tr '\n' ' ')"
-    done
-    o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
-    ckp "with the bypass header (value $BYPASS): GET /user/login is Drupal's form (200 and user-login-form)" bash -c "[[ '$o' == 200 ]] && grep -q 'user-login-form' '$WORK/m.body'"
-    o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code} %{content_type}' "$PUB/jsonapi" 2>&1) || true
-    ckp "with the bypass header: GET /jsonapi is Drupal's answer (200/401/403 and a JSON content type), not the interstitial (got: $o)" bash -c "grep -qE '^(200|401|403) .*json' <<<\"\$1\"" _ "$o"
+  case_start TC-T07-44 "KD-12 live: Sandbox warning page and edge behaviour (GET, POST, /jsonapi, Accept, User-Agent, with and without Deterrence-Bypass)"
+  if live_gate; then
+    local u h a2 ua title
+    note "Part 1 measurement (edge level; valid whatever Drupal is installed behind it). UTC $(date -u +%FT%TZ)"
+    title() { grep -o '<title>[^<]*' "$WORK/m.body" | head -1 | sed 's/<title>//'; }
     o=$(curl -sS --max-time 90 -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
-    if grep -q 'user-login-form' "$WORK/m.body"; then
-      note "RESULT: without the header the body is Drupal's form: curl is NOT intercepted (status $o)"
-      ckp "script need not send the header; if it does it is a documented constant" true
-    else
-      note "RESULT: without the header the body is NOT Drupal's form (status $o): the interstitial intercepts curl"
-      ckp "then the deploy script's smoke check sends Deterrence-Bypass (KD-1 stage 9)" grep -q 'Deterrence-Bypass' "$DS"
-      ckp "then an item for T10 and T21 is raised in the technical design (engine and Next.js send the header)" bash -c "grep -qiE 'Deterrence-Bypass' $TD && grep -qiE 'T10.{0,200}T21|T21.{0,200}T10' $TD"
-    fi
+    note "GET /user/login default curl (Accept */*), no header -> $o ; title: $(title)"
+    ckp "default curl GET (no Accept: text/html) is not the Sandbox warning page" bash -c "! grep -q 'Sandbox Environment Notice' '$WORK/m.body'"
+    o=$(curl -sS --max-time 90 -H 'Accept: text/html' -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
+    note "GET /user/login Accept: text/html, no header -> $o ; title: $(title)"
+    ckp "GET with Accept: text/html and no header returns the Sandbox warning page (title 'Sandbox Environment Notice')" bash -c "grep -q 'Sandbox Environment Notice' '$WORK/m.body'"
+    o=$(curl -sS --max-time 90 -H 'Accept: text/html' -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
+    note "GET /user/login Accept: text/html + Deterrence-Bypass: $BYPASS -> $o ; title: $(title)"
+    ckp "the header 'Deterrence-Bypass: $BYPASS' removes the warning page for an HTML GET" bash -c "! grep -q 'Sandbox Environment Notice' '$WORK/m.body'"
+    for u in /user/login /jsonapi; do for h in none bypass; do
+      a2=(-sS --max-time 90 -o "$WORK/m.body" -w '%{http_code} %{content_type}' -X POST --data-binary '{}' -H 'Content-Type: application/json' -H 'Accept: text/html')
+      [[ $h == bypass ]] && a2+=(-H "Deterrence-Bypass: $BYPASS")
+      o=$(curl "${a2[@]}" "$PUB$u" 2>&1) || true
+      note "POST $u (Accept: text/html) header=$h -> $o ; title: $(title)"
+      ckp "POST $u header=$h is not the Sandbox warning page" bash -c "! grep -q 'Sandbox Environment Notice' '$WORK/m.body'"
+    done; done
+    for ua in 'curl/8.5.0' 'node' 'Wget/1.21' 'undici' 'python-httpx/0.27.0' 'python-requests/2.32.3' 'Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0'; do for h in none bypass; do
+      a2=(-sS --max-time 90 -A "$ua" -o "$WORK/m.body" -w '%{http_code}')
+      [[ $h == bypass ]] && a2+=(-H "Deterrence-Bypass: $BYPASS")
+      o=$(curl "${a2[@]}" "$PUB/jsonapi" 2>&1) || true
+      note "GET /jsonapi User-Agent='$ua' header=$h -> $o ; title: $(title)"
+    done; done
+    note "RESULT recorded for T10 and T21: see the User-Agent lines above; a 403 with title 'Just a moment...' is a Cloudflare challenge that Deterrence-Bypass does not remove"
+  else blk "$GATE_MSG"; fi
+  if gate O4; then
+    o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
+    ckp "installed site, with the header: GET /user/login is Drupal's form (200 and user-login-form)" bash -c "[[ '$o' == 200 ]] && grep -q 'user-login-form' '$WORK/m.body'"
+    o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code} %{content_type}' "$PUB/jsonapi" 2>&1) || true
+    ckp "installed site, with the header: GET /jsonapi is Drupal's answer (200/401/403 and a JSON content type) (got: $o)" bash -c "grep -qE '^(200|401|403) .*json' <<<\"\$1\"" _ "$o"
     ckp "the runbook and D8 record the measured result" allin "$RB" 'Deterrence-Bypass'
   fi
 
   case_start TC-T07-45 "KD-12 live: edge body size 8 MB and 9 MB, post_max_size and upload_max_filesize"
-  if gate O4; then
-    curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o /dev/null "$PUB/user/login" 2>/dev/null || true   # warm
+  if live_gate; then
     head -c 8388608 /dev/urandom >"$WORK/b8.bin"; head -c 9437184 /dev/urandom >"$WORK/b9.bin"
     local c8 c9
-    c8=$(curl -sS --max-time 120 -o /dev/null -w '%{http_code}' -X POST --data-binary @"$WORK/b8.bin" -H 'Content-Type: application/x-www-form-urlencoded' -H "Deterrence-Bypass: $BYPASS" "$PUB/user/login" 2>&1) || true
-    c9=$(curl -sS --max-time 120 -o /dev/null -w '%{http_code}' -X POST --data-binary @"$WORK/b9.bin" -H 'Content-Type: application/x-www-form-urlencoded' -H "Deterrence-Bypass: $BYPASS" "$PUB/user/login" 2>&1) || true
-    note "POST 8,388,608 bytes -> $c8 ; POST 9,437,184 bytes -> $c9 ($(date -u +%F))"
+    c8=$(curl -sS --max-time 120 -o /dev/null -w '%{http_code}' -X POST --data-binary @"$WORK/b8.bin" -H 'Content-Type: application/x-www-form-urlencoded' "$PUB/user/login" 2>&1) || true
+    c9=$(curl -sS --max-time 120 -o /dev/null -w '%{http_code}' -X POST --data-binary @"$WORK/b9.bin" -H 'Content-Type: application/x-www-form-urlencoded' "$PUB/user/login" 2>&1) || true
+    note "POST 8,388,608 bytes -> $c8 ; POST 9,437,184 bytes -> $c9 ($(date -u +%F)); path /user/login, no data changes"
     ckp "8 MB body: the response is not 413 from the edge (design value met; got $c8)" bash -c "[[ '$c8' =~ ^[0-9]{3}\$ && '$c8' != 413 && '$c8' != 000 ]]"
     note "9 MB result recorded only (the limit may be higher or lower): $c9"
+  else blk "$GATE_MSG"; fi
+  if gate O4; then
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- php:eval '"'"'echo ini_get("post_max_size")." ".ini_get("upload_max_filesize");'"'"
     ckp "post_max_size and upload_max_filesize recorded: '$OUT'" bash -c "grep -qE '[0-9]+[MG]? [0-9]+[MG]?' <<<\"\$1\"" _ "$OUT"
   fi
 
   case_start TC-T07-46 "KD-12 live: wake time and warm GET latency (p50, p95 over 20 requests)"
-  if gate O4; then
+  if live_gate; then
     local t0 t1
     t0=$(date +%s.%N); dxs 'terminus env:wake "$PANTHEON_SITE.dev"'; t1=$(date +%s.%N)
     note "env:wake exit $RC in $(awk -v a="$t0" -v b="$t1" 'BEGIN{printf "%.1f", b-a}') s (from asleep only if the env was idle > 1 h; record which)"
     ckp "env:wake exits 0 within the 120 s retry budget" bash -c "[[ $RC -eq 0 ]] && awk -v a='$t0' -v b='$t1' 'BEGIN{exit !(b-a<120)}'"
     : >"$WORK/times.txt"; local i
     for i in $(seq 1 20); do
-      curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o /dev/null -w '%{http_code} %{time_total}\n' "$PUB/user/login" >>"$WORK/times.txt" 2>&1 || true
+      curl -sS --max-time 90 -o /dev/null -w '%{http_code} %{time_total}\n' "$PUB/user/login" >>"$WORK/times.txt" 2>&1 || true
     done
-    ckp "20 warm GETs all return 200" bash -c "[[ \$(grep -c '^200 ' '$WORK/times.txt') -eq 20 ]]"
+    note "status codes of the 20 warm GETs: $(awk '{print $1}' "$WORK/times.txt" | sort | uniq -c | tr '\n' ' ')"
+    ckp "20 warm GETs return no 4xx or 5xx (the status itself depends on what is installed: 302 before install, 200 after)" bash -c "! grep -qE '^[45]' '$WORK/times.txt' && [[ \$(grep -c . '$WORK/times.txt') -eq 20 ]]"
     local p50 p95
     p50=$(awk '{print $2}' "$WORK/times.txt" | sort -n | sed -n '10p'); p95=$(awk '{print $2}' "$WORK/times.txt" | sort -n | sed -n '19p')
     note "warm GET /user/login: p50=${p50}s p95=${p95}s (n=20, $(date -u +%F))"
     ckp "p95 below the 59 s edge timeout (recorded value ${p95}s)" bash -c "awk -v p='$p95' 'BEGIN{exit !(p<59 && p>0)}'"
+  else blk "$GATE_MSG"; fi
+  if gate O4; then
+    ckp "installed site: 20 warm GETs all return 200" bash -c "[[ \$(grep -c '^200 ' '$WORK/times.txt') -eq 20 ]]"
   fi
 
   case_start TC-T07-47 "KD-12 live: the private files path is not served"
@@ -1089,7 +1232,7 @@ GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/t07
     dxs 'terminus connection:info "$PANTHEON_SITE.dev" --field=git_url'; local url=$OUT
     ( git fetch -q origin 2>/dev/null || true )
     local sp; sp=$(git subtree split --prefix=apps/drupal origin/main 2>/dev/null || true)
-    dxs "mkdir -p /tmp/t07/clone && cd /tmp/t07/clone && rm -rf r && git init -q r && cd r && GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/var/www/html/$KH -o BatchMode=yes' git fetch -q '$url' master && git log --format=%H FETCH_HEAD | tail -1"
+    dxs "mkdir -p /tmp/t07/clone && cd /tmp/t07/clone && rm -rf r && git init -q r && cd r && GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/var/www/html/$KH -o BatchMode=yes' git fetch -q '$url' master && git log --format=%H FETCH_HEAD | tail -1"
     ckp "the oldest commit on Pantheon master is a commit of the apps/drupal split (not the Pantheon upstream root)" bash -c "[[ -n '$sp' ]] && git rev-list '$sp' | grep -qx \"\$(tail -n1 <<<\"\$1\")\"" _ "$OUT"
   fi
 }   # live_checks

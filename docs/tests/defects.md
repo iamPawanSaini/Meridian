@@ -63,7 +63,40 @@ and Note findings may be ticketed.
 
 ## Open
 
-(none)
+### DEF-009: The Pantheon Sandbox edge challenges requests from non-allowlisted User-Agents (Cloudflare 403)
+
+| Field | Value |
+|---|---|
+| ID | DEF-009 |
+| Severity | Medium (design assumption invalid; workaround exists; blocks nothing in T07, affects T10, T21 and T28) |
+| Found in | T07 part 1, TC-T07-44 (`evidence/live-44-*.txt`, `evidence/TC-T07-44.*.txt`) |
+| Status | Open |
+| Fix commit | |
+| Retest result | |
+
+**Steps to reproduce** (run 2026-11-02 from the tester's network; Pantheon dev then held a
+dashboard-installed, not yet installed Drupal, so the edge result is independent of our code)
+
+1. `curl -sS -A 'python-httpx/0.27.0' -o /dev/null -w '%{http_code}\n' https://dev-meridian-trade.pantheonsite.io/jsonapi`
+2. Repeat with `-H 'Deterrence-Bypass: 1'`, and with the User-Agents `undici`, `python-requests/2.32.3`,
+   `meridian-engine/0.1`, `Go-http-client/2.0`, `Mozilla/5.0 (...) Chrome/126.0`, and an empty one.
+3. Compare with `curl/8.5.0`, `node` and `Wget/1.21`.
+
+**Expected:** the design (technical design D8, KD-12, plan A7) assumes that the only edge hurdle is
+the Sandbox warning page and that the header `Deterrence-Bypass` removes it, so the engine (T10)
+and the Next.js server (T21) can call the Drupal API with it.
+
+**Actual:** two separate behaviours. (1) The Sandbox warning page ("Sandbox Environment Notice",
+HTTP 200) is served only to GET requests that send `Accept: text/html`; default curl, POST and
+JSON requests are not intercepted, and `Deterrence-Bypass: 1` removes the page (the page itself sets
+the cookie `Deterrence-Bypass=1`). (2) A Cloudflare managed challenge (HTTP 403, `cf-mitigated:
+challenge`, title "Just a moment...") answers every request from the User-Agents `undici`,
+`python-httpx`, `python-requests`, `Go-http-client`, `Mozilla/...`, `Python-urllib`, `aiohttp`,
+`meridian-engine/0.1` and from an empty User-Agent, with or without the bypass header. `curl`,
+`node` and `Wget` pass. A Python engine client would therefore get 403 from a Pantheon Sandbox dev
+site. Needs a decision by the technical-architect: a documented User-Agent for the engine, a
+different host or plan for T28, or a Pantheon/Cloudflare allowlist request. Not a T07 code change:
+the deploy script's smoke check uses curl and is not affected.
 
 ## Closed
 
@@ -240,3 +273,78 @@ improvement look like a regression. The DEF-004 review says TC-T04a-30 rule 1 sh
 against the scripts as of 990e95c, not the counts. Needs a decision by the technical-architect and
 owner on how the rule is expressed (for example, no FAIL and exit 0, or refreshed close evidence).
 I have not changed the expected result.
+
+### DEF-006: T07 harness predates the build confirmation (review finding 1)
+
+| Field | Value |
+|---|---|
+| ID | DEF-006 |
+| Severity | Low (test-design defect; made TC-T07-13 to 16, 18 and 19 print FAIL) |
+| Found in | T07 re-review, TC-T07-13, 14, 15, 16, 18, 19 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T07/run-checks.sh` and the T07 Change log |
+| State history | Open (reviewer, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: static run `evidence/static-part1.txt`: 31 PASS, 0 FAIL, 30 BLOCKED. Negative controls with broken script copies fail the right cases (`evidence/negative-controls-part1.txt`) |
+
+**Steps to reproduce:** `docs/tests/T07/run-checks.sh` at 3794178.
+
+**Expected:** a deploy against the fixture exits 0.
+
+**Actual:** the fake `workflow:wait` printed `workflow done`, but the script (correctly, Terminus
+4.3.3 facts b and c) requires `Workflow <id> completed successfully for commit <sha>`. Every
+fixture deploy exited 1 and the later checks failed as a cascade. The fake now prints the 4.3.3
+notice; timeout and not-found fakes were added; TC-T07-15 and 34 expect `--start=1` and
+`env:code-log` on a re-run and have three negative re-run cases.
+
+### DEF-007: Earlier regression suites fail on T07's legitimate changes (snapshots tagged as invariants)
+
+| Field | Value |
+|---|---|
+| ID | DEF-007 |
+| Severity | Low (test-design defect) |
+| Found in | T07 review, TC-T04a-33, TC-T05-02, TC-T05-21, TC-T05-23, TC-T06-12, TC-T06-19 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T04a/run-checks.sh`, `docs/tests/T05/run-checks.sh`, `docs/tests/T06/run-checks.sh` and the three Change logs |
+| State history | Open (reviewer, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: `--regression` exits 0 for T02 to T06 and T07 (`evidence/regression-*-part1.txt`, `evidence/part1-rc.txt`): T05 24 PASS 0 FAIL, T06 and T04a green |
+
+**Steps to reproduce:** `docs/tests/T05/run-checks.sh --regression` and the T04a and T06 equivalents
+at 3794178.
+
+**Expected:** invariant checks pass after T07; snapshot checks are skipped.
+
+**Actual:** the T04a `.env.example` variable comparison (T07 changes `PANTHEON_SITE` and adds
+variables), "no providers/pantheon.yaml" in T05 and T06 (T07 delivers it) and the T05 check that
+treated the bare key `web_environment` as forbidden (KD-4 requires
+`web_environment: [PANTHEON_SITE=meridian-trade]`) were tagged `ckp`. Fixes: the first two are
+re-tagged `cka`; a new invariant checks `.env.example` for secret-shaped values; the T05 check now
+inspects only the values under `web_environment`. TC-T05-21 and TC-T06-19 only nest these.
+
+### DEF-008: Remaining T07 check problems found by review and by the first live run
+
+| Field | Value |
+|---|---|
+| ID | DEF-008 |
+| Severity | Low (test-design defect) |
+| Found in | T07 review, TC-T07-07, 09, 10, 23, 27; part 1 live run, TC-T07-31, 42 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T07/run-checks.sh`, `docs/tests/T07/test-cases.md` |
+| State history | Open (reviewer and tester, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: static `evidence/static-part1.txt` and live `evidence/live-only-part1.txt` (the first live run, `live-only-part1-run1-before-check-fixes.txt`, showed the two live defects below) |
+
+**Actual and fix, one line each**
+
+- TC-T07-09 expected Terminus 3.6.2 and the inline `${{ inputs.ref }}`; now 4.3.3 with SHA-256
+  `e7ca9bca...bade`, `--ref "$DEPLOY_REF"` through `env:`, and no `${{` in any `run:`.
+- TC-T07-10 looked only for `actionlint` on PATH; it now uses `.tools/actionlint` first.
+- TC-T07-23 regex could not match `$settings['config_sync_directory'] = ...`; fixed.
+- TC-T07-07 and the live `GIT_SSH_COMMAND` strings lacked `GlobalKnownHostsFile=/dev/null`; added.
+  The known-hosts content checks are Blocked until the key is committed, not Fail.
+- TC-T07-27 is Blocked until `T07_CLOSE=1` (it is an at-close snapshot).
+- TC-T07-31 (live) read the exit code through `; echo EXIT=$?`, which `ddev exec` never reaches
+  after a failing command; it now uses `|| echo "EXIT=$?"`.
+- TC-T07-42 (live) tested `web/sites/default/files`; the docroot is `apps/drupal/web`.
+- The live gate and the TC-T07-42 precondition called `terminus auth:login` without
+  `--machine-token` and tested `auth:whoami` by exit status; Terminus 4.3.3 needs the option, and
+  `whoami` exits 0 when logged out (live item L-2 confirmed this).
+- New cases: TC-T07-58 to 62 (Terminus pin, version in DDEV, budget, subdirectory, git_url forms).
