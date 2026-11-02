@@ -16,7 +16,9 @@ This folder is filled in Phase 2:
 | `meridian-engine/entrypoint.sh` | T06 | Builds the CA bundle (system CAs plus the DDEV mkcert root), then runs the command |
 | `meridian-web/start.sh`, `placeholder-server.mjs` | T06 | Starts `npm run dev` when `apps/web/package.json` exists, else the placeholder server |
 | `commands/host/e2e` | T27 | `ddev e2e`, not part of the services task |
-| `providers/pantheon.yaml` | T07 | `ddev pull pantheon` |
+| `providers/pantheon.yaml` | T07 | `ddev pull pantheon` (pull only; takes a fresh backup first) |
+| `commands/web/deploy-drupal` | T07 | `ddev deploy-drupal [--ref REF] [--dry-run] [--allow-unmerged]`, a wrapper of `scripts/deploy-drupal.sh` |
+| `web-build/Dockerfile` | T07 | Installs the pinned Terminus 4.3.3 in the web image |
 
 ## config.yaml (T05)
 
@@ -100,3 +102,24 @@ Pass; the full list is in `docs/tests/T06/test-report.md`.
 | `ddev delete` removes the labelled volume | Yes: `<site>-postgres-data` is gone after `ddev delete -Oy` (throwaway project `t06probe`) | `docker volume ls` before and after |
 | Mount only the `mkcert` folder (compose `volume.subpath`) to hide the CA key | `subpath: mkcert` works with Compose 2.34 and Docker 28, but `rootCA-key.pem` sits in the same folder as `rootCA.pem`, so the key stays visible. A volume cannot select one file. Kept the read-only mount of the whole volume | tried and reverted, 2026-11-02 |
 | Containers resolve `meridian.ddev.site` to `ddev-router` with `external_links`; mkcert root trusted | Yes for Python (`SSL_CERT_FILE` bundle) and Node (`NODE_EXTRA_CA_CERTS`); without the variables verification fails | `ddev engine`, `ddev next` |
+
+## Pantheon: Terminus 4.x, provider and deploy command (T07)
+
+- **Terminus is pinned to 4.3.3 in the web container.** The DDEV v1.24.4 web image ships Terminus
+  3.6.2. With a Pantheon personal access token (PAT) it failed on 2026-11-02 with `HTTP request
+  POST https://<host>/api/authorize/machine-token has failed with error Undefined` and `Maximum
+  retry attempts reached`, while the Pantheon API was reachable. `web-build/Dockerfile` downloads
+  the 4.3.3 `terminus.phar` from the GitHub release, checks its SHA-256
+  (`e7ca9bcad3acbb1cfc0cec32550eeb2351e578dc6d5f79cd3a5303201893bade`), and installs it over
+  `/usr/local/bin/terminus`, so `terminus` on PATH, `ddev pull pantheon` and `ddev deploy-drupal`
+  all use it. Record: version 4.3.3 (released 2026-08-20), source
+  `github.com/pantheon-systems/terminus/releases/tag/4.3.3`, checked 2026-11-02. Upgrade by
+  changing both `ARG` values in a task with a plan entry, then `ddev debug rebuild -s web`.
+  Check: `ddev exec terminus --version`. The workflow `deploy-drupal.yml` pins the same version.
+- `.hadolint.yaml` (repo root) ignores DL3061 because `web-build/Dockerfile` is appended to the
+  DDEV web image and so has no `FROM`.
+- `config.yaml` sets `web_environment: PANTHEON_SITE=meridian-trade` (not a secret). The PAT
+  (`TERMINUS_MACHINE_TOKEN`) goes only in the global DDEV config, never in this folder.
+- `providers/pantheon.yaml` has no push commands on purpose. `ddev pull pantheon` replaces the
+  local database and files; run `ddev snapshot` first.
+- Setup, deploy, rollback and troubleshooting: `docs/runbooks/deploy.md`.

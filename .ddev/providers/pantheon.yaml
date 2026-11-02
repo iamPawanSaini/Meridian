@@ -1,0 +1,48 @@
+# DDEV provider for the Pantheon site meridian-trade, dev environment (T07, KD-3).
+# Created from DDEV's pantheon.yaml.example. The generated-file marker was removed on purpose, so
+# DDEV does not overwrite this file. Run: ddev auth ssh (once per session), then ddev pull pantheon.
+#
+# Pull only. The push commands of the example are deleted on purpose: Pantheon dev is a deploy
+# target, data never flows from local to Pantheon (ADR-0004). Code reaches Pantheon with
+# `ddev deploy-drupal`.
+#
+# Setup, rotation and troubleshooting: docs/runbooks/deploy.md
+# - The Pantheon site name comes from PANTHEON_SITE in .ddev/config.yaml (web_environment).
+# - The personal access token (PAT) comes from TERMINUS_MACHINE_TOKEN in the global DDEV config
+#   (~/.ddev/global_config.yaml). It is never stored in this repository.
+# - A pull replaces the LOCAL database and files. Take `ddev snapshot` first.
+# - Sandbox sites have no automatic backups, so each pull creates a fresh backup first.
+
+auth_command:
+  command: |
+    set -eu -o pipefail
+    if ! command -v drush >/dev/null ; then
+      echo "Please make sure your project contains drush (ddev composer require drush/drush)" >&2
+      exit 1
+    fi
+    if [ -z "${TERMINUS_MACHINE_TOKEN:-}" ]; then
+      echo "Please set your Pantheon personal access token (PAT) as TERMINUS_MACHINE_TOKEN" >&2
+      echo "in ~/.ddev/global_config.yaml, then ddev restart (see docs/runbooks/deploy.md)" >&2
+      exit 1
+    fi
+    terminus auth:login --machine-token="${TERMINUS_MACHINE_TOKEN}" || (
+      echo "terminus auth:login failed. Check your personal access token (PAT); it expires" >&2
+      echo "90 days after creation (see docs/runbooks/deploy.md)" >&2
+      exit 1
+    )
+
+db_pull_command:
+  command: |
+    set -eu -o pipefail
+    pushd /var/www/html/.ddev/.downloads >/dev/null
+    terminus backup:create "${PANTHEON_SITE:?}.dev" --element=db --keep-for=30
+    terminus backup:get "${PANTHEON_SITE:?}.dev" --element=db --to=db.sql.gz
+
+files_pull_command:
+  command: |
+    set -eu -o pipefail
+    pushd /var/www/html/.ddev/.downloads >/dev/null
+    terminus backup:create "${PANTHEON_SITE:?}.dev" --element=files --keep-for=30
+    terminus backup:get "${PANTHEON_SITE:?}.dev" --element=files --to=files.tgz
+    rm -rf files
+    mkdir -p files && tar --strip-components=1 -C files -zxf files.tgz

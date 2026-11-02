@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+## Description: Deploy apps/drupal to Pantheon dev (subtree split, non-force push, drush apply, smoke check)
+## Usage: deploy-drupal [--ref REF] [--dry-run] [--allow-unmerged] [-h]
+## Example: ddev deploy-drupal --dry-run
+## Example: ddev deploy-drupal --ref task/T07-pantheon-dev --allow-unmerged
+
+# T07, KD-1. A thin wrapper: scripts/deploy-drupal.sh is the only implementation of the deploy
+# steps, and .github/workflows/deploy-drupal.yml calls the same script. It runs in the web
+# container, which has git, Terminus 4.x (.ddev/web-build/Dockerfile), ssh and the DDEV ssh
+# agent. Load the Pantheon key with `ddev auth ssh` first. The PAT comes from the global DDEV
+# config (TERMINUS_MACHINE_TOKEN) and PANTHEON_SITE from .ddev/config.yaml. Read
+# docs/runbooks/deploy.md before the first real deploy.
+set -euo pipefail
+
+cd /var/www/html
+exec scripts/deploy-drupal.sh "$@"
