@@ -1,0 +1,7 @@
+== TC-T02-13 six ADR files with matching topics
+  PASS  ADR-0001 headless Drupal + Next.js
+  PASS  ADR-0002 engine on GitHub Actions
+  PASS  ADR-0003 Postgres system of record
+  PASS  ADR-0004 monorepo subtree Pantheon
+  PASS  ADR-0005 authentication
+  PASS  ADR-0006 no live trading

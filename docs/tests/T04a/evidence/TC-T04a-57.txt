@@ -1,0 +1,6 @@
+== TC-T04a-57 to 58 deferred real-tool checks of the addendum
+  BLOCKED  TC-T04a-57 TypeScript '// @ts-expect-error T21: reason' suppresses the error (deferred to T21)
+  BLOCKED  TC-T04a-58 phpcs '// phpcs:ignore <sniff> -- T09: reason' suppresses the sniff (deferred to T05 or T09)
+
+NOTE: mode agent: 302 checks executed, 7 SKIP (optional tools, listed above), 16 BLOCKED (owner-run or deferred, listed above).
+RESULT: ALL EXECUTED CHECKS PASSED (16 blocked)

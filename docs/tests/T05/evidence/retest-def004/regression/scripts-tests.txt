@@ -1,0 +1,214 @@
+..............error: cannot determine the branch name
+...error: rule-start commit 1111111111111111111111111111111111111111 is not in this clone; fetch the full history (CI: fetch-depth: 0)
+...error: give exactly one of --msg-file or --range
+..error: [Errno 2] No such file or directory: '/tmp/tmp1mli8qbh/none.md'
+..................................check_assets: OK (1 file(s) checked)
+apps/drupal/web/themes/custom/meridian_theme/meridian_theme.libraries.yml:4: third-party host (self-host fonts, styles, scripts and icons)
+1 asset problem(s) in 1 file(s) checked
+apps/drupal/web/themes/custom/meridian_theme/meridian_theme.libraries.yml:4: third-party host (self-host fonts, styles, scripts and icons)
+1 asset problem(s) in 1 file(s) checked
+check_assets: OK (1 file(s) checked)
+apps/web/app/globals.css:1: hex colour outside the tokens file (use a design token)
+1 asset problem(s) in 1 file(s) checked
+apps/drupal/web/themes/custom/meridian_theme/css/base.css:1: hex colour outside the tokens file (use a design token)
+1 asset problem(s) in 1 file(s) checked
+check_assets: OK (0 file(s) checked)
+check_assets: OK (1 file(s) checked)
+branch name rejected: 'feature/x': must be 'main' or 'task/Txx-slug' (lower-case words joined by single dashes)
+branch name rejected: 'feature/bad': must be 'main' or 'task/Txx-slug' (lower-case words joined by single dashes)
+branch name rejected: 'feature/x': must be 'main' or 'task/Txx-slug' (lower-case words joined by single dashes)
+commit message rejected: 6eacae8c 'Merge my local fixes': subject must start with a task ID prefix such as 'T04a: ' followed by text
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+commit message rejected: 'bad message': subject must start with a task ID prefix such as 'T04a: ' followed by text
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+commit message rejected: e19fd7cc 'fixup! T10: fine': fixup!/squash! commits must be squashed before push
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+commit message rejected: 7eda9623 'old bad subject': subject must start with a task ID prefix such as 'T04a: ' followed by text
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+commit message rejected: 7e1fcc37 'bad after boundary': subject must start with a task ID prefix such as 'T04a: ' followed by text
+Format: 'Txx: short summary' (task ID from docs/TASKS.md, subject <= 72 chars).
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate cannot read its input: no element found: line 1, column 20
+coverage gate FAILED: coverage report contains no measured lines
+coverage gate cannot read its input: [Errno 2] No such file or directory: '/tmp/tmpfh_7yf9w/nope.xml'
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: meridian_engine/scoring/: line coverage 85.0% is below the 90% floor (files: meridian_engine/scoring/rules.py 85.0%)
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: meridian_engine/scoring/: line coverage 70.0% is below the 90% floor (files: meridian_engine/scoring/rules.py 70.0%)
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: meridian_engine/scoring/: line coverage 89.0% is below the 90% floor (files: meridian_engine/scoring/rules.py 89.0%)
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: meridian_engine/risk/: line coverage 89.0% is below the 90% floor (files: meridian_engine/risk/limits.py 89.0%)
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: web/modules/custom/meridian_: line coverage 69.0% is below the 70% floor (files: web/modules/custom/meridian_ingest/src/Ingest.php 69.0%)
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: apps/web/lib/: line coverage 79.0% is below the 80% floor (files: apps/web/lib/format.ts 79.0%)
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: meridian_engine/: line coverage 83.3% is below the 85% floor (files: meridian_engine/data/util.py 60.0%, meridian_engine/scoring/rules.py 95.0%, meridian_engine/risk/limits.py 95.0%)
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: required prefix apps/web/lib/ matches no file in the report
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: web/modules/custom/meridian_
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate FAILED: no file in the report matches any configured component
+a.py:1: noqa: ticket is not in the tool's comment slot (bare form); see the D-4 addendum
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+Suppression and exclude report (scripts/exceptions_report.py)
+
+total: 0
+
+pkg/mod.py:2: noqa: noqa without a rule code (use 'noqa: CODE  # Txx: reason')
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+j.md:1: markdownlint: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+markdownlint: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+.........
+----------------------------------------------------------------------
+Ran 65 tests in 1.229s
+
+OK
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 2
+total: 2
+
+ticket DEF-001: 1
+ticket T32: 1
+Suppression and exclude report (scripts/exceptions_report.py)
+
+total: 0
+
+docs/standards/x.md:1: noqa: ticket is not in the tool's comment slot (bare form); see the D-4 addendum
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:2: noqa: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: unknown ticket DEF-999
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: unknown ticket T99
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+a.py:1: noqa: no ticket (expected 'Txx: reason' in the comment slot)
+Suppression and exclude report (scripts/exceptions_report.py)
+
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket

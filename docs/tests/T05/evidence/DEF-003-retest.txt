@@ -1,0 +1,8 @@
+WARNING: PRE_COMMIT_SHA256 is not pinned in scripts/tool-versions.env.
+  Downloaded file SHA-256: 393488513aed286d7a5a978a1fe79b2f5a8802927242a2d241ff10c1a8e8c885
+  Compare it with the GitHub release, then record it in tool-versions.env.
+pre-commit 4.7.0
+pre-commit installed at .git/hooks/pre-commit
+pre-commit installed at .git/hooks/commit-msg
+Done. Hooks installed (pre-commit and commit-msg).
+Run 'scripts/quality.sh' to check the tree.

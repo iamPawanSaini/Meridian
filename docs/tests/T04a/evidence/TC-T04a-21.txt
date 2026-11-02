@@ -1,0 +1,17 @@
+== TC-T04a-21 asset check rejects third-party hosts and hard-coded hex (verification, section 0b)
+  PASS  script exists: scripts/check_assets.py
+  PASS  control: a page with only same-origin assets passes
+  PASS  rejects fonts.googleapis.com <link>
+  PASS  rejects fonts.gstatic.com in CSS url()
+  PASS  rejects script from cdn.jsdelivr.net
+  PASS  rejects script from unpkg.com
+  PASS  rejects @import from cdnjs.cloudflare.com
+  PASS  rejects icon stylesheet from use.fontawesome.com
+  PASS  rejects protocol-relative //fonts.googleapis.com
+  PASS  rejects hex #1a2b3c in app CSS
+  PASS  rejects short hex #fff in app CSS
+  PASS  rejects 8-digit hex #1a2b3cff
+  PASS  rejects hex in TSX inline style
+  PASS  rejects third-party font in the Drupal custom theme
+  PASS  rejects hex in the Drupal custom theme
+  PASS  failure names the file

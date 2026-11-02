@@ -1,0 +1,4 @@
+== TC-T04-21 test design committed before authoring (snapshot)
+  PASS  [at-close] run-checks.sh and test-cases.md are committed, and strictly before master-test-plan.md
+  PASS  [at-close] design commit message starts with 'T04:'
+  PASS  [at-close] if run-checks.sh changed after the design commit, test-cases.md has a Change log entry

@@ -1,0 +1,5 @@
+== TC-T05-15 no new environment variable, no secrets in changed files (C6, KD-8)
+  PASS  .env.example unchanged by T05 commits
+  PASS  no .env file tracked
+  PASS  no secret-shaped strings in T05 files
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T05-24)

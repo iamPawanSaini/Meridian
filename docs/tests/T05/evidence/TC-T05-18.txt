@@ -1,0 +1,5 @@
+== TC-T05-18 shell hygiene of the new command (C4, standards: Shell)
+  PASS  drupal-install parses (bash -n)
+  PASS  drupal-install has a bash shebang
+  SKIP  shellcheck not installed: the pre-commit shellcheck hook covers it (TC-T05-24)
+  PASS  drupal-install quotes variables (no bare $VAR in test brackets)

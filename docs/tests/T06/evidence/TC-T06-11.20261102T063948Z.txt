@@ -1,0 +1,8 @@
+== TC-T06-11 helper scripts and the placeholder server (AC6a, KD-1, KD-5, KD-6)
+  PASS  entrypoint.sh, start.sh executable, bash -n clean, set -euo pipefail
+  PASS  entrypoint builds /tmp/meridian-ca-bundle.pem from the system bundle and the mkcert root, warns on stderr if the root is absent, then exec "$@"
+  PASS  start.sh switches on apps/web/package.json: npm run dev -- --hostname 0.0.0.0 --port 3000, else the placeholder server
+  PASS  placeholder is at most 40 lines, node:http only, no import of a package
+  PASS  placeholder text is exactly the fixed sentence (names T21), listens on 0.0.0.0:3000, answers 200 text/plain
+  PASS  placeholder serves no data: no fs, no process.env, no fetch
+  PASS  no README in .ddev/meridian-engine or .ddev/meridian-web (ignored by .ddev/.gitignore; documented in .ddev/README.md)

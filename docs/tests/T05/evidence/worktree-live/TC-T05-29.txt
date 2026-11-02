@@ -1,0 +1,5 @@
+== TC-T05-29 live: one documented install command, --force (AC2)
+  PASS  ddev drupal-install --force exits 0
+  PASS  output points at ddev drush uli
+  PASS  site is installed from the minimal profile with the committed UUID
+  PASS  profile is minimal

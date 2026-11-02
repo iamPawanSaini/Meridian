@@ -1,0 +1,2 @@
+== TC-T05-40 WSL2 browser login over HTTPS with mkcert (owner-run)
+  BLOCKED  owner-run: open the ddev drush uli URL in a Windows browser; confirm no certificate warning after the runbook's mkcert step

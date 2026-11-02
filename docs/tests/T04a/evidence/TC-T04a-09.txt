@@ -1,0 +1,5 @@
+== TC-T04a-09 component configs: PHP and ESLint (AC3)
+  PASS  phpcs.xml.dist: valid ruleset, Drupal, DrupalPractice, web/modules/custom
+  PASS  phpstan.neon.dist: level 6, comments on ignores, phpstan-drupal, custom modules
+  PASS  phpstan: no baseline file, stale ignores still reported
+  PASS  eslint.config.mjs: parses with node, uses next and typescript-eslint

@@ -1,0 +1,4 @@
+  FAIL  planned-test IDs exactly equal the FR/NFR IDs in solution-architecture.md; no duplicates
+NOTE: --regression mode: 6 at-close (snapshot) checks excluded because they are true only at the close of T04; 118 invariant checks executed.
+RESULT: ONE OR MORE CHECKS FAILED
+exit=1

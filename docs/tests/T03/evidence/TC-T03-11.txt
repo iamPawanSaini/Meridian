@@ -1,0 +1,12 @@
+== TC-T03-11 authentication: clients, scopes, tokens (D6)
+  PASS  auth section exists (heading)
+  PASS  scope meridian_ingest in technical-design.md
+  PASS  scope meridian_watchlist_read in technical-design.md
+  PASS  scope meridian_dashboard_read in technical-design.md
+  PASS  OAuth client credentials grant for engine
+  PASS  Simple OAuth named, version check deferred to T10
+  PASS  token lifetimes stated (seconds or minutes)
+  PASS  key-file storage local and Pantheon
+  PASS  final Drupal role list: administrator, analyst, engine-ingest, dashboard-read
+  PASS  authorisation matrix (role x endpoint) present
+  PASS  scopes consistent: openapi.yaml scopes also appear in technical-design.md

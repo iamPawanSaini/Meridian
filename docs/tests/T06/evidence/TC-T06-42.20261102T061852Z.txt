@@ -1,0 +1,9 @@
+== TC-T06-42 AC6b: the Next.js dev server answers on https://meridian.ddev.site:3001 (deferred to T21)
+  BLOCKED  Blocked (accepted, re-run in T21): no apps/web/package.json exists until T21, so only the placeholder can be tested (AC6a, TC-T06-40). The owner must accept this deferral in writing at T06 close; an agent message is not acceptance.
+        Procedure for T21 (run unchanged against npm run dev; cite this ID):
+          1. ddev next npm ci ; ddev restart ; wait until ddev meridian-status shows meridian-web running healthy (first compile can exceed 120 s: if not, T21 adjusts start_period)
+          2. curl -sS -o body.txt -w '%{http_code} %{ssl_verify_result}' https://meridian.ddev.site:3001/   (no -k)
+             expect a status below 500 (200, or the 307 redirect from the T21 middleware) and ssl_verify_result 0
+          3. the response comes from the Next.js dev server: a known page body or the middleware redirect; body does NOT contain 'meridian-web placeholder; the dashboard arrives in T21'
+          4. ddev meridian-status exits 0 and shows meridian-web running healthy
+          5. store evidence under docs/tests/T21/evidence/; T21 back-annotates docs/tests/T06/test-report.md (dated addendum)

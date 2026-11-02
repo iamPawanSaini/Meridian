@@ -1,0 +1,23 @@
+== TC-T06-08 host commands engine, next, pg, meridian-status: form and annotations (AC3)
+  PASS  .ddev/commands/host/engine: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/engine: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/engine: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/engine: parses (bash -n)
+  PASS  .ddev/commands/host/next: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/next: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/next: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/next: parses (bash -n)
+  PASS  .ddev/commands/host/pg: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/pg: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/pg: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/pg: parses (bash -n)
+  PASS  .ddev/commands/host/meridian-status: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/meridian-status: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/meridian-status: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/meridian-status: parses (bash -n)
+  PASS  engine runs in meridian-engine at /var/www/html/services/engine and forwards "$@"
+  PASS  next runs in meridian-web at /var/www/html/apps/web and forwards "$@"
+  PASS  engine and next do not use eval, sh -c string building or unquoted $*
+  PASS  pg offers psql, dump and restore; psql as user meridian on database meridian
+  PASS  meridian-status lists all five services and uses docker inspect
+  PASS  ddev e2e, status and describe are not overridden (e2e is T27)

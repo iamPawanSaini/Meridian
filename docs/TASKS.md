@@ -22,14 +22,48 @@ Project name: **Meridian** (decided). Use these names everywhere so tooling stay
 
 Name risk: "Meridian" is a common word. A single search found no clear conflicting product in the Indian AI stock-research niche, but that does not clear domain, trademark or app-store availability. Branding checks are tracked in T02. Until cleared, treat "Meridian" as the internal project name only.
 
+## 0b. Theme and design tokens
+
+Palette supplied by the project owner (hex values read from the supplied image; confirm them in T21a, especially Storm cloud, whose last digits were hard to read).
+
+| Name | Hex | Role |
+|---|---|---|
+| Cloud white | `#FEFCF6` | Page background (light) |
+| Fresh cream | `#F4EFE6` | Cards, surfaces, table stripes (light); text on dark and on Forest green |
+| Sky blue | `#D6E0E2` | Info panels, selected rows, subtle highlights; accent text on Midnight |
+| Forest green | `#5E6C58` | Primary actions, links (light), brand accent |
+| Storm cloud | `#686867` | Secondary text, borders, disabled states |
+| Midnight | `#162A2C` | Primary text (light); page background (dark) |
+
+Measured WCAG contrast ratios (AA needs 4.5:1 for normal text, 3:1 for large text and UI components):
+
+| Pairing | Ratio | Verdict |
+|---|---|---|
+| Midnight on Cloud white / Cream / Sky blue | 14.6 / 13.1 / 11.1 | Pass, use for body text |
+| Forest green on Cloud white / Cream | 5.4 / 4.9 | Pass |
+| Forest green on Sky blue | 4.2 | Fails for normal text; large text and icons only |
+| Storm cloud on Cloud white / Cream | 5.4 / 4.9 | Pass for secondary text |
+| Storm cloud on Sky blue | 4.2 | Fails for normal text |
+| Cream or Cloud white on Forest green | 4.9 / 5.4 | Pass, use for button labels |
+| Cream / Cloud white / Sky blue on Midnight | 13.1 / 14.6 / 11.1 | Pass, dark-mode text |
+| Forest green or Storm cloud on Midnight | 2.7 | Fail: never use as text or icons on Midnight; fills only |
+
+Gaps the palette does not cover (defined in T21a, derived to harmonise with the palette and contrast-tested): gain, loss, warning and error colors for a trading dashboard (palette has no red or amber; never rely on color alone, always add sign, icon or label), a slightly lighter Midnight tint for dark-mode surfaces, border and focus-ring colors, and a chart series palette that stays distinguishable for color-blind users (use line styles and direct labels in addition to color).
+
+Typography and icons (decided):
+- **Font:** Fira Sans, self-hosted from files in the repo. No Google Fonts link, no CDN. Use tabular figures for numeric columns and confirm the rupee sign `₹` renders.
+- **Icons:** SVG only, using `currentColor` so they follow the theme. No icon fonts or hosted icon kits.
+- **Raster images:** WebP only. Favicon is SVG. Any unavoidable exception (for example an Apple touch icon needs PNG) is recorded in an ADR.
+- **Rule:** nothing in the app loads fonts, styles, scripts or icons from a third-party host.
+
 ## 1. Architecture summary
 
 | Component | Tech | Dev hosting | Local (DDEV/Docker) |
 |---|---|---|---|
-| Engine (fetch, score, LLM review, simulate, publish) | Python 3.12 | GitHub Actions (cron) | `engine` container |
-| Records DB (engine state) | Postgres 16 | Free hosted Postgres (verify limits) | `postgres` container |
+| Engine (fetch, score, LLM review, simulate, publish) | Python 3.12 | GitHub Actions (cron) | `meridian-engine` container |
+| Records DB (engine state) | Postgres 16 | Free hosted Postgres (verify limits) | `meridian-postgres` container |
 | Content backend and admin | Drupal 11 (headless) | Pantheon sandbox | DDEV `web` + `db` |
-| Dashboard | Next.js (App Router, TypeScript) + `next-drupal` | Vercel Hobby (non-commercial) | `web-next` container (node) |
+| Dashboard | Next.js (App Router, TypeScript) + `next-drupal` | Vercel Hobby (non-commercial) | `meridian-web` container (node) |
 | LLM | Claude API | n/a | n/a |
 
 Data flow: GitHub Actions cron → engine → Postgres (system of record) → publisher → Drupal ingest API → Next.js reads Drupal JSON:API → user.
@@ -90,10 +124,10 @@ S = under 0.5 day, M = 0.5 to 2 days, L = 2 to 4 days (indicative, for ordering 
 
 | Milestone | Tasks | Outcome |
 |---|---|---|
-| M1 Foundations | T00 to T04 | Repo, agents, architecture, design, test plan signed off |
+| M1 Foundations | T00 to T04a | Repo, agents, architecture, design, test plan and coding standards signed off |
 | M2 Platform | T05 to T08 | DDEV stack, Pantheon dev, CI running |
 | M3 Backend | T09 to T20 | Drupal and engine complete and tested independently |
-| M4 Frontend | T21 to T26 | Next.js dashboard complete and tested |
+| M4 Frontend | T21 to T26 (including T21a) | Next.js dashboard and theme complete and tested |
 | M5 Integrated dev | T27 to T29 | End-to-end on DDEV and deployed dev environments |
 | M6 Verified | T30 to T31 | Security and NFR checks done, 10 to 15 day live simulation |
 | M7 Release | T32 to T33 | Docs final, go/no-go decision |
@@ -212,6 +246,24 @@ Create the monorepo, folder structure above, documentation templates and quality
 - [ ] Traceability matrix has a planned test-case column for every requirement (100% requirement coverage planned)
 - [ ] Defect workflow documented in `docs/tests/defects.md` template
 
+## T04a: Coding standards and quality gates (M)
+**Owner chain:** technical-architect (author), developer (tooling), tester (verification). **Depends on:** T04. **Covers:** R-12
+
+Define the standards once, then enforce them automatically so reviews focus on design instead of style.
+
+**Acceptance criteria**
+- [ ] `docs/standards/CODING_STANDARDS.md` exists with sections for PHP and Drupal, Python, TypeScript and Next.js, SQL and migrations, Docker and YAML, shell scripts, Markdown docs, OpenAPI, and LLM prompt files
+- [ ] Cross-cutting rules documented: naming (per section 0), error handling, structured logging, no secrets in code, dependency policy (lockfiles, pinned versions, audit before adding), comment and docstring expectations, maximum function and file size guidance
+- [ ] Tool per language chosen and configured in the repo (proposed, verify current versions): PHP_CodeSniffer with Drupal and DrupalPractice standards plus PHPStan with Drupal rules; ruff (lint and format) plus mypy; ESLint, Prettier and `tsc --noEmit`; hadolint, yamllint, shellcheck, markdownlint, Spectral for OpenAPI
+- [ ] Commit message convention (task ID prefix, for example `T10: add ingest upsert endpoint`) enforced by a commit hook; branch naming `task/Txx-slug` enforced in CI
+- [ ] One local command, `ddev quality`, runs every check and exits non-zero on any violation; the same checks run in CI (T08) and as pre-commit hooks
+- [ ] Baseline is clean: zero violations on the existing code; exceptions allowed only with an inline comment citing a ticket, and counted in a report
+- [ ] Coverage thresholds defined per component and enforced in CI (for example 90% on engine `scoring` and `risk`, targets for Drupal custom modules and Next.js recorded in the doc)
+- [ ] Technical-architect review checklist (`docs/standards/REVIEW_CHECKLIST.md`) derived from the standards and referenced by the `technical-architect` agent
+- [ ] Verification by the tester: a deliberately non-compliant change per language (bad PHP style, untyped Python, ESLint error, long Markdown line, bad commit message, a coverage drop) is rejected by hooks or CI; evidence stored in `docs/tests/T04a/test-report.md`
+
+**Evidence:** `docs/standards/` folder, `ddev quality` output on a clean tree, and the rejected-change demonstrations.
+
 ---
 
 # PHASE 2: Local platform (DDEV and Docker)
@@ -257,7 +309,7 @@ Add Postgres, Python engine and Next.js containers through `.ddev/docker-compose
 **Owner chain:** developer, technical-architect (review). **Depends on:** T05, T06. **Covers:** R-12
 
 **Acceptance criteria**
-- [ ] `ci.yml` runs lint (phpcs, ruff, eslint), type checks, unit tests per component, build, secret scan, dependency audit
+- [ ] `ci.yml` runs the full `ddev quality` suite defined in T04a (lint, format check, static analysis, type checks, commit and branch naming), plus unit tests per component with coverage thresholds, build, secret scan, dependency audit
 - [ ] A deliberately failing test blocks merge on a demo pull request (branch protection configured)
 - [ ] Pipeline total time under 10 minutes on a clean cache
 - [ ] Test reports uploaded as workflow artifacts
@@ -418,6 +470,31 @@ Package `meridian_engine` with modules: `config`, `data`, `scoring`, `llm`, `ris
 - [ ] `/api/health` reports app status and Drupal reachability
 - [ ] Vercel project linked; preview deployment created for pull requests
 - [ ] Mock API mode lets frontend work proceed without Drupal (documented)
+
+## T21a: Design tokens and theme (M)
+**Owner chain:** solution-architect (visual decisions), developer, tester. **Depends on:** T21. **Covers:** R-08
+
+Implement the palette in section 0b as a single source of truth for the dashboard (and the Drupal admin and login screens where practical).
+
+**Acceptance criteria**
+- [ ] Palette hex values confirmed by the project owner and recorded in `docs/design/tokens.md`
+- [ ] Tokens defined once (CSS variables or a tokens file consumed by Tailwind or CSS) with semantic names (background, surface, text, text-muted, primary, accent, border, focus) rather than color names in components
+- [ ] Light theme (Cloud white, Cream, Midnight text) and dark theme (Midnight background, Cream text) both implemented; theme follows system preference with a manual toggle that persists
+- [ ] Derived tokens defined and documented with rationale: gain, loss, warning, error, dark-mode surface tint, border, focus ring, chart series palette
+- [ ] Automated contrast test computes the ratio for every foreground and background token pair used in components and fails the build below AA (4.5:1 text, 3:1 large text and UI); forbidden pairings from section 0b are listed and covered by the test
+- [ ] Gain and loss are never conveyed by color alone (sign, arrow or label present); charts remain readable in a color-blind simulation (evidence stored)
+- [ ] `/styleguide` page (admin-only) renders all tokens, buttons, tables, cards, charts and form states in both themes
+- [ ] Axe accessibility check passes on `/styleguide` in both themes with no critical or serious issues
+- [ ] Font is **Fira Sans**, self-hosted: WOFF2 files committed in the repo (for example `apps/web/fonts/`) and loaded with the framework's local font loader; no Google Fonts stylesheet, no CDN, no runtime request to any third-party host (build and run work offline in DDEV)
+- [ ] Only the needed weights and styles are shipped (start with 400, 500, 600, 700; add italics only if used) and only the needed character subsets (Latin); `font-display: swap`, key weight preloaded, and a metric-matched fallback stack defined so layout does not jump
+- [ ] Font licence (SIL Open Font License) file stored next to the font files and noted in `docs/design/tokens.md`
+- [ ] Numbers render correctly: tabular figures enabled for tables and KPIs (verified the feature exists in the shipped files), and the rupee sign `₹` renders from Fira Sans in the shipped subset, or a documented fallback is chosen if the glyph is missing
+- [ ] Icons are **SVG only** (no icon fonts, no CDN-hosted icon kits): sourced from an open-licensed set (for example Lucide or Tabler, licence recorded) or custom-drawn, optimised with SVGO, imported as components or a local sprite, drawn with `currentColor` so they follow the theme tokens
+- [ ] Icon accessibility: decorative icons hidden from screen readers, meaningful icons have an accessible name; icon-only buttons have a label; minimum 3:1 contrast for icon against background (covered by the contrast test)
+- [ ] Raster images, if any (logo art, social preview, illustrations), are **WebP** with explicit width and height; the favicon is SVG. Where a platform requires another format (for example an Apple touch icon needs PNG), the exception is recorded in an ADR rather than ignored
+- [ ] Asset policy enforced: a `ddev quality` check fails on references to external font, style, script or icon hosts, and a Playwright test asserts every page load makes only same-origin requests (plus the Drupal API through the server); the Content-Security-Policy sets `font-src 'self'` and `img-src 'self' data:`
+- [ ] Drupal admin and login pages show the brand colors through a documented approach (admin theme settings or a small sub-theme), or a recorded decision that admin stays default
+- [ ] No hard-coded hex values in component code (lint rule or grep check in `ddev quality`)
 
 ## T22: Authentication and route protection (M)
 **Owner chain:** developer, solution-architect (security consult). **Depends on:** T11, T21. **Covers:** R-09

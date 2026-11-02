@@ -1,0 +1,14 @@
+PASS  pre-commit
+FAIL  branch-name
+      branch name rejected: 'feature/bad': must be 'main' or 'task/Txx-slug' (lower-case words joined by single dashes)
+FAIL  commit-range
+      origin/main not found: run git fetch origin
+PASS  exceptions
+PASS  assets
+SKIP  component-engine (no services/engine/pyproject.toml)
+FAIL  component-drupal
+      ./composer.json is valid
+      bash: line 1: vendor/bin/phpcs: No such file or directory
+SKIP  component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+SKIP  component-web (no apps/web/package.json)
+summary: PASS 3 FAIL 3 SKIP 3

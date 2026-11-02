@@ -1,0 +1,3 @@
+== TC-T04-22 check-names.sh passes
+  PASS  scripts/check-names.sh exits 0
+  PASS  T04 documents use current names (meridian_engine / meridian-web, not the old placeholders)

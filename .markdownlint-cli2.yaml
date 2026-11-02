@@ -1,0 +1,17 @@
+# markdownlint-cli2 configuration (T04a). Prose lines are limited to 100 characters.
+config:
+  default: true
+  MD013:
+    line_length: 100
+    tables: false
+    code_blocks: false
+    headings: false
+  MD024:
+    siblings_only: true
+  MD033: false
+  MD036: false
+  MD041: false
+
+ignores:
+  - "docs/TASKS.md"  # T32: owner document, reflowed when the documentation is finalised
+  - "docs/tests/*/evidence/**"  # T04a: captured command output, not authored prose

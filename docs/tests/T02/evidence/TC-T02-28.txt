@@ -1,0 +1,2 @@
+== TC-T02-28 C5 docs updated
+  PASS  architecture README links solution-architecture and naming

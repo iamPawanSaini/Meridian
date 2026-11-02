@@ -1,0 +1,10 @@
+== TC-T05-21 T04a regression suite still green (C4)
+  FAIL  T04a run-checks.sh --regression exits 0 (no invariant regression)
+          FAIL  T04 run-checks.sh --regression: exit 0, same PASS count as at close (118)
+          FAIL  T03 run-checks.sh: exit 0, same PASS count as at close
+          FAIL  pre-commit run --all-files
+          FAIL  TC-48 ddev quality exits 0 on a clean tree
+                FAIL  pre-commit
+  FAIL  T03 and T04 regression sets exit 0
+        T03 regression failed
+          FAIL  pre-commit run on T03 files passes

@@ -1,0 +1,9 @@
+== TC-T04a-08 root tool configs (AC3)
+  PASS  ruff.toml: line-length 100, py312, per-file-target-version py310 for scripts, hooks, docs/tests
+  PASS  mypy.ini exists
+  PASS  mypy.ini does not rely on per-module strict (D-2, unverified in mypy docs)
+  PASS  .yamllint.yaml: extends and line-length
+  PASS  .markdownlint-cli2.yaml: MD013 line_length 100, tables/code_blocks/headings false
+  PASS  .shellcheckrc exists
+  PASS  tsconfig.base.json valid JSON with strict true
+  PASS  .prettierrc.json valid JSON

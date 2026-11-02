@@ -1,0 +1,5 @@
+== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]
+  PASS  [at-close] plan.md status Approved
+  PASS  [at-close] run-checks.sh and test-cases.md committed before the standards, checklist and scripts (git order)
+  PASS  [at-close] technical-architect review exists and is Approved
+  PASS  [at-close] design commit message starts with T04a:

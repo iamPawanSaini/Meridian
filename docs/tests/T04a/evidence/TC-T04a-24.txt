@@ -1,0 +1,10 @@
+== TC-T04a-24 quality.sh with fake steps: PASS, FAIL, SKIP and the exit code (AC5)
+  PASS  all steps pass: exit 0 and a PASS line for the step
+  PASS  manifest absent: SKIP (its command would have failed), exit 0, no FAIL line
+  PASS  one failing step: exit non-zero, FAIL shown, later steps still run
+  PASS  tool missing with manifest present: FAIL (not SKIP), exit non-zero
+  PASS  manifest present and the command fails: FAIL, exit non-zero
+  PASS  mixed run: exit non-zero although some steps pass and some SKIP
+  PASS  summary line has PASS, FAIL and SKIP counts
+  PASS  only SKIP steps: exit 0 (T08 asserts expected components, not this script)
+  PASS  unknown QUALITY_RUNNER rejected with a message naming the runner (native or ddev)

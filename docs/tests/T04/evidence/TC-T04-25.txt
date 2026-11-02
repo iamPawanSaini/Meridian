@@ -1,0 +1,7 @@
+== TC-T04-25 solution-architect decisions D-1 to D-6 reflected; D-6 not yet adopted (snapshot)
+  PASS  [at-close] Blocked-at-close policy is marked as pending owner confirmation (not adopted as policy)
+  PASS  [at-close] T00 to T02 precedent (owner acceptance recorded case by case) stays the rule until confirmed
+  PASS  granularity: planned tests at FR/NFR level, 49 rows, R rows link to them
+
+NOTE: full mode: 124 checks executed (at-close checks included).
+RESULT: ALL AUTOMATED CHECKS PASSED

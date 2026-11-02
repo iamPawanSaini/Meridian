@@ -1,0 +1,238 @@
+== TC-T06-01 compose files, service names, container names and DDEV labels (AC1, KD-2)
+  FAIL  the three compose files exist, each defines only its one section 0 service
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  no old placeholder service names in .ddev compose files (files must exist)
+        
+  FAIL  no other docker-compose.*.yaml in .ddev (exactly postgres, engine, next)
+        
+  FAIL  each compose file starts with a comment naming T06
+        head: cannot open '.ddev/docker-compose.postgres.yaml' for reading: No such file or directory
+        .ddev/docker-compose.postgres.yaml: no T06 comment
+== TC-T06-02 images pinned by exact tag and digest (AC1, KD-2, KD-4 to KD-6, dependency policy)
+  FAIL  postgres:16.x, python:3.12.x-slim and node:22.x each pinned name:tag@sha256:<64 hex>; no latest; no build:
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  official Docker Hub images only (no registry host, no third-party namespace)
+        grep: .ddev/docker-compose.postgres.yaml: No such file or directory
+        .ddev/docker-compose.postgres.yaml: image is not an official postgres, python or node image
+  FAIL  CODING_STANDARDS Docker rule no longer says 'where T06 confirms it'
+        
+== TC-T06-03 health checks defined on all three services (AC5, KD-4 to KD-6)
+  FAIL  healthcheck with test, interval, timeout, retries, start_period; per-service content as the plan; engine and web checks do not call Postgres or Drupal
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  no restart policy on any service (a dead container must stay down for the status command)
+        
+== TC-T06-04 env_file order, no values in compose, no new project variable (KD-3, C6)
+  FAIL  env_file is [${DDEV_APPROOT}/.env.example (required), ${DDEV_APPROOT}/.env (required: false)] on every service
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  no secret-like literal, no .env.example placeholder value in any compose file
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  PASS  no .ddev/.env or .ddev/.env.* file (single source: root .env)
+  FAIL  compose files reference only variable names already in .env.example
+        missing .ddev/docker-compose.postgres.yaml
+== TC-T06-05 no host ports, no extra router variables, shared service settings (AC2, KD-2, KD-4)
+  FAIL  no ports:, no restart:, networks (if declared) include default and ddev_default; non-postgres services run as DDEV_UID:DDEV_GID with HOME=/tmp and the repo mounted at /var/www/html
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  meridian-postgres has no router variables, no expose of 5432 to the host
+        
+== TC-T06-06 router route and CA trust wiring (AC2, AC6a, KD-5, KD-6)
+  FAIL  web: VIRTUAL_HOST meridian.ddev.site, HTTPS_EXPOSE=3001:3000, no HTTP_EXPOSE, NODE_EXTRA_CA_CERTS, working_dir apps/web, start.sh; engine: SSL_CERT_FILE and REQUESTS_CA_BUNDLE bundle, init true, entrypoint.sh, working_dir services/engine; both: external_links ddev-router:meridian.ddev.site and read-only ddev-global-cache (external)
+        missing or empty: .ddev/docker-compose.postgres.yaml
+== TC-T06-07 meridian-postgres service and data volume (AC4, KD-4)
+  FAIL  POSTGRES_DB and POSTGRES_USER meridian, UTF8 / C.UTF-8 initdb args, password from MERIDIAN_POSTGRES_PASSWORD via exec docker-entrypoint.sh, health check pg_isready, named data volume at /var/lib/postgresql/data with both DDEV labels
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  health check retries 12 and pg_isready target 127.0.0.1
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  negative: no literal POSTGRES_PASSWORD value
+        
+== TC-T06-08 host commands engine, next, pg, meridian-status: form and annotations (AC3)
+  FAIL  .ddev/commands/host/engine: exists, executable, bash shebang, set -euo pipefail
+        
+  FAIL  .ddev/commands/host/engine: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+        grep: .ddev/commands/host/engine: No such file or directory
+  FAIL  .ddev/commands/host/engine: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+        grep: .ddev/commands/host/engine: No such file or directory
+  FAIL  .ddev/commands/host/engine: parses (bash -n)
+        bash: .ddev/commands/host/engine: No such file or directory
+  FAIL  .ddev/commands/host/next: exists, executable, bash shebang, set -euo pipefail
+        
+  FAIL  .ddev/commands/host/next: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+        grep: .ddev/commands/host/next: No such file or directory
+  FAIL  .ddev/commands/host/next: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+        grep: .ddev/commands/host/next: No such file or directory
+  FAIL  .ddev/commands/host/next: parses (bash -n)
+        bash: .ddev/commands/host/next: No such file or directory
+  FAIL  .ddev/commands/host/pg: exists, executable, bash shebang, set -euo pipefail
+        
+  FAIL  .ddev/commands/host/pg: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+        grep: .ddev/commands/host/pg: No such file or directory
+  FAIL  .ddev/commands/host/pg: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+        grep: .ddev/commands/host/pg: No such file or directory
+  FAIL  .ddev/commands/host/pg: parses (bash -n)
+        bash: .ddev/commands/host/pg: No such file or directory
+  FAIL  .ddev/commands/host/meridian-status: exists, executable, bash shebang, set -euo pipefail
+        
+  FAIL  .ddev/commands/host/meridian-status: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+        grep: .ddev/commands/host/meridian-status: No such file or directory
+  FAIL  .ddev/commands/host/meridian-status: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+        grep: .ddev/commands/host/meridian-status: No such file or directory
+  FAIL  .ddev/commands/host/meridian-status: parses (bash -n)
+        bash: .ddev/commands/host/meridian-status: No such file or directory
+  FAIL  engine runs in meridian-engine at /var/www/html/services/engine and forwards "$@"
+        missing or empty: .ddev/commands/host/engine
+  FAIL  next runs in meridian-web at /var/www/html/apps/web and forwards "$@"
+        missing or empty: .ddev/commands/host/next
+  PASS  engine and next do not use eval, sh -c string building or unquoted $*
+  FAIL  pg offers psql, dump and restore; psql as user meridian on database meridian
+        missing or empty: .ddev/commands/host/pg
+  FAIL  meridian-status lists all five services and uses docker inspect
+        missing or empty: .ddev/commands/host/meridian-status
+  PASS  ddev e2e, status and describe are not overridden (e2e is T27)
+== TC-T06-09 pg dump and restore script logic (AC4, KD-8)
+  FAIL  dump: custom format, --no-owner, --no-acl, default path under db-dumps/ with a UTC timestamp, umask 077, temp file then rename
+        missing or empty: .ddev/commands/host/pg
+  FAIL  restore requires --yes and explains that it replaces the database
+        missing or empty: .ddev/commands/host/pg
+  FAIL  restore validates the archive (pg_restore --list) BEFORE dropdb
+        list line= dropdb line=: validation must come first
+  FAIL  restore: dropdb --force --if-exists, createdb -O meridian, pg_restore --exit-on-error --no-owner --no-acl from stdin
+        missing or empty: .ddev/commands/host/pg
+  FAIL  streams use docker exec -i (no TTY, no ddev exec for binary data)
+        missing or empty: .ddev/commands/host/pg
+  FAIL  negative: no password on a command line or in the script
+        missing or empty: .ddev/commands/host/pg
+== TC-T06-10 meridian-status logic (AC5, KD-10)
+  FAIL  prints SERVICE STATE HEALTH, reports missing containers, exits 1 when any is not running+healthy, names the bad services last
+        missing or empty: .ddev/commands/host/meridian-status
+  PASS  no colour codes unless stdout is a terminal
+  FAIL  container names: ddev-meridian-web, ddev-meridian-db and ddev-meridian-<service>
+        missing or empty: .ddev/commands/host/meridian-status
+== TC-T06-11 helper scripts and the placeholder server (AC6a, KD-1, KD-5, KD-6)
+  FAIL  entrypoint.sh, start.sh executable, bash -n clean, set -euo pipefail
+        bad .ddev/meridian-engine/entrypoint.sh
+  FAIL  entrypoint builds /tmp/meridian-ca-bundle.pem from the system bundle and the mkcert root, warns on stderr if the root is absent, then exec "$@"
+        missing or empty: .ddev/meridian-engine/entrypoint.sh
+  FAIL  start.sh switches on apps/web/package.json: npm run dev -- --hostname 0.0.0.0 --port 3000, else the placeholder server
+        missing or empty: .ddev/meridian-web/start.sh
+  FAIL  placeholder is at most 40 lines, node:http only, no import of a package
+        
+  FAIL  placeholder text is exactly the fixed sentence (names T21), listens on 0.0.0.0:3000, answers 200 text/plain
+        missing or empty: .ddev/meridian-web/placeholder-server.mjs
+  FAIL  placeholder serves no data: no fs, no process.env, no fetch
+        missing or empty: .ddev/meridian-web/placeholder-server.mjs
+  PASS  no README in .ddev/meridian-engine or .ddev/meridian-web (ignored by .ddev/.gitignore; documented in .ddev/README.md)
+== TC-T06-12 scope discipline: runtimes only (KD-1, non-goals)
+  PASS  [at-close] no services/engine/pyproject.toml (T13)
+  PASS  [at-close] no apps/web/package.json tracked or present (T21; the start-script switch is tested in a scratch clone only)
+  PASS  [at-close] no Dockerfile in the repo (T13, T21)
+  PASS  [at-close] no ddev e2e command (T27)
+  PASS  [at-close] .ddev/config.yaml unchanged since the branch point 6e9e69d
+  PASS  [at-close] scripts/quality.sh and .ddev/commands/host/quality unchanged (the ddev runner already maps to ddev engine / ddev next)
+  PASS  quality.sh maps the ddev runner to ddev engine and ddev next
+  PASS  no providers/pantheon.yaml (T07) and no ci.yml DDEV job (T08)
+== TC-T06-13 git ignore: dumps and generated files stay out of git (AC4, C6)
+  PASS  git check-ignore -v names the root .gitignore for db-dumps/x.dump and any .dump
+  PASS  no tracked file matches an ignore rule (.ddev, docs/tests/T06)
+  FAIL  the new .ddev files are NOT ignored (compose, commands, helpers)
+        no implementation files yet
+  PASS  no dump file or db-dumps/ content tracked
+  PASS  no .env tracked
+== TC-T06-14 documentation updated (C5, AC3, decision condition 3)
+  FAIL  runbook documents ddev engine, ddev next, ddev pg psql/dump/restore (--yes), ddev meridian-status
+        missing in docs/runbooks/local-setup.md: ddev engine
+  FAIL  runbook: port 3001 URL serves a placeholder until T21
+        missing in docs/runbooks/local-setup.md: https://meridian\.ddev\.site:3001
+  FAIL  runbook: ddev delete removes Postgres data, run ddev pg dump first; dumps stay out of git and chat
+        missing in docs/runbooks/local-setup.md: ddev pg dump
+  FAIL  runbook: password change after first init (ALTER ROLE), mkcert root, port check, .env visible to all containers
+        missing in docs/runbooks/local-setup.md: ALTER ROLE
+  PASS  runbook keeps the template headings and the T05 steps
+  FAIL  .ddev/README.md: three compose files, four commands, e2e is T27 not T06, placeholder until T21, Verified facts (T06) table
+        missing in .ddev/README.md: meridian-status
+  FAIL  .ddev/README.md no longer lists ddev e2e under T06
+        
+  FAIL  CLAUDE.md Commands table lists ddev engine, ddev next, ddev pg and ddev meridian-status
+        missing in CLAUDE.md: ddev engine
+  PASS  root README local stack paragraph mentions the five services or the placeholder
+  FAIL  services/engine/README.md and apps/web/README.md name the container; apps/web README says 3001 serves a placeholder until T21
+        
+  FAIL  technical-design D7: T06 result recorded (router, mkcert, NODE_EXTRA_CA_CERTS/SSL_CERT_FILE, 3001); the 'unverified (T06)' sentence is gone
+        
+  FAIL  technical-design open-items row for DDEV in-container resolution is marked resolved
+        
+  PASS  docs state no overclaim: no doc says the Next.js dev server runs in T06
+== TC-T06-15 .env.example: names and values unchanged, comments only (C6, KD-3, KD-9)
+  PASS  [at-close] .env.example variable names and values are identical to 6e9e69d (comments may differ)
+  PASS  .env.example MERIDIAN_WEB_BASE_URL is still https://meridian.ddev.site:3001 and the Drupal base URLs are https://meridian.ddev.site
+  FAIL  .env.example comment no longer says 'host fixed in T06'
+        
+  FAIL  no new variable name appears in the compose files, helper scripts or commands (files must exist)
+        implementation files missing
+== TC-T06-16 no secrets in T06 files (C6)
+  FAIL  no key, token or credential pattern in any T06 file
+        no T06 implementation files yet
+  FAIL  the mkcert CA key (rootCA-key.pem) is never read or copied by T06 files (files must exist)
+        
+  FAIL  ddev-global-cache is mounted read-only wherever it appears
+        
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T06-19)
+== TC-T06-17 simulation-only denylist over T06 files (FR-11, ADR-0006, CLAUDE.md)
+  FAIL  denylist scan over every T06 implementation file (non-empty set required)
+        no T06 implementation files to scan yet
+  FAIL  denylist scan over the files T06 changes outside docs/tests
+        no changed docs yet
+  FAIL  images are only postgres, python, node; no broker or trading image or package
+        
+  FAIL  no outbound host in T06 helper scripts other than meridian.ddev.site, 127.0.0.1, localhost
+        
+== TC-T06-18 naming (section 0, C-criteria)
+  PASS  scripts/check-names.sh passes
+  FAIL  service names and container names use the section 0 names (meridian-postgres, meridian-engine, meridian-web)
+        missing or empty: .ddev/docker-compose.postgres.yaml
+  FAIL  no old placeholder names in T06 files (case-insensitive)
+        
+== TC-T06-19 hygiene: shellcheck, yamllint, check-yaml, pre-commit on T06 files, earlier regression sets (C4)
+  SKIP  shellcheck not on PATH: the pre-commit shellcheck hook covers it
+  SKIP  yamllint not on PATH: covered by the pre-commit yamllint hook below
+  PASS  pre-commit run --files <every T06 file> exits 0 (never --all-files here; T05 TC-T05-24 owns that)
+  PASS  T05 run-checks.sh --regression exits 0 (TC-T05-15 and 23 re-tagged cka by the tester)
+  PASS  T04a, T03 and T04 regression sets exit 0
+== TC-T06-42 AC6b: the Next.js dev server answers on https://meridian.ddev.site:3001 (deferred to T21)
+  BLOCKED  Blocked (accepted, re-run in T21): no apps/web/package.json exists until T21, so only the placeholder can be tested (AC6a, TC-T06-40). The owner must accept this deferral in writing at T06 close; an agent message is not acceptance.
+        Procedure for T21 (run unchanged against npm run dev; cite this ID):
+          1. ddev next npm ci ; ddev restart ; wait until ddev meridian-status shows meridian-web running healthy (first compile can exceed 120 s: if not, T21 adjusts start_period)
+          2. curl -sS -o body.txt -w '%{http_code} %{ssl_verify_result}' https://meridian.ddev.site:3001/   (no -k)
+             expect a status below 500 (200, or the 307 redirect from the T21 middleware) and ssl_verify_result 0
+          3. the response comes from the Next.js dev server: a known page body or the middleware redirect; body does NOT contain 'meridian-web placeholder; the dashboard arrives in T21'
+          4. ddev meridian-status exits 0 and shows meridian-web running healthy
+          5. store evidence under docs/tests/T21/evidence/; T21 back-annotates docs/tests/T06/test-report.md (dated addendum)
+== TC-T06-48 AC6a owner-run: https://meridian.ddev.site:3001 opens in the Windows browser without a certificate warning
+  BLOCKED  owner-run: after ddev start, open https://meridian.ddev.site:3001 in the Windows browser (same mkcert prerequisite as TC-T05-40); expect the placeholder sentence naming T21, no warning; record a screenshot or note
+== TC-T06-49 C7 owner-run: the runbook followed verbatim on a clean machine or container
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word through ddev meridian-status exit 0 and the dump and restore steps; record each command, output and the total time; not automatable
+
+== Roll-up per case
+  FAIL     TC-T06-01
+  FAIL     TC-T06-02
+  FAIL     TC-T06-03
+  FAIL     TC-T06-04
+  FAIL     TC-T06-05
+  FAIL     TC-T06-06
+  FAIL     TC-T06-07
+  FAIL     TC-T06-08
+  FAIL     TC-T06-09
+  FAIL     TC-T06-10
+  FAIL     TC-T06-11
+  PASS     TC-T06-12
+  FAIL     TC-T06-13
+  FAIL     TC-T06-14
+  FAIL     TC-T06-15
+  FAIL     TC-T06-16
+  FAIL     TC-T06-17
+  FAIL     TC-T06-18
+  PASS     TC-T06-19
+  BLOCKED  TC-T06-42
+  BLOCKED  TC-T06-48
+  BLOCKED  TC-T06-49
+
+SUMMARY: mode=static run=20261102T042910Z cases: 2 PASS, 17 FAIL, 3 BLOCKED; checks executed: 100; SKIP (optional tools): 3; BLOCKED lines: 3
+RESULT: ONE OR MORE CHECKS FAILED

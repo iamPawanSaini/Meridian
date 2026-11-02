@@ -1,0 +1,10 @@
+== TC-T02-05 named NFR targets exist with verifying task
+  PASS  engine run duration row
+  PASS  data freshness row states an IST time
+  PASS  dashboard LCP row -> T26
+  PASS  batch ingest of 500 records -> T10
+  PASS  p95 row mentions 5,000 records
+  PASS  p95 row verified by T11
+  PASS  p95 row verified by T30
+  PASS  availability row -> T31
+  PASS  CI duration row -> T08

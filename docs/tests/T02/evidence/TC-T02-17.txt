@@ -1,0 +1,11 @@
+== TC-T02-17 naming.md five checks, each with method, source, date, result
+  PASS  naming.md exists
+  PASS  .com domain row dated and sourced
+  PASS  .in domain row dated and sourced
+  PASS  GitHub handle row dated and sourced
+  PASS  Vercel handle row dated and sourced
+  PASS  IP India trademark row dated and sourced
+  PASS  trademark classes 9, 36, 42 named
+  PASS  Play Store row dated and sourced
+  PASS  App Store row dated and sourced
+  PASS  repo Meridian vs meridian mismatch recorded

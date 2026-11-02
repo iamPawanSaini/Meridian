@@ -1,0 +1,11 @@
+== TC-T05-33 live: git status clean after start, install and cex (KD-7 invariant)
+  FAIL  git status --porcelain is empty for the whole repository
+         M docs/tests/T05/evidence/TC-T05-21.txt
+         M docs/tests/T05/evidence/TC-T05-24.txt
+         M docs/tests/T05/evidence/TC-T05-33.txt
+         M docs/tests/T05/evidence/TC-T05-34.txt
+        ?? docs/tasks/T04a/review-def004.md
+        ?? docs/tests/T05/bak.md5
+        ?? docs/tests/T05/bak/
+        ?? docs/tests/T05/evidence/DEF-004-retest-precommit.txt
+  PASS  settings.php unchanged by DDEV (git diff --quiet)

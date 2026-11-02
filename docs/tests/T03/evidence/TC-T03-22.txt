@@ -1,0 +1,8 @@
+== TC-T03-22 no secrets, markdown hygiene, links
+  PASS  no secret patterns in T03 docs and openapi
+  SKIP  pre-commit not installed (.tools/pre-commit missing)
+  PASS  relative markdown links in TD and DM resolve
+  PASS  no external image/script assets in docs
+  SKIP  markdownlint not installed
+
+RESULT: ALL AUTOMATED CHECKS PASSED

@@ -1,0 +1,6 @@
+== TC-T03-09 Spectral ruleset file (lint itself is owner-run, TC-T03-10)
+  PASS  .spectral.yaml exists at repo root
+  PASS  .spectral.yaml extends spectral:oas
+  PASS  .spectral.yaml parses as YAML mapping
+  PASS  .spectral.yaml does not switch off core rules wholesale (no rule set to off/false for operationId, schema, example, success-response)
+  PASS  openapi.yaml referenced by TD with the exact lint command

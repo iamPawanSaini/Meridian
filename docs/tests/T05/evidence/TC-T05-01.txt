@@ -1,0 +1,9 @@
+== TC-T05-01 DDEV project configuration keys (AC1)
+  PASS  name is meridian
+  PASS  type is drupal11
+  PASS  composer_root is apps/drupal
+  PASS  docroot is apps/drupal/web (relative to the project root, not the composer root)
+  PASS  webserver_type is nginx-fpm
+  PASS  database type is mariadb
+  PASS  xdebug off by default
+  PASS  config.yaml is short and hand-written (no full commented ddev config output)

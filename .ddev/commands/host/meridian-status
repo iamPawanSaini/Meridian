@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+## Description: Show state and health of the five Meridian services (exit 0 only if all are running and healthy)
+## Usage: meridian-status
+## Example: ddev meridian-status
+
+# T06 (AC5). Fixed service list; container names follow ddev-<site>-<service>.
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: ddev meridian-status
+
+Prints SERVICE, STATE and HEALTH for web, db, meridian-postgres, meridian-engine and
+meridian-web. Exits 0 only if every service is running and healthy, else 1, and the last
+line of standard output names the services that are not.
+USAGE
+}
+
+case "${1:-}" in
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  "") ;;
+  *)
+    echo "ddev meridian-status: unknown argument '$1'" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+site="${DDEV_SITENAME:-meridian}"
+services=(web db meridian-postgres meridian-engine meridian-web)
+bad=()
+
+printf '%-20s %-12s %s\n' SERVICE STATE HEALTH
+for svc in "${services[@]}"; do
+  state="missing"
+  health="-"
+  if line=$(docker inspect -f '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' \
+    "ddev-${site}-${svc}" 2>/dev/null); then
+    state="${line%% *}"
+    health="${line#* }"
+  fi
+  printf '%-20s %-12s %s\n' "$svc" "$state" "$health"
+  if [[ "$state" != running || "$health" != healthy ]]; then
+    bad+=("$svc")
+  fi
+done
+
+if ((${#bad[@]} > 0)); then
+  echo "NOT OK: ${bad[*]}"
+  exit 1
+fi
+echo "OK: all services running and healthy"

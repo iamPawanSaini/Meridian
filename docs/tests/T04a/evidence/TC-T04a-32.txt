@@ -1,0 +1,6 @@
+== TC-T04a-32 documentation and traceability (C5)
+  PASS  scripts/README.md lists quality.sh and the five check scripts
+  PASS  .ddev/README.md describes the quality command and that it works from T05
+  PASS  CLAUDE.md commands table lists scripts/quality.sh
+  PASS  TRACEABILITY R-12 row names T04a
+  PASS  TRACEABILITY NFR-18 row names T04a (coverage thresholds)

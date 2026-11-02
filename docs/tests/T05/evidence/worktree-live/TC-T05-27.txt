@@ -1,0 +1,4 @@
+== TC-T05-27 live: ddev composer validate (AC5)
+  PASS  ddev composer validate exits 0
+  PASS  ddev composer validate --check-lock (lock matches composer.json)
+  PASS  composer install is a no-op when vendor is current (post-start hook idempotent)

@@ -1,0 +1,3 @@
+NOTE: --regression mode: 6 at-close (snapshot) checks excluded because they are true only at the close of T04; 118 invariant checks executed.
+RESULT: ALL AUTOMATED CHECKS PASSED
+exit=0

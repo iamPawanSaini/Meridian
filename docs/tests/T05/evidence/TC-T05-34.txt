@@ -1,0 +1,14 @@
+== TC-T05-34 live: ddev quality exits 0; component-drupal PASS, tests SKIP (C4, TC-T04a-48)
+  FAIL  ddev quality exit 1
+              
+              Meridian naming (no stale placeholder names)........................................Passed
+              Meridian suppressions cite a ticket.................................................Passed
+              Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+              Spectral (OpenAPI lint).............................................................Passed
+        PASS  branch-name
+        PASS  commit-range
+        PASS  exceptions
+  PASS  PASS line for component-drupal
+  PASS  visible SKIP for component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  FAIL  no FAIL line anywhere
+        FAIL  pre-commit

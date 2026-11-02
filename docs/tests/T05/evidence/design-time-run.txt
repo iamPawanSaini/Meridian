@@ -1,0 +1,384 @@
+== TC-T05-01 DDEV project configuration keys (AC1)
+  FAIL  name is meridian
+        missing or empty: .ddev/config.yaml
+  FAIL  type is drupal11
+        missing or empty: .ddev/config.yaml
+  FAIL  composer_root is apps/drupal
+        missing or empty: .ddev/config.yaml
+  FAIL  docroot is apps/drupal/web (relative to the project root, not the composer root)
+        missing or empty: .ddev/config.yaml
+  FAIL  webserver_type is nginx-fpm
+        missing or empty: .ddev/config.yaml
+  FAIL  database type is mariadb
+        missing or empty: .ddev/config.yaml
+  FAIL  xdebug off by default
+        missing or empty: .ddev/config.yaml
+  FAIL  config.yaml is short and hand-written (no full commented ddev config output)
+        missing or empty: .ddev/config.yaml
+== TC-T05-02 DDEV hook, settings management and no secrets in config (AC1, C6)
+  FAIL  post-start hook runs composer install (vendor matches the lock after ddev start)
+        missing or empty: .ddev/config.yaml
+  FAIL  settings management stays on
+        missing or empty: .ddev/config.yaml
+  FAIL  no web_environment secrets, tokens or keys in config.yaml
+        missing or empty: .ddev/config.yaml
+  FAIL  no extra hostnames or additional_hostnames (T06 owns meridian-web)
+        missing or empty: .ddev/config.yaml
+  FAIL  no Mutagen or performance_mode override
+        missing or empty: .ddev/config.yaml
+== TC-T05-03 pantheon.yml keys (AC3)
+  FAIL  api_version 1
+        missing or empty: apps/drupal/pantheon.yml
+  FAIL  web_docroot true
+        missing or empty: apps/drupal/pantheon.yml
+  FAIL  build_step true (Integrated Composer)
+        missing or empty: apps/drupal/pantheon.yml
+  FAIL  php_version is a major.minor number
+        cannot parse apps/drupal/pantheon.yml: [Errno 2] No such file or directory: 'apps/drupal/pantheon.yml'
+  FAIL  database.version present
+        cannot parse apps/drupal/pantheon.yml: [Errno 2] No such file or directory: 'apps/drupal/pantheon.yml'
+  PASS  no drush_version key (Drush comes from vendor)
+  PASS  no pantheon.upstream.yml is tracked
+  FAIL  pantheon.yml is at the composer root apps/drupal (subtree split root, ADR-0004)
+        
+== TC-T05-04 PHP and database version parity, three-way (AC3)
+  FAIL  pantheon.yml php_version == .ddev php_version == composer config.platform.php (major.minor)
+        missing or empty: apps/drupal/pantheon.yml
+  FAIL  pantheon.yml database.version == .ddev database.version
+        cannot parse apps/drupal/pantheon.yml: [Errno 2] No such file or directory: 'apps/drupal/pantheon.yml'
+  FAIL  composer config.platform.php is a full x.y.z version
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  php_version is 8.3 or later (CODING_STANDARDS.md and Drupal 11 floor)
+        cannot parse apps/drupal/pantheon.yml: [Errno 2] No such file or directory: 'apps/drupal/pantheon.yml'
+  FAIL  database.version is 10.6 or later
+        cannot parse apps/drupal/pantheon.yml: [Errno 2] No such file or directory: 'apps/drupal/pantheon.yml'
+  PASS  negative: harness self-test, a skewed php_version fixture (8.4) does not equal 8.3
+== TC-T05-05 composer.json structure (AC5, KD-1)
+  FAIL  composer.json is valid JSON
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  name meridian/drupal
+        missing or empty: apps/drupal/composer.json
+  FAIL  type project
+        missing or empty: apps/drupal/composer.json
+  FAIL  license key present
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  minimum-stability stable
+        missing or empty: apps/drupal/composer.json
+  FAIL  prefer-stable true
+        missing or empty: apps/drupal/composer.json
+  FAIL  config.sort-packages true
+        missing or empty: apps/drupal/composer.json
+  FAIL  require has the five planned packages
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+        no require block
+  FAIL  require holds nothing else (no JSON:API, Simple OAuth or other contrib)
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  require-dev has drupal/core-dev
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  repositories include https://packages.drupal.org/8
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  PASS  no upstream-configuration path repository or script (ADR-0004: subtree deploy)
+  FAIL  allow-plugins explicit, no wildcard, installers and scaffold allowed
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+        config.allow-plugins missing
+  FAIL  scaffold web-root is web/
+        missing or empty: apps/drupal/composer.json
+  FAIL  pantheon-systems/drupal-integrations is in scaffold allowed-packages
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  installer-paths: core, contrib, libraries, drush, custom
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+        extra.installer-paths missing
+== TC-T05-06 composer.lock committed and consistent (AC5, KD-1)
+  FAIL  composer.lock is valid JSON with a content-hash
+        cannot parse apps/drupal/composer.lock: [Errno 2] No such file or directory: 'apps/drupal/composer.lock'
+  FAIL  lock holds core 11.x, Drush 13 or later, the Pantheon integration, core-dev
+        missing or empty: apps/drupal/composer.lock
+  FAIL  lock platform-overrides.php equals composer.json config.platform.php
+        cannot parse apps/drupal/composer.json: [Errno 2] No such file or directory: 'apps/drupal/composer.json'
+  FAIL  every composer-plugin package in the lock has an explicit allow-plugins decision
+        missing or empty: apps/drupal/composer.lock
+  FAIL  lock contains phpcs, Drupal coder, PHPStan, phpstan-drupal, deprecation rules, PHPUnit
+        Traceback (most recent call last):
+          File "<string>", line 3, in <module>
+        FileNotFoundError: [Errno 2] No such file or directory: 'apps/drupal/composer.lock'
+  FAIL  host composer validate (lock matches composer.json)
+        ./composer.json not found.
+  PASS  vendor/ and web/core are not tracked
+== TC-T05-07 settings.php include order and config sync directory (AC4, KD-4)
+  FAIL  settings.php exists and lints (php -l, if PHP present)
+        
+  FAIL  config_sync_directory is '../config/sync' (resolves to apps/drupal/config/sync)
+        grep: apps/drupal/web/sites/default/settings.php: No such file or directory
+  FAIL  order: settings.pantheon.php < settings.ddev.php < config_sync_directory < settings.local.php
+        missing or empty: apps/drupal/web/sites/default/settings.php
+  FAIL  pantheon, ddev and local includes are guarded by file_exists()
+        grep: apps/drupal/web/sites/default/settings.php: No such file or directory
+  FAIL  DDEV block is conditional on IS_DDEV_PROJECT
+        missing or empty: apps/drupal/web/sites/default/settings.php
+  FAIL  skip_permissions_hardening set as in the upstream
+        missing or empty: apps/drupal/web/sites/default/settings.php
+  FAIL  file_private_path and OAuth key paths are NOT set yet (T10)
+        missing or empty: apps/drupal/web/sites/default/settings.php
+== TC-T05-08 settings.php carries no secrets (C6, D7)
+  FAIL  no literal hash_salt
+        
+  FAIL  no literal database credentials
+        
+  FAIL  no key material, API key or token pattern
+        
+  FAIL  databases array is reset empty and not populated with literals
+        missing or empty: apps/drupal/web/sites/default/settings.php
+  PASS  settings.ddev.php, settings.local.php and settings.pantheon.php are not tracked
+== TC-T05-09 git ignore rules and the generated-file invariant (KD-7)
+  PASS  ignored: apps/drupal/vendor/autoload.php
+  PASS  ignored: apps/drupal/web/core/index.php
+  PASS  ignored: apps/drupal/web/modules/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/themes/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/profiles/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/libraries/x/x.js
+  FAIL  ignored: apps/drupal/web/sites/default/settings.ddev.php
+        NOT ignored but must be: apps/drupal/web/sites/default/settings.ddev.php
+  PASS  ignored: apps/drupal/web/sites/default/settings.local.php
+  FAIL  ignored: apps/drupal/web/sites/default/settings.pantheon.php
+        NOT ignored but must be: apps/drupal/web/sites/default/settings.pantheon.php
+  PASS  ignored: apps/drupal/web/sites/default/files/x.txt
+  FAIL  ignored: apps/drupal/private/x
+        NOT ignored but must be: apps/drupal/private/x
+  FAIL  ignored: apps/drupal/web/index.php
+        NOT ignored but must be: apps/drupal/web/index.php
+  FAIL  ignored: apps/drupal/web/update.php
+        NOT ignored but must be: apps/drupal/web/update.php
+  FAIL  ignored: apps/drupal/web/autoload.php
+        NOT ignored but must be: apps/drupal/web/autoload.php
+  FAIL  ignored: apps/drupal/web/.htaccess
+        NOT ignored but must be: apps/drupal/web/.htaccess
+  FAIL  ignored: apps/drupal/web/robots.txt
+        NOT ignored but must be: apps/drupal/web/robots.txt
+  FAIL  ignored: apps/drupal/web/web.config
+        NOT ignored but must be: apps/drupal/web/web.config
+  FAIL  ignored: apps/drupal/web/sites/default/default.settings.php
+        NOT ignored but must be: apps/drupal/web/sites/default/default.settings.php
+  FAIL  ignored: apps/drupal/web/sites/default/default.services.yml
+        NOT ignored but must be: apps/drupal/web/sites/default/default.services.yml
+  FAIL  ignored: apps/drupal/drush/Commands/contrib/x/x.php
+        NOT ignored but must be: apps/drupal/drush/Commands/contrib/x/x.php
+  FAIL  NOT ignored (owned): apps/drupal/web/sites/default/settings.php
+        owned file missing: apps/drupal/web/sites/default/settings.php
+  FAIL  NOT ignored (owned): apps/drupal/web/modules/custom/.gitkeep
+        owned file missing: apps/drupal/web/modules/custom/.gitkeep
+  FAIL  NOT ignored (owned): apps/drupal/composer.json
+        owned file missing: apps/drupal/composer.json
+  FAIL  NOT ignored (owned): apps/drupal/composer.lock
+        owned file missing: apps/drupal/composer.lock
+  FAIL  NOT ignored (owned): apps/drupal/pantheon.yml
+        owned file missing: apps/drupal/pantheon.yml
+  FAIL  NOT ignored (owned): apps/drupal/config/sync/core.extension.yml
+        owned file missing: apps/drupal/config/sync/core.extension.yml
+  FAIL  NOT ignored (owned): .ddev/config.yaml
+        owned file missing: .ddev/config.yaml
+  FAIL  NOT ignored (owned): .ddev/commands/web/drupal-install
+        owned file missing: .ddev/commands/web/drupal-install
+  PASS  NOT ignored (owned): .ddev/commands/host/quality
+  PASS  NOT ignored (owned): apps/drupal/phpcs.xml.dist
+  PASS  NOT ignored (owned): apps/drupal/phpstan.neon.dist
+  PASS  no tracked file matches an ignore rule (apps/drupal, .ddev)
+  PASS  no generated scaffold file is tracked
+  FAIL  old rule apps/drupal/drush/contrib/ replaced by drush/Commands/contrib/
+        
+  FAIL  apps/drupal/private/ is ignored in .gitignore
+        
+== TC-T05-10 config/sync baseline from the minimal profile (AC4, KD-5, C6)
+  FAIL  config/sync holds a real export (at least 10 YAML files, not a stub)
+        
+  FAIL  core.extension.yml names profile minimal
+        missing or empty: apps/drupal/config/sync/core.extension.yml
+  FAIL  core.extension.yml lists the system module
+        cannot parse apps/drupal/config/sync/core.extension.yml: [Errno 2] No such file or directory: 'apps/drupal/config/sync/core.extension.yml'
+  FAIL  no contrib or API modules yet (jsonapi, rest, simple_oauth, basic_auth: T09/T10)
+        missing or empty: apps/drupal/config/sync/core.extension.yml
+  FAIL  system.site.yml has a UUID
+        cannot parse apps/drupal/config/sync/system.site.yml: [Errno 2] No such file or directory: 'apps/drupal/config/sync/system.site.yml'
+  FAIL  system.site.yml site mail is example.com (RFC 2606)
+        cannot parse apps/drupal/config/sync/system.site.yml: [Errno 2] No such file or directory: 'apps/drupal/config/sync/system.site.yml'
+  FAIL  system.site.yml name is Meridian
+        missing or empty: apps/drupal/config/sync/system.site.yml
+  FAIL  no hash salt, password or key in config/sync
+        
+  FAIL  no uuid-free system.site (UUID kept so --existing-config keeps site identity)
+        grep: apps/drupal/config/sync/system.site.yml: No such file or directory
+== TC-T05-11 drupal-install command, static (AC2, KD-5)
+  FAIL  exists and is executable
+        
+  FAIL  header: ## Description, ## Usage with [--force], ## Example (DDEV command format)
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  strict mode: set -euo pipefail
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  runs composer install --no-interaction
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  one call does site install plus config import: site:install --existing-config
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  installs the minimal profile or uses the config profile, as admin with an example.com mail
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  refuses (exit 1) when Drupal is already installed unless --force
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  installed-check uses drush status bootstrap
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  rebuilds cache and fails on config:status differences
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  prints the next step: ddev drush uli
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  negative: no password argument and no hard-coded password
+        missing or empty: .ddev/commands/web/drupal-install
+  FAIL  negative: not named like the drush command (ddev drupal-install, not site-install)
+        
+== TC-T05-12 ddev quality activation: quality.sh and host command (C4, KD-6)
+  PASS  quality.sh still names the three manifests (T04a invariant)
+  FAIL  quality.sh has component-drupal and component-drupal-tests steps
+        missing in scripts/quality.sh: component-drupal-tests
+  FAIL  component-drupal-tests is keyed on apps/drupal/phpunit.xml.dist (SKIP until T09)
+        missing in scripts/quality.sh: apps/drupal/phpunit\.xml\.dist
+  FAIL  component-drupal runs composer validate, phpcs and phpstan
+        missing in scripts/quality.sh: composer validate
+  FAIL  tool version calls always run (missing tool is a FAIL)
+        missing in scripts/quality.sh: phpcs --version
+  PASS  any empty-tree guard cites T05 and the T09 removal
+  FAIL  host quality defaults the runner: ${QUALITY_RUNNER:-ddev}
+        missing in .ddev/commands/host/quality: QUALITY_RUNNER:-ddev
+  PASS  host quality still honours an explicit QUALITY_RUNNER=native (default, not forced)
+  PASS  scripts/quality.sh parses (bash -n)
+== TC-T05-13 runbook docs/runbooks/local-setup.md content (AC6, C7)
+  FAIL  runbook exists, non-empty
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  follows the runbook template headings
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  documents the commands: ddev start, ddev drupal-install, ddev drush uli
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  documents verification: ddev drush cex or config:status, ddev drush status, ddev composer validate, ddev quality
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  prerequisites: Docker, DDEV, git; clone on the WSL2 Linux filesystem, not /mnt/c
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  WSL2 HTTPS: mkcert -install
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  host composer is not used (use ddev composer)
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  never apply Pantheon dashboard upstream updates
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  do not record the admin password; use ddev drush uli
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  reinstall path: ddev drupal-install --force, and what it destroys
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  clean-clone note: ddev stop --unlist meridian for a second clone
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  rollback: ddev delete / ddev poweroff
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  no real credential or token pasted in the runbook
+        missing or empty: docs/runbooks/local-setup.md
+  FAIL  negative: runbook does not tell people to run host composer or --no-verify
+        missing or empty: docs/runbooks/local-setup.md
+== TC-T05-14 documentation updates (C5, scope list)
+  PASS  runbooks index lists local-setup.md
+  FAIL  .ddev/README.md covers config.yaml, drupal-install and the default quality runner
+        missing in .ddev/README.md: drupal-install
+  FAIL  apps/drupal/README.md: layout, version table with URL and date, upstream reference, config workflow
+        missing in apps/drupal/README.md: https?://
+  FAIL  version table rows carry a source URL or 'owner to verify' (every verify item resolved)
+        version table lacks a sourced row: pantheon\.yml|php_version
+  FAIL  CLAUDE.md Commands table lists ddev start, ddev drupal-install, ddev drush uli
+        missing in CLAUDE.md: ddev start
+  FAIL  root README Getting started points to the runbook
+        missing in README.md: local-setup
+  FAIL  CODING_STANDARDS tool table: phpcs/coder/phpstan rows no longer say verify
+        
+  PASS  TRACEABILITY R-11 / FR-26 rows name the T05 evidence (filled at close)
+== TC-T05-15 no new environment variable, no secrets in changed files (C6, KD-8)
+  FAIL  .env.example unchanged by T05 commits
+        no T05 implementation commit yet
+  PASS  no .env file tracked
+  PASS  no secret-shaped strings in T05 files
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T05-24)
+== TC-T05-16 simulation-only denylist (FR-11, ADR-0006, CLAUDE.md)
+  PASS  denylist scan over every new T05 file is clean (non-empty file set required)
+  FAIL  composer.lock package names contain no broker, trading or order SDK
+        missing or empty: apps/drupal/composer.lock
+  FAIL  composer.lock source and dist URLs contain no trading host
+        
+  FAIL  no composer.json 'require' of any non-Drupal-ecosystem trading package
+        
+  FAIL  .ddev/config.yaml has no outbound host other than DDEV/Drupal tooling
+        
+== TC-T05-17 naming (C-criteria, section 0)
+  PASS  scripts/check-names.sh passes
+  FAIL  .ddev/config.yaml name is exactly meridian (not a placeholder name)
+        missing or empty: .ddev/config.yaml
+  FAIL  composer name uses the meridian vendor
+        missing or empty: apps/drupal/composer.json
+  PASS  no old placeholder names in T05 files (case-insensitive)
+== TC-T05-18 shell hygiene of the new command (C4, standards: Shell)
+  FAIL  drupal-install parses (bash -n)
+        bash: .ddev/commands/web/drupal-install: No such file or directory
+  FAIL  drupal-install has a bash shebang
+        head: cannot open '.ddev/commands/web/drupal-install' for reading: No such file or directory
+  SKIP  shellcheck not installed: the pre-commit shellcheck hook covers it (TC-T05-24)
+  PASS  drupal-install quotes variables (no bare $VAR in test brackets)
+== TC-T05-19 empty custom tree and PHP tooling configs (KD-6)
+  FAIL  web/modules/custom/.gitkeep tracked (phpcs/PHPStan path exists)
+        error: pathspec 'apps/drupal/web/modules/custom/.gitkeep' did not match any file(s) known to git
+        Did you forget to 'git add'?
+  PASS  phpcs.xml.dist and phpstan.neon.dist unchanged in scope: level 6, no baseline, ignores need comments
+  PASS  phpstan.neon.dist has no baseline
+  PASS  phpstan config loads phpstan-drupal (explicit include or extension-installer comment)
+  PASS  [at-close] phpunit.xml.dist is absent until T09 (the SKIP is visible, T05 does not add it)
+  PASS  [at-close] no custom module exists yet (T09)
+== TC-T05-20 composer.lock size vs check-added-large-files (KD-7)
+  FAIL  lock under 1024 KB, or narrowly excluded with a T05 comment and the global limit unchanged
+        missing or empty: apps/drupal/composer.lock
+== TC-T05-21 T04a regression suite still green (C4)
+  PASS  T04a run-checks.sh --regression exits 0 (no invariant regression)
+  PASS  T03 and T04 regression sets exit 0
+== TC-T05-22 only example.com addresses in T05 files (KD-5, no real mailbox)
+  PASS  every e-mail address in T05 files is example.com/org/net (or github.com for git remotes)
+  FAIL  drupal-install uses admin@example.com for site and account mail
+        missing or empty: .ddev/commands/web/drupal-install
+== TC-T05-23 scope discipline: no extra services, no deploy config (non-goals)
+  PASS  no docker-compose or extra DDEV services added (T06)
+  PASS  no providers/pantheon.yaml and no deploy-drupal workflow content (T07)
+  PASS  no ci.yml Drupal job added (T08)
+  PASS  no ddev engine/pg/next/e2e commands (T06)
+  PASS  only the planned DDEV commands under .ddev/commands
+== TC-T05-24 pre-commit hooks over the T05 changes (C4)
+  SKIP  .tools/pre-commit not bootstrapped: run scripts/bootstrap-dev.sh (owner/network)
+== TC-T05-39 AC6: runbook followed verbatim on a clean machine or container (owner-run)
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word and record each command, output and the total time; not automatable
+== TC-T05-40 WSL2 browser login over HTTPS with mkcert (owner-run)
+  BLOCKED  owner-run: open the ddev drush uli URL in a Windows browser; confirm no certificate warning after the runbook's mkcert step
+
+== Roll-up per case
+  FAIL     TC-T05-01
+  FAIL     TC-T05-02
+  FAIL     TC-T05-03
+  FAIL     TC-T05-04
+  FAIL     TC-T05-05
+  FAIL     TC-T05-06
+  FAIL     TC-T05-07
+  FAIL     TC-T05-08
+  FAIL     TC-T05-09
+  FAIL     TC-T05-10
+  FAIL     TC-T05-11
+  FAIL     TC-T05-12
+  FAIL     TC-T05-13
+  FAIL     TC-T05-14
+  FAIL     TC-T05-15
+  FAIL     TC-T05-16
+  FAIL     TC-T05-17
+  FAIL     TC-T05-18
+  FAIL     TC-T05-19
+  FAIL     TC-T05-20
+  PASS     TC-T05-21
+  FAIL     TC-T05-22
+  PASS     TC-T05-23
+  SKIP     TC-T05-24
+  BLOCKED  TC-T05-39
+  BLOCKED  TC-T05-40
+
+SUMMARY: mode=static cases: 2 PASS, 21 FAIL, 2 BLOCKED; checks executed: 180; SKIP (optional tools): 3; BLOCKED lines: 2
+RESULT: ONE OR MORE CHECKS FAILED

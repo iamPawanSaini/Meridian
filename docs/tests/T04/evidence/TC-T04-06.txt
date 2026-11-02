@@ -1,0 +1,4 @@
+== TC-T04-06 environments and level-by-environment matrix
+  PASS  four environments named: sandbox, DDEV, CI (GitHub Actions), deployed dev (Pantheon, Vercel)
+  PASS  sandbox has no network; CI has no live market data or LLM
+  PASS  matrix has a table row for each of the 8 levels

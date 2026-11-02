@@ -1,0 +1,10 @@
+== TC-T05-12 ddev quality activation: quality.sh and host command (C4, KD-6)
+  PASS  quality.sh still names the three manifests (T04a invariant)
+  PASS  quality.sh has component-drupal and component-drupal-tests steps
+  PASS  component-drupal-tests is keyed on apps/drupal/phpunit.xml.dist (SKIP until T09)
+  PASS  component-drupal runs composer validate, phpcs and phpstan
+  PASS  tool version calls always run (missing tool is a FAIL)
+  PASS  any empty-tree guard cites T05 and the T09 removal
+  PASS  host quality defaults the runner: ${QUALITY_RUNNER:-ddev}
+  PASS  host quality still honours an explicit QUALITY_RUNNER=native (default, not forced)
+  PASS  scripts/quality.sh parses (bash -n)

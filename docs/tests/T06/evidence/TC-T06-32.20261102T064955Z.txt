@@ -1,0 +1,7 @@
+== TC-T06-32 rows survive stop/start and poweroff/start; volume labels (AC4)
+  PASS  checksum identical after ddev stop + ddev start
+  PASS  ddev start after poweroff exits 0
+  PASS  all five healthy after poweroff + start
+  PASS  checksum identical after ddev poweroff + ddev start
+  PASS  docker volume meridian-postgres-data exists and carries com.ddev.site-name and com.ddev.approot
+  PASS  label com.ddev.site-name is meridian

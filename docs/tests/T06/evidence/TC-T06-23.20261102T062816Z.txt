@@ -1,0 +1,6 @@
+== TC-T06-23 engine reaches https://meridian.ddev.site with trusted TLS (AC2)
+  PASS  HTTPS to https://meridian.ddev.site/user/login, verification ON, prints 200 (or 403)
+  PASS  meridian.ddev.site resolves inside meridian-engine to a ddev-router address (172.18.0.8 in: 172.18.0.8 )
+  PASS  SSL_CERT_FILE and REQUESTS_CA_BUNDLE both point at /tmp/meridian-ca-bundle.pem in an exec session
+  PASS  negative: without the CA variables certificate verification FAILS (trust comes from the bundle, verification is not off)
+  PASS  bundle keeps the system CAs (more than 50 certificates), so public CAs still work

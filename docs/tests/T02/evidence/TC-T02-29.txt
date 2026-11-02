@@ -1,0 +1,4 @@
+== TC-T02-29 C6 no secrets, .env.example unchanged
+  PASS  .env.example unchanged vs base branch task/T01-agents (absent from main)
+  FAIL  BLOCKED .tools/pre-commit not installed (run scripts/bootstrap-dev.sh)
+  PASS  no key-like strings in T02 docs

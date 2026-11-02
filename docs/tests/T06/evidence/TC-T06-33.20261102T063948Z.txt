@@ -1,0 +1,15 @@
+== TC-T06-33 dump and restore round trip (AC4)
+  PASS  ddev pg dump exits 0
+        dump path: /home/pawan/Meridian/db-dumps/meridian-postgres-20261102T064623Z.dump  (output: /home/pawan/Meridian/db-dumps/meridian-postgres-20261102T064623Z.dump (2631 bytes))
+  PASS  a dump file named db-dumps/meridian-postgres-<UTC>.dump exists and is non-empty
+  PASS  the dump is a pg_dump custom archive (magic PGDMP)
+  PASS  file mode is not group or world readable (umask 077)
+  PASS  git check-ignore -v names the root .gitignore for the dump
+  PASS  git status --porcelain is unchanged from the start of the run after the dump (empty on a committed tree)
+  PASS  data was changed on purpose (t06_t gone, t06_extra present)
+  PASS  ddev pg restore <file> --yes exits 0
+  PASS  restore prints a table count
+  PASS  checksum after restore equals the checksum before the dump (315feb654a37937abc9f93fb5a31e08f)
+  PASS  the extra table created after the dump is gone
+  PASS  ownership: the restored table belongs to meridian (--no-owner)
+  PASS  all five still healthy after the restore

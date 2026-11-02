@@ -1,0 +1,10 @@
+== TC-T04-12 conventions codified from T00 to T03
+  PASS  statuses Pass, Fail, Blocked, Not run; Blocked means missing precondition or tool, not a product fault
+  PASS  owner-run cases: exact command, expected output, evidence path, tool version
+  PASS  main-session-executed cases: 'Executed by' names who ran it
+  PASS  evidence naming: TC-Txx-nn.txt, run-checks.txt, -static and -spotcheck suffixes
+  PASS  run-checks.sh style: no vacuous pass, non-zero exit, SKIP only for optional tools listed in the report
+  PASS  script defect Change log; a check may never be loosened to hide a content gap
+  PASS  live-API cases (T17 real-LLM smoke test) are manual, marked and never in CI
+  PASS  Blocked-at-close table: case, criterion, reason, owner who accepted, date, owner message reference
+  PASS  independence: execution not in the authoring context; report states who executed

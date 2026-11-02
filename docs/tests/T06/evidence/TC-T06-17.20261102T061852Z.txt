@@ -1,0 +1,5 @@
+== TC-T06-17 simulation-only denylist over T06 files (FR-11, ADR-0006, CLAUDE.md)
+  PASS  denylist scan over every T06 implementation file (non-empty set required)
+  PASS  denylist scan over the lines T06 adds outside docs/tests (existing rule sentences are not scanned)
+  PASS  images are only postgres, python, node; no broker or trading image or package
+  PASS  no outbound host in T06 helper scripts other than meridian.ddev.site, 127.0.0.1, localhost

@@ -1,0 +1,6 @@
+== TC-T06-13 git ignore: dumps and generated files stay out of git (AC4, C6)
+  PASS  git check-ignore -v names the root .gitignore for db-dumps/x.dump and any .dump
+  PASS  no tracked file matches an ignore rule (.ddev, docs/tests/T06)
+  PASS  the new .ddev files are NOT ignored (compose, commands, helpers)
+  PASS  no dump file or db-dumps/ content tracked
+  PASS  no .env tracked

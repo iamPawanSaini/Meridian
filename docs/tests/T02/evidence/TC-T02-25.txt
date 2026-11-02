@@ -1,0 +1,6 @@
+== TC-T02-25 technical-architect sign-off recorded
+  PASS  sign-off names technical-architect
+  PASS  sign-off says approved/signed off
+  PASS  sign-off has a date
+  PASS  sign-off not pending/conditional
+  PASS  review.md exists

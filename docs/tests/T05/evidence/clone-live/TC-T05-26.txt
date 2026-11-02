@@ -1,0 +1,3 @@
+== TC-T05-26 live: web and db healthy (AC1)
+  PASS  ddev describe lists web and db as OK/running
+  PASS  project name is meridian and URL is https://meridian.ddev.site

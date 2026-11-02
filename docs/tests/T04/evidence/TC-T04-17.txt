@@ -1,0 +1,18 @@
+== TC-T04-17 planned-test spot checks on high-risk rows (content, not structure)
+  PASS  FR-11: security level; broker/static check in planned test; T18, T30, T33 patterns
+  PASS  FR-06: planned test names the five failure types
+  PASS  FR-07: planned test covers each untrusted input field (injection)
+  PASS  FR-14 and FR-18: data reconciliation level
+  PASS  FR-19, FR-20, FR-21: security level
+  PASS  FR-23: planned test uses a holiday fixture
+  PASS  NFR-03: performance level and LCP in the planned test
+  PASS  NFR-03: planned test measures LCP (web-vitals)
+  PASS  NFR-01, NFR-04, NFR-05, NFR-07: performance level
+  PASS  NFR-04, NFR-05: p95 in planned test
+  PASS  NFR-10: security level, gitleaks over full history
+  PASS  NFR-10: planned test names gitleaks
+  PASS  NFR-11: planned test names dependency audit and image scan
+  PASS  NFR-12: axe in the planned test
+  PASS  NFR-12: both themes in the planned test
+  PASS  NFR-18: coverage tool in the planned test
+  PASS  FR-28 and FR-29: docs check level

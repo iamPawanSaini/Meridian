@@ -1,0 +1,6 @@
+== TC-T04a-48 to 52 deferred or manual
+  BLOCKED  TC-T04a-48 ddev quality (needs .ddev/config.yaml from T05 and DDEV)
+  BLOCKED  TC-T04a-49 bad PHP style rejected by phpcs and PHPStan (needs T05 Composer tools; custom modules from T09)
+  BLOCKED  TC-T04a-50 ESLint error, tsc --noEmit failure, Prettier failure (needs the T21 scaffold)
+  BLOCKED  TC-T04a-51 CI coverage drop, CI branch-name check, real Cobertura attribute names (needs T08, T09, T13, T21)
+  BLOCKED  TC-T04a-52 manual review of ten standards rules against the checklist (tester, evidence manual-review.md)

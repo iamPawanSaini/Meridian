@@ -1,0 +1,4 @@
+== TC-T06-07 meridian-postgres service and data volume (AC4, KD-4)
+  PASS  POSTGRES_DB and POSTGRES_USER meridian, UTF8 / C.UTF-8 initdb args, password from MERIDIAN_POSTGRES_PASSWORD via exec docker-entrypoint.sh, health check pg_isready, named data volume at /var/lib/postgresql/data with both DDEV labels
+  PASS  health check retries 12 and pg_isready target 127.0.0.1
+  PASS  negative: no literal POSTGRES_PASSWORD value

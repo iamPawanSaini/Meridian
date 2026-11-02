@@ -1,0 +1,5 @@
+== TC-T04-05 test layout convention per component
+  PASS  layout section lists engine unit, integration, contract and fixtures paths
+  PASS  layout lists Drupal Unit, Kernel, Functional under meridian_*/tests/src
+  PASS  layout lists Next.js unit tests next to source and apps/web/e2e
+  PASS  layout lists docs tasks docs/tests/Txx/run-checks.sh

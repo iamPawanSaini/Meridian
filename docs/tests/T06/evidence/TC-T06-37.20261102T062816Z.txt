@@ -1,0 +1,26 @@
+== TC-T06-37 stopped meridian-postgres is reported; no cascade to engine or web health (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    exited       unhealthy
+        meridian-engine      running      healthy
+        meridian-web         running      healthy
+        NOT OK: meridian-postgres
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  docker stop ddev-meridian-meridian-postgres: ddev meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-postgres line shows exited (and not running)
+  PASS  the last line of STDOUT names meridian-postgres
+  PASS  the other services are not named as bad on the last stdout line
+  PASS  no cascade: meridian-engine and meridian-web stay running healthy while Postgres is down
+        ddev describe (information only):
+        ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+        │ Project: meridian ~/Meridian https://meridian.ddev.site                                 │
+        │ Docker platform: wsl2-docker-ce                                                         │
+        │ Router: traefik                                                                         │
+        ├──────────────┬────────┬──────────────────────────────────────────┬──────────────────────┤
+        │ SERVICE      │ STAT   │ URL/PORT                                 │ INFO                 │
+        ├──────────────┼────────┼──────────────────────────────────────────┼──────────────────────┤
+        │ web          │ [32mOK[0m     │ https://meridian.ddev.site               │ drupal11 PHP 8.3     │
+  PASS  ddev start brings meridian-postgres back
+  PASS  all five healthy again
+  PASS  meridian-status exits 0 again

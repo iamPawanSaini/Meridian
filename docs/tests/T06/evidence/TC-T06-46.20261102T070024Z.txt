@@ -1,0 +1,9 @@
+== TC-T06-46 clean clone: start-script switch with a temporary apps/web/package.json (decision condition 2)
+  PASS  precondition: no apps/web/package.json in the clone, placeholder is served
+  PASS  meridian-web is running healthy again with the probe dev server (health: status below 500)
+  PASS  curl (no -k) returns '200 0' (got: 200 0)
+  PASS  body is the probe server's body, with the --port and --hostname arguments start.sh passed (port=3000 host=0.0.0.0)
+  PASS  negative: the body is NOT the placeholder sentence
+  PASS  after removing package.json and restarting, meridian-web is healthy again
+  PASS  the placeholder is served again (switch works in both directions; got: 200 0)
+  PASS  the scratch clone has no package.json left, git status is empty

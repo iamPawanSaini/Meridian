@@ -1,0 +1,5 @@
+== TC-T04a-05 coverage thresholds recorded in the standards (AC7)
+  PASS  engine scoring and risk 90 (NFR-18), engine overall 85
+  PASS  Drupal custom modules 70, provisional, Kernel tests counted
+  PASS  Next.js lib and components 80; app routes covered by Playwright
+  PASS  line coverage is the gate; branch reported not gated; floors only go up

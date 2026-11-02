@@ -1,0 +1,19 @@
+== TC-T06-34 dump and restore negatives: --yes guard, bad files, open session, explicit path, failed dump (AC4)
+  PASS  no --yes (run directly): exit 2
+  PASS  no --yes through ddev: exit 1 and 'exit status 2'
+  PASS  no --yes: message says the database would be replaced
+  PASS  no --yes: data unchanged
+  PASS  garbage file: exit 1 and 'exit status 1'
+  PASS  garbage file: data unchanged (validation happens before dropdb)
+  PASS  truncated archive (64 bytes): non-zero exit
+  PASS  truncated archive: data unchanged
+  PASS  missing file: exit 1 and 'exit status 1'
+  PASS  missing file: data unchanged
+  PASS  empty file: exit 1 and data unchanged
+  PASS  a client session is open on the meridian database
+  PASS  restore with an open session succeeds (dropdb --force)
+  PASS  checksum correct after the forced restore
+  PASS  dump to an explicit FILE exits 0, file is a PGDMP archive
+  PASS  the explicit file restores (round trip from a non-default path)
+  PASS  failed dump (unwritable target): non-zero exit and no partial file
+  PASS  no stray temporary dump files left in db-dumps/ (*.tmp, *.partial, dot-files)

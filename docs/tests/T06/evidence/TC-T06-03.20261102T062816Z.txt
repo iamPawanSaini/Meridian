@@ -1,0 +1,3 @@
+== TC-T06-03 health checks defined on all three services (AC5, KD-4 to KD-6)
+  PASS  healthcheck with test, interval, timeout, retries, start_period; per-service content as the plan; engine and web checks do not call Postgres or Drupal
+  PASS  no restart policy on any service (a dead container must stay down for the status command)

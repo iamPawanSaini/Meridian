@@ -1,0 +1,5 @@
+== TC-T04a-35 no component scaffolds yet (plan non-goal; makes the SKIP rule real) [snapshot]
+  PASS  [at-close] services/engine/pyproject.toml is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] apps/drupal/composer.json is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] apps/web/package.json is absent (arrives in T05, T13 or T21)
+  PASS  [at-close] .ddev/config.yaml is absent (arrives in T05, T13 or T21)

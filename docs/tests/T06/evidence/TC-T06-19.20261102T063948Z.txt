@@ -1,0 +1,26 @@
+== TC-T06-19 hygiene: shellcheck, yamllint, check-yaml, pre-commit on T06 files, earlier regression sets (C4)
+  SKIP  shellcheck not on PATH: the pre-commit shellcheck hook covers it
+  SKIP  yamllint not on PATH: covered by the pre-commit yamllint hook below
+  FAIL  pre-commit run --files <every T06 file> exits 0 (never --all-files here; T05 TC-T05-24 owns that)
+        Detect hardcoded secrets............................................................Passed
+        trim trailing whitespace............................................................Passed
+        fix end of files....................................................................Passed
+        mixed line ending...................................................................Passed
+        check yaml..........................................................................Passed
+        check json......................................................(no files to check)Skipped
+        check toml......................................................(no files to check)Skipped
+        check for merge conflicts...........................................................Passed
+  FAIL  T05 run-checks.sh --regression exits 0 (TC-T05-15 and 23 re-tagged cka by the tester)
+          FAIL  T04a run-checks.sh --regression exits 0 (no invariant regression)
+                  FAIL  pre-commit run --all-files
+                  FAIL  TC-48 ddev quality exits 0 on a clean tree
+                        FAIL  pre-commit
+          FAIL  pre-commit run --all-files exits 0
+          FAIL     TC-T05-21
+          FAIL     TC-T05-24
+  FAIL  T04a, T03 and T04 regression sets exit 0
+        T04a regression failed
+          FAIL  pre-commit run --all-files
+          FAIL  TC-48 ddev quality exits 0 on a clean tree
+                FAIL  pre-commit
+        tree baseline at the start of the live run: 5 status lines (the tester does not commit; 0 on a committed tree)

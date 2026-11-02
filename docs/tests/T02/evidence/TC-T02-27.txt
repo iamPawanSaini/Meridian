@@ -1,0 +1,4 @@
+== TC-T02-27 C1/C2 plan and review exist
+  PASS  plan exists and is Approved
+  PASS  review exists
+  PASS  review records approval

@@ -1,0 +1,19 @@
+# Meridian DDEV project (T05). Hand-written and short on purpose.
+# PHP and database versions must equal apps/drupal/pantheon.yml and composer.json
+# config.platform.php (checked by docs/tests/T05/run-checks.sh).
+name: meridian
+type: drupal11
+# docroot and composer_root are relative to the project root, not the composer root.
+docroot: apps/drupal/web
+composer_root: apps/drupal
+php_version: "8.3"
+database:
+  type: mariadb
+  version: "10.6"
+webserver_type: nginx-fpm
+xdebug_enabled: false
+hooks:
+  post-start:
+    - composer: install
+# A failing hook (for example composer install) must fail ddev start, not hide (AC1).
+fail_on_hook_fail: true

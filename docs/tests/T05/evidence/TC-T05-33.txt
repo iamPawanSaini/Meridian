@@ -1,0 +1,11 @@
+== TC-T05-33 live: git status clean after start, install and cex (KD-7 invariant)
+  FAIL  git status --porcelain is empty for the whole repository
+         M .claude/hooks/guard_paths.py
+         M .claude/hooks/tests/test_guard_paths.py
+         M docs/tests/T03/check_data_model.py
+         M docs/tests/T03/check_env_parity.py
+         M docs/tests/T03/def002_retest.py
+         M docs/tests/T03/evidence/TC-T03-27.txt
+         M docs/tests/T03/selftest_validator.py
+         M docs/tests/T03/validate_openapi.py
+  PASS  settings.php unchanged by DDEV (git diff --quiet)

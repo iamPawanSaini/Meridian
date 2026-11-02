@@ -1,0 +1,8 @@
+# TC-T01-05 / TC-T01-07 checks 2026-10-31T20:01:26Z
+PASS command plan-task exists and is documented
+PASS command design-tests exists and is documented
+PASS command implement-task exists and is documented
+PASS command review-task exists and is documented
+PASS command test-task exists and is documented
+PASS command close-task exists and is documented
+PASS WORKFLOW states main session orchestrates and subagents do not call each other

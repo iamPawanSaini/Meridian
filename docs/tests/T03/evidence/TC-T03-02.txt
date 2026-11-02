@@ -1,0 +1,117 @@
+== TC-T03-02 Drupal content model: five bundles, every field typed, validated, indexed
+  PASS  data-model.md exists and non-empty
+  PASS  Drupal content model region present
+  PASS  Postgres schema region present
+  PASS  [drupal] subsection for bundle decision
+  PASS  [drupal:decision] field table with Type, Validation and Indexed columns
+  PASS  [drupal:decision] at least 5 fields listed
+  PASS  [drupal:decision] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:decision] has external_id field
+  PASS  [drupal:decision] external_id: unique + regex validation + indexed
+  PASS  [drupal:decision] has field-level visible-to roles info
+  PASS  [drupal:decision] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle position
+  PASS  [drupal:position] field table with Type, Validation and Indexed columns
+  PASS  [drupal:position] at least 5 fields listed
+  PASS  [drupal:position] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:position] has external_id field
+  PASS  [drupal:position] external_id: unique + regex validation + indexed
+  PASS  [drupal:position] has field-level visible-to roles info
+  PASS  [drupal:position] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle daily_run
+  PASS  [drupal:daily_run] field table with Type, Validation and Indexed columns
+  PASS  [drupal:daily_run] at least 5 fields listed
+  PASS  [drupal:daily_run] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:daily_run] has external_id field
+  PASS  [drupal:daily_run] external_id: unique + regex validation + indexed
+  PASS  [drupal:daily_run] has field-level visible-to roles info
+  PASS  [drupal:daily_run] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle price_snapshot
+  PASS  [drupal:price_snapshot] field table with Type, Validation and Indexed columns
+  PASS  [drupal:price_snapshot] at least 5 fields listed
+  PASS  [drupal:price_snapshot] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:price_snapshot] has external_id field
+  PASS  [drupal:price_snapshot] external_id: unique + regex validation + indexed
+  PASS  [drupal:price_snapshot] has field-level visible-to roles info
+  PASS  [drupal:price_snapshot] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal] subsection for bundle watchlist_item
+  PASS  [drupal:watchlist_item] field table with Type, Validation and Indexed columns
+  PASS  [drupal:watchlist_item] at least 5 fields listed
+  PASS  [drupal:watchlist_item] every field has non-empty type, validation and indexed cells (no TBD)
+  PASS  [drupal:watchlist_item] has external_id field
+  PASS  [drupal:watchlist_item] external_id: unique + regex validation + indexed
+  PASS  [drupal:watchlist_item] has field-level visible-to roles info
+  PASS  [drupal:watchlist_item] states a bundle-level uniqueness rule for external_id
+  PASS  [drupal:decision] FR-12 provenance field: inputs snapshot
+  PASS  [drupal:decision] FR-12 provenance field: raw LLM output
+  PASS  [drupal:decision] FR-12 provenance field: prompt version
+  PASS  [drupal:decision] FR-12 provenance field: model name
+  PASS  [drupal:decision] FR-12 provenance field: rule version
+  PASS  [drupal:decision] raw LLM output visible to administrator only
+  PASS  [drupal:decision] references daily run by external_id
+  PASS  [drupal:position] references daily run by external_id
+  PASS  [drupal:decision] decision references position/run by external_id
+  PASS  [drupal:decision] mode field validated to long|short
+  PASS  [drupal:*] symbol validated by regex in decision, position, price_snapshot, watchlist_item
+  PASS  [pg] subsection for table runs
+  PASS  [pg:runs] column table with Column and Type
+  PASS  [pg:runs] at least 4 columns listed
+  PASS  [pg:runs] no empty type cells
+  PASS  [pg:runs] primary key stated
+  PASS  [pg:runs] at least one index specified (name or columns)
+  PASS  [pg:runs] NOT NULL / nullability stated
+  PASS  [pg] subsection for table watchlist_snapshots
+  PASS  [pg:watchlist_snapshots] column table with Column and Type
+  PASS  [pg:watchlist_snapshots] at least 4 columns listed
+  PASS  [pg:watchlist_snapshots] no empty type cells
+  PASS  [pg:watchlist_snapshots] primary key stated
+  PASS  [pg:watchlist_snapshots] at least one index specified (name or columns)
+  PASS  [pg:watchlist_snapshots] NOT NULL / nullability stated
+  PASS  [pg] subsection for table prices
+  PASS  [pg:prices] column table with Column and Type
+  PASS  [pg:prices] at least 4 columns listed
+  PASS  [pg:prices] no empty type cells
+  PASS  [pg:prices] primary key stated
+  PASS  [pg:prices] at least one index specified (name or columns)
+  PASS  [pg:prices] NOT NULL / nullability stated
+  PASS  [pg] subsection for table decisions
+  PASS  [pg:decisions] column table with Column and Type
+  PASS  [pg:decisions] at least 4 columns listed
+  PASS  [pg:decisions] no empty type cells
+  PASS  [pg:decisions] primary key stated
+  PASS  [pg:decisions] at least one index specified (name or columns)
+  PASS  [pg:decisions] NOT NULL / nullability stated
+  PASS  [pg] subsection for table positions
+  PASS  [pg:positions] column table with Column and Type
+  PASS  [pg:positions] at least 4 columns listed
+  PASS  [pg:positions] no empty type cells
+  PASS  [pg:positions] primary key stated
+  PASS  [pg:positions] at least one index specified (name or columns)
+  PASS  [pg:positions] NOT NULL / nullability stated
+  PASS  [pg] subsection for table outbox
+  PASS  [pg:outbox] column table with Column and Type
+  PASS  [pg:outbox] at least 4 columns listed
+  PASS  [pg:outbox] no empty type cells
+  PASS  [pg:outbox] primary key stated
+  PASS  [pg:outbox] at least one index specified (name or columns)
+  PASS  [pg:outbox] NOT NULL / nullability stated
+  PASS  [pg] subsection for table alembic_version
+  PASS  [pg:alembic_version] column table with Column and Type
+  PASS  [pg:alembic_version] at least 1 columns listed
+  PASS  [pg:alembic_version] no empty type cells
+  PASS  [pg:alembic_version] primary key stated
+  PASS  [pg:decisions] unique constraint on (trade_date, symbol, mode)
+  PASS  [pg:decisions] provenance column NOT NULL: inputs snapshot
+  PASS  [pg:decisions] provenance column NOT NULL: raw LLM output
+  PASS  [pg:decisions] provenance column NOT NULL: prompt version
+  PASS  [pg:decisions] provenance column NOT NULL: model name
+  PASS  [pg:decisions] provenance column NOT NULL: rule version
+  PASS  [pg:decisions/positions] foreign key to runs
+  PASS  [pg:outbox] columns: record_type, external_id, payload, status, attempts, next_attempt
+  PASS  [pg:outbox] status values pending, sent, dead
+  PASS  [pg:outbox] at most one pending row per (record_type, external_id) (partial unique)
+  PASS  [pg:runs] has status and published (incl. partial) columns
+  PASS  [pg:prices] unique per (symbol, trade_date)
+  PASS  [pg:positions] unique constraint stated
+  PASS  Postgres 16 and no vendor-only features stated
+  PASS  (sentinel) data-model checker exited 0

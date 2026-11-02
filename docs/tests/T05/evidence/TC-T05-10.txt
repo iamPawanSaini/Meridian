@@ -1,0 +1,10 @@
+== TC-T05-10 config/sync baseline from the minimal profile (AC4, KD-5, C6)
+  PASS  config/sync holds a real export (at least 10 YAML files, not a stub)
+  PASS  core.extension.yml names profile minimal
+  PASS  core.extension.yml lists the system module
+  PASS  no contrib or API modules yet (jsonapi, rest, simple_oauth, basic_auth: T09/T10)
+  PASS  system.site.yml has a UUID
+  PASS  system.site.yml site mail is example.com (RFC 2606)
+  PASS  system.site.yml name is Meridian
+  PASS  no hash salt or key in config/sync; system.mail mailer_dsn.password is null
+  PASS  no uuid-free system.site (UUID kept so --existing-config keeps site identity)

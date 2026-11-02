@@ -1,0 +1,4 @@
+== TC-T04-14 TRACEABILITY planned-tests table: structure and ID set (AC5)
+  PASS  solution-architecture.md yields FR-01..FR-30 and NFR-01..NFR-19 (49 IDs)
+  PASS  heading 'Planned tests' followed by a 7-column table (ID, parent, task, level, test, case, status)
+  PASS  planned-test IDs exactly equal the FR/NFR IDs in solution-architecture.md; no duplicates

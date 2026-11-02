@@ -1,0 +1,7 @@
+== TC-T06-52 a directory given as the dump or restore target is refused (review finding 4)
+  PASS  pg dump DIRECTORY (run directly): exit 2
+  PASS  message says it is a directory
+  PASS  through ddev: exit 1 and 'exit status 2'
+  PASS  nothing was created in the directory (no .pgdump.* temp file)
+  PASS  pg restore DIRECTORY --yes: exit 1 and 'exit status 1'
+  PASS  pg restore DIRECTORY: data unchanged

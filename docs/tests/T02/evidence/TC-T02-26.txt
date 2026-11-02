@@ -1,0 +1,18 @@
+== TC-T02-26 TRACEABILITY lists refined IDs for R-01..R-12
+  PASS  TRACEABILITY R-01 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-02 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-03 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-04 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-05 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-06 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-07 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-08 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-09 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-10 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-11 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-12 row lists an FR/NFR ID
+  PASS  original columns intact
+  PASS  all 12 R rows present
+  PASS  every architecture FR/NFR ID appears in TRACEABILITY
+  PASS  no TRACEABILITY FR/NFR ID missing from architecture
+  PASS  TRACEABILITY pairing matches parent R-ID in architecture doc

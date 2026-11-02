@@ -1,0 +1,7 @@
+== TC-T04-24 no secrets, markers, links, markdown hygiene
+  PASS  no secret patterns in T04 outputs
+  PASS  no TODO/TBD/FIXME markers in master plan
+  PASS  relative links in master plan and TRACEABILITY resolve
+  PASS  no external image or script assets in master plan
+  SKIP  pre-commit not installed (.tools/pre-commit missing)
+  SKIP  markdownlint not installed

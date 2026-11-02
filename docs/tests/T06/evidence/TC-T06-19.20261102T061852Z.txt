@@ -1,0 +1,6 @@
+== TC-T06-19 hygiene: shellcheck, yamllint, check-yaml, pre-commit on T06 files, earlier regression sets (C4)
+  SKIP  shellcheck not on PATH: the pre-commit shellcheck hook covers it
+  SKIP  yamllint not on PATH: covered by the pre-commit yamllint hook below
+  PASS  pre-commit run --files <every T06 file> exits 0 (never --all-files here; T05 TC-T05-24 owns that)
+  PASS  T05 run-checks.sh --regression exits 0 (TC-T05-15 and 23 re-tagged cka by the tester)
+  PASS  T04a, T03 and T04 regression sets exit 0

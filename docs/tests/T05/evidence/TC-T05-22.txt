@@ -1,0 +1,3 @@
+== TC-T05-22 only example.com addresses in T05 files (KD-5, no real mailbox)
+  PASS  every e-mail address in T05 files is example.com/org/net (or github.com for git remotes)
+  PASS  drupal-install uses admin@example.com for site and account mail

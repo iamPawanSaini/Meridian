@@ -1,0 +1,12 @@
+== TC-T03-16 repo and deploy strategy (D8)
+  PASS  deploy section exists (heading)
+  PASS  Composer root apps/drupal, docroot web
+  PASS  config/sync path
+  PASS  DDEV composer_root setting
+  PASS  subtree split and push to Pantheon (ADR-0004)
+  PASS  how apps/drupal reaches Pantheon: workflow deploy-drupal.yml
+  PASS  Pantheon credential: Terminus token and deploy key
+  PASS  Vercel root apps/web
+  PASS  engine image from services/engine
+  PASS  workflow names ci.yml, daily-run.yml, deploy-drupal.yml
+  PASS  items ADR-0004 left unverified listed for T07

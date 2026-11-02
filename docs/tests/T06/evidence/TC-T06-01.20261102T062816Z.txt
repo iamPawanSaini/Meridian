@@ -1,0 +1,5 @@
+== TC-T06-01 compose files, service names, container names and DDEV labels (AC1, KD-2)
+  PASS  the three compose files exist, each defines only its one section 0 service
+  PASS  no old placeholder service names in .ddev compose files (files must exist)
+  PASS  no other docker-compose.*.yaml in .ddev (exactly postgres, engine, next)
+  PASS  each compose file starts with a comment naming T06

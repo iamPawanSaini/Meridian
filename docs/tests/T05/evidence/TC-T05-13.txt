@@ -1,0 +1,15 @@
+== TC-T05-13 runbook docs/runbooks/local-setup.md content (AC6, C7)
+  PASS  runbook exists, non-empty
+  PASS  follows the runbook template headings
+  PASS  documents the commands: ddev start, ddev drupal-install, ddev drush uli
+  PASS  documents verification: ddev drush cex or config:status, ddev drush status, ddev composer validate, ddev quality
+  PASS  prerequisites: Docker, DDEV, git; clone on the WSL2 Linux filesystem, not /mnt/c
+  PASS  WSL2 HTTPS: mkcert -install
+  PASS  host composer is not used (use ddev composer)
+  PASS  never apply Pantheon dashboard upstream updates
+  PASS  do not record the admin password; use ddev drush uli
+  PASS  reinstall path: ddev drupal-install --force, and what it destroys
+  PASS  clean-clone note: ddev stop --unlist meridian for a second clone
+  PASS  rollback: ddev delete / ddev poweroff
+  PASS  no real credential or token pasted in the runbook
+  PASS  negative: runbook does not tell people to run host composer or --no-verify

@@ -1,0 +1,5 @@
+== TC-T04a-33 simulation-only, no secrets, .env.example unchanged (C6, SIM)
+  PASS  no broker vendor names or trading hostnames in the T04a files
+  PASS  no secret patterns in the T04a files
+  PASS  .env.example unchanged since the parent of the first T04a commit (no new variables)
+  PASS  check-names.sh clean

@@ -1,0 +1,5 @@
+== TC-T06-04 env_file order, no values in compose, no new project variable (KD-3, C6)
+  PASS  env_file is [${DDEV_APPROOT}/.env.example (required), ${DDEV_APPROOT}/.env (required: false)] on every service
+  PASS  no secret-like literal, no .env.example placeholder value in any compose file
+  PASS  no .ddev/.env or .ddev/.env.* file (single source: root .env)
+  PASS  compose files reference only variable names already in .env.example

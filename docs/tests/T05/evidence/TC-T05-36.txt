@@ -1,0 +1,3 @@
+== TC-T05-36 live: ddev composer audit recorded, no high or critical advisory (plan DoD)
+        audit exit code: 0
+  PASS  composer audit exit 0 (no advisories)

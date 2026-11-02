@@ -1,0 +1,7 @@
+== TC-T04a-25 .ddev/commands/host/quality wrapper (AC5; ddev quality itself is TC-48)
+  PASS  wrapper exists and is executable
+  PASS  wrapper has a bash shebang
+  PASS  wrapper execs scripts/quality.sh with the arguments
+  PASS  wrapper has the DDEV '## Description' header
+  PASS  wrapper propagates failure (fake FAIL step: non-zero exit, FAIL printed)
+  PASS  wrapper propagates success (fake PASS step: exit 0)

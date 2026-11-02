@@ -1,0 +1,17 @@
+== TC-T05-05 composer.json structure (AC5, KD-1)
+  PASS  composer.json is valid JSON
+  PASS  name meridian/drupal
+  PASS  type project
+  PASS  license key present
+  PASS  minimum-stability stable
+  PASS  prefer-stable true
+  PASS  config.sort-packages true
+  PASS  require has the five planned packages
+  PASS  require holds nothing else (no JSON:API, Simple OAuth or other contrib)
+  PASS  require-dev has drupal/core-dev
+  PASS  repositories include https://packages.drupal.org/8
+  PASS  no upstream-configuration path repository or script (ADR-0004: subtree deploy)
+  PASS  allow-plugins explicit, no wildcard, installers and scaffold allowed
+  PASS  scaffold web-root is web/
+  PASS  pantheon-systems/drupal-integrations is in scaffold allowed-packages
+  PASS  installer-paths: core, contrib, libraries, drush, custom

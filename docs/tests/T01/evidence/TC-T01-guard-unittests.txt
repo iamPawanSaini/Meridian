@@ -1,0 +1,35 @@
+test_agents_wire_guard_with_tested_profiles (test_guard_paths.AgentFrontmatter) ... ok
+test_solution_architect_blocked_on_source (test_guard_paths.ArchitectGuards) ... ok
+test_solution_architect_has_no_bash (test_guard_paths.ArchitectGuards) ... ok
+test_solution_architect_writes_docs (test_guard_paths.ArchitectGuards) ... ok
+test_technical_architect_mutations_blocked (test_guard_paths.ArchitectGuards) ... ok
+test_technical_architect_readonly_commands_allowed (test_guard_paths.ArchitectGuards) ... ok
+test_technical_architect_writes_plan (test_guard_paths.ArchitectGuards) ... ok
+test_env_example_is_writable_by_developer (test_guard_paths.CommonGuards) ... ok
+test_malformed_input_blocks (test_guard_paths.CommonGuards) ... ok
+test_no_agent_can_write_env_or_guard_rails (test_guard_paths.CommonGuards) ... ok
+test_outside_repo_blocked_except_temp (test_guard_paths.CommonGuards) ... ok
+test_read_tools_always_allowed (test_guard_paths.CommonGuards) ... ok
+test_developer_cannot_bypass_hooks (test_guard_paths.DeveloperGuard) ... ok
+test_developer_cannot_edit_test_cases_or_report (test_guard_paths.DeveloperGuard) ... ok
+test_developer_writes_source (test_guard_paths.DeveloperGuard) ... ok
+test_quoted_pipe_and_gt_allowed_for_readonly (test_guard_paths.QuotedShellParsing) ... ok
+test_real_operators_still_detected (test_guard_paths.QuotedShellParsing) ... ok
+test_tester_quoted_pattern_with_tee_into_evidence (test_guard_paths.QuotedShellParsing) ... ok
+test_unbalanced_quote_blocks (test_guard_paths.QuotedShellParsing) ... ok
+test_allows_test_code_folders (test_guard_paths.TesterGuard) ... ok
+test_allows_test_docs (test_guard_paths.TesterGuard) ... ok
+test_bash_cp_into_source_blocked (test_guard_paths.TesterGuard) ... ok
+test_bash_git_commit_blocked (test_guard_paths.TesterGuard) ... ok
+test_bash_redirect_into_source_blocked (test_guard_paths.TesterGuard) ... ok
+test_bash_running_tests_with_evidence_allowed (test_guard_paths.TesterGuard) ... ok
+test_bash_sed_in_place_on_source_blocked (test_guard_paths.TesterGuard) ... ok
+test_blocks_edit_of_engine_source (test_guard_paths.TesterGuard) ... ok
+test_blocks_path_traversal (test_guard_paths.TesterGuard) ... ok
+test_blocks_write_of_drupal_module_source (test_guard_paths.TesterGuard) ... ok
+test_blocks_write_to_task_plan (test_guard_paths.TesterGuard) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 1.836s
+
+OK

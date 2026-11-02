@@ -1,0 +1,7 @@
+== TC-T04a-28 exclusions carry a ticket; TASKS.md exclusion cites T32 (AC6, interim Q1)
+  PASS  T32 is a heading in docs/TASKS.md
+  PASS  markdownlint config excludes docs/TASKS.md on a line citing T32
+  PASS  markdownlint config excludes docs/tests/*/evidence on a line citing a ticket
+  PASS  ruff.toml excludes evidence on a line citing a ticket
+  PASS  the TASKS.md exclusion cites T32 specifically
+  PASS  markdownlint 'ignores': only TASKS.md and evidence, each with a ticket

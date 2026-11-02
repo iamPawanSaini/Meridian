@@ -1,0 +1,12 @@
+== TC-T04a-20 coverage gate: line rate not branch, other components, malformed input (AC7, D-1)
+  PASS  line 95 with branch rate 0.10 accepted (gate reads the line rate)
+  PASS  line 85 with branch rate 1.0 rejected (branch cannot rescue lines)
+  PASS  Drupal custom 69 percent rejected
+  PASS  Drupal custom exactly 70 accepted
+  PASS  web lib 79 rejected
+  PASS  web lib exactly 80 accepted
+  PASS  web components 79 rejected
+  PASS  web app/ routes have no unit floor (10 percent accepted)
+  PASS  malformed XML rejected, not a traceback
+  PASS  coverage report with no files rejected (no vacuous pass)
+  PASS  missing coverage file rejected

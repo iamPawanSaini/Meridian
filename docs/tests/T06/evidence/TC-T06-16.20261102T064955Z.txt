@@ -1,0 +1,5 @@
+== TC-T06-16 no secrets in T06 files (C6)
+  PASS  no key, token or credential pattern in any T06 file
+  PASS  the mkcert CA key (rootCA-key.pem) is never read or copied by T06 files (files must exist)
+  PASS  ddev-global-cache is mounted read-only wherever it appears
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T06-19)

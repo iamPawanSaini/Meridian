@@ -1,0 +1,4 @@
+== TC-T05-35 live negative: a PHP style/type violation makes ddev quality fail (TC-T04a-49)
+  PASS  ddev quality exits non-zero with a violating custom PHP file (rc=1)
+  PASS  FAIL line names component-drupal
+  PASS  probe file removed; working tree clean again

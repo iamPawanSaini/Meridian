@@ -1,0 +1,14 @@
+PASS first publish, attempt 0 -> inserted
+PASS second publish, same date, attempt 0 (the DEF-002 case) -> inserted
+PASS replay, same date, attempt 0 -> inserted
+PASS daily attempt 1 -> inserted
+PASS duplicate daily attempt 1, same date -> rejected: UNIQUE constraint failed: runs.trade_date, runs.attempt
+PASS daily attempt 2, same date -> inserted
+PASS other date attempt 1 -> inserted
+PASS running row -> inserted
+PASS second running row (lock) -> rejected: UNIQUE constraint failed: runs.status
+PASS running publish row also blocked by the lock -> rejected: UNIQUE constraint failed: runs.status
+PASS ck_runs_attempt: publish with attempt 1 -> rejected: CHECK constraint failed: ck_runs_attempt
+PASS ck_runs_attempt: daily with attempt 0 -> rejected: CHECK constraint failed: ck_runs_attempt
+RESULT: PASS
+exit 0

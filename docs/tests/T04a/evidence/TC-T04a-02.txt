@@ -1,0 +1,12 @@
+== TC-T04a-02 each language section names its tool and key rules (AC1, AC3)
+  PASS  PHP: PHP_CodeSniffer, Drupal, DrupalPractice, PHPStan, phpstan-drupal, level 6
+  PASS  PHP: no PHPStan baseline, ignores carry a reason
+  PASS  Python: ruff, mypy, line length 100, py312 and py310 scope
+  PASS  Python: strict applied per invocation to scripts, .claude/hooks, meridian_engine
+  PASS  TypeScript: ESLint, Prettier, tsc --noEmit, strict
+  PASS  SQL: Alembic migrations, reversible, parameterised queries
+  PASS  Docker/YAML: hadolint, yamllint, pinned base image
+  PASS  Shell: shellcheck, set -euo pipefail
+  PASS  Markdown: markdownlint, line length 100, tables exempt, TASKS.md exclusion cites T32
+  PASS  OpenAPI: Spectral, openapi.yaml
+  PASS  LLM prompts: versioned, untrusted data delimited (FR-07), no secrets

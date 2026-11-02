@@ -1,0 +1,5 @@
+== TC-T02-23 no broker SDK names or trading domains
+  PASS  scan targets exist
+  PASS  no broker names in T02 outputs
+  PASS  no broker names in code/config dirs
+  PASS  docs state the simulation-only rule

@@ -1,0 +1,5 @@
+== TC-T02-04 every FR/NFR row has parent R-ID, MoSCoW, target, verifying task
+  PASS  all FR/NFR rows complete (>=12 rows)
+  PASS  at least one NFR row
+  PASS  at least one FR row
+  PASS  FR/NFR IDs unique and present

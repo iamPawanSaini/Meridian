@@ -1,0 +1,9 @@
+== TC-T04a-22 asset check accepts legitimate use and ignores out-of-scope files (no false positives)
+  PASS  accepts same-origin font url(/fonts/inter.woff2)
+  PASS  accepts CSS variables
+  PASS  accepts in-page anchor href="#main-content"
+  PASS  accepts HTML entity &#39; (not a colour)
+  PASS  accepts an external documentation link (not an asset)
+  PASS  ignores docs/ (fonts.googleapis.com in Markdown is out of scope)
+  PASS  ignores services/engine files
+  PASS  hex inside the tokens file (path read from the script) is accepted

@@ -1,0 +1,11 @@
+# PHPStan for Meridian custom Drupal code (T04a, decision D-4).
+# phpstan/extension-installer (installed by drupal/core-dev, allowed in composer.json) loads
+# mglaman/phpstan-drupal and phpstan/phpstan-deprecation-rules. Do not add `includes:` for
+# them: PHPStan reports "included multiple times" (checked in T05).
+# There is no ignore file. Each ignore is inline, has an identifier and a reason that cites
+# a ticket. Stale ignores are reported (reportUnmatchedIgnoredErrors stays at its default).
+parameters:
+    level: 6
+    paths:
+        - web/modules/custom
+    reportIgnoresWithoutComments: true

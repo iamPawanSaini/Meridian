@@ -1,0 +1,5 @@
+== TC-T04a-10 pre-commit hooks pinned (AC3, AC4)
+  PASS  every non-local repo has a version rev; ruff (lint+format), mypy, shellcheck, yamllint, hadolint, markdownlint, Spectral (node, pinned)
+  PASS  default_install_hook_types includes pre-commit and commit-msg
+  PASS  mypy hook: --strict, python 3.10, files scripts and .claude/hooks
+  PASS  [at-close] at least 3 'verify' markers (hook versions unconfirmed until the owner-run install, TC-36)

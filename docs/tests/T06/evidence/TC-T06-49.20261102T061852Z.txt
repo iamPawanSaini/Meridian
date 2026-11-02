@@ -1,0 +1,2 @@
+== TC-T06-49 C7 owner-run: the runbook followed verbatim on a clean machine or container
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word through ddev meridian-status exit 0 and the dump and restore steps; record each command, output and the total time; not automatable

@@ -1,0 +1,2 @@
+== TC-T06-48 AC6a owner-run: https://meridian.ddev.site:3001 opens in the Windows browser without a certificate warning
+  BLOCKED  owner-run: after ddev start, open https://meridian.ddev.site:3001 in the Windows browser (same mkcert prerequisite as TC-T05-40); expect the placeholder sentence naming T21, no warning; record a screenshot or note

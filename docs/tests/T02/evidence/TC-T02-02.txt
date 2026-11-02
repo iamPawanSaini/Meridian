@@ -1,0 +1,9 @@
+== TC-T02-02 Mermaid diagrams (context, container, daily-run sequence)
+  PASS  >=3 mermaid blocks
+  PASS  >=2 flowchart/graph
+  PASS  >=1 sequenceDiagram
+  PASS  code fences balanced
+  PASS  diagrams mention Postgres
+  PASS  diagrams mention outbox
+  PASS  diagrams mention Drupal ingest
+  PASS  diagrams mention JSON:API read path

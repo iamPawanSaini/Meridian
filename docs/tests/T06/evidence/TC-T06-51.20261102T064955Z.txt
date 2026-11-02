@@ -1,0 +1,8 @@
+== TC-T06-51 dump path containing a single quote: dump, restore and trap cleanup (review finding 3)
+  PASS  dump into a directory whose name contains a single quote exits 0 and writes a PGDMP archive
+  PASS  no temporary file is left next to it
+  PASS  a dump that fails after the temp file exists (no such container) exits non-zero
+  PASS  the EXIT trap removed the temp file: nothing but x.dump in the quoted directory, no y.dump
+  PASS  no shell error from the trap (no 'command not found', 'syntax error', 'unexpected EOF')
+  PASS  restore from the quoted path exits 0
+  PASS  checksum after restore from the quoted path equals the checksum before

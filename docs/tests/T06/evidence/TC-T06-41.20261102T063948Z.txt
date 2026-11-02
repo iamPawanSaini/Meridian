@@ -1,0 +1,6 @@
+== TC-T06-41 AC6a negative: no HTTP 3000 route, no host port for Postgres or meridian-web
+  PASS  http://meridian.ddev.site:3000/ does not reach the placeholder through the router (got: curl: (7) Failed to connect to meridian.ddev.site port 3000 )
+  PASS  meridian-postgres publishes no host port (docker port is empty)
+  PASS  meridian-engine and meridian-web publish no host port
+  PASS  the router does not bind host port 3000 or 5432 for this project
+  PASS  the router binds 3001 on 127.0.0.1 only

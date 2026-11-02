@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+## Description: Install Drupal from the committed config in apps/drupal/config/sync (site install plus config import)
+## Usage: drupal-install [--force]
+## Example: ddev drupal-install
+## Example: ddev drupal-install --force
+
+# T05, KD-5. The only documented install path. Named drupal-install so it is not confused
+# with the drush command site:install. --force reinstalls and DROPS the local database.
+set -euo pipefail
+
+force=0
+for arg in "$@"; do
+  case "$arg" in
+    --force) force=1 ;;
+    -h | --help)
+      echo "Usage: ddev drupal-install [--force]"
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument '$arg' (usage: ddev drupal-install [--force])" >&2
+      exit 2
+      ;;
+  esac
+done
+
+cd "${DDEV_COMPOSER_ROOT:-/var/www/html/apps/drupal}"
+
+# Does nothing when vendor already matches the lock; covers a git pull that changed it.
+composer install --no-interaction
+
+# Drupal is installed when the database bootstraps. An empty database gives no value.
+bootstrap="$(vendor/bin/drush status --field=bootstrap 2>/dev/null || true)"
+if [[ "$bootstrap" == "Successful" && "$force" -ne 1 ]]; then
+  echo "error: Drupal is already installed in this project's database." >&2
+  echo "Reinstalling drops the local database. Run 'ddev drupal-install --force' if you mean it." >&2
+  exit 1
+fi
+
+# One call is both the site install and the config import. It keeps the committed site UUID.
+vendor/bin/drush site:install --existing-config --yes \
+  --account-name=admin --account-mail=admin@example.com
+
+vendor/bin/drush cache:rebuild
+
+# The installed site must equal the committed config. Any difference is a failure.
+status="$(vendor/bin/drush config:status 2>&1)"
+echo "$status"
+if ! grep -q "No differences" <<<"$status"; then
+  echo "error: config:status reports differences after install." >&2
+  exit 1
+fi
+
+echo "Drupal is installed. Next step: ddev drush uli"

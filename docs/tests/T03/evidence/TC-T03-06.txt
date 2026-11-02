@@ -1,0 +1,13 @@
+== TC-T03-06 outbox and retry design (D4)
+  PASS  outbox section exists (heading)
+  PASS  row lifecycle pending -> sent / dead
+  PASS  one pending row per (record_type, external_id)
+  PASS  backoff with 120 s cap (RK-04)
+  PASS  wake request before publishing
+  PASS  401 triggers token refresh
+  PASS  422 goes to dead-letter and raises an alert
+  PASS  published: partial rule
+  PASS  batch size stated (500)
+  PASS  drain triggers (next run, manual publish dispatch)
+  PASS  Mermaid sequence diagram present
+  PASS  mermaid fences balanced

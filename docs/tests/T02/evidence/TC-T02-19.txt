@@ -1,0 +1,5 @@
+== TC-T02-19 check-names.sh (positive, then negative control)
+  PASS  check-names.sh passes on tree
+  PASS  check-names.sh rejects a planted stale name
+  PASS  negative control file removed and check-names passes again
+  PASS  if outcome is rename, TASKS.md section 0 changed vs main (vacuous otherwise)

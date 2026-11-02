@@ -1,0 +1,7 @@
+== TC-T05-04 PHP and database version parity, three-way (AC3)
+  PASS  pantheon.yml php_version == .ddev php_version == composer config.platform.php (major.minor)
+  PASS  pantheon.yml database.version == .ddev database.version
+  PASS  composer config.platform.php is a full x.y.z version
+  PASS  php_version is 8.3 or later (CODING_STANDARDS.md and Drupal 11 floor)
+  PASS  database.version is 10.6 or later
+  PASS  negative: harness self-test, a skewed php_version fixture (8.4) does not equal 8.3

@@ -1,0 +1,9 @@
+T04 checks on docs/TRACEABILITY.md against solution-architecture.md (python3 stdlib only).
+
+Usage: python3 -I check_trace.py CHECK [--sa PATH] [--tr PATH] [--base GITREF]
+Exit 0 = pass, 1 = fail, 2 = usage. A missing file or missing table always FAILS.
+CHECK is one of: header, ids, nocells, parents, tasks, levels, patterns, status, text,
+rtable, rlinks, unchanged, all
+Designed from docs/TASKS.md T04, the plan and decision D-1, not from the finished table.
+
+exit 2

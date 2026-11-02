@@ -1,0 +1,9 @@
+== TC-T06-29 QUALITY_STEPS probe through ddev engine and ddev next (AC3, KD-7)
+        PASS  probe-engine
+        PASS  probe-next
+        FAIL  probe-fail
+              [31mFailed to run engine bash -c exit 3; error=exit status 3[0m
+        summary: PASS 2 FAIL 1 SKIP 0
+  PASS  PASS probe-engine (the %q-quoted command reaches meridian-engine in services/engine; ../../scripts/coverage_gate.py resolves)
+  PASS  PASS probe-next (same for meridian-web in apps/web)
+  PASS  negative: FAIL probe-fail (a failing command inside the container is a FAIL, exit status propagates)

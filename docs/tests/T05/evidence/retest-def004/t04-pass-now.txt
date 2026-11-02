@@ -1,0 +1,119 @@
+  PASS  master-test-plan.md exists and is non-empty
+  PASS  section 'Test levels' exists
+  PASS  level 'unit': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'integration': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'contract': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'end-to-end|e2e': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'security': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'performance': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'data reconciliation': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  level 'manual simulation': sub-heading with owning tasks (Tnn) and a pass rule
+  PASS  heading for 'tools'
+  PASS  heading for 'layout'
+  PASS  heading for 'environments'
+  PASS  heading for 'entry'
+  PASS  heading for 'exit'
+  PASS  heading for 'severity'
+  PASS  heading for 'regression'
+  PASS  heading for 'test data'
+  PASS  heading for 'reconciliation'
+  PASS  heading for 'conventions'
+  PASS  heading for the defect workflow (or a pointer section)
+  PASS  tools section has a table
+  PASS  Engine row: pytest, pytest-cov, pytest-socket, respx
+  PASS  Drupal row: PHPUnit with Unit, Kernel and Functional
+  PASS  Next.js row: Vitest, Playwright, axe (@axe-core/playwright)
+  PASS  Contract row: Schemathesis, openapi-core, Spectral
+  PASS  Security row: gitleaks, pip-audit, composer audit, npm audit, image scan, static broker check
+  PASS  Performance row: web-vitals and the Python timing harness
+  PASS  plan says versions are pinned in T04a, tools named by purpose only
+  PASS  contract: Schemathesis against DDEV; openapi-core in engine tests; T11 extends openapi.yaml
+  PASS  Dredd and Prism are not the contract tool
+  PASS  performance: nearest-rank percentile, raw samples kept, k6/Locust not adopted
+  PASS  network blocking: pytest-socket disable-socket and a no-network container; vcrpy rejected
+  PASS  market data mocked at the provider boundary (T15 interface)
+  PASS  layout section lists engine unit, integration, contract and fixtures paths
+  PASS  layout lists Drupal Unit, Kernel, Functional under meridian_*/tests/src
+  PASS  layout lists Next.js unit tests next to source and apps/web/e2e
+  PASS  layout lists docs tasks docs/tests/Txx/run-checks.sh
+  PASS  four environments named: sandbox, DDEV, CI (GitHub Actions), deployed dev (Pantheon, Vercel)
+  PASS  sandbox has no network; CI has no live market data or LLM
+  PASS  matrix has a table row for each of the 8 levels
+  PASS  entry criteria cover per task and per milestone
+  PASS  entry criteria require an approved plan and committed test design
+  PASS  exit: all cases Pass, or Blocked with recorded owner acceptance; no open Critical or High defect
+  PASS  exit: evidence stored for every case
+  PASS  master plan severity table lists Critical, High, Medium, Low (in order), defects.md links to it
+  PASS  each severity has a meaning of at least 15 characters in the master plan
+  PASS  Critical includes live-order capability / wrong financial result / security breach
+  PASS  regression section names ci.yml
+  PASS  PR set: unit, Kernel, Vitest, contract against fixtures, static broker check, docs checks
+  PASS  heavier set: Functional, Playwright, ddev e2e with a trigger
+  PASS  T08 implements the CI jobs
+  PASS  docs run-checks scripts join the PR set via --regression with invariant/snapshot tags
+  PASS  excluded snapshot checks are counted and printed; invariants still fail the job
+  PASS  fixtures: owner, location and refresh rule
+  PASS  recorded market data: committed JSON/CSV, an NSE holiday and a no-new-candle date (FR-23)
+  PASS  fake LLM responses: one per failure type (FR-06) and the prompt-injection set (FR-07)
+  PASS  failure types named: malformed, empty, timeout, API error, schema violation
+  PASS  seeded Drupal content: 5,000 records for NFR-03/05, T11, T25, T26
+  PASS  golden parity file (T13)
+  PASS  rules: no real secrets, no live network in CI, deterministic data
+  PASS  FR-14 zero differences; FR-18 0.01 rupee and 0.01 percentage points
+  PASS  hops named: Postgres, Drupal, UI; used by T27 and T31
+  PASS  statuses Pass, Fail, Blocked, Not run; Blocked means missing precondition or tool, not a product fault
+  PASS  owner-run cases: exact command, expected output, evidence path, tool version
+  PASS  main-session-executed cases: 'Executed by' names who ran it
+  PASS  evidence naming: TC-Txx-nn.txt, run-checks.txt, -static and -spotcheck suffixes
+  PASS  run-checks.sh style: no vacuous pass, non-zero exit, SKIP only for optional tools listed in the report
+  PASS  script defect Change log; a check may never be loosened to hide a content gap
+  PASS  live-API cases (T17 real-LLM smoke test) are manual, marked and never in CI
+  PASS  Blocked-at-close table: case, criterion, reason, owner who accepted, date, owner message reference
+  PASS  independence: execution not in the authoring context; report states who executed
+  PASS  all 8 workflow states in order in template Status line, in defects.md and in the master plan
+  PASS  who moves each state; triage SLA per severity; retest by tester with evidence; Won't fix needs solution-architect; defects vs review findings
+  PASS  existing DEF-001 and DEF-002 entries preserved with a valid workflow state
+  PASS  template keeps Steps to reproduce, Expected, Actual
+  PASS  solution-architecture.md yields FR-01..FR-30 and NFR-01..NFR-19 (49 IDs)
+  PASS  heading 'Planned tests' followed by a 7-column table (ID, parent, task, level, test, case, status)
+  PASS  planned-test IDs exactly equal the FR/NFR IDs in solution-architecture.md; no duplicates
+  PASS  no empty or placeholder cell in any of the 49 rows
+  PASS  parent R equals the R in solution-architecture.md
+  PASS  verifying tasks equal the tasks in solution-architecture.md, same order
+  PASS  levels come from the controlled vocabulary
+  PASS  case-ID patterns TC-Txx-* name exactly the verifying tasks, one per task
+  PASS  status is Planned / Partially verified / Verified / Blocked (accepted, re-run in Txx)
+  PASS  planned-test description is a sentence, not a stub
+  PASS  R table header unchanged and rows R-01..R-12 present
+  PASS  every R row's Test cases cell links every FR/NFR whose parent it is
+  PASS  FR-11: security level; broker/static check in planned test; T18, T30, T33 patterns
+  PASS  FR-06: planned test names the five failure types
+  PASS  FR-07: planned test covers each untrusted input field (injection)
+  PASS  FR-14 and FR-18: data reconciliation level
+  PASS  FR-19, FR-20, FR-21: security level
+  PASS  FR-23: planned test uses a holiday fixture
+  PASS  NFR-03: performance level and LCP in the planned test
+  PASS  NFR-03: planned test measures LCP (web-vitals)
+  PASS  NFR-01, NFR-04, NFR-05, NFR-07: performance level
+  PASS  NFR-04, NFR-05: p95 in planned test
+  PASS  NFR-10: security level, gitleaks over full history
+  PASS  NFR-10: planned test names gitleaks
+  PASS  NFR-11: planned test names dependency audit and image scan
+  PASS  NFR-12: axe in the planned test
+  PASS  NFR-12: both themes in the planned test
+  PASS  NFR-18: coverage tool in the planned test
+  PASS  FR-28 and FR-29: docs check level
+  PASS  check_trace.py rejects 15 seeded defects, accepts the good miniature
+  PASS  README row for master-test-plan.md is a link that resolves
+  PASS  defects.md and README links resolve
+  PASS  scripts/check-names.sh exits 0
+  PASS  T04 documents use current names (meridian_engine / meridian-web, not the old placeholders)
+  PASS  no broker vendor names or trading hostnames in master plan, TRACEABILITY, defects, template, README, test-cases
+  PASS  master plan states FR-11 static broker check without naming a vendor, simulation-only
+  PASS  no network URL to a trading host anywhere in docs/tests/T04 scripts
+  PASS  no secret patterns in T04 outputs
+  PASS  no TODO/TBD/FIXME markers in master plan
+  PASS  relative links in master plan and TRACEABILITY resolve
+  PASS  no external image or script assets in master plan
+  PASS  pre-commit run on T04 files passes
+  PASS  granularity: planned tests at FR/NFR level, 49 rows, R rows link to them

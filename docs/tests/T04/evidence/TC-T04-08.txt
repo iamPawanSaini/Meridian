@@ -1,0 +1,4 @@
+== TC-T04-08 defect severity scale: one source, identical levels everywhere
+  PASS  master plan severity table lists Critical, High, Medium, Low (in order), defects.md links to it
+  PASS  each severity has a meaning of at least 15 characters in the master plan
+  PASS  Critical includes live-order capability / wrong financial result / security breach

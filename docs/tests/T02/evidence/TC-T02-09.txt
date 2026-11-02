@@ -1,0 +1,2 @@
+== TC-T02-09 each risk row has likelihood, impact, owner role, mitigation, linked task
+  PASS  all risk rows complete (>=9 rows)

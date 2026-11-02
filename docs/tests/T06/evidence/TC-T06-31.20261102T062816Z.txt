@@ -1,0 +1,6 @@
+== TC-T06-31 rows survive ddev restart (AC4)
+  PASS  seed present before restart (25 rows, checksum 5fd435f6e0fd4da7cfdb0d9ecc768f2d)
+  PASS  ddev restart exits 0
+  PASS  all five healthy after restart
+  PASS  rows and checksum identical after ddev restart
+  PASS  meridian-status exits 0 after restart

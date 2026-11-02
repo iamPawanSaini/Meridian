@@ -1,0 +1,3 @@
+== TC-T05-25 live PHP and database versions equal pantheon.yml (AC3)
+  PASS  ddev PHP '8.3' == pantheon php_version '8.3'
+  PASS  ddev DB '10.6.21-MariaDB-ubu2004-log' starts with pantheon database.version '10.6' and is MariaDB

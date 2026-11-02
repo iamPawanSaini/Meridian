@@ -1,0 +1,12 @@
+== TC-T04a-01 CODING_STANDARDS.md exists with a section per language (AC1)
+  PASS  CODING_STANDARDS.md exists and is non-empty
+  PASS  heading for 'PHP.*Drupal'
+  PASS  heading for 'Python'
+  PASS  heading for 'TypeScript.*Next|Next\.?js'
+  PASS  heading for 'SQL.*migration'
+  PASS  heading for 'Docker.*YAML|Docker'
+  PASS  heading for 'Shell'
+  PASS  heading for 'Markdown'
+  PASS  heading for 'OpenAPI'
+  PASS  heading for 'LLM.*prompt|prompt files'
+  PASS  no TODO/TBD/FIXME markers in the standards

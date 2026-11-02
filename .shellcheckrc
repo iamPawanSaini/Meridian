@@ -1,0 +1,4 @@
+# shellcheck configuration (T04a).
+shell=bash
+external-sources=true
+source-path=SCRIPTDIR

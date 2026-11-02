@@ -1,0 +1,6 @@
+== TC-T05-08 settings.php carries no secrets (C6, D7)
+  PASS  no literal hash_salt
+  PASS  no literal database credentials
+  PASS  no key material, API key or token pattern
+  PASS  databases array is reset empty and not populated with literals
+  PASS  settings.ddev.php, settings.local.php and settings.pantheon.php are not tracked

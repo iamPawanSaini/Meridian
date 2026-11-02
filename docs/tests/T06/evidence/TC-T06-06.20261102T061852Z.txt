@@ -1,0 +1,2 @@
+== TC-T06-06 router route and CA trust wiring (AC2, AC6a, KD-5, KD-6)
+  PASS  web: VIRTUAL_HOST meridian.ddev.site, HTTPS_EXPOSE=3001:3000, no HTTP_EXPOSE, NODE_EXTRA_CA_CERTS, working_dir apps/web, start.sh; engine: SSL_CERT_FILE and REQUESTS_CA_BUNDLE bundle, init true, entrypoint.sh, working_dir services/engine; both: external_links ddev-router:meridian.ddev.site and read-only ddev-global-cache (external)

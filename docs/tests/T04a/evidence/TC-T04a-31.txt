@@ -1,0 +1,8 @@
+== TC-T04a-31 optional linters on the tree (AC3, C4); SKIP only when the tool is absent
+  SKIP  ruff check (lint): ruff not installed
+  SKIP  ruff format --check: ruff not installed
+  SKIP  mypy --strict scripts and .claude/hooks (py310): mypy not installed
+  SKIP  shellcheck on tracked shell scripts: shellcheck not installed
+  SKIP  yamllint on the tree: yamllint not installed
+  SKIP  markdownlint-cli2: markdownlint-cli2 not installed
+  SKIP  pre-commit: .tools/pre-commit not installed

@@ -1,0 +1,39 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck..........................................................................Failed
+- hook id: shellcheck
+- exit code: 1
+
+In scripts/zz_demo.sh line 2:
+echo "unterminated
+^-- SC1009 (info): The mentioned syntax error was in this simple command.
+     ^-- SC1073 (error): Couldn't parse this double quoted string. Fix to allow more checks.
+
+
+In scripts/zz_demo.sh line 3:
+
+^-- SC1072 (error): Expected end of double quoted string. Fix any mentioned problems and try again.
+
+For more information:
+  https://www.shellcheck.net/wiki/SC1072 -- Expected end of double quoted str...
+  https://www.shellcheck.net/wiki/SC1073 -- Couldn't parse this double quoted...
+  https://www.shellcheck.net/wiki/SC1009 -- The mentioned syntax error was in...
+
+yamllint........................................................(no files to check)Skipped
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

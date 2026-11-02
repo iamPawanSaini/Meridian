@@ -1,0 +1,3 @@
+== TC-T06-05 no host ports, no extra router variables, shared service settings (AC2, KD-2, KD-4)
+  PASS  no ports:, no restart:, networks (if declared) include default and ddev_default; non-postgres services run as DDEV_UID:DDEV_GID with HOME=/tmp and the repo mounted at /var/www/html
+  PASS  meridian-postgres has no router variables, no expose of 5432 to the host

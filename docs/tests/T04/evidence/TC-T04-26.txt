@@ -1,0 +1,1 @@
+See manual-review.md section TC-T04-26 (2026-11-01). Result: Pass.

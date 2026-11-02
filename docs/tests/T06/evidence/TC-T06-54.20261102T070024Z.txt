@@ -1,0 +1,35 @@
+== TC-T06-54 clean clone: docs/runbooks/local-setup.md steps 4 to 7, Verification and the T06 commands, as written (C7)
+        deviation from step 1: the clone is made from file:///home/pawan/Meridian (branch task/T06-ddev-services), because this branch is not on the remote
+  PASS  step 4: ddev drupal-install exits 0 and prints 'No differences between DB and sync' and 'Next step: ddev drush uli'
+        drupal-install tail:  [success] Cache rebuild complete.  [notice] No differences between DB and sync directory. Drupal is installed. Next step: ddev drush uli 
+  PASS  step 5: ddev drush uli exits 0 and prints a https://meridian.ddev.site/user/reset/ link
+  PASS  step 6: ddev meridian-status exits 0, five 'running healthy' lines and OK
+        step 7: scripts/bootstrap-dev.sh took 5 s
+  PASS  step 7: scripts/bootstrap-dev.sh exits 0 and prints 'Done. Hooks installed (pre-commit and commit-msg).'
+        pre-commit installed at .git/hooks/pre-commit
+        pre-commit installed at .git/hooks/commit-msg
+        Done. Hooks installed (pre-commit and commit-msg).
+        Run 'scripts/quality.sh' to check the tree.
+  PASS  Verification: ddev composer validate exits 0
+  PASS  Verification: ddev drush status shows 'Drupal bootstrap : Successful'
+  PASS  Verification: ddev drush config:status says No differences
+  PASS  Verification: ddev drush cex -y exits 0 and git status --porcelain is empty
+        ddev quality took 20 s
+        PASS  pre-commit
+        PASS  branch-name
+        PASS  commit-range
+        PASS  exceptions
+        PASS  assets
+        SKIP  component-engine (no services/engine/pyproject.toml)
+        PASS  component-drupal
+        SKIP  component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  PASS  Verification: ddev quality exits 0 (rc=0)
+  PASS  Verification: PASS component-drupal; SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist); engine and web steps SKIP
+  PASS  git status --porcelain is empty after the whole walk-through
+  PASS  T06 section: ddev engine python3 --version prints Python 3.12.x
+  PASS  T06 section: ddev next node --version prints v22.x
+  PASS  T06 section: ddev pg psql -c 'select 1' exits 0
+  PASS  T06 section: ddev pg dump exits 0 and names db-dumps/meridian-postgres-<UTC>.dump
+  PASS  T06 section: ddev pg restore db-dumps/FILE.dump --yes (the relative form the runbook shows) exits 0
+  PASS  T06 section: ddev meridian-status exits 0 at the end
+  PASS  git status --porcelain is empty at the end of the T06 section

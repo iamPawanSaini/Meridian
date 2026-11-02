@@ -1,0 +1,4 @@
+== TC-T06-02 images pinned by exact tag and digest (AC1, KD-2, KD-4 to KD-6, dependency policy)
+  PASS  postgres:16.x, python:3.12.x-slim and node:22.x each pinned name:tag@sha256:<64 hex>; no latest; no build:
+  PASS  official Docker Hub images only (no registry host, no third-party namespace)
+  PASS  CODING_STANDARDS Docker rule no longer says 'where T06 confirms it'

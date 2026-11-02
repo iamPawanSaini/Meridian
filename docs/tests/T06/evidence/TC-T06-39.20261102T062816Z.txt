@@ -1,0 +1,15 @@
+== TC-T06-39 unhealthy meridian-engine is reported (AC5)
+        engine state after 21s: running unhealthy
+  PASS  the engine health check turns unhealthy within the retry window (3 x 10 s)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      running      unhealthy
+        meridian-web         running      healthy
+        NOT OK: meridian-engine
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-engine line shows unhealthy
+  PASS  the last line of STDOUT names meridian-engine
+  PASS  restarting the container regenerates the bundle and it is healthy again

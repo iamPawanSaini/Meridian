@@ -1,0 +1,2 @@
+== TC-T05-24 pre-commit hooks over the T05 changes (C4)
+  PASS  pre-commit run --all-files exits 0

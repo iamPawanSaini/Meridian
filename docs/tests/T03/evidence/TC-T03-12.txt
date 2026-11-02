@@ -1,0 +1,8 @@
+== TC-T03-12 user login flow and session (D6)
+  PASS  authorisation code grant
+  PASS  PKCE
+  PASS  separate confidential client meridian-web-login (or an explicit alternative decision recorded)
+  PASS  confidential, server-side client
+  PASS  session cookie flags HttpOnly, Secure, SameSite
+  PASS  login and logout/expiry behaviour described (redirect to login)
+  PASS  tokens never reach the browser (FR-21)

@@ -1,0 +1,65 @@
+== Owner-run cases TC-T04a-36 to 47. Needs network the first time (pre-commit downloads hook environments).
+== TC-T04a-36 bootstrap in a clean copy (C7)
+  PASS  scripts/bootstrap-dev.sh succeeds in a clean copy
+  PASS  pre-commit installed (pre-commit 4.7.0)
+  PASS  .git/hooks/pre-commit exists
+  PASS  .git/hooks/commit-msg exists (commit-msg hook type installed)
+  tool revisions captured (C7):
+        rev: v8.30.1
+        rev: v6.0.0
+        rev: v0.14.4 # verify
+        rev: v1.18.2 # verify
+        rev: v0.11.0.1 # verify
+        rev: v1.37.1 # verify
+        rev: v2.12.1b3 # verify
+        rev: v0.18.1 # verify
+            additional_dependencies: ["@stoplight/spectral-cli@6.15.0"] # verify
+== TC-T04a-37 baseline clean
+  PASS  pre-commit run --all-files exits 0
+== TC-T04a-38 quality.sh on the clean tree
+  FAIL  scripts/quality.sh exits 0
+        PASS  pre-commit
+        PASS  branch-name
+        FAIL  commit-range
+              origin/main not found: run git fetch origin
+        PASS  exceptions
+        PASS  assets
+  PASS  three component SKIP lines present (engine, drupal, web)
+== TC-T04a-39 untyped Python rejected by mypy --strict (control: typed)
+  PASS  scripts/zz_demo.py untyped refused; typed twin accepted
+== TC-T04a-40 ruff lint rejection
+  PASS  unused import refused by ruff; clean twin accepted
+== TC-T04a-41 long Markdown line
+  FAIL  200-character prose line refused by markdownlint; wrapped twin accepted
+        bad rc=1 (want non-zero), control rc=1 (want 0)
+== TC-T04a-42 shellcheck
+  PASS  unterminated string refused by shellcheck; clean twin accepted
+== TC-T04a-43 YAML
+  PASS  duplicate key refused by yamllint; clean twin accepted
+== TC-T04a-44 hadolint
+  PASS  untagged base image refused by hadolint; tagged twin accepted
+== TC-T04a-45 Spectral
+  PASS  OpenAPI with 'info' renamed refused by Spectral; the original accepted
+== TC-T04a-46 bad commit message through the installed hook
+  PASS  'bad message' refused (no commit created); 'T04a: owner demo' accepted
+== TC-T04a-47 bad branch name through quality.sh
+  PASS  branch feature/bad: quality.sh exits non-zero with a FAIL on the branch step
+== TC-T04a-53 coverage.py pragma form
+  FAIL  x.py with the ticketed pragma reaches 100 percent; the same code without it does not
+        The virtual environment was not created successfully because ensurepip is not
+        available.  On Debian/Ubuntu systems, you need to install the python3-venv
+        package using the following command.
+        
+            apt install python3.10-venv
+        
+== TC-T04a-54 hadolint ignore with a ticket comment
+  FAIL  DL3018 reported without the pragma, absent with '# hadolint ignore=DL3018 # T06: reason'
+        
+== TC-T04a-55 markdownlint separate-comment ticket form
+  FAIL  long line passes with the disable-next-line plus ticket comment; fails without
+        
+== TC-T04a-56 yamllint ignore: path list and the inline ticket form
+  PASS  ignored path passes; other path fails; inline directive with trailing ticket text is silently ignored (still fails)
+
+NOTE: mode owner: 20 checks executed, 0 SKIP (optional tools, listed above), 0 BLOCKED (owner-run or deferred, listed above).
+RESULT: ONE OR MORE CHECKS FAILED

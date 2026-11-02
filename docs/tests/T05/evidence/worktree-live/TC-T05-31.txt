@@ -1,0 +1,4 @@
+== TC-T05-31 live: ddev drush uli logs in as admin (AC2)
+  PASS  uli prints https://meridian.ddev.site/user/reset/... URL
+  PASS  following the link with curl -k -L (cookie jar) reaches a logged-in page
+  PASS  negative: a garbage reset token is refused (no session)

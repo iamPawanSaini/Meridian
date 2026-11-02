@@ -1,0 +1,7 @@
+== TC-T06-21 ddev stop and start manage the new containers by label (AC1, KD-2)
+  PASS  ddev stop exits 0
+  PASS  no container with label com.ddev.site-name=meridian is still running
+  PASS  the three new containers are not running
+        ddev start after stop took 25 s
+  PASS  ddev start exits 0 and all five are healthy again
+  PASS  all five healthy after start

@@ -1,0 +1,114 @@
+# Meridian pre-commit hooks (T00 baseline, T04a linters and commit-msg check).
+# Install with scripts/bootstrap-dev.sh. scripts/quality.sh runs these hooks and more.
+# Every rev marked "verify" was written without network access (T04a). The owner-run install
+# (TC-36) confirms or corrects it, and the real version and date go into the tool table in
+# docs/standards/CODING_STANDARDS.md.
+# Never bypass these hooks with --no-verify.
+minimum_pre_commit_version: "3.2.0"
+default_install_hook_types: [pre-commit, commit-msg]
+# T05 (DEF-003): pin Node for node hooks. Unpinned, nodeenv resolves "latest" from the
+# Node index and crashes on a pre-release entry ("0-alpha"). Keep in step with CI (T08).
+default_language_version:
+  node: 22.14.0
+
+repos:
+  # Secret scanning. pre-commit downloads a Go toolchain to build gitleaks if Go is
+  # not installed.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  # Basic formatting and hygiene.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # config/sync is drush cex output; evidence must stay byte-exact (DEF-004).
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: ^(apps/drupal/config/sync/|docs/tests/[^/]+/evidence/) # T05: cex output, evidence
+      - id: end-of-file-fixer
+        exclude: ^(apps/drupal/config/sync/|docs/tests/[^/]+/evidence/) # T05: cex output, evidence
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        exclude: ^docs/tests/[^/]+/evidence/ # T05: test evidence must stay byte-exact (DEF-004)
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+
+  # Python: lint and format (ruff.toml), then strict types for the tooling (mypy.ini).
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.4 # verify
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2 # verify
+    hooks:
+      - id: mypy
+        args: [--strict, --python-version, "3.10"]
+        files: ^(scripts|\.claude/hooks)/.*\.py$
+
+  # Shell, YAML, Dockerfiles and Markdown.
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1 # verify
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1 # verify
+    hooks:
+      - id: yamllint
+
+  # hadolint-py ships the hadolint binary as a Python wheel, so Docker is not needed.
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: v2.12.1b3 # verify
+    hooks:
+      - id: hadolint
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.18.1 # verify
+    hooks:
+      - id: markdownlint-cli2
+
+  # Project-specific checks.
+  - repo: local
+    hooks:
+      - id: meridian-check-names
+        name: Meridian naming (no stale placeholder names)
+        entry: scripts/check-names.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: meridian-commit-msg
+        name: Meridian commit message (Txx - subject)
+        entry: python3 scripts/check_commit_msg.py --msg-file
+        language: system
+        stages: [commit-msg]
+
+      - id: meridian-exceptions
+        name: Meridian suppressions cite a ticket
+        entry: python3 scripts/exceptions_report.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: meridian-assets
+        name: Meridian assets (no third-party hosts, no hard-coded colours)
+        entry: python3 scripts/check_assets.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: spectral
+        name: Spectral (OpenAPI lint)
+        entry: spectral lint --ruleset .spectral.yaml --fail-severity=warn
+        language: node
+        additional_dependencies: ["@stoplight/spectral-cli@6.15.0"] # verify
+        files: ^docs/architecture/openapi\.yaml$

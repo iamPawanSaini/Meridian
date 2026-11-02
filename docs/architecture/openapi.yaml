@@ -1,0 +1,982 @@
+openapi: 3.1.0
+info:
+  title: Meridian engine to Drupal contract
+  version: 1.0.0
+  summary: Idempotent batch ingest (meridian_ingest) and the watchlist read used by the engine.
+  description: >-
+    Contract between the simulation-only engine and headless Drupal (T03, ADR-0001,
+    ADR-0005). The engine publishes Daily Runs, Price Snapshot summaries, Decisions and
+    Positions through one batch upsert endpoint, and reads Watchlist Items through a
+    read-only subset of Drupal JSON:API. Field names, enums and patterns match
+    docs/specs/data-model.md. Every item carries a stable external_id, so posting the same
+    item twice never creates a duplicate. Idempotency, limits and retry behaviour are
+    defined in docs/architecture/technical-design.md (D3, D4, D5).
+  contact:
+    name: Meridian project owner
+    url: https://github.com/iamPawanSaini/Meridian
+servers:
+  - url: https://meridian.ddev.site
+    description: Local DDEV site
+  - url: https://dev-{site}.pantheonsite.io
+    description: Pantheon dev environment (sandbox). The site machine name is set in T07.
+    variables:
+      site:
+        default: meridian
+        description: Pantheon site machine name.
+tags:
+  - name: ingest
+    description: Engine writes to Drupal (scope meridian_ingest).
+  - name: watchlist
+    description: Engine reads Watchlist Items (scope meridian_watchlist_read).
+security:
+  - drupalOAuth: []
+paths:
+  /api/meridian/v1/ingest:
+    post:
+      operationId: ingestBatch
+      tags:
+        - ingest
+      summary: Upsert a batch of Meridian records
+      description: >-
+        Ingest is serialised: the request first takes the Drupal lock meridian_ingest (held at
+        most 130 s). If the lock is busy the response is 409 ingest_busy with Retry-After and
+        nothing is written. Then the whole batch is validated. If any item is invalid the
+        response is 422, listing every failing item with a JSON pointer per error, and
+        nothing is written. Otherwise all items are upserted in one
+        database transaction and each item reports created, updated, unchanged or stale.
+        References (run_external_id, decision_external_id) may point to items in the same
+        batch or to records already stored. Maximum 500 items and 8 MB per request;
+        60 requests per minute per client.
+      security:
+        - drupalOAuth:
+            - meridian_ingest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestRequest'
+            example:
+              batch_id: 7d0c1a52-3b8e-4f7e-9a51-2f4b8c6d9e10
+              items:
+                - type: daily_run
+                  external_id: run-2026-11-02
+                  source_version: 1
+                  attributes:
+                    trade_date: '2026-11-02'
+                    run_id: 0b6f3c2e-8d4a-4c1b-9e7f-5a2d1c3b4e6f
+                    attempt: 1
+                    status: success
+                    skip_reason: null
+                    watchlist_source: drupal
+                    symbols_total: 2
+                    decisions_count: 2
+                    buy_count: 1
+                    veto_count: 0
+                    failure_count: 0
+                    virtual_equity: '1000000.00'
+                    llm_cost_usd: '0.0420'
+                    rule_version: 1.0.0
+                    prompt_version: 1.0.0
+                    model_name: claude-sonnet-5-5
+                    started_at: '2026-11-02T10:30:05Z'
+                    finished_at: '2026-11-02T10:41:12Z'
+                - type: price_snapshot
+                  external_id: px-2026-11-02-RELIANCE
+                  source_version: 1
+                  attributes:
+                    trade_date: '2026-11-02'
+                    symbol: RELIANCE
+                    open: '1412.5000'
+                    high: '1430.0000'
+                    low: '1405.1000'
+                    close: '1426.3500'
+                    volume: 8123456
+                    adjusted: false
+                    source: yfinance
+                - type: decision
+                  external_id: dec-2026-11-02-RELIANCE-short
+                  source_version: 1
+                  attributes:
+                    run_external_id: run-2026-11-02
+                    trade_date: '2026-11-02'
+                    symbol: RELIANCE
+                    mode: short
+                    score: '78.50'
+                    pre_llm_action: BUY
+                    action: BUY
+                    vetoed: false
+                    veto_reason: null
+                    rule_hits:
+                      - ST-RSI-01
+                      - ST-VOL-02
+                    rule_version: 1.0.0
+                    prompt_version: 1.0.0
+                    model_name: claude-sonnet-5-5
+                    inputs_snapshot:
+                      close: '1426.3500'
+                    raw_llm_output:
+                      verdict: approve
+                    llm_rationale: Momentum confirmed by volume.
+                    close_price: '1426.3500'
+                - type: position
+                  external_id: pos-RELIANCE-short-2026-11-02
+                  source_version: 1
+                  attributes:
+                    run_external_id: run-2026-11-02
+                    decision_external_id: dec-2026-11-02-RELIANCE-short
+                    symbol: RELIANCE
+                    mode: short
+                    status: open
+                    entry_date: '2026-11-02'
+                    entry_price: '1426.3500'
+                    quantity: 35
+                    stop_price: '1398.0000'
+                    target_price: '1483.0000'
+                    time_stop_date: '2026-11-09'
+                    exit_date: null
+                    exit_price: null
+                    exit_reason: null
+                    costs_total: '41.27'
+                    realised_pnl: null
+                    unrealised_pnl: '0.00'
+                    last_mark_price: '1426.3500'
+                    last_mark_date: '2026-11-02'
+                    r_multiple: null
+      responses:
+        '200':
+          description: >-
+            All items were valid and the batch was committed. One result per item, in request
+            order.
+          headers:
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimitRemaining'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestResponse'
+              example:
+                batch_id: 7d0c1a52-3b8e-4f7e-9a51-2f4b8c6d9e10
+                received: 4
+                results:
+                  - index: 0
+                    type: daily_run
+                    external_id: run-2026-11-02
+                    result: created
+                    uuid: 3f1e2d4c-5b6a-4789-8a0b-1c2d3e4f5a6b
+                  - index: 1
+                    type: price_snapshot
+                    external_id: px-2026-11-02-RELIANCE
+                    result: created
+                    uuid: 1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e
+                  - index: 2
+                    type: decision
+                    external_id: dec-2026-11-02-RELIANCE-short
+                    result: created
+                    uuid: 9a8b7c6d-5e4f-4a3b-8c1d-0e9f8a7b6c5d
+                  - index: 3
+                    type: position
+                    external_id: pos-RELIANCE-short-2026-11-02
+                    result: created
+                    uuid: 2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: >-
+            Another ingest request holds the meridian_ingest lock. Nothing was written. Retry the
+            same batch after Retry-After seconds.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                title: Ingest busy
+                errors:
+                  - path: ''
+                    code: ingest_busy
+                    message: Another ingest request is in progress. Retry after 30 seconds.
+        '413':
+          description: >-
+            Request body larger than the 8 MB size limit, or more than 500 items. Nothing was
+            written; the publisher halves the batch and retries. A 413 from the Pantheon edge may
+            not have a JSON body, so clients branch on the status code alone.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 413
+                title: Payload too large
+                errors:
+                  - path: ''
+                    code: too_large
+                    message: Body exceeds 8388608 bytes.
+        '422':
+          description: >-
+            Validation failed. Nothing was written. The body lists every failing item in the
+            batch; each error has a JSON pointer to the failing field ('' for a batch-level
+            error).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                title: Validation failed
+                errors:
+                  - path: /items/17/attributes/score
+                    code: range
+                    message: Must be between 0 and 100.
+                  - path: /items/20/attributes/decision_external_id
+                    code: unknown_reference
+                    message: No decision with this external_id.
+        '429':
+          description: >-
+            More than 60 requests per minute for this client. Retry after the given number of
+            seconds.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 429
+                title: Too many requests
+                errors:
+                  - path: ''
+                    code: rate_limited
+                    message: Retry after 30 seconds.
+  /jsonapi/node/watchlist_item:
+    get:
+      operationId: listWatchlistItems
+      tags:
+        - watchlist
+      summary: Read enabled Watchlist Items
+      description: >-
+        Documented subset of Drupal core JSON:API (read only). The engine sends
+        filter[field_enabled]=1, sort=field_sort_order and page[limit]=50. Drupal is
+        authoritative for the watchlist (FR-01).
+      security:
+        - drupalOAuth:
+            - meridian_watchlist_read
+      parameters:
+        - name: filter[field_enabled]
+          in: query
+          required: false
+          description: Set to 1 to return enabled items only.
+          schema:
+            type: string
+            enum:
+              - '1'
+        - name: sort
+          in: query
+          required: false
+          description: Sort field.
+          schema:
+            type: string
+            enum:
+              - field_sort_order
+        - name: page[limit]
+          in: query
+          required: false
+          description: Page size, at most 50.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: JSON:API collection of Watchlist Items.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/WatchlistCollection'
+              example:
+                data:
+                  - type: node--watchlist_item
+                    id: 5c3e1f2a-7b9d-4e6f-8a1c-2d3b4e5f6a7b
+                    attributes:
+                      title: Reliance Industries
+                      field_external_id: wl-RELIANCE
+                      field_symbol: RELIANCE
+                      field_enabled: true
+                      field_modes:
+                        - long
+                        - short
+                      field_sort_order: 10
+        '401':
+          description: Missing, expired or invalid access token. Core JSON:API error document.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/JsonApiErrorDocument'
+              example:
+                errors:
+                  - status: '401'
+                    title: Unauthorized
+                    detail: The access token is missing or expired.
+        '403':
+          description: >-
+            The token lacks scope meridian_watchlist_read, or a query parameter is not
+            allowlisted. Core JSON:API error document.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/JsonApiErrorDocument'
+              example:
+                errors:
+                  - status: '403'
+                    title: Forbidden
+                    detail: This route or parameter is not allowed for the token.
+components:
+  securitySchemes:
+    drupalOAuth:
+      type: oauth2
+      description: >-
+        Drupal Simple OAuth 6.x. The engine uses consumer meridian-engine with the client
+        credentials grant. Access tokens live 300 s. The token endpoint is /oauth/token on the
+        same host as the selected server; tokenUrl shows the DDEV host.
+      flows:
+        clientCredentials:
+          tokenUrl: https://meridian.ddev.site/oauth/token
+          scopes:
+            meridian_ingest: Create and update Meridian records through meridian_ingest only.
+            meridian_watchlist_read: Read Watchlist Items only.
+  headers:
+    RetryAfter:
+      description: Seconds to wait before retrying.
+      schema:
+        type: integer
+        minimum: 1
+    RateLimitRemaining:
+      description: Requests left in the current one-minute window.
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    Unauthorized:
+      description: >-
+        Missing, expired or invalid access token. The client requests a new token once and
+        retries.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 401
+            title: Unauthorized
+            errors:
+              - path: ''
+                code: invalid_token
+                message: The access token is missing or expired.
+    Forbidden:
+      description: The token is valid but lacks the required scope for this route.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 403
+            title: Forbidden
+            errors:
+              - path: ''
+                code: insufficient_scope
+                message: This route needs a different scope.
+  schemas:
+    Error:
+      type: object
+      description: Error body. path is a JSON pointer into the request ('' for the whole request).
+      required:
+        - status
+        - title
+        - errors
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - path
+              - code
+              - message
+            properties:
+              path:
+                type: string
+                description: >-
+                  JSON pointer to the failing field, for example /items/3/attributes/score.
+              code:
+                type: string
+                enum:
+                  - required
+                  - type
+                  - pattern
+                  - range
+                  - enum
+                  - max_length
+                  - unknown_type
+                  - unknown_reference
+                  - version_conflict
+                  - invalid_json
+                  - too_large
+                  - rate_limited
+                  - invalid_token
+                  - insufficient_scope
+                  - ingest_busy
+              message:
+                type: string
+    JsonApiErrorDocument:
+      type: object
+      description: Core Drupal JSON:API error document (subset used by clients).
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - status
+              - title
+            properties:
+              status:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+    IngestRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - batch_id
+        - items
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          description: Generated by the publisher per request, for logs and the audit entry.
+        items:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/IngestItem'
+    IngestItem:
+      oneOf:
+        - $ref: '#/components/schemas/DailyRunItem'
+        - $ref: '#/components/schemas/PriceSnapshotItem'
+        - $ref: '#/components/schemas/DecisionItem'
+        - $ref: '#/components/schemas/PositionItem'
+      discriminator:
+        propertyName: type
+        mapping:
+          daily_run: '#/components/schemas/DailyRunItem'
+          price_snapshot: '#/components/schemas/PriceSnapshotItem'
+          decision: '#/components/schemas/DecisionItem'
+          position: '#/components/schemas/PositionItem'
+    IngestResponse:
+      type: object
+      required:
+        - batch_id
+        - received
+        - results
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+        received:
+          type: integer
+          minimum: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemResult'
+    ItemResult:
+      type: object
+      required:
+        - index
+        - type
+        - external_id
+        - result
+        - uuid
+      properties:
+        index:
+          type: integer
+          minimum: 0
+        type:
+          $ref: '#/components/schemas/RecordType'
+        external_id:
+          type: string
+          maxLength: 64
+        result:
+          type: string
+          enum:
+            - created
+            - updated
+            - unchanged
+            - stale
+        uuid:
+          type: string
+          format: uuid
+    RecordType:
+      type: string
+      enum:
+        - daily_run
+        - price_snapshot
+        - decision
+        - position
+    SourceVersion:
+      type: integer
+      minimum: 1
+      description: Postgres row version at enqueue time. Never decreases for one external_id.
+    Date:
+      type: string
+      format: date
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+    NullableDate:
+      type:
+        - string
+        - 'null'
+      format: date
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+    Symbol:
+      type: string
+      pattern: '^[A-Z0-9&-]{1,20}$'
+    Mode:
+      type: string
+      enum:
+        - long
+        - short
+    Action:
+      type: string
+      enum:
+        - BUY
+        - AVOID
+    VersionLabel:
+      type: string
+      pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    ModelName:
+      type: string
+      pattern: '^[a-z0-9][a-z0-9.-]{0,63}$'
+    Price:
+      type: string
+      description: Decimal string, up to 4 decimals, greater than 0.
+      pattern: '^[0-9]{1,10}(\.[0-9]{1,4})?$'
+    NullablePrice:
+      type:
+        - string
+        - 'null'
+      pattern: '^[0-9]{1,10}(\.[0-9]{1,4})?$'
+    Money:
+      type: string
+      description: Signed INR amount with up to 2 decimals.
+      pattern: '^-?[0-9]{1,14}(\.[0-9]{1,2})?$'
+    NullableMoney:
+      type:
+        - string
+        - 'null'
+      pattern: '^-?[0-9]{1,14}(\.[0-9]{1,2})?$'
+    RunRef:
+      type: string
+      pattern: '^run-[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+    DailyRunItem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - external_id
+        - source_version
+        - attributes
+      properties:
+        type:
+          type: string
+          const: daily_run
+        external_id:
+          $ref: '#/components/schemas/RunRef'
+        source_version:
+          $ref: '#/components/schemas/SourceVersion'
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - trade_date
+            - run_id
+            - attempt
+            - status
+            - symbols_total
+            - decisions_count
+            - buy_count
+            - veto_count
+            - failure_count
+            - llm_cost_usd
+            - rule_version
+            - prompt_version
+            - model_name
+            - started_at
+          properties:
+            trade_date:
+              $ref: '#/components/schemas/Date'
+            run_id:
+              type: string
+              format: uuid
+            attempt:
+              type: integer
+              minimum: 1
+            status:
+              type: string
+              enum:
+                - success
+                - failed
+                - skipped
+            skip_reason:
+              type:
+                - string
+                - 'null'
+              maxLength: 255
+            watchlist_source:
+              type:
+                - string
+                - 'null'
+              enum:
+                - drupal
+                - snapshot
+                - seed
+                - null
+            symbols_total:
+              type: integer
+              minimum: 0
+              maximum: 50
+            decisions_count:
+              type: integer
+              minimum: 0
+            buy_count:
+              type: integer
+              minimum: 0
+            veto_count:
+              type: integer
+              minimum: 0
+            failure_count:
+              type: integer
+              minimum: 0
+            virtual_equity:
+              $ref: '#/components/schemas/NullableMoney'
+            llm_cost_usd:
+              type: string
+              pattern: '^[0-9]{1,6}(\.[0-9]{1,4})?$'
+            rule_version:
+              $ref: '#/components/schemas/VersionLabel'
+            prompt_version:
+              $ref: '#/components/schemas/VersionLabel'
+            model_name:
+              $ref: '#/components/schemas/ModelName'
+            started_at:
+              type: string
+              format: date-time
+            finished_at:
+              type:
+                - string
+                - 'null'
+              format: date-time
+    PriceSnapshotItem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - external_id
+        - source_version
+        - attributes
+      properties:
+        type:
+          type: string
+          const: price_snapshot
+        external_id:
+          type: string
+          pattern: '^px-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}$'
+        source_version:
+          $ref: '#/components/schemas/SourceVersion'
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - trade_date
+            - symbol
+            - open
+            - high
+            - low
+            - close
+            - volume
+            - adjusted
+            - source
+          properties:
+            trade_date:
+              $ref: '#/components/schemas/Date'
+            symbol:
+              $ref: '#/components/schemas/Symbol'
+            open:
+              $ref: '#/components/schemas/Price'
+            high:
+              $ref: '#/components/schemas/Price'
+            low:
+              $ref: '#/components/schemas/Price'
+            close:
+              $ref: '#/components/schemas/Price'
+            volume:
+              type: integer
+              minimum: 0
+            adjusted:
+              type: boolean
+            source:
+              type: string
+              enum:
+                - yfinance
+                - stub
+    DecisionItem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - external_id
+        - source_version
+        - attributes
+      properties:
+        type:
+          type: string
+          const: decision
+        external_id:
+          type: string
+          pattern: '^dec-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}-(long|short)$'
+        source_version:
+          $ref: '#/components/schemas/SourceVersion'
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - run_external_id
+            - trade_date
+            - symbol
+            - mode
+            - score
+            - pre_llm_action
+            - action
+            - vetoed
+            - rule_hits
+            - rule_version
+            - prompt_version
+            - model_name
+            - inputs_snapshot
+            - raw_llm_output
+            - close_price
+          properties:
+            run_external_id:
+              $ref: '#/components/schemas/RunRef'
+            trade_date:
+              $ref: '#/components/schemas/Date'
+            symbol:
+              $ref: '#/components/schemas/Symbol'
+            mode:
+              $ref: '#/components/schemas/Mode'
+            score:
+              type: string
+              description: Decimal string from 0 to 100 with up to 2 decimals.
+              pattern: '^(100(\.0{1,2})?|[0-9]{1,2}(\.[0-9]{1,2})?)$'
+            pre_llm_action:
+              $ref: '#/components/schemas/Action'
+            action:
+              $ref: '#/components/schemas/Action'
+            vetoed:
+              type: boolean
+            veto_reason:
+              type:
+                - string
+                - 'null'
+              enum:
+                - llm_veto
+                - malformed
+                - empty
+                - timeout
+                - api_error
+                - schema_violation
+                - budget
+                - null
+            rule_hits:
+              type: array
+              maxItems: 50
+              items:
+                type: string
+                pattern: '^[A-Z][A-Z0-9_-]{1,31}$'
+            rule_version:
+              $ref: '#/components/schemas/VersionLabel'
+            prompt_version:
+              $ref: '#/components/schemas/VersionLabel'
+            model_name:
+              $ref: '#/components/schemas/ModelName'
+            inputs_snapshot:
+              type: object
+              description: Inputs used for the decision. At most 65,536 bytes serialised.
+            raw_llm_output:
+              type: object
+              description: >-
+                LLM reply as received, or {"status":"not_called"}. At most 32,768 bytes
+                serialised.
+            llm_rationale:
+              type:
+                - string
+                - 'null'
+              maxLength: 2000
+            close_price:
+              $ref: '#/components/schemas/Price'
+    PositionItem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - external_id
+        - source_version
+        - attributes
+      properties:
+        type:
+          type: string
+          const: position
+        external_id:
+          type: string
+          pattern: '^pos-[A-Z0-9&-]{1,20}-(long|short)-[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+        source_version:
+          $ref: '#/components/schemas/SourceVersion'
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - run_external_id
+            - decision_external_id
+            - symbol
+            - mode
+            - status
+            - entry_date
+            - entry_price
+            - quantity
+            - stop_price
+            - target_price
+            - costs_total
+          properties:
+            run_external_id:
+              $ref: '#/components/schemas/RunRef'
+            decision_external_id:
+              type: string
+              pattern: '^dec-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}-(long|short)$'
+            symbol:
+              $ref: '#/components/schemas/Symbol'
+            mode:
+              $ref: '#/components/schemas/Mode'
+            status:
+              type: string
+              enum:
+                - open
+                - closed
+            entry_date:
+              $ref: '#/components/schemas/Date'
+            entry_price:
+              $ref: '#/components/schemas/Price'
+            quantity:
+              type: integer
+              minimum: 1
+            stop_price:
+              $ref: '#/components/schemas/Price'
+            target_price:
+              $ref: '#/components/schemas/Price'
+            time_stop_date:
+              $ref: '#/components/schemas/NullableDate'
+            exit_date:
+              $ref: '#/components/schemas/NullableDate'
+            exit_price:
+              $ref: '#/components/schemas/NullablePrice'
+            exit_reason:
+              type:
+                - string
+                - 'null'
+              enum:
+                - stop
+                - gap_stop
+                - target
+                - time_stop
+                - null
+            costs_total:
+              $ref: '#/components/schemas/Money'
+            realised_pnl:
+              $ref: '#/components/schemas/NullableMoney'
+            unrealised_pnl:
+              $ref: '#/components/schemas/NullableMoney'
+            last_mark_price:
+              $ref: '#/components/schemas/NullablePrice'
+            last_mark_date:
+              $ref: '#/components/schemas/NullableDate'
+            r_multiple:
+              type:
+                - string
+                - 'null'
+              pattern: '^-?[0-9]{1,3}(\.[0-9]{1,3})?$'
+    WatchlistCollection:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/WatchlistResource'
+        links:
+          type: object
+    WatchlistResource:
+      type: object
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          const: node--watchlist_item
+        id:
+          type: string
+          format: uuid
+        attributes:
+          type: object
+          required:
+            - field_external_id
+            - field_symbol
+            - field_enabled
+            - field_modes
+            - field_sort_order
+          properties:
+            title:
+              type: string
+            field_external_id:
+              type: string
+              pattern: '^wl-[A-Z0-9&-]{1,20}$'
+            field_symbol:
+              $ref: '#/components/schemas/Symbol'
+            field_enabled:
+              type: boolean
+            field_modes:
+              type: array
+              minItems: 1
+              maxItems: 2
+              items:
+                $ref: '#/components/schemas/Mode'
+            field_sort_order:
+              type: integer
+              minimum: 0
+              maximum: 999
