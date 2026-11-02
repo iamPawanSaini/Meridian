@@ -551,7 +551,7 @@ listed. Rule (FR-21): the Drupal base URL for `meridian-web` is **server-only**;
 | `DRUPAL_READ_CLIENT_SECRET` | `meridian-web` | Client secret of consumer `meridian-web` | yes | `.env` | n/a | Vercel env, Production only (Sensitive) | n/a | T21 |
 | `DRUPAL_LOGIN_CLIENT_ID` | `meridian-web` | Client ID of consumer `meridian-web-login` | no | `.env` | n/a | Vercel env, Production only | n/a | T22 |
 | `DRUPAL_LOGIN_CLIENT_SECRET` | `meridian-web` | Client secret of consumer `meridian-web-login` | yes | `.env` | n/a | Vercel env, Production only (Sensitive) | n/a | T22 |
-| `MERIDIAN_WEB_BASE_URL` | `meridian-web` | Public base URL, used to build the OAuth redirect URI | no | `.env` (DDEV `meridian-web` HTTPS host, set in T06) | n/a | Vercel env, Production only (Vercel dev URL) | n/a | T22 |
+| `MERIDIAN_WEB_BASE_URL` | `meridian-web` | Public base URL, used to build the OAuth redirect URI | no | `.env`, `https://meridian.ddev.site:3001` (DDEV `meridian-web`, T06) | n/a | Vercel env, Production only (Vercel dev URL) | n/a | T22 |
 | `MERIDIAN_SESSION_SECRET` | `meridian-web` | Key that encrypts the session cookie, at least 32 random bytes | yes | `.env` | n/a | Vercel env, Production only (Sensitive) | n/a | T22 |
 | `MERIDIAN_OAUTH_PRIVATE_KEY_PATH` | Drupal | Path to the Simple OAuth private key file (the file is the secret) | no | `.env`, default `apps/drupal/private/oauth/private.key` | n/a, fixed private files path in `settings.php` | n/a | n/a | T10 |
 | `MERIDIAN_OAUTH_PUBLIC_KEY_PATH` | Drupal | Path to the Simple OAuth public key file | no | `.env`, default `apps/drupal/private/oauth/public.key` | n/a, fixed private files path in `settings.php` | n/a | n/a | T10 |
@@ -574,8 +574,11 @@ Whether a Sandbox site can add such a machine user is **unverified** (T07).
 Rotation (RK-07, T29 runbook): each secret has one owner store per environment, so it rotates
 in one place. OAuth client secrets are rotated in Drupal and then in GitHub Secrets or Vercel
 env. `MERIDIAN_REVALIDATE_SECRET` is changed in both GitHub Secrets and Vercel env together.
-Whether DDEV containers resolve `meridian.ddev.site` internally is **unverified** (T06). If
-not, the in-container value of the two Drupal base URL variables is `http://web`.
+DDEV containers resolve `meridian.ddev.site` internally (verified in T06, 2026-11-02, evidence
+in `docs/tests/T06/`): `meridian-engine` and `meridian-web` resolve it to `ddev-router` through
+`external_links` and trust the mkcert root (`SSL_CERT_FILE` bundle for Python,
+`NODE_EXTRA_CA_CERTS` for Node). The two Drupal base URL variables keep
+`https://meridian.ddev.site` inside the containers; `http://web` is not used.
 
 ## D8 Repo and deploy strategy
 
@@ -667,7 +670,7 @@ yet.
 | A user token's access is the intersection of scope and user permissions; token revocation | D6 | T22 |
 | Unique database index on `field_external_id` per bundle | D1 | T09 |
 | Pantheon private files path, dev branch name, Integrated Composer, body size limit, machine user on Sandbox, SSH host key | D6, D7, D8 | T07 |
-| DDEV in-container resolution of `meridian.ddev.site` | D7 | T06 |
+| DDEV in-container resolution of `meridian.ddev.site` (resolved by T06, 2026-11-02) | D7 | T06 |
 | Alembic over a direct or pooled Neon connection | D2 | T28 |
 
 ## T02 follow-ups applied
@@ -688,6 +691,7 @@ yet.
 | 1 | 2026-11-01 | First version, submitted for review |
 | 2 | 2026-11-01 | Resolves review findings 1 to 12 and notes 15, 17 and 19 (`docs/tasks/T03/review.md`): ingest lock and 409 (D5, D3, D4); sole writer (D1); entity access, 401 subscriber, route-name and query allowlist, `/me`, scope fallback, exempt routes and split matrix rows (D6); rerun of a successful date only drains (D3); run attempts and stale lock (D2); outbox edge cases and pre-send validation (D4); Vercel Production scope, secret strength, consumer provisioning, deploy key and first push (D7, D8); JCS hashes (D3) |
 | 3 | 2026-11-01 | Fixes DEF-002: `uq_runs_date_attempt` becomes a partial unique index `WHERE attempt > 0`, so repeated `publish` and `replay` rows (`attempt = 0`) on one date no longer collide. Lock (`uq_runs_one_running`) and "already succeeded" check (compute attempts only) unchanged in effect (D2, D3; `docs/specs/data-model.md` runs) |
+| 4 | 2026-11-02 | T06: D7 records that the DDEV containers resolve `meridian.ddev.site` through `ddev-router` and trust the mkcert root; DDEV value of `MERIDIAN_WEB_BASE_URL` is `https://meridian.ddev.site:3001`; open item resolved |
 
 ## Sign-off
 

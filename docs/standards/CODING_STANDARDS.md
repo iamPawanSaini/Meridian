@@ -123,8 +123,9 @@ Use the names in section 0 of `docs/TASKS.md` everywhere:
   the Node package manager chosen in T21 (`apps/web`), and the engine lock file chosen in T13.
   CI installs from the lockfile only (`composer install`, `npm ci` or equivalent).
 - **Pinned versions.** Tools are pinned by exact version or rev: pre-commit hook `rev:` in
-  `.pre-commit-config.yaml`, `scripts/tool-versions.env`, Docker base images by version tag
-  (plus digest where T06 confirms it works), GitHub Actions by commit SHA (T08). No `latest`.
+  `.pre-commit-config.yaml`, `scripts/tool-versions.env`, Docker base images by exact version tag
+  plus digest (`name:tag@sha256:...`, confirmed under DDEV in T06), GitHub Actions by commit SHA
+  (T08). No `latest`.
 - **Audit before adding.** A new runtime or dev dependency is named in the task plan under
   "Interfaces touched" and checked before it is added:
   - licence is permissive or compatible (MIT, BSD, Apache-2.0, ISC, MPL-2.0; GPL only for
@@ -280,7 +281,8 @@ Scope: Postgres 16 schema of the engine (`services/engine`, Alembic, from T14).
 ### Docker and YAML
 
 - **Dockerfiles** pass hadolint. Base images are pinned to an exact version tag (for example
-  `python:3.12.x-slim`), with a digest where T06 confirms it. No `latest`.
+  `python:3.12.16-slim-trixie`) and by `@sha256:` digest (the multi-arch index digest, which
+  `docker image inspect` shows under RepoDigests after a pull). No `latest`.
 - Containers run as a non-root user. No secret in `ARG`, `ENV` or any layer; pass secrets at
   run time. Each build context has a `.dockerignore`.
 - Combine package install and cleanup in one layer; pin system packages where hadolint asks.
