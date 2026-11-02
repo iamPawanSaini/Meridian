@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+## Description: Local Postgres (meridian-postgres): psql shell, dump and restore
+## Usage: pg psql [psql args...] | pg dump [FILE] | pg restore FILE --yes
+## Example: ddev pg psql -c 'select 1'
+
+# T06 (AC3, AC4). Host command: the single implementation of the Postgres dump and restore.
+# Streams use "docker exec -i" so binary data never passes through a TTY. No password is
+# needed: the commands run inside the container over the local socket as user meridian.
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ddev pg psql [psql args...]   psql as user meridian on database meridian
+  ddev pg dump [FILE]           custom-format dump (default db-dumps/meridian-postgres-<UTC>.dump)
+  ddev pg restore FILE --yes    REPLACE the meridian database with FILE (needs --yes)
+USAGE
+}
+
+cname="ddev-${DDEV_SITENAME:-meridian}-meridian-postgres"
+root="${DDEV_APPROOT:-$(git rev-parse --show-toplevel)}"
+
+pgx() { docker exec -i "$cname" "$@"; }
+
+do_psql() {
+  local flags=(-i)
+  if [[ -t 0 && -t 1 ]]; then
+    flags+=(-t)
+  fi
+  exec docker exec "${flags[@]}" "$cname" psql -U meridian -d meridian "$@"
+}
+
+do_dump() {
+  local file="${1:-}" tmp
+  umask 077
+  if [[ -z "$file" ]]; then
+    mkdir -p "$root/db-dumps"
+    file="$root/db-dumps/meridian-postgres-$(date -u +%Y%m%dT%H%M%SZ).dump"
+  fi
+  tmp="$(mktemp "$(dirname -- "$file")/.pgdump.XXXXXX")" || exit 1
+  # shellcheck disable=SC2064 # T06: expand now: the temp file name is fixed from here on
+  trap "rm -f -- '$tmp'" EXIT
+  pgx pg_dump -Fc --no-owner --no-acl -U meridian meridian >"$tmp"
+  mv -- "$tmp" "$file"
+  trap - EXIT
+  echo "$file ($(stat -c %s -- "$file") bytes)"
+}
+
+do_restore() {
+  local file="" yes=0 arg tables
+  for arg in "$@"; do
+    case "$arg" in
+      --yes) yes=1 ;;
+      *) if [[ -z "$file" ]]; then file="$arg"; else
+        echo "ddev pg restore: unexpected argument '$arg'" >&2
+        usage >&2
+        exit 2
+      fi ;;
+    esac
+  done
+  if [[ -z "$file" ]]; then
+    echo "ddev pg restore: FILE is required" >&2
+    usage >&2
+    exit 2
+  fi
+  if ((yes == 0)); then
+    echo "ddev pg restore: this would replace the meridian database with $file; add --yes to confirm" >&2
+    exit 2
+  fi
+  if [[ ! -f "$file" || ! -r "$file" || ! -s "$file" ]]; then
+    echo "ddev pg restore: '$file' is missing, empty or not readable" >&2
+    exit 1
+  fi
+  # Validate first: the database is not touched unless this is a readable pg_dump archive.
+  if ! pgx pg_restore --list <"$file" >/dev/null 2>&1; then
+    echo "ddev pg restore: '$file' is not a valid pg_dump custom archive; database unchanged" >&2
+    exit 1
+  fi
+  pgx dropdb --force --if-exists -U meridian --maintenance-db=postgres meridian
+  pgx createdb -U meridian -O meridian --maintenance-db=postgres meridian
+  pgx pg_restore --no-owner --no-acl --exit-on-error -U meridian -d meridian <"$file"
+  tables=$(pgx psql -U meridian -d meridian -At \
+    -c "select count(*) from information_schema.tables where table_schema = 'public'")
+  echo "restored $file; public tables: $tables"
+}
+
+if [[ $# -eq 0 ]]; then
+  usage >&2
+  exit 2
+fi
+
+sub="$1"
+shift
+case "$sub" in
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  psql) do_psql "$@" ;;
+  dump)
+    if (($# > 1)); then
+      echo "ddev pg dump: at most one FILE" >&2
+      usage >&2
+      exit 2
+    fi
+    do_dump "$@"
+    ;;
+  restore) do_restore "$@" ;;
+  *)
+    echo "ddev pg: unknown subcommand '$sub'" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
