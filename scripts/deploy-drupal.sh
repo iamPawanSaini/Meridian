@@ -14,9 +14,9 @@
 #                           runs terminus auth:login; otherwise it needs an existing session
 #                           (terminus auth:whoami prints an email)
 #   DEPLOY_SMOKE_BUDGET     optional: whole seconds the smoke check retries while the site wakes
-#                           (default 120; anything else exits 2). In DDEV: ddev exec env
-#                           DEPLOY_SMOKE_BUDGET=300 scripts/deploy-drupal.sh. In CI: repository
-#                           variable DEPLOY_SMOKE_BUDGET (passed by the workflow)
+#                           (default 120; anything else exits 2). Local: set it in the
+#                           web container as the runbook says. CI: repository variable of the
+#                           same name (passed by the workflow)
 #   DEPLOY_SMOKE_HEADER     optional: one extra request header for the smoke check, for example
 #                           "Deterrence-Bypass: 1" if the Sandbox warning page intercepts curl
 #                           (the value is measured in T07, KD-12; it is not a secret). Set it the
