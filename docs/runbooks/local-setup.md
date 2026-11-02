@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Owner | developer |
-| Last verified | 2026-11-02 by developer: the T06 commands were run in the existing working tree only. A clean-clone run is not done yet; the tester records it in `/test-task` |
+| Last verified | 2026-11-02 by tester: clean-clone run of steps 1 to 7 in T06 `/test-task` (TC-T06-54), cloned from the local `task/T06-ddev-services` branch |
 | Applies to | Local DDEV |
 
 ## When to use
@@ -55,13 +55,15 @@ running, or you want to reset it. Since T06 the stack has five containers: `web`
    cd meridian
    ```
 
-   Expected: a `meridian` folder on the Linux filesystem. Until T05 is merged into `main`, also
-   run `git checkout task/T05-ddev-drupal`: `main` has no `.ddev/` yet.
+   Expected: a `meridian` folder on the Linux filesystem. Until the task branches are merged into
+   `main`, also check out the latest task branch (for example `task/T06-ddev-services`): `main`
+   has no `.ddev/` yet.
 
 2. If another checkout of this project is registered, remove that registration first. Two DDEV
    projects named `meridian` cannot coexist, and `ddev stop --unlist` alone keeps the old
    database volume, so step 4 would then refuse with "already installed". This deletes the old
-   checkout's local database (local, disposable data only).
+   checkout's local Drupal database and its Postgres volume `meridian-postgres-data` (local,
+   disposable data only).
 
    ```bash
    ddev delete -Oy meridian
@@ -104,8 +106,8 @@ running, or you want to reset it. Since T06 the stack has five containers: `web`
    ddev meridian-status
    ```
 
-   Expected: five lines, each `running healthy`, and `OK`. If a service is not, the last line
-   names it and the exit status is 1.
+   Expected: five lines, each `running healthy`, and `OK`. If a service is not, the last line of
+   standard output names it and the exit status is 1.
 
 7. Install the git hooks and dev tooling (needed for commits and for `ddev quality`).
 
@@ -134,8 +136,7 @@ ddev quality
 - `ddev quality` exits 0 with `PASS component-drupal` and
   `SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist)`. The engine and web steps SKIP
   until T13 and T21. `ddev quality` also runs pre-commit (step 7). Run it on a committed tree:
-  the pre-commit fixers rewrite files in place. Until DEF-004 is fixed, `ddev quality` exits 1 on
-  the pre-commit step because of older files; the two Drupal step lines above are what T05 needs.
+  the pre-commit fixers rewrite files in place.
 
 ## Engine, Postgres and web commands (T06)
 

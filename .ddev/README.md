@@ -65,7 +65,7 @@ Images are pinned by tag and digest (official Docker Hub images only). Each serv
 | `ddev pg psql [args...]` | psql as `meridian` on database `meridian` |
 | `ddev pg dump [FILE]` | Custom-format dump, default `db-dumps/meridian-postgres-<UTC>.dump` (git-ignored) |
 | `ddev pg restore FILE --yes` | Replaces the `meridian` database with the dump; validates the file first |
-| `ddev meridian-status` | State and health of the five services; exit 1 and a last line naming the bad ones |
+| `ddev meridian-status` | State and health of the five services; exit 1 and a last line of standard output naming the bad ones |
 
 `ddev engine` and `ddev next` use `docker exec` (see the facts below). DDEV reports every failed
 host command as exit status 1, so the exit codes 2 (usage) and N (command status) are visible

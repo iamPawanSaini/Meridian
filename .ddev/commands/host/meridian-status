@@ -13,7 +13,7 @@ Usage: ddev meridian-status
 
 Prints SERVICE, STATE and HEALTH for web, db, meridian-postgres, meridian-engine and
 meridian-web. Exits 0 only if every service is running and healthy, else 1, and the last
-line names the services that are not.
+line of standard output names the services that are not.
 USAGE
 }
 
