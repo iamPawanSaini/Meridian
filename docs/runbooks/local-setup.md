@@ -188,7 +188,8 @@ ddev meridian-status
 ## Escalation
 
 - Never apply Pantheon dashboard upstream updates. Code reaches Pantheon by subtree push only
-  (ADR-0004, T07).
+  (ADR-0004, T07). To deploy, or to pull the Pantheon dev database and files into this project
+  (`ddev pull pantheon`), follow [`deploy.md`](deploy.md).
 - If `ddev start` fails in the composer hook, read the hook output, run `ddev composer install`
   and fix the cause (usually network). Do not bypass with `fail_on_hook_fail: false`.
 - HTTPS errors inside `meridian-engine` or `meridian-web` (certificate verify failed): run

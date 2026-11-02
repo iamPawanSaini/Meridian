@@ -555,9 +555,11 @@ listed. Rule (FR-21): the Drupal base URL for `meridian-web` is **server-only**;
 | `MERIDIAN_SESSION_SECRET` | `meridian-web` | Key that encrypts the session cookie, at least 32 random bytes | yes | `.env` | n/a | Vercel env, Production only (Sensitive) | n/a | T22 |
 | `MERIDIAN_OAUTH_PRIVATE_KEY_PATH` | Drupal | Path to the Simple OAuth private key file (the file is the secret) | no | `.env`, default `apps/drupal/private/oauth/private.key` | n/a, fixed private files path in `settings.php` | n/a | n/a | T10 |
 | `MERIDIAN_OAUTH_PUBLIC_KEY_PATH` | Drupal | Path to the Simple OAuth public key file | no | `.env`, default `apps/drupal/private/oauth/public.key` | n/a, fixed private files path in `settings.php` | n/a | n/a | T10 |
-| `TERMINUS_MACHINE_TOKEN` | `deploy-drupal.yml`, `ddev pull pantheon` | Pantheon Terminus machine token | yes | Global DDEV config of the owner, never the repo | n/a | n/a | GitHub Secrets | T07 |
-| `PANTHEON_SITE` | `deploy-drupal.yml`, DDEV Pantheon provider | Pantheon site machine name | no | `.env` | n/a | n/a | GitHub Variables | T07 |
+| `TERMINUS_MACHINE_TOKEN` | `deploy-drupal.yml`, `ddev pull pantheon`, `ddev deploy-drupal` | Pantheon personal access token (PAT, formerly machine token; expires 90 days after creation). CI: the machine user's PAT | yes | Global DDEV config of the owner, never the repo | n/a | n/a | GitHub Secrets | T07 |
+| `PANTHEON_SITE` | `deploy-drupal.yml`, DDEV Pantheon provider, `ddev deploy-drupal` | Pantheon site machine name (`meridian-trade`) | no | `.ddev/config.yaml` `web_environment` (the web container does not read `.env`) | n/a | n/a | GitHub Variables (set only when CI deploys are enabled) | T07 |
 | `PANTHEON_DEPLOY_KEY` | `deploy-drupal.yml` | SSH private key (RSA, or ECDSA 256-bit; ed25519 is not supported by Pantheon) whose public key is registered on a dedicated Pantheon machine user account that has access to this site only | yes | n/a | n/a | n/a | GitHub Secrets | T07 |
+| `DEPLOY_SMOKE_BUDGET` | `scripts/deploy-drupal.sh` | Seconds the smoke check retries while the Sandbox wakes (default 120) | no | optional, default 120 | n/a | n/a | optional | T07 |
+| `DEPLOY_SMOKE_HEADER` | `scripts/deploy-drupal.sh` | One extra non-secret request header for the smoke check, for example `Deterrence-Bypass: <value>` if the Sandbox warning page intercepts curl (KD-12) | no | optional | n/a | n/a | optional | T07 |
 
 Vercel scope: every `meridian-web` variable is set for the Vercel **Production** environment
 only. Preview deployments (T21) run in mock API mode with no Drupal URL or secrets, so a
@@ -569,7 +571,11 @@ environment. The secret it prints is copied into the store named in the matrix.
 Pantheon SSH keys belong to a user account, not to a site. `PANTHEON_DEPLOY_KEY` therefore
 belongs to a dedicated machine user that is a member of this site only ([Pantheon SSH
 keys](https://docs.pantheon.io/ssh-keys), checked by the solution-architect 2026-11-01).
-Whether a Sandbox site can add such a machine user is **unverified** (T07).
+Whether a Sandbox site can add such a machine user is **unverified**: the owner tries it at
+plan step O-5 (T07 live part), and the T07 test report records the result. If no machine user
+is possible, Drupal deploys are local-only (`ddev deploy-drupal`) and GitHub holds no Pantheon
+secret (`docs/tasks/T07/decision-ci-credentials.md`). The owner's PAT is never put in GitHub
+Secrets without the owner's written risk acceptance.
 
 Rotation (RK-07, T29 runbook): each secret has one owner store per environment, so it rotates
 in one place. OAuth client secrets are rotated in Drupal and then in GitHub Secrets or Vercel
@@ -598,29 +604,53 @@ Monorepo per ADR-0004. Developers commit only to GitHub.
   touches `apps/drupal/**`, or by manual dispatch with a ref. The workflow has a
   `concurrency` group (`deploy-drupal`, no cancel-in-progress), so two deploys never overlap.
   1. Check out with full history.
-  2. `git subtree split --prefix=apps/drupal -b pantheon-deploy`.
+  2. `git subtree split --prefix=apps/drupal <ref>` with no `-b` (no local branch). The split
+     is deterministic. `scripts/deploy-drupal.sh` first checks that the ref is an ancestor of
+     `origin/main` (override: `--allow-unmerged`) and that the split tree holds no build
+     output or secret files.
   3. `terminus auth:login --machine-token="$TERMINUS_MACHINE_TOKEN"`. Read the Git remote
      URL at run time with `terminus connection:info $PANTHEON_SITE.dev --field=git_url`.
-     The Pantheon SSH host key is pinned in the workflow's `known_hosts` (T07 records it).
-  4. Load the Pantheon deploy key (`PANTHEON_DEPLOY_KEY`) into the SSH agent, then
-     `git push pantheon pantheon-deploy:master`. This is a normal, non-force push, so a manual
-     commit on Pantheon makes it fail loudly.
-  5. Wake `$PANTHEON_SITE.dev`.
-  6. Wait for the Integrated Composer build, then run `terminus drush` for `updatedb -y`,
-     `config:import -y` and `cache:rebuild`.
-  7. Check that `config:status` is clean.
+     The Pantheon code server host key is pinned in `scripts/pantheon_known_hosts` with strict
+     checking. The app server (drush) is not pinned, because Pantheon changes it at container
+     migrations; after the push, `terminus env:code-log` (HTTPS) must show the split SHA, and
+     the smoke check is HTTPS (`docs/tasks/T07/decision-host-keys.md`).
+  4. Wake `$PANTHEON_SITE.dev`. Database backup: `terminus backup:create
+     $PANTHEON_SITE.dev --element=db --keep-for=30`; a failed backup stops the deploy before
+     the push. Load the Pantheon deploy key (`PANTHEON_DEPLOY_KEY`) into the SSH agent, then
+     `git push <git_url> <split sha>:refs/heads/master`. This is a normal, non-force push, so
+     a manual commit on Pantheon makes it fail loudly. If master is already at the split SHA,
+     the backup and the push are skipped.
+  5. Wait for the Integrated Composer build (`terminus workflow:wait --commit=<sha>`; a failed
+     workflow exits non-zero, a timeout exits 0 with a "giving up" warning, so the script
+     checks for it), then `env:code-log` as above, then run `terminus remote:drush` for
+     `updatedb -y`, `config:import -y` and `cache:rebuild`.
+  6. Check that `config:status` is clean, then the smoke check: HTTPS GET of `/user/login`
+     with certificate verification, status 200 and the marker `user-login-form` in the body.
+     Pantheon shows an interstitial warning page on all Sandbox environments; automated tools
+     can send the header `Deterrence-Bypass` (value **unverified**). Whether `curl` and API
+     clients are intercepted is measured in the T07 live run. If they are, the engine and the
+     Next.js server send the header as a non-secret constant (items for T10 and T21).
 
   **First push.** The Pantheon site starts from upstream commits that the split branch does
   not descend from, so the first non-force push would be rejected. The owner runs a one-time
   force push of the split branch (recorded in `docs/runbooks/deploy.md`, T07). Every later
-  push is non-force.
+  push is non-force. The site keeps the Drupal (Composer Managed) upstream. Pantheon upstream
+  and Composer updates are never applied on Pantheon; packages are updated in `apps/drupal` and
+  deployed (`docs/tasks/T07/decision-upstream.md`).
 
   **Policy wording.** ADR-0004 says a manual Pantheon commit "would be overwritten". The
   non-force push makes it fail loudly instead. This tightens the ADR-0004 policy and does not
   change its decision (subtree split and push), so no new ADR is needed.
 
-  Rollback is a manual dispatch with the previous good ref (T07 documents it in
-  `docs/runbooks/deploy.md`).
+  Rollback is revert-forward: revert on a branch, merge to `main` with a merge commit, deploy.
+  Every deploy that pushes first takes a database backup (`--element=db --keep-for=30`); a
+  database rollback restores that backup with `--element=db --file=...` only. Code restores
+  on Pantheon and the dashboard Restore button are not used. A force push is an owner-only
+  emergency step (`docs/runbooks/deploy.md`; `docs/tasks/T07/decision-rollback.md`).
+
+  **Terminus version.** The DDEV web image ships Terminus 3.6.2, which cannot log in with a
+  Pantheon PAT. `.ddev/web-build/Dockerfile` installs Terminus 4.3.3 (sha256-pinned, checked
+  2026-11-02), and `deploy-drupal.yml` installs the same version.
 - **Vercel:** the project root directory is `apps/web`. The Vercel production deployment of
   `main` is our dev environment, and preview deployments are not used for login (D-3).
 - **Engine:** built from `services/engine` (`Dockerfile` for the `meridian-engine` image and
@@ -637,16 +667,18 @@ ADR-0004 left these items **unverified**. T07 confirms each one:
 | The private files path and that it is never served | developer | T07 |
 | The request body size limit at the Pantheon edge (8 MB needed, see the NFR numbers section) | developer | T07 |
 | `terminus` commands for wake, workflow wait and `connection:info` | developer | T07 |
-| A dedicated machine user with an SSH key can be added to a Sandbox site; the Pantheon SSH host key to pin | developer | T07 |
+| A dedicated machine user with an SSH key can be added to a Sandbox site | owner (O-5) | T07 |
+| The Pantheon code server SSH host key to pin (two days, two networks) | developer | T07 |
+| Sandbox interstitial and API requests: which requests it intercepts, the `Deterrence-Bypass` value | developer | T07 |
 
 ## NFR numbers owned by T03
 
 | Item | Value | Status and source |
 |---|---|---|
 | NFR-04 DDEV | One ingest request of 500 items in at most 30 s (p95 over 5 runs). The API accepts at least 500 items per request | Provisional (D-2). Measurement gate MG-1 at the end of T09, before T10 coding: time 500 node creates and 500 updates in one transaction with a drush script, 5 runs, and record p95 here with the raw output. The value may move either way without an ADR (D-2). T10 then confirms it on the real endpoint |
-| NFR-04 Pantheon dev | At most 30 s per ingest request at the measured batch size. Provisional batch 100 items. The publisher halves the batch on 504, timeout or 413 | Pantheon edge timeout 59 s and PHP `max_execution_time` 120 s ([Pantheon timeouts](https://docs.pantheon.io/timeouts), checked 2026-11-01, per D-2). T07 measures warm, T28 confirms |
+| NFR-04 Pantheon dev | At most 30 s per ingest request at the measured batch size. Provisional batch 100 items. The publisher halves the batch on 504, timeout or 413 | Pantheon edge timeout 59 s and PHP `max_execution_time` 120 s ([Pantheon timeouts](https://docs.pantheon.io/timeouts), checked 2026-11-01, per D-2). T07 records wake time, warm GET latency and the edge body limit (live run, pending); T10 measures the 100-item warm ingest on Pantheon dev (p95 over 5 runs); T28 confirms |
 | NFR-05 | 50-row JSON:API page with 5,000 records: p95 at most 500 ms on DDEV and at most 1,500 ms on Pantheon dev (warm, wake excluded), over 50 requests | Provisional. Measured at gate MG-1 with 5,000 seeded nodes, and confirmed in T11 |
-| Ingest body size | At most 8 MB (8,388,608 bytes) per request; larger returns 413. The publisher targets at most 4 MB | Design value. Pantheon edge body limit **unverified** (T07) |
+| Ingest body size | At most 8 MB (8,388,608 bytes) per request; larger returns 413. The publisher targets at most 4 MB | Design value. Pantheon edge body limit **unverified** because the T07 live measurement (8 MB and 9 MB POST to `/user/login`) has not run yet; T07 records the result with the date |
 | Ingest field limits | `inputs_snapshot` at most 64 KB, `raw_llm_output` at most 32 KB, `llm_rationale` at most 2,000 characters | Design value from A-09 (about 10 KB raw output per decision) |
 | Ingest rate limit | 60 requests per minute per OAuth client; more returns 429 with `Retry-After` | Design value. A daily run needs fewer than 20 requests |
 | Publisher client timeout | 45 s per request, under the 59 s Pantheon edge limit | Design value |
@@ -670,7 +702,12 @@ yet.
 | Core Simple OAuth 6.x enforces PKCE; one consumer with several grants | D6 | T10, T22 |
 | A user token's access is the intersection of scope and user permissions; token revocation | D6 | T22 |
 | Unique database index on `field_external_id` per bundle | D1 | T09 |
-| Pantheon private files path, dev branch name, Integrated Composer, body size limit, machine user on Sandbox, SSH host key | D6, D7, D8 | T07 |
+| Pantheon private files path and that it is not served | D6, D8 | T07 (live run pending) |
+| Pantheon dev branch name (`master` assumed), Integrated Composer on our split, `web_docroot` without `pantheon.upstream.yml` | D8 | T07 (live run pending) |
+| Pantheon edge body limit (8 MB needed) | D5, D8 | T07 (live run pending) |
+| Machine user on a Sandbox site; code server SSH host key | D7, D8 | T07 (owner steps O-3 and O-5 pending) |
+| Sandbox interstitial and API requests | D8 | T07 (live run pending) |
+| Terminus `ssh_command` placement, `workflow:wait` failure and timeout exit codes, `env:code-log` and `connection:info` commands (closed 2026-11-02: read in the Terminus 4.3.3 source and help; see `docs/tasks/T07/`) | D8 | T07 (closed) |
 | DDEV in-container resolution of `meridian.ddev.site` (resolved by T06, 2026-11-02) | D7 | T06 |
 | Alembic over a direct or pooled Neon connection | D2 | T28 |
 
@@ -693,6 +730,7 @@ yet.
 | 2 | 2026-11-01 | Resolves review findings 1 to 12 and notes 15, 17 and 19 (`docs/tasks/T03/review.md`): ingest lock and 409 (D5, D3, D4); sole writer (D1); entity access, 401 subscriber, route-name and query allowlist, `/me`, scope fallback, exempt routes and split matrix rows (D6); rerun of a successful date only drains (D3); run attempts and stale lock (D2); outbox edge cases and pre-send validation (D4); Vercel Production scope, secret strength, consumer provisioning, deploy key and first push (D7, D8); JCS hashes (D3) |
 | 3 | 2026-11-01 | Fixes DEF-002: `uq_runs_date_attempt` becomes a partial unique index `WHERE attempt > 0`, so repeated `publish` and `replay` rows (`attempt = 0`) on one date no longer collide. Lock (`uq_runs_one_running`) and "already succeeded" check (compute attempts only) unchanged in effect (D2, D3; `docs/specs/data-model.md` runs) |
 | 4 | 2026-11-02 | T06: D7 records that the DDEV containers resolve `meridian.ddev.site` through `ddev-router` and trust the mkcert root; DDEV value of `MERIDIAN_WEB_BASE_URL` is `https://meridian.ddev.site:3001`; open item resolved |
+| 5 | 2026-11-02 | T07 (offline part): D7 PAT wording and `PANTHEON_SITE` source; D8 deploy steps, host key, rollback, upstream, interstitial rule and the Terminus 4.3.3 pin; NFR-04 Pantheon row and body-size row; unverified register. Live results are added when the T07 live run happens |
 
 ## Sign-off
 
