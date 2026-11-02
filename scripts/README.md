@@ -40,7 +40,7 @@ each running lint, types, tests and the coverage gate.
 ## Check script details
 
 - `check_commit_msg.py --msg-file F` or `--range A..B`, with `--tasks-file` (default
-  `docs/TASKS.md`). `Revert "` subjects are allowed, and `Merge` subjects only on real merge
+  `docs/TASKS.md`). `Revert "` subjects are allowed, and `Merge` plus a space subjects only on real merge
   commits (more than one parent) in `--range` mode. `fixup!` and `squash!` fail. The rules apply
   from `RULE_START` (the T04 close commit `7689ec5`) on; older commits are exempt. `--rule-start
   REV` overrides it. A shallow clone, or an explicit boundary that is missing, exits 2 with

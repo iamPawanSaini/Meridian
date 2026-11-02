@@ -451,6 +451,10 @@ Rules (D-4 and its addendum of 2026-11-01):
 - Suppress one rule by its code, never a whole file or every rule. A `noqa` without a rule
   code, an `eslint-disable` that names no rule and a PHPStan ignore without an identifier are
   not allowed.
+- Exception, shell only: ShellCheck SC2329 ("function never invoked") may be disabled once at
+  file level, with a ticket, in a script whose functions are only called indirectly (for example
+  by name through `"$@"`). ShellCheck cannot see those calls, and a per-function directive would
+  repeat on every function (DEF-004).
 - **No inline yamllint disables** at all. Use a per-rule `ignore:` path list in
   `.yamllint.yaml`, with the ticket as a YAML comment on the path line.
 - **Spectral has no inline form.** Use `overrides:` in `.spectral.yaml`, with the ticket as a

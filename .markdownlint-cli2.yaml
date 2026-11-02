@@ -15,4 +15,3 @@ config:
 ignores:
   - "docs/TASKS.md"  # T32: owner document, reflowed when the documentation is finalised
   - "docs/tests/*/evidence/**"  # T04a: captured command output, not authored prose
-  - "docs/tests/T03/fixtures/partial-data-model.md"  # T04a: malformed on purpose (DEF-004)
