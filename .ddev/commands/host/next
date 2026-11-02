@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+## Description: Run a command in the meridian-web (Node 22) container
+## Usage: next <command> [args...]
+## Example: ddev next node --version
+
+# T06 (AC3). Arguments are handed to the container unchanged ("$@"); no flag parsing by DDEV.
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: ddev next <command> [args...]
+
+Runs <command> in the meridian-web container, in /var/www/html/apps/web.
+Everything after "next" is passed through unchanged, for example:
+  ddev next node --version
+  ddev next npm ci
+A bare "ddev next --help" prints this text. T21 adds the Next.js app.
+USAGE
+}
+
+if [[ $# -eq 0 ]]; then
+  usage >&2
+  exit 2
+fi
+if [[ "$1" == -h || "$1" == --help ]]; then
+  usage
+  exit 0
+fi
+
+# docker exec, not ddev exec: "ddev exec --raw" drops stdin, and without --raw it mangles the
+# arguments (T06 verified facts). -t only when both stdin and stdout are terminals.
+flags=(-i)
+if [[ -t 0 && -t 1 ]]; then
+  flags+=(-t)
+fi
+exec docker exec "${flags[@]}" -w /var/www/html/apps/web "ddev-${DDEV_SITENAME:-meridian}-meridian-web" "$@"
