@@ -81,4 +81,9 @@ jobs:
         env:
           PANTHEON_SITE: ${{ vars.PANTHEON_SITE }}
           TERMINUS_MACHINE_TOKEN: ${{ secrets.TERMINUS_MACHINE_TOKEN }}
-        run: scripts/deploy-drupal.sh --ref "${{ inputs.ref || github.sha }}"
+          DEPLOY_REF: ${{ inputs.ref || github.sha }}
+          # Optional repository variables (not secrets); an unset variable is an empty string and
+          # the script then uses its defaults.
+          DEPLOY_SMOKE_BUDGET: ${{ vars.DEPLOY_SMOKE_BUDGET }}
+          DEPLOY_SMOKE_HEADER: ${{ vars.DEPLOY_SMOKE_HEADER }}
+        run: scripts/deploy-drupal.sh --ref "$DEPLOY_REF"

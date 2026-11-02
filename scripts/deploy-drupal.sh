@@ -12,16 +12,25 @@
 #   PANTHEON_SITE           required: Pantheon site machine name
 #   TERMINUS_MACHINE_TOKEN  optional: Pantheon personal access token (PAT). When set, the script
 #                           runs terminus auth:login; otherwise it needs an existing session
-#                           (terminus auth:whoami succeeds)
-#   DEPLOY_SMOKE_BUDGET     optional: seconds the smoke check retries while the site wakes
-#                           (default 120)
+#                           (terminus auth:whoami prints an email)
+#   DEPLOY_SMOKE_BUDGET     optional: whole seconds the smoke check retries while the site wakes
+#                           (default 120; anything else exits 2). In DDEV: ddev exec env
+#                           DEPLOY_SMOKE_BUDGET=300 scripts/deploy-drupal.sh. In CI: repository
+#                           variable DEPLOY_SMOKE_BUDGET (passed by the workflow)
 #   DEPLOY_SMOKE_HEADER     optional: one extra request header for the smoke check, for example
 #                           "Deterrence-Bypass: 1" if the Sandbox warning page intercepts curl
-#                           (the value is measured in T07, KD-12; it is not a secret)
+#                           (the value is measured in T07, KD-12; it is not a secret). Set it the
+#                           same way as DEPLOY_SMOKE_BUDGET (CI variable DEPLOY_SMOKE_HEADER)
 #
 # Exit status: 0 deployed and verified; 1 a deploy or verification step failed (including the
-# split tree guard); 2 usage error or a ref guard (unknown ref, missing origin/main, ref not
-# merged into origin/main).
+# split tree guard and an unconfirmed build); 2 usage error or a guard: bad or unknown argument,
+# PANTHEON_SITE unset, DEPLOY_SMOKE_BUDGET not whole seconds, unknown ref, missing origin/main,
+# ref not merged into origin/main, no code server key in scripts/pantheon_known_hosts, or a
+# git_url of an unexpected form.
+#
+# Re-run: when Pantheon master already equals the split SHA, the backup and the push are skipped,
+# but the build of that commit must still be confirmed (stage 6), or the script exits 1.
+# Run from any directory inside the repository.
 #
 # The script never forces a push, never uses a "+" refspec and never prints the token. It has no
 # shell tracing on purpose, so no variable can leak into a log.
@@ -32,7 +41,8 @@ KNOWN_HOSTS="$SCRIPT_DIR/pantheon_known_hosts"
 RUNBOOK="docs/runbooks/deploy.md"
 
 # Code server: strict host key checking against the pinned file (SA-4).
-export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o BatchMode=yes"
+# GlobalKnownHostsFile=/dev/null: a key in /etc/ssh/ssh_known_hosts must not override the pin.
+export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=$KNOWN_HOSTS -o BatchMode=yes"
 # App server (drush) is deliberately not pinned: Pantheon changes its key at container
 # migrations. env:code-log and the HTTPS smoke check verify the result instead (SA-4).
 export TERMINUS_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR'
@@ -90,9 +100,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# git subtree must run at the top level (git-sh-setup), and the paths below are repo-relative.
+top="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)" || fail "not inside a git work tree" 2
+cd "$top" || fail "cannot enter $top" 2
+
 site="${PANTHEON_SITE:-}"
 [[ -n "$site" ]] || fail "PANTHEON_SITE is not set (the Pantheon site machine name)" 2
 env_id="$site.dev"
+budget="${DEPLOY_SMOKE_BUDGET:-120}"
+[[ "$budget" =~ ^[0-9]+$ ]] || fail "DEPLOY_SMOKE_BUDGET must be whole seconds, got '$budget'" 2
 
 # ---- Stage 1: resolve and guard the ref -------------------------------------------------------
 stage 1 "resolve and guard the ref"
@@ -140,7 +156,10 @@ if [[ -n "${TERMINUS_MACHINE_TOKEN:-}" ]]; then
     fail "terminus auth:login failed (expired or wrong PAT? see $RUNBOOK, token rotation)"
   fi
 else
-  terminus auth:whoami >/dev/null 2>&1 \
+  # auth:whoami exits 0 when logged out (it only logs "You are not logged in." to stderr, 4.3.3
+  # WhoamiCommand), so the email on stdout is the test, not the exit status.
+  who="$(terminus auth:whoami --field=email 2>/dev/null || true)"
+  [[ -n "${who//[[:space:]]/}" ]] \
     || fail "no TERMINUS_MACHINE_TOKEN and no Terminus session; set the PAT (see $RUNBOOK)"
 fi
 git_url="$(terminus connection:info "$env_id" --field=git_url)" \
@@ -153,8 +172,11 @@ if [[ "$git_url" == ssh://* ]]; then
   grep -qvE '^[[:space:]]*(#|$)' "$KNOWN_HOSTS" 2>/dev/null \
     || fail "$KNOWN_HOSTS holds no host key line; record the code server key first (see $RUNBOOK)" 2
   echo "deploy-drupal: code server $git_host (host key pinned in scripts/pantheon_known_hosts)"
+elif [[ "$git_url" == /* || "$git_url" == file://* ]]; then
+  # Only a local path passes without a pinned key: the offline test harness uses one.
+  echo "deploy-drupal: code server is a local path (test setup)"
 else
-  echo "deploy-drupal: code server is a non-ssh URL (test setup)"
+  fail "unexpected git_url form '$git_url' (expected ssh://)" 2
 fi
 
 # ---- Stage 4: wake and look for an earlier push of the same commit ---------------------------
@@ -163,7 +185,9 @@ terminus env:wake "$env_id" || fail "terminus env:wake failed for $env_id"
 remote_head="$(git ls-remote "$git_url" refs/heads/master | cut -f1)" \
   || fail "git ls-remote failed (host key mismatch or no SSH key? see $RUNBOOK, Troubleshooting)"
 if [[ "$remote_head" == "$split_sha" ]]; then
-  echo "deploy-drupal: master is already at $split_sha; backup and push skipped"
+  echo "deploy-drupal: master is already at $split_sha; backup and push skipped, build still checked"
+  # --start=1 accepts the earlier workflow of this commit (the default window is the last 60 s).
+  wait_args=(--start=1)
 else
   # ---- Stage 5: back up the database, then push without force ---------------------------------
   stage 5 "back up the database, then push $split_sha"
@@ -172,23 +196,28 @@ else
   if ! git push "$git_url" "$split_sha:refs/heads/master"; then
     fail "push rejected or failed. If it was a rewind, see $RUNBOOK sections 'Roll back code' and 'Emergency force push'"
   fi
-
-  # ---- Stage 6: wait for the build and verify the code out of band ---------------------------
-  stage 6 "wait for the workflow and check the code log"
-  # A failed workflow makes workflow:wait exit non-zero. A timeout does not: it logs "giving up"
-  # and exits 0 (Terminus 4.3.3 source, WaitCommand), so that line is checked too.
-  wait_out="$(terminus workflow:wait "$env_id" --commit="$split_sha" --max=900 2>&1)" \
-    || { printf '%s\n' "$wait_out" >&2; fail "workflow:wait failed for $split_sha"; }
-  printf '%s\n' "$wait_out"
-  if grep -qi 'giving up' <<<"$wait_out"; then
-    fail "the workflow for $split_sha did not finish within 900 s"
-  fi
-  code_log="$(terminus env:code-log "$env_id" --format=json)" \
-    || fail "terminus env:code-log failed for $env_id"
-  newest="$(grep -oE '"hash" *: *"[0-9a-f]{40}"' <<<"$code_log" | head -1 | grep -oE '[0-9a-f]{40}' || true)"
-  [[ "$newest" == "$split_sha" ]] \
-    || fail "env:code-log newest commit is '${newest:-none}', expected $split_sha"
+  wait_args=()
 fi
+
+# ---- Stage 6: confirm the build and verify the code out of band (every run) -------------------
+stage 6 "wait for the workflow and check the code log"
+# Terminus 4.3.3 WaitCommand::waitForCommit (docs/tasks/T07/terminus-4.3.3-facts.md): it matches
+# the newest workflow of this environment and commit, throws (exit 1) if it ends Failed or
+# Aborted, and exits 0 with a warning when it gives up or finds no workflow. So success needs the
+# line "completed successfully for commit" in the output, not only exit 0.
+wait_out="$(terminus workflow:wait "$env_id" --commit="$split_sha" --max=900 ${wait_args[@]+"${wait_args[@]}"} 2>&1)" \
+  || { printf '%s\n' "$wait_out" >&2; fail "workflow:wait failed for $split_sha (build failed or aborted? see the dashboard workflow log)"; }
+printf '%s\n' "$wait_out"
+if grep -qi 'giving up' <<<"$wait_out"; then
+  fail "the workflow for $split_sha did not finish within 900 s; build of $split_sha not confirmed"
+fi
+grep -q "completed successfully for commit" <<<"$wait_out" \
+  || fail "build of $split_sha not confirmed (no successful workflow found); check the dashboard workflow log"
+code_log="$(terminus env:code-log "$env_id" --format=json)" \
+  || fail "terminus env:code-log failed for $env_id"
+newest="$(grep -oE '"hash" *: *"[0-9a-f]{40}"' <<<"$code_log" | head -1 | grep -oE '[0-9a-f]{40}' || true)"
+[[ "$newest" == "$split_sha" ]] \
+  || fail "env:code-log newest commit is '${newest:-none}', expected $split_sha"
 
 # ---- Stage 7: apply updates and config --------------------------------------------------------
 stage 7 "updatedb, config:import, cache:rebuild"
@@ -208,7 +237,6 @@ grep -q 'No differences' <<<"$config_out" \
 stage 9 "smoke check"
 smoke_host="dev-$site.pantheonsite.io"
 url="https://$smoke_host/user/login"
-budget="${DEPLOY_SMOKE_BUDGET:-120}"
 body_file="$(mktemp)"
 trap 'rm -f "$body_file"' EXIT
 extra_header=()

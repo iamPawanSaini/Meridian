@@ -25,12 +25,17 @@ FAKE_TERMINUS = r"""#!/usr/bin/env bash
 printf 'terminus' >>"$FAKE_LOG"; printf ' %s' "$@" >>"$FAKE_LOG"; printf '\n' >>"$FAKE_LOG"
 case "${1:-}" in
   auth:login) echo "Logging in via machine token" ;;
-  auth:whoami) [[ -z ${FAKE_NO_SESSION:-} ]] || exit 1; echo "fake@example.invalid" ;;
-  connection:info) echo "$FAKE_BARE" ;;
+  auth:whoami)
+    # Real 4.3.3 behaviour when logged out: exit 0, notice on stderr, nothing on stdout.
+    if [[ -n ${FAKE_NO_SESSION:-} ]]; then echo "[notice] You are not logged in." >&2
+    else echo "fake@example.invalid"; fi ;;
+  connection:info) echo "${FAKE_GIT_URL:-$FAKE_BARE}" ;;
   backup:create) [[ -z ${FAKE_BACKUP_FAIL:-} ]] || exit 1 ;;
   workflow:wait)
     [[ -z ${FAKE_WAIT_FAIL:-} ]] || exit 1
-    [[ -z ${FAKE_WAIT_TIMEOUT:-} ]] || echo "Waited '900' seconds, giving up waiting" ;;
+    [[ -z ${FAKE_WAIT_TIMEOUT:-} ]] || { echo "Waited '900' seconds, giving up waiting"; exit 0; }
+    [[ -z ${FAKE_WAIT_NOTFOUND:-} ]] || { echo "commit x not found after 10 tries"; exit 0; }
+    echo "Workflow w1 completed successfully for commit abc" ;;
   env:code-log)
     real=$("$FAKE_REALGIT" --git-dir "$FAKE_BARE" rev-parse refs/heads/master 2>/dev/null \
       || echo none)
@@ -55,6 +60,7 @@ printf '%s' "${FAKE_SMOKE_CODE:-200}"
 
 FAKE_GIT = r"""#!/usr/bin/env bash
 printf 'git' >>"$FAKE_LOG"; printf ' %s' "$@" >>"$FAKE_LOG"; printf '\n' >>"$FAKE_LOG"
+case "${1:-}" in push | ls-remote) printf 'SSHCMD %s\n' "${GIT_SSH_COMMAND:-}" >>"$FAKE_LOG" ;; esac
 exec "$FAKE_REALGIT" "$@"
 """
 
@@ -129,7 +135,7 @@ class Fixture:
         git(self.work, "push", "-q", "origin", "main")
         return git(self.work, "rev-parse", "HEAD")
 
-    def run(self, *args: str, **env: str) -> subprocess.CompletedProcess[str]:
+    def run(self, *args: str, subdir: str = "", **env: str) -> subprocess.CompletedProcess[str]:
         """Run the fixture copy of the script with the fakes first on PATH."""
         self.log.write_text("", encoding="utf-8")
         environment = {
@@ -144,8 +150,8 @@ class Fixture:
             **env,
         }
         return subprocess.run(
-            ["bash", "scripts/deploy-drupal.sh", *args],
-            cwd=self.work,
+            ["bash", str(self.work / "scripts" / "deploy-drupal.sh"), *args],
+            cwd=self.work / subdir,
             env=environment,
             capture_output=True,
             text=True,
@@ -251,10 +257,24 @@ class DeployDrupalTests(unittest.TestCase):
         again = self.fx.run()
         self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
         self.assertEqual(self.fx.master(), sha)
-        self.assertNotRegex(
-            "\n".join(self.fx.calls()), r"(?m)^terminus backup:create|^git push|workflow:wait"
-        )
-        self.assertIn("-- config:status", "\n".join(self.fx.calls()))
+        rerun = "\n".join(self.fx.calls())
+        self.assertNotRegex(rerun, r"(?m)^terminus backup:create|^git push")
+        self.assertRegex(rerun, r"(?m)^terminus workflow:wait .*--commit=" + sha + r" .*--start=1")
+        self.assertRegex(rerun, r"(?m)^terminus env:code-log")
+        self.assertIn("-- config:status", rerun)
+
+    def test_rerun_with_unconfirmed_build_exits_1_without_drush(self) -> None:
+        self.assertEqual(self.fx.run().returncode, 0)
+        sha = self.fx.master()
+        for var in ("FAKE_WAIT_FAIL", "FAKE_WAIT_TIMEOUT", "FAKE_WAIT_NOTFOUND"):
+            with self.subTest(var=var):
+                out = self.fx.run(**{var: "1"})
+                self.assertEqual(out.returncode, 1, out.stdout)
+                calls = "\n".join(self.fx.calls())
+                self.assertNotRegex(calls, r"remote:drush|backup:create|^git push|curl")
+                self.assertIn("workflow:wait", calls)
+                self.assertEqual(self.fx.master(), sha)
+                self.assertNotIn("deployed", out.stdout)
 
     def test_rewind_is_rejected_and_never_forced(self) -> None:
         first = git(self.fx.work, "rev-parse", "HEAD")
@@ -276,6 +296,7 @@ class DeployDrupalTests(unittest.TestCase):
 
     def test_verification_failures_exit_1(self) -> None:
         cases = {
+            "FAKE_WAIT_NOTFOUND": "remote:drush",
             "FAKE_CODELOG_OTHER": "remote:drush",
             "FAKE_WAIT_FAIL": "remote:drush",
             "FAKE_WAIT_TIMEOUT": "remote:drush",
@@ -308,8 +329,58 @@ class DeployDrupalTests(unittest.TestCase):
 
     def test_no_session_and_no_token_fails_without_push(self) -> None:
         out = self.fx.run(FAKE_NO_SESSION="1")
-        self.assertNotEqual(out.returncode, 0)
+        self.assertEqual(out.returncode, 1)
+        self.assertIn("no Terminus session", out.stderr)
         self.assertEqual(self.fx.master(), "")
+        self.assertNotRegex("\n".join(self.fx.calls()), r"connection:info|^git push")
+
+    def test_push_and_ls_remote_use_the_strict_pinned_ssh_command(self) -> None:
+        self.assertEqual(self.fx.run().returncode, 0)
+        ssh = [c for c in self.fx.calls() if c.startswith("SSHCMD ")]
+        self.assertEqual(len(ssh), 2)
+        pinned = str(self.fx.work / "scripts" / "pantheon_known_hosts")
+        for line in ssh:
+            self.assertIn("StrictHostKeyChecking=yes", line)
+            self.assertIn("GlobalKnownHostsFile=/dev/null", line)
+            self.assertIn(f"UserKnownHostsFile={pinned}", line)
+            self.assertIn("BatchMode=yes", line)
+
+    def test_ssh_url_without_pinned_key_exits_2_before_any_network_call(self) -> None:
+        url = "ssh://codeserver.dev.x@codeserver.dev.x.drush.in:2222/~/repository.git"
+        known = self.fx.work / "scripts" / "pantheon_known_hosts"
+        for content in (None, "# comment only\n\n   \n"):
+            with self.subTest(content=content):
+                if content is not None:
+                    known.write_text(content, encoding="utf-8")
+                out = self.fx.run(FAKE_GIT_URL=url)
+                self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+                self.assertIn("no host key line", out.stderr)
+                calls = "\n".join(self.fx.calls())
+                self.assertNotRegex(
+                    calls, r"env:wake|backup:create|^git (push|ls-remote)|remote:drush"
+                )
+
+    def test_unexpected_git_url_form_exits_2(self) -> None:
+        for url in ("git@example.invalid:x/y.git", "https://example.invalid/x.git"):
+            with self.subTest(url=url):
+                out = self.fx.run(FAKE_GIT_URL=url)
+                self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+                self.assertIn("unexpected git_url form", out.stderr)
+                self.assertNotRegex("\n".join(self.fx.calls()), r"env:wake|backup:create|^git push")
+
+    def test_script_runs_from_a_subdirectory(self) -> None:
+        out = self.fx.run("--dry-run", subdir="apps/drupal/config")
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertRegex(out.stdout, r"\b[0-9a-f]{40}\b")
+        self.assertEqual(self.fx.run(subdir="apps").returncode, 0)
+
+    def test_smoke_budget_must_be_whole_seconds(self) -> None:
+        for bad in ("abc", "-5", "1.5"):
+            with self.subTest(bad=bad):
+                out = self.fx.run(DEPLOY_SMOKE_BUDGET=bad)
+                self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+                self.assertIn("DEPLOY_SMOKE_BUDGET", out.stderr)
+                self.assertNotRegex("\n".join(self.fx.calls()), r"^terminus")
 
 
 class StaticConsistencyTests(unittest.TestCase):
@@ -321,6 +392,7 @@ class StaticConsistencyTests(unittest.TestCase):
         decided = "ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR"
         self.assertIn(f"TERMINUS_SSH_COMMAND='{decided}'", text)
         self.assertIn("StrictHostKeyChecking=yes", text)
+        self.assertIn("GlobalKnownHostsFile=/dev/null", text)
 
     def test_pantheon_site_agrees_in_ddev_config_and_env_example(self) -> None:
         config = (ROOT / ".ddev" / "config.yaml").read_text(encoding="utf-8")
@@ -341,8 +413,12 @@ class StaticConsistencyTests(unittest.TestCase):
         self.assertNotIn("--allow-unmerged", text)
         for use in re.findall(r"uses: (\S+)", text):
             self.assertRegex(use, r"^actions/[\w.-]+@[0-9a-f]{40}$")
-        for run in re.findall(r"(?ms)^\s+run: (.*?)(?=^\s+\w[\w-]*:|\Z)", text):
-            self.assertNotRegex(run, r"\$\{\{\s*(secrets|vars)\.")
+        runs = re.findall(r"(?ms)^\s+run: (.*?)(?=^\s+\w[\w-]*:|\Z)", text)
+        self.assertTrue(runs)
+        for run in runs:
+            self.assertNotIn("${{", run)
+        self.assertIn('--ref "$DEPLOY_REF"', text)
+        self.assertRegex(text, r"DEPLOY_REF: \$\{\{ inputs\.ref \|\| github\.sha \}\}")
 
 
 if __name__ == "__main__":
