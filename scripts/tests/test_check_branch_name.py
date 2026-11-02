@@ -24,9 +24,19 @@ class BranchTests(unittest.TestCase):
 
     def test_rejects(self) -> None:
         bad_names = [
-            "feature/x", "master", "task/T04a", "task/T04a-", "task/T04a-Bad-Caps",
-            "task/T04a-two--dashes", "task/T04a-trailing-", "task/t04-x", "task/T4-x",
-            "task/T10-a_b", "task/T10-a/b", "HEAD", "",
+            "feature/x",
+            "master",
+            "task/T04a",
+            "task/T04a-",
+            "task/T04a-Bad-Caps",
+            "task/T04a-two--dashes",
+            "task/T04a-trailing-",
+            "task/t04-x",
+            "task/T4-x",
+            "task/T10-a_b",
+            "task/T10-a/b",
+            "HEAD",
+            "",
         ]
         for bad in bad_names:
             with self.subTest(bad=bad):

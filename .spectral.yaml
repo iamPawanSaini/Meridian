@@ -1,5 +1,6 @@
 # Spectral ruleset for the OpenAPI contract (T03; version pinned in T04a).
-# Run: npx @stoplight/spectral-cli lint docs/architecture/openapi.yaml --ruleset .spectral.yaml --fail-severity=warn
+# Run: npx @stoplight/spectral-cli lint docs/architecture/openapi.yaml
+#   --ruleset .spectral.yaml --fail-severity=warn
 # Do not switch off core rules here. Fix the contract instead.
 extends:
   - spectral:oas

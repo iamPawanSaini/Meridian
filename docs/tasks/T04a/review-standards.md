@@ -33,7 +33,7 @@ It must be fixed before T04a closes, because every later task copies this format
 |---|---|---|
 | D-1 coverage | Line-rate gate; engine 85%, `scoring` and `risk` 90% (NFR-18), Drupal 70% provisional (Unit and Kernel only), web `lib/` and `components/` 80%, `app/` via Playwright; branch reported, not gated; floors only go up; SKIP without a manifest | Matches D-1 and `quality/coverage-thresholds.json` |
 | D-2 mypy and ruff | Strict per invocation for `scripts/`, `.claude/hooks/`, `meridian_engine`; engine tests use `check_untyped_defs`; `docs/tests` ruff only; py310 per-file target | Matches D-2, `ruff.toml`, `mypy.ini` and the pre-commit `files:` regex |
-| D-3 commits | `^T\d{2}a?: \S`, ID must be in `TASKS.md`, 72 characters, `Merge ` and `Revert "` allowed, `fixup!` and `squash!` fail in `--range`, PR range only, merge commits only, no linear history, `--first-parent` view, re-point evidence after a force-push | Matches D-3 |
+| D-3 commits | `^T\d{2}a?: \S`, ID must be in `TASKS.md`, 72 characters, `Merge` and `Revert "` allowed, `fixup!` and `squash!` fail in `--range`, PR range only, merge commits only, no linear history, `--first-parent` view, re-point evidence after a force-push | Matches D-3 |
 | D-4 PHPStan and exceptions | Level 6, no baseline, inline identifier ignores, `reportIgnoresWithoutComments`, unmatched ignores reported; regex `\b(T\d{2}a?\|DEF-\d{3}): \S`; ID must exist; cite the remover; closing-task rule; T32 and T33 review | Matches D-4 and `phpstan.neon.dist`, except the separator problem in finding 1 |
 | Branch regex | `^task/T\d{2}a?-[a-z0-9]+(-[a-z0-9]+)*$`, `main` allowed, `GITHUB_HEAD_REF` | Matches the plan |
 | Size | Function 50 lines, file 400 lines, review-checked guidance | Matches the plan |

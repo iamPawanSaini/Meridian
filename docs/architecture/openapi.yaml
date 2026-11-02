@@ -145,7 +145,9 @@ paths:
                     r_multiple: null
       responses:
         '200':
-          description: All items were valid and the batch was committed. One result per item, in request order.
+          description: >-
+            All items were valid and the batch was committed. One result per item, in request
+            order.
           headers:
             X-RateLimit-Remaining:
               $ref: '#/components/headers/RateLimitRemaining'
@@ -182,7 +184,9 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
-          description: Another ingest request holds the meridian_ingest lock. Nothing was written. Retry the same batch after Retry-After seconds.
+          description: >-
+            Another ingest request holds the meridian_ingest lock. Nothing was written. Retry the
+            same batch after Retry-After seconds.
           headers:
             Retry-After:
               $ref: '#/components/headers/RetryAfter'
@@ -198,7 +202,10 @@ paths:
                     code: ingest_busy
                     message: Another ingest request is in progress. Retry after 30 seconds.
         '413':
-          description: Request body larger than the 8 MB size limit, or more than 500 items. Nothing was written; the publisher halves the batch and retries. A 413 from the Pantheon edge may not have a JSON body, so clients branch on the status code alone.
+          description: >-
+            Request body larger than the 8 MB size limit, or more than 500 items. Nothing was
+            written; the publisher halves the batch and retries. A 413 from the Pantheon edge may
+            not have a JSON body, so clients branch on the status code alone.
           content:
             application/json:
               schema:
@@ -211,7 +218,10 @@ paths:
                     code: too_large
                     message: Body exceeds 8388608 bytes.
         '422':
-          description: Validation failed. Nothing was written. The body lists every failing item in the batch; each error has a JSON pointer to the failing field ('' for a batch-level error).
+          description: >-
+            Validation failed. Nothing was written. The body lists every failing item in the
+            batch; each error has a JSON pointer to the failing field ('' for a batch-level
+            error).
           content:
             application/json:
               schema:
@@ -227,7 +237,9 @@ paths:
                     code: unknown_reference
                     message: No decision with this external_id.
         '429':
-          description: More than 60 requests per minute for this client. Retry after the given number of seconds.
+          description: >-
+            More than 60 requests per minute for this client. Retry after the given number of
+            seconds.
           headers:
             Retry-After:
               $ref: '#/components/headers/RetryAfter'
@@ -312,7 +324,9 @@ paths:
                     title: Unauthorized
                     detail: The access token is missing or expired.
         '403':
-          description: The token lacks scope meridian_watchlist_read, or a query parameter is not allowlisted. Core JSON:API error document.
+          description: >-
+            The token lacks scope meridian_watchlist_read, or a query parameter is not
+            allowlisted. Core JSON:API error document.
           content:
             application/vnd.api+json:
               schema:
@@ -349,7 +363,9 @@ components:
         minimum: 0
   responses:
     Unauthorized:
-      description: Missing, expired or invalid access token. The client requests a new token once and retries.
+      description: >-
+        Missing, expired or invalid access token. The client requests a new token once and
+        retries.
       content:
         application/json:
           schema:
@@ -398,7 +414,8 @@ components:
             properties:
               path:
                 type: string
-                description: JSON pointer to the failing field, for example /items/3/attributes/score.
+                description: >-
+                  JSON pointer to the failing field, for example /items/3/attributes/score.
               code:
                 type: string
                 enum:
@@ -811,7 +828,9 @@ components:
               description: Inputs used for the decision. At most 65,536 bytes serialised.
             raw_llm_output:
               type: object
-              description: LLM reply as received, or {"status":"not_called"}. At most 32,768 bytes serialised.
+              description: >-
+                LLM reply as received, or {"status":"not_called"}. At most 32,768 bytes
+                serialised.
             llm_rationale:
               type:
                 - string

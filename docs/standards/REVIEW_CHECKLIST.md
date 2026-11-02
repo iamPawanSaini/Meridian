@@ -225,7 +225,7 @@ LLM prompt files:
 ## 8. Commits and branch
 
 - [ ] Is the branch named `task/Txx-slug` for the task under review?
-- [ ] Does every commit subject start with the task ID (`Txx: `), stay within 72 characters,
+- [ ] Does every commit subject start with the task ID (`Txx:` plus a space), stay within 72 characters,
   and contain no `fixup!` or `squash!` commit? (The rule applies to commits after `RULE_START`,
   `7689ec5`; older history is exempt.)
 - [ ] Was the test design committed before the implementation where the task requires git

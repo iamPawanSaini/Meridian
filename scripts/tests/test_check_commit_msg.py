@@ -22,7 +22,14 @@ class SubjectTests(unittest.TestCase):
 
     def test_rejects_malformed(self) -> None:
         bad_subjects = [
-            "bad message", "", "T04a:x", "T04a: ", "t04: x", "T4: x", "T04ab: x", " T04a: x",
+            "bad message",
+            "",
+            "T04a:x",
+            "T04a: ",
+            "t04: x",
+            "T4: x",
+            "T04ab: x",
+            " T04a: x",
         ]
         for bad in bad_subjects:
             with self.subTest(bad=bad):

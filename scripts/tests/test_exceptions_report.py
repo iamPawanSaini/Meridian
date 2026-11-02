@@ -45,8 +45,7 @@ class ScanTests(unittest.TestCase):
 
     def test_tagged_suppressions_are_counted(self) -> None:
         text = (
-            f"import os  {NOQA}: F401  {H}T32: legacy\n"
-            f"import sys  {NOQA}: F401  {H}DEF-001: stub\n"
+            f"import os  {NOQA}: F401  {H}T32: legacy\nimport sys  {NOQA}: F401  {H}DEF-001: stub\n"
         )
         code, report = self.run_with({"a.py": text})
         self.assertEqual(code, 0)
@@ -163,8 +162,13 @@ class ConfigExcludeTests(unittest.TestCase):
         self.assertEqual(er.config_exclude_lines(lines), [])
 
     def test_more_config_files_are_covered(self) -> None:
-        for name in [".pre-commit-config.yaml", ".gitleaks.toml", ".shellcheckrc",
-                     ".hadolint.yaml", ".spectral.yaml"]:
+        for name in [
+            ".pre-commit-config.yaml",
+            ".gitleaks.toml",
+            ".shellcheckrc",
+            ".hadolint.yaml",
+            ".spectral.yaml",
+        ]:
             with self.subTest(name=name):
                 self.assertIsNotNone(er.CONFIG_FILE.search(name))
         self.assertEqual(er.config_exclude_lines(["disable=SC1090"]), [1])

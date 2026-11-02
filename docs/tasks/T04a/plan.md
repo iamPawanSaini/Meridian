@@ -43,7 +43,7 @@ shown working in T05 (see "Verification split").
   `web-vitals` licence and pin (closes OQ-T04-5).
 - **Stdlib scripts (developer)** in `scripts/`, Python 3.10, `unittest` tests in `scripts/tests/`:
   - `check_commit_msg.py` (commit-msg hook; `--range A..B` for CI): `^T\d{2}a?: \S`, ID is a
-    heading in `docs/TASKS.md`, subject at most 72 chars; `Merge `/`Revert "` allowed;
+    heading in `docs/TASKS.md`, subject at most 72 chars; `Merge`/`Revert "` allowed;
     `fixup!` fails in `--range`.
   - `check_branch_name.py`: `^task/T\d{2}a?-[a-z0-9]+(-[a-z0-9]+)*$`, ID in `TASKS.md`,
     `main` allowed, `GITHUB_HEAD_REF` in CI.
@@ -80,8 +80,11 @@ shown working in T05 (see "Verification split").
 
 ## Steps
 
-1. Technical-architect: both standards docs, after the decisions below. 2. Developer:
-   configs. 3. Scripts and tests. 4. `quality.sh`, wrapper, pre-commit, READMEs. 5. Cleanup.
+1. Technical-architect: both standards docs, after the decisions below.
+2. Developer: configs.
+3. Scripts and tests.
+4. `quality.sh`, wrapper, pre-commit, READMEs.
+5. Cleanup.
 6. Main session (agents cannot write `.claude/`): reference `REVIEW_CHECKLIST.md` in
    `.claude/agents/technical-architect.md`, reflow the long lines in `.claude/agents/*.md`, and
    add `scripts/quality.sh` to the CLAUDE.md commands table.

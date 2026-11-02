@@ -84,6 +84,7 @@ def classify(tool: str, line: str) -> tuple[str | None, str | None]:
         return None, "ticket is not in the tool's comment slot (bare form); see the D-4 addendum"
     return None, "no ticket (expected 'Txx: reason' in the comment slot)"
 
+
 CODE_FILE = re.compile(
     r"\.(py|sh|bash|ts|tsx|js|jsx|mjs|cjs|php|module|inc|theme|install|ya?ml|toml|ini|cfg"
     r"|neon|md)$|(^|/)Dockerfile"

@@ -501,6 +501,7 @@ needs a session, FR-19):
 `/api/health` (T21) requires a session and reports Drupal reachability. If T28 smoke tests
 need an unauthenticated probe, T21 adds a variant that returns only `{"status":"ok"}`, with no
 Drupal details, and adds it to this table.
+
 - The engine calls it with a 10 s timeout. A failure is logged as a warning, and time-based
   revalidation still refreshes the data: data fetches use `revalidate` =
   `MERIDIAN_REVALIDATE_SECONDS` (300 s).

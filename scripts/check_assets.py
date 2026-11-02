@@ -91,9 +91,8 @@ def check_line(line: str, allow_hex: bool) -> list[str]:
     reasons: list[str] = []
     if KNOWN_HOSTS.search(line) or any(rx.search(line) for rx in ASSET_CONTEXTS):
         reasons.append("third-party host (self-host fonts, styles, scripts and icons)")
-    if not allow_hex and not ID_SELECTOR.match(line):
-        if HEX.search(NOT_COLOUR.sub("", line)):
-            reasons.append("hex colour outside the tokens file (use a design token)")
+    if not allow_hex and not ID_SELECTOR.match(line) and HEX.search(NOT_COLOUR.sub("", line)):
+        reasons.append("hex colour outside the tokens file (use a design token)")
     return reasons
 
 

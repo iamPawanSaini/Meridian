@@ -33,8 +33,12 @@ class LineTests(unittest.TestCase):
                 self.assertTrue(ca.check_line(line, False))
 
     def test_rejects_hex_forms(self) -> None:
-        for line in ["color: #1a2b3c;", "background: #fff;", "a { color: #1a2b3cff }",
-                     'export const s = { color: "#ff0000" };']:
+        for line in [
+            "color: #1a2b3c;",
+            "background: #fff;",
+            "a { color: #1a2b3cff }",
+            'export const s = { color: "#ff0000" };',
+        ]:
             with self.subTest(line=line):
                 self.assertTrue(ca.check_line(line, False))
 

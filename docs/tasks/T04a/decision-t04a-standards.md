@@ -136,7 +136,7 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 
 1. **Subject format:** `^T\d{2}a?: \S`. The task ID must be a heading in `docs/TASKS.md`.
    Maximum **72 characters** for the whole subject line, including the prefix.
-2. **Allowed exceptions:** subjects starting with `Merge ` (Git and GitHub merge commits) and
+2. **Allowed exceptions:** subjects starting with `Merge` (Git and GitHub merge commits) and
    `Revert "` (from `git revert`). `fixup!` and `squash!` fail in `--range` mode, so they
    must be squashed locally before push.
 3. **Range checked:** only the commits that the PR adds (`origin/main..HEAD` in CI). The
@@ -153,7 +153,7 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 - **72 characters:** commit-message guidance gives 50 as the target and 72 as the hard limit,
   because GitHub truncates longer subjects
   ([How to Write a Git Commit Message](https://cbea.ms/git-commit/), checked 2026-11-01). The
-  `Txx: ` prefix uses 5 to 6 characters, so 50 is too tight for a hard gate.
+  `Txx:` prefix with its space uses 5 to 6 characters, so 50 is too tight for a hard gate.
 - **Merge commit, not squash:** the per-task commits are part of the evidence trail.
   - Under T04's test-first process, the git-order checks require the test script to be
     committed before the content.
@@ -171,7 +171,7 @@ tests written only for coverage. Gating on line rate keeps the number comparable
 **Consequences:**
 
 - `main` history is non-linear. Use `git log --first-parent main` for a per-task view.
-- GitHub's default merge subject (`Merge pull request #n from ...`) passes the `Merge `
+- GitHub's default merge subject (`Merge pull request #n from ...`) passes the `Merge`
   exception. Its length is not checked.
 - Developers must keep commits clean before pushing: no `fixup!` commits, and every subject
   carries a task ID. Since squashing is off, the branch history is what lands on `main`.
@@ -352,7 +352,7 @@ TC-T04a-36 onward, or the named later task) before anyone relies on it.
 | Q1 | Markdown line length | Main session's interim choice, pending owner: `TASKS.md` not reflowed, MD013 exclude citing T32; project docs reflowed |
 | D-1 | Coverage | Line floors: engine 85%, `scoring` and `risk` 90% (NFR-18), Drupal custom 70% provisional (Unit plus Kernel, T09 measures), web `lib/` and `components/` 80%; branch on and reported, gated later only if T16 decides; floors only go up |
 | D-2 | mypy scope | Strict for `scripts/`, `.claude/hooks/`, `meridian_engine` (per invocation, not per module); engine tests non-strict checked; `docs/tests` helpers ruff only; py310 target for stdlib paths |
-| D-3 | Commits | `Txx: ` subject at most 72 characters; `Merge ` and `Revert "` allowed; `fixup!` fails; PR range only; `main` uses merge commits only (squash and rebase disabled) to keep per-task commits and SHAs |
+| D-3 | Commits | `Txx:` subject at most 72 characters; `Merge` and `Revert "` allowed; `fixup!` fails; PR range only; `main` uses merge commits only (squash and rebase disabled) to keep per-task commits and SHAs |
 | D-4 | PHPStan and exceptions | Level 6, no baseline, inline identifier ignores with a reason; ticket format `Txx:` or `DEF-nnn:` plus a reason on the same line; the ID must exist. **Addendum 2026-11-01:** the ticket goes in the tool's own comment slot (`# Txx:` after `noqa` or `type: ignore`, `-- Txx:` for ESLint and phpcs); no inline yamllint disables |
 | Q6 | D-6 | Main session's interim choice, pending owner: deferred cases stay Blocked with per-case owner acceptance |
 

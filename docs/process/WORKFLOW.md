@@ -13,7 +13,7 @@
 Agent definitions are in `.claude/agents/`. Their charters are in Appendix A of
 `docs/TASKS.md`.
 
-## The main session orchestrates. Subagents do not call each other.
+## The main session orchestrates. Subagents do not call each other
 
 Claude Code subagents cannot start other subagents. All coordination goes through the
 main session:

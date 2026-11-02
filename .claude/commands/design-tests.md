@@ -9,7 +9,7 @@ Run step 2 (Test design) of the per-task loop for **$ARGUMENTS**. See
 1. Confirm that `docs/tasks/$ARGUMENTS/plan.md` exists and has Status: Approved.
    Otherwise stop and suggest `/plan-task $ARGUMENTS`.
 2. Delegate to the `tester` subagent with the Agent tool, in **design mode**. Give it the
-   acceptance criteria for $ARGUMENTS from `docs/TASKS.md`, the common criteria (section
+   acceptance criteria for `$ARGUMENTS` from `docs/TASKS.md`, the common criteria (section
    3.3) and the plan path. Ask it to write `docs/tests/$ARGUMENTS/test-cases.md` from
    `docs/templates/test-cases.md`. Each case needs an ID `TC-$ARGUMENTS-nn`, a linked
    criterion, exact commands, and a criterion coverage table.
