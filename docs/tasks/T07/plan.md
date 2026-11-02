@@ -647,3 +647,28 @@ Agent messages are not owner decisions; each of these needs the owner's own mess
 - [ ] C7: Works from a clean checkout with documented commands: `ddev deploy-drupal --dry-run` and
       `ddev pull pantheon` from a fresh clone, following only `docs/runbooks/deploy.md`
 - [ ] Simulation-only: no broker SDK, client or domain added; only Pantheon and GitHub hosts
+
+## Addendum 2026-11-02 (technical-architect, from the review)
+
+Recorded by `docs/tasks/T07/review.md`. These change the approved plan as stated; nothing else
+changes.
+
+1. **Terminus 4.3.3, not 3.6.2** (owner requirement after Terminus 3.6.2 failed to log in with a
+   PAT). KD-8 and the "Facts" section now read 4.3.3. It is pinned by SHA-256 in
+   `.ddev/web-build/Dockerfile` and in `deploy-drupal.yml`. The SA-4 `ssh_command` placement
+   and the `workflow:wait` exit behaviour are re-checked against 4.3.3 (review finding 10).
+2. **Stage 6 status check.** The `workflow:info:status` check is dropped, because 4.3.3
+   `workflow:wait` exits non-zero on a failed workflow. A timeout exits 0 with "giving up", and
+   the script treats that as a failure. Both behaviours are verified live (review, live items).
+3. **Stage 4 re-run (changed by review finding 1).** When `master` is already at the split SHA,
+   the script still skips the backup and the push. It must not skip build verification: before
+   stage 7 it confirms that the Pantheon workflow for that commit finished successfully, or it
+   exits 1. Stages 7 to 9 follow as before.
+4. **Exit codes.** A missing code server key line in `scripts/pantheon_known_hosts` is a guard
+   error and exits 2. The split-tree guard exits 1, as TH-2 says.
+5. **Optional variables** `DEPLOY_SMOKE_BUDGET` and `DEPLOY_SMOKE_HEADER` replace the KD-1
+   "constant in the script" for the bypass header. After KD-12 the header is either fixed in
+   the script or set in `.ddev/config.yaml` and the workflow (review finding 8).
+6. **Workflow shape.** KD-8 uses separate `skip` and `deploy` jobs, each with a job-level `if:`
+   on `vars.PANTHEON_SITE`, instead of one job with a skip step. The observable result is the
+   same: a green run that prints the "not configured" line.
