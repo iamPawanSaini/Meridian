@@ -1,0 +1,16 @@
+# Pinned SSH host key of the Pantheon CODE server for meridian-trade dev (T07, plan KD-2, SA-4).
+# Used by scripts/deploy-drupal.sh through GIT_SSH_COMMAND with StrictHostKeyChecking=yes.
+# This file is public data. It holds no private key.
+#
+# STATUS: no key recorded yet. The deploy script refuses to push over SSH while this file holds
+# no key line (fail closed). The key can only be read once the owner's Pantheon PAT works from
+# the DDEV web container (plan O-1 to O-3). Then:
+#   1. host and port: terminus connection:info meridian-trade.dev --fields=git_host,git_port
+#   2. ssh-keyscan -p 2222 <git_host> and ssh-keygen -lf - to see the SHA256 fingerprint
+#   3. repeat on a second day and from a second network; the fingerprints must match
+#   4. add one comment line per key (fingerprint, date, how fetched) and the key line, in the form
+#      [codeserver.dev.<site-uuid>.drush.in]:2222 ssh-rsa AAAA...
+#
+# The app server (terminus remote:drush) is deliberately NOT pinned here: Pantheon changes its
+# key at container migrations. env:code-log and the HTTPS smoke check verify the result instead.
+# Reasoning: docs/tasks/T07/decision-host-keys.md
