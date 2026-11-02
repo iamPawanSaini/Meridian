@@ -792,8 +792,9 @@ ckp "no secret patterns in the T04a files" nosec
 envsame() { local first base   # review finding 6: base = parent of the first T04a commit, not local main
   first=$(git log --format=%H --grep='^T04a: ' --reverse | head -1); [ -n "$first" ] || { echo "no T04a commit yet"; return 1; }
   base=$(git rev-parse "$first^") || return 1; echo "base $base"
-  git diff --quiet "$base" -- .env.example; }
-ckp ".env.example unchanged since the parent of the first T04a commit (no new variables)" envsame
+  # T06: variable lines only (comments may change, T06 plan KD-9); names and values must be identical
+  diff <(git show "$base:.env.example" | grep -E '^[A-Za-z_][A-Za-z0-9_]*=') <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.example); }
+ckp ".env.example variable lines unchanged since the parent of the first T04a commit (no new variables; comments may change)" envsame
 ckp "check-names.sh clean" scripts/check-names.sh
 
 echo "== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]"

@@ -14,7 +14,7 @@
 #                                                t06_* to the local Postgres, which it drops again)
 #   docs/tests/T06/run-checks.sh --live-only     live checks only
 #   T06_CONFIRM=1 docs/tests/T06/run-checks.sh --clean-clone
-#                                                TC-T06-44 to 47 in a fresh clone in a scratch dir, with no
+#                                                TC-T06-44 to 47 and 54 in a fresh clone in a scratch dir, with no
 #                                                .env. Runs `ddev stop --unlist meridian` first and restarts
 #                                                this working tree at the end; needs T06_CONFIRM=1.
 #   Environment:
@@ -106,6 +106,14 @@ isexec() { [[ -f "$1" && -x "$1" ]] || { echo "not an executable file: $1"; retu
 # rcof CMD...: run with stdin closed; sets RC and OUT (stdout and stderr merged)
 RC=0; OUT=""; export RC OUT
 rcof() { OUT=$("$@" 2>&1 </dev/null) && RC=0 || RC=$?; }
+# rcsep CMD...: like rcof, plus SOUT (stdout only) and EOUT (stderr only). Plan addendum 2026-11-02: DDEV v1.24.4
+# maps every non-zero host-command exit to 1 and writes "Failed to run ...; error=exit status N" to stderr.
+SOUT=""; EOUT=""; export SOUT EOUT
+rcsep() { SOUT=$("$@" 2>"$WORK/se.txt" </dev/null) && RC=0 || RC=$?; EOUT=$(cat "$WORK/se.txt"); OUT="$SOUT"$'\n'"$EOUT"; }
+# dcmd NAME ARGS...: run the host command script directly, not through ddev, to see its own exit status
+dcmd() { DDEV_SITENAME=meridian DDEV_APPROOT=$ROOT "$ROOT/$CMDD/$1" "${@:2}"; }
+# viaddev N: the last rcsep/rcof ran through ddev and the script exited N: ddev gives 1 plus the stderr line
+viaddev() { [[ $RC -eq 1 ]] && grep -q "exit status $1" <<<"$OUT" || { echo "want ddev exit 1 and 'exit status $1' on stderr; rc=$RC out=${OUT:0:200}"; return 1; }; }
 
 # ---------- file names ----------
 CPG=.ddev/docker-compose.postgres.yaml
@@ -309,7 +317,7 @@ case_start TC-T06-01 "compose files, service names, container names and DDEV lab
 ckp "the three compose files exist, each defines only its one section 0 service" cc names
 ckp "no old placeholder service names in .ddev compose files (files must exist)" bash -c "[[ -s $CPG && -s $CEN && -s $CWB ]] && ! cat $CPG $CEN $CWB 2>/dev/null | grep -qiE 'trading''-agent|trading''_engine|trading''_ingest'"
 ckp "no other docker-compose.*.yaml in .ddev (exactly postgres, engine, next)" bash -c \
-  "[[ \$(ls .ddev/docker-compose.*.yaml 2>/dev/null | sort | tr '\n' ' ') == '$CPG $CEN $CWB ' ]]"
+  "[[ \$(ls .ddev/docker-compose.*.yaml 2>/dev/null | sort | tr '\n' ' ') == \"\$(printf '%s\n' $CPG $CEN $CWB | sort | tr '\n' ' ')\" ]]"
 ckp "each compose file starts with a comment naming T06" bash -c "for f in $CPG $CEN $CWB; do head -5 \$f | grep -q 'T06' || { echo \"\$f: no T06 comment\"; exit 1; }; done"
 
 case_start TC-T06-02 "images pinned by exact tag and digest (AC1, KD-2, KD-4 to KD-6, dependency policy)"
@@ -360,7 +368,7 @@ ckp "ddev e2e, status and describe are not overridden (e2e is T27)" bash -c "[[ 
 case_start TC-T06-09 "pg dump and restore script logic (AC4, KD-8)"
 ckp "dump: custom format, --no-owner, --no-acl, default path under db-dumps/ with a UTC timestamp, umask 077, temp file then rename" allin "$CPGC" 'pg_dump' '-Fc' '--no-owner' '--no-acl' 'db-dumps/' 'meridian-postgres-' 'umask 077' '\bmv\b'
 ckp "restore requires --yes and explains that it replaces the database" allin "$CPGC" '--yes' 'replace'
-ckp "restore validates the archive (pg_restore --list) BEFORE dropdb" bash -c "[[ -s '$CPGC' ]] && l=\$(grep -nE 'pg_restore.*--list|pg_restore -l' '$CPGC' | head -1 | cut -d: -f1) && d=\$(grep -nE 'dropdb' '$CPGC' | head -1 | cut -d: -f1) && [[ -n \$l && -n \$d && \$l -lt \$d ]] || { echo \"list line=\$l dropdb line=\$d: validation must come first\"; exit 1; }"
+ckp "restore reads the WHOLE archive (pg_restore -f /dev/null; --list reads only the table of contents) BEFORE the call that runs dropdb (plan addendum 2026-11-02, review finding 1)" bash -c "[[ -s '$CPGC' ]] && l=\$(grep -nE 'pg_restore -f /dev/null' '$CPGC' | head -1 | cut -d: -f1) && d=\$(grep -nE 'restore_into_db \"' '$CPGC' | head -1 | cut -d: -f1) && grep -q 'dropdb' '$CPGC' && [[ -n \$l && -n \$d && \$l -lt \$d ]] || { echo \"validation line=\$l restore call line=\$d: whole-archive validation must come first\"; exit 1; }"
 ckp "restore: dropdb --force --if-exists, createdb -O meridian, pg_restore --exit-on-error --no-owner --no-acl from stdin" allin "$CPGC" 'dropdb.*--force' '--if-exists' 'createdb' '-O meridian' 'pg_restore' '--exit-on-error'
 ckp "streams use docker exec -i (no TTY, no ddev exec for binary data)" allin "$CPGC" 'docker exec -i'
 ckp "negative: no password on a command line or in the script" allout "$CPGC" 'PGPASSWORD=\S|--password|MERIDIAN_POSTGRES_PASSWORD=\S'
@@ -440,9 +448,13 @@ BR='zerodha|kite ?connect|\bkite\b|kiteconnect|upstox|angel ?(one|broking)|groww
 deny_files() { local f; f=$(t06_impl_files); [[ -n "$f" ]] || { echo "no T06 implementation files to scan yet"; return 1; }
   ! echo "$f" | xargs grep -IinE "$BR" 2>/dev/null || { echo "denylist hit in T06 files"; return 1; }; }
 ckp "denylist scan over every T06 implementation file (non-empty set required)" deny_files
-deny_docs() { local f; f=$(t06_files | grep -vE '^docs/tests/'); [[ -n "$f" ]] || { echo "no changed docs yet"; return 1; }
-  ! echo "$f" | xargs -d '\n' grep -IinE "$BR" 2>/dev/null || { echo "denylist hit in T06 docs"; return 1; }; }
-ckp "denylist scan over the files T06 changes outside docs/tests" deny_docs
+deny_docs() {   # review 2026-11-02: scan only the lines T06 ADDED; the rule sentences in CLAUDE.md etc. predate T06
+  local f u hits; f=$(t06_files | grep -vE '^docs/tests/'); [[ -n "$f" ]] || { echo "no changed docs yet"; return 1; }
+  u=$(git ls-files -o --exclude-standard)
+  hits=$({ echo "$f" | grep -vxF -f <(echo "$u") | xargs -d '\n' git diff -U0 "$BASE" -- 2>/dev/null | grep -E '^\+' | grep -vE '^\+\+\+' || true
+    echo "$f" | grep -xF -f <(echo "$u") | xargs -d '\n' cat 2>/dev/null || true; } | grep -iE "$BR" || true)
+  [[ -z "$hits" ]] || { echo "denylist hit in lines T06 added:"; echo "${hits:0:300}"; return 1; }; }
+ckp "denylist scan over the lines T06 adds outside docs/tests (existing rule sentences are not scanned)" deny_docs
 ckp "images are only postgres, python, node; no broker or trading image or package" bash -c "[[ -s $CPG ]] && ! grep -hiE '^\s*image:' $CPG $CEN $CWB | grep -viE 'image:\s*(postgres|python|node):' "
 ckp "no outbound host in T06 helper scripts other than meridian.ddev.site, 127.0.0.1, localhost" bash -c "f=\$(ls $EPT $WST $WPH 2>/dev/null); [[ -n \$f ]] && ! grep -hoE 'https?://[^ \"'\\'')]+' \$f | grep -vE 'meridian\.ddev\.site|127\.0\.0\.1|localhost|0\.0\.0\.0'"
 
@@ -497,8 +509,12 @@ declare -A LT=(
   [40]="AC6a: https://meridian.ddev.site:3001/ trusted TLS, 200, placeholder body"
   [41]="AC6a negative: no HTTP 3000 route, no host port for Postgres or meridian-web"
   [43]="git status clean after start, restart and dump (KD-7 invariant)"
+  [50]="a dump cut in half or near the end is refused by pg restore --yes; data unchanged (review finding 1)"
+  [51]="dump path containing a single quote: dump, restore and trap cleanup (review finding 3)"
+  [52]="a directory given as the dump or restore target is refused (review finding 4)"
+  [53]="a relative FILE resolves against the directory ddev was run from (review finding 5)"
 )
-LIVE_ORDER=(20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 43)
+LIVE_ORDER=(20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 50 51 52 53 35 36 37 38 39 40 41 43)
 
 impl_ready() { [[ -f $CPG && -f $CEN && -f $CWB && -f $CENG && -f $CNEXT && -f $CPGC && -f $CSTAT_CMD ]]; }
 st() { docker inspect -f '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}nohealth{{end}}' "$1" 2>/dev/null || echo "missing -"; }
@@ -508,10 +524,16 @@ wait_state() {   # CONTAINER "running healthy" [TIMEOUT s]
   echo "container $1 is '$s', wanted '$2' after ${t}s"; return 1; }
 all_five_ok() { local c; for c in "${FIVE[@]}"; do wait_state "$c" "running healthy" "${1:-180}" || return 1; done; }
 status_rc() { rcof ddev meridian-status; }
+# Tree baseline (review/owner rule: the tester does not commit). The invariant is "the live run changes nothing in the
+# tree", so compare with the state at the start of the live run, ignoring the evidence folder this run writes to.
+gs_now() { git status --porcelain | grep -vF " $T/evidence/" || true; }
+gd_now() { git diff | md5sum; }
+GS0=""; GD0=""; export T
+export -f gs_now gd_now
 psql_q() { ddev pg psql -At -c "$1" </dev/null; }
 seed_sql="drop table if exists t06_t; create table t06_t(id int primary key, v text); insert into t06_t select g, 'row ' || g from generate_series(1,50) g;"
 sum_sql="select md5(string_agg(t::text, ',' order by id)) from t06_t t"
-cleanup_tables() { ddev pg psql -q -c "drop table if exists t06_t, t06_extra, t06_persist" </dev/null >/dev/null 2>&1 || true; }
+cleanup_tables() { ddev pg psql -q -c "drop table if exists t06_t, t06_extra, t06_persist, t06_big" </dev/null >/dev/null 2>&1 || true; }
 
 chk_engine_pg() {
   rcof ddev engine python3 -c "import socket; socket.create_connection(('meridian-postgres', 5432), 3); print('connected')"
@@ -539,7 +561,7 @@ chk_web_drupal() {
   rcof ddev next node -e "fetch(process.env.DRUPAL_BASE_URL + '/user/login').then(r => { console.log(r.status); process.exit(r.ok ? 0 : 1) })"
   ckp "meridian-web fetch of \$DRUPAL_BASE_URL/user/login exits 0 and prints 200 (trusted TLS)" bash -c "[[ \$RC -eq 0 && \"\$OUT\" == *200* ]]"
   rcof ddev next env -u NODE_EXTRA_CA_CERTS node -e "fetch(process.env.DRUPAL_BASE_URL + '/user/login').then(r => { console.log(r.status); process.exit(0) }).catch(e => { console.log('ERR', e.cause && e.cause.code); process.exit(1) })"
-  ckp "negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust" bash -c "[[ \$RC -ne 0 ]] && grep -qE 'UNABLE_TO_GET_ISSUER_CERT|SELF_SIGNED|CERT_|unable to verify' <<<\"\$OUT\""
+  ckp "negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust" bash -c "[[ \$RC -ne 0 ]] && grep -qiE 'UNABLE_TO_VERIFY_LEAF_SIGNATURE|UNABLE_TO_GET_ISSUER_CERT|SELF_SIGNED|CERT_|unable to verify' <<<\"\$OUT\""
 }
 chk_ac6a() {
   local o
@@ -564,6 +586,8 @@ live_checks() {
     return 0
   fi
   local t0 t1 before after path garbage
+  GS0=$(gs_now); GD0=$(gd_now); export GS0 GD0
+  note "tree baseline at the start of the live run: $(wc -l <<<"$GS0") status lines (the tester does not commit; 0 on a committed tree)"
 
   case_start TC-T06-20 "${LT[20]}"
   t0=$(date +%s); rcof ddev start; t1=$(date +%s)
@@ -604,8 +628,10 @@ live_checks() {
   ckp "ddev engine pwd prints /var/www/html/services/engine" eq "$OUT" /var/www/html/services/engine cwd
   rcof ddev engine python3 --version
   ckp "ddev engine python3 --version reaches the container (flags pass through) and is Python 3.12.x" bash -c "[[ \$RC -eq 0 && \"\$OUT\" == 'Python 3.12.'* ]]"
+  rcof dcmd engine bash -c 'exit 7'
+  ckp "the container exit status propagates (7) when the script runs directly" eq "$RC" 7 rc
   rcof ddev engine bash -c 'exit 7'
-  ckp "the container exit status propagates (7)" eq "$RC" 7 rc
+  ckp "through ddev: exit 1 and 'error=exit status 7' on stderr (DDEV flattens the code; plan addendum)" viaddev 7
   OUT=$(echo hello | ddev engine cat 2>&1) || true
   ckp "stdin is forwarded (echo hello | ddev engine cat)" eq "$OUT" hello stdin
   rcof ddev engine id -u
@@ -619,8 +645,10 @@ live_checks() {
   ckp "ddev next pwd prints /var/www/html/apps/web" eq "$OUT" /var/www/html/apps/web cwd
   rcof ddev next node --version
   ckp "ddev next node --version is v22.x" bash -c "[[ \$RC -eq 0 && \"\$OUT\" == v22.* ]]"
+  rcof dcmd next bash -c 'exit 5'
+  ckp "the container exit status propagates (5) when the script runs directly" eq "$RC" 5 rc
   rcof ddev next bash -c 'exit 5'
-  ckp "the container exit status propagates (5)" eq "$RC" 5 rc
+  ckp "through ddev: exit 1 and 'error=exit status 5' on stderr (DDEV flattens the code; plan addendum)" viaddev 5
   rcof ddev next id -u
   ckp "runs as the host user, not root" bash -c "[[ \"\$OUT\" == '$(id -u)' ]]"
 
@@ -645,15 +673,24 @@ live_checks() {
     ckp "ddev $c --help exits 0 and prints Usage" bash -c "[[ \$RC -eq 0 ]] && grep -qi usage <<<\"\$OUT\""
   done
   for c in engine next pg; do
-    OUT=$(ddev "$c" 2>"$WORK/err.txt" >"$WORK/out.txt" </dev/null; echo $?) || true
-    ckp "ddev $c with no argument exits 2 with usage on stderr and nothing on stdout" bash -c "[[ \"\$OUT\" == 2 && -s '$WORK/err.txt' && ! -s '$WORK/out.txt' ]] && grep -qi usage '$WORK/err.txt'"
+    OUT=$(dcmd "$c" 2>"$WORK/err.txt" >"$WORK/out.txt" </dev/null; echo $?) || true
+    ckp "$c with no argument (run directly) exits 2 with usage on stderr and nothing on stdout" bash -c "[[ \"\$OUT\" == 2 && -s '$WORK/err.txt' && ! -s '$WORK/out.txt' ]] && grep -qi usage '$WORK/err.txt'"
+    rcsep ddev "$c"
+    ckp "ddev $c with no argument: exit 1 and 'exit status 2' on stderr" viaddev 2
+    ckp "ddev $c with no argument: nothing on stdout" bash -c "[[ -z \"\$SOUT\" ]]"
   done
+  rcof dcmd pg bogus
+  ckp "negative: pg bogus (run directly) exits 2" eq "$RC" 2 rc
   rcof ddev pg bogus
-  ckp "negative: ddev pg bogus exits 2" eq "$RC" 2 rc
+  ckp "negative: ddev pg bogus: exit 1 and 'exit status 2'" viaddev 2
+  rcof dcmd pg restore
+  ckp "negative: pg restore with no file (run directly) exits 2" eq "$RC" 2 rc
   rcof ddev pg restore
-  ckp "negative: ddev pg restore with no file exits 2" eq "$RC" 2 rc
+  ckp "negative: ddev pg restore with no file: exit 1 and 'exit status 2'" viaddev 2
+  rcof dcmd meridian-status --bogus
+  ckp "negative: meridian-status --bogus (run directly) exits 2" eq "$RC" 2 rc
   rcof ddev meridian-status --bogus
-  ckp "negative: ddev meridian-status --bogus exits 2" eq "$RC" 2 rc
+  ckp "negative: ddev meridian-status --bogus: exit 1 and 'exit status 2'" viaddev 2
   ckp "ddev engine python3 --help is passed to python (T06 usage only for a bare --help)" bash -c "ddev engine python3 --help </dev/null 2>&1 | grep -q 'usage: python'"
 
   case_start TC-T06-29 "${LT[29]}"
@@ -713,7 +750,7 @@ live_checks() {
   ckp "the dump is a pg_dump custom archive (magic PGDMP)" bash -c "[[ \$(head -c 5 '$path') == PGDMP ]]"
   ckp "file mode is not group or world readable (umask 077)" bash -c "[[ \$(stat -c %a '$path') =~ ^[0-7]00\$ ]]"
   ckp "git check-ignore -v names the root .gitignore for the dump" bash -c "git check-ignore -v '$path' | grep -q '\.gitignore'"
-  ckp "git status --porcelain is empty after the dump" bash -c "[[ -z \$(git status --porcelain) ]]"
+  ckp "git status --porcelain is unchanged from the start of the run after the dump (empty on a committed tree)" bash -c "[[ \"\$(gs_now)\" == \"\$GS0\" ]]"
   ddev pg psql -q -c "drop table t06_t; create table t06_extra(id int); insert into t06_extra values (1)" </dev/null >/dev/null 2>&1 || true
   ckp "data was changed on purpose (t06_t gone, t06_extra present)" bash -c "[[ \$(ddev pg psql -At -c \"select to_regclass('public.t06_t') is null and to_regclass('public.t06_extra') is not null\" </dev/null) == t ]]"
   rcof ddev pg restore "$path" --yes
@@ -728,20 +765,22 @@ live_checks() {
 
   case_start TC-T06-34 "${LT[34]}"
   before=$(psql_q "$sum_sql" 2>&1 || true)
+  rcof dcmd pg restore "$DUMP_KEEP"
+  ckp "no --yes (run directly): exit 2" eq "$RC" 2 rc
   rcof ddev pg restore "$DUMP_KEEP"
-  ckp "no --yes: exit 2" eq "$RC" 2 rc
-  ckp "no --yes: message says the database would be replaced" has "$OUT" '(?i)replace|--yes'
+  ckp "no --yes through ddev: exit 1 and 'exit status 2'" viaddev 2
+  ckp "no --yes: message says the database would be replaced" has "$OUT" 'replace|--yes'
   ckp "no --yes: data unchanged" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
   garbage="$WORK/garbage.dump"; printf 'this is not a pg_dump archive\n' >"$garbage"
   rcof ddev pg restore "$garbage" --yes
-  ckp "garbage file: exit 1" eq "$RC" 1 rc
+  ckp "garbage file: exit 1 and 'exit status 1'" viaddev 1
   ckp "garbage file: data unchanged (validation happens before dropdb)" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
   head -c 64 "$DUMP_KEEP" >"$WORK/trunc.dump"
   rcof ddev pg restore "$WORK/trunc.dump" --yes
   ckp "truncated archive (64 bytes): non-zero exit" bash -c "[[ \$RC -ne 0 ]]"
   ckp "truncated archive: data unchanged" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
   rcof ddev pg restore "$WORK/does-not-exist.dump" --yes
-  ckp "missing file: exit 1" eq "$RC" 1 rc
+  ckp "missing file: exit 1 and 'exit status 1'" viaddev 1
   ckp "missing file: data unchanged" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
   : >"$WORK/empty.dump"
   rcof ddev pg restore "$WORK/empty.dump" --yes
@@ -763,6 +802,75 @@ live_checks() {
   rm -f "$DUMP_KEEP"
   cleanup_tables
 
+  local big_sql sum2_sql size half dq qd rel where
+  big_sql="drop table if exists t06_big; create table t06_big(id int primary key, v text); insert into t06_big select g, md5(random()::text)||md5(random()::text)||md5(random()::text)||md5(random()::text) from generate_series(1,40000) g;"
+  sum2_sql="select (select md5(string_agg(t::text, ',' order by id)) from t06_t t) || '/' || (select md5(string_agg(t::text, ',' order by id)) from t06_big t)"
+
+  case_start TC-T06-50 "${LT[50]}"
+  ddev pg psql -q -c "$seed_sql" </dev/null >/dev/null 2>&1 || true
+  ddev pg psql -q -c "$big_sql" </dev/null >/dev/null 2>&1 || true
+  before=$(psql_q "$sum2_sql" 2>&1 || true)
+  ckp "seed present: t06_t (50 rows) and t06_big (40000 rows), checksum $before" bash -c "[[ \$(ddev pg psql -At -c 'select count(*) from t06_t' </dev/null) == 50 && \$(ddev pg psql -At -c 'select count(*) from t06_big' </dev/null) == 40000 ]]"
+  rcof ddev pg dump "$WORK/big.dump"
+  ckp "ddev pg dump of the seeded database exits 0" eq "$RC" 0 rc
+  size=$(stat -c %s "$WORK/big.dump" 2>/dev/null || echo 0); note "dump size: $size bytes"
+  ckp "the dump is at least 1 MB (1048576 bytes), so a cut in half lands inside the data section" bash -c "[[ $size -ge 1048576 ]]"
+  half=$((size / 2)); head -c "$half" "$WORK/big.dump" >"$WORK/half.dump"
+  rcsep ddev pg restore "$WORK/half.dump" --yes
+  ckp "dump cut at $half bytes: restore exits non-zero (ddev gives 1)" bash -c "[[ $RC -ne 0 ]]"
+  ckp "dump cut in half: message says the archive is not complete and the database is unchanged" has "$OUT" 'database unchanged'
+  ckp "dump cut in half: checksum of both tables unchanged" eq "$(psql_q "$sum2_sql" 2>&1 || true)" "$before" checksum
+  head -c "$((size - 10))" "$WORK/big.dump" >"$WORK/tail.dump"
+  rcsep ddev pg restore "$WORK/tail.dump" --yes
+  ckp "dump missing its last 10 bytes: restore exits non-zero" bash -c "[[ $RC -ne 0 ]]"
+  ckp "dump missing its last 10 bytes: checksum unchanged" eq "$(psql_q "$sum2_sql" 2>&1 || true)" "$before" checksum
+  rcof ddev pg restore "$WORK/big.dump" --yes
+  ckp "control: the complete dump restores (exit 0)" eq "$RC" 0 rc
+  ckp "control: checksum identical after the complete restore" eq "$(psql_q "$sum2_sql" 2>&1 || true)" "$before" checksum
+  ckp "all five still healthy" all_five_ok
+  cleanup_tables; rm -f "$WORK/big.dump" "$WORK/half.dump" "$WORK/tail.dump"
+
+  case_start TC-T06-51 "${LT[51]}"
+  ddev pg psql -q -c "$seed_sql" </dev/null >/dev/null 2>&1 || true
+  before=$(psql_q "$sum_sql" 2>&1 || true)
+  qd="$WORK/it's a dir"; mkdir -p "$qd"
+  rcof ddev pg dump "$qd/x.dump"
+  ckp "dump into a directory whose name contains a single quote exits 0 and writes a PGDMP archive" bash -c "[[ $RC -eq 0 && \$(head -c 5 \"$qd/x.dump\") == PGDMP ]]"
+  ckp "no temporary file is left next to it" bash -c "[[ \$(ls -A \"$qd\") == x.dump ]]"
+  rcof env DDEV_SITENAME=t06-no-such-site "$ROOT/$CMDD/pg" dump "$qd/y.dump"
+  ckp "a dump that fails after the temp file exists (no such container) exits non-zero" bash -c "[[ $RC -ne 0 ]]"
+  ckp "the EXIT trap removed the temp file: nothing but x.dump in the quoted directory, no y.dump" bash -c "[[ \$(ls -A \"$qd\") == x.dump ]]"
+  ckp "no shell error from the trap (no 'command not found', 'syntax error', 'unexpected EOF')" bash -c "! grep -qiE 'command not found|syntax error|unexpected EOF|unterminated' <<<\"\$OUT\""
+  ddev pg psql -q -c "drop table t06_t" </dev/null >/dev/null 2>&1 || true
+  rcof ddev pg restore "$qd/x.dump" --yes
+  ckp "restore from the quoted path exits 0" eq "$RC" 0 rc
+  ckp "checksum after restore from the quoted path equals the checksum before" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
+  cleanup_tables; rm -rf "$qd"
+
+  case_start TC-T06-52 "${LT[52]}"
+  ddev pg psql -q -c "$seed_sql" </dev/null >/dev/null 2>&1 || true
+  before=$(psql_q "$sum_sql" 2>&1 || true)
+  dq="$WORK/adir"; mkdir -p "$dq"
+  rcof dcmd pg dump "$dq"
+  ckp "pg dump DIRECTORY (run directly): exit 2" eq "$RC" 2 rc
+  ckp "message says it is a directory" has "$OUT" 'directory'
+  rcof ddev pg dump "$dq"
+  ckp "through ddev: exit 1 and 'exit status 2'" viaddev 2
+  ckp "nothing was created in the directory (no .pgdump.* temp file)" bash -c "[[ -z \$(ls -A \"$dq\") ]]"
+  rcsep ddev pg restore "$dq" --yes
+  ckp "pg restore DIRECTORY --yes: exit 1 and 'exit status 1'" viaddev 1
+  ckp "pg restore DIRECTORY: data unchanged" eq "$(psql_q "$sum_sql" 2>&1 || true)" "$before" checksum
+  cleanup_tables; rm -rf "$dq"
+
+  case_start TC-T06-53 "${LT[53]}"
+  rel="t06-rel-$$.dump"
+  ( cd "$ROOT/docs" && ddev pg dump "$rel" </dev/null >"$WORK/rel.out" 2>&1 ) || true
+  where=none
+  if [[ -s "$ROOT/docs/$rel" ]]; then where=docs; elif [[ -s "$ROOT/$rel" ]]; then where=root; fi
+  note "run from docs/: relative FILE landed in: $where  (output: $(head -c 150 "$WORK/rel.out"))"
+  ckp "ddev pg dump REL run from docs/ writes docs/REL, as the runbook and --help say" bash -c "[[ $where == docs ]]"
+  rm -f "$ROOT/docs/$rel" "$ROOT/$rel"
+
   case_start TC-T06-35 "${LT[35]}"
   all_five_ok >/dev/null 2>&1 || true
   rcof ddev meridian-status
@@ -777,12 +885,12 @@ live_checks() {
     case "$id" in 36) svc=meridian-engine; cn=$C_EN ;; 37) svc=meridian-postgres; cn=$C_PG ;; 38) svc=meridian-web; cn=$C_WB ;; esac
     case_start "TC-T06-$id" "${LT[$id]}"
     docker stop "$cn" >/dev/null 2>&1 || true
-    rcof ddev meridian-status
+    rcsep ddev meridian-status
     show_out "$OUT"
-    ckp "docker stop $cn: ddev meridian-status exits 1" eq "$RC" 1 rc
-    ckp "the $svc line shows exited (and not running)" bash -c "grep -E '^$svc +' <<<\"\$OUT\" | grep -q exited"
-    ckp "the last line names $svc" bash -c "tail -1 <<<\"\$OUT\" | grep -q '$svc'"
-    ckp "the other services are not named as bad on the last line" bash -c "l=\$(tail -1 <<<\"\$OUT\"); for o in meridian-postgres meridian-engine meridian-web; do [[ \$o == $svc ]] && continue; ! grep -q \"\$o\" <<<\"\$l\" || { echo \"\$o named\"; exit 1; }; done"
+    ckp "docker stop $cn: ddev meridian-status exits 1, with 'exit status 1' on stderr" viaddev 1
+    ckp "the $svc line shows exited (and not running)" bash -c "grep -E '^$svc +' <<<\"\$SOUT\" | grep -q exited"
+    ckp "the last line of STDOUT names $svc" bash -c "tail -1 <<<\"\$SOUT\" | grep -q '$svc'"
+    ckp "the other services are not named as bad on the last stdout line" bash -c "l=\$(tail -1 <<<\"\$SOUT\"); for o in meridian-postgres meridian-engine meridian-web; do [[ \$o == $svc ]] && continue; ! grep -q \"\$o\" <<<\"\$l\" || { echo \"\$o named\"; exit 1; }; done"
     if [[ "$id" == 37 ]]; then
       ckp "no cascade: meridian-engine and meridian-web stay running healthy while Postgres is down" bash -c "[[ \$(docker inspect -f '{{.State.Status}} {{.State.Health.Status}}' $C_EN) == 'running healthy' && \$(docker inspect -f '{{.State.Status}} {{.State.Health.Status}}' $C_WB) == 'running healthy' ]]"
     fi
@@ -800,11 +908,11 @@ live_checks() {
   while (( k < 90 )); do s=$(st "$C_EN"); [[ "$s" == "running unhealthy" ]] && break; sleep 3; k=$((k+3)); done
   note "engine state after ${k}s: $s"
   ckp "the engine health check turns unhealthy within the retry window (3 x 10 s)" eq "$s" "running unhealthy" state
-  rcof ddev meridian-status
+  rcsep ddev meridian-status
   show_out "$OUT"
-  ckp "meridian-status exits 1" eq "$RC" 1 rc
-  ckp "the meridian-engine line shows unhealthy" bash -c "grep -E '^meridian-engine +' <<<\"\$OUT\" | grep -q unhealthy"
-  ckp "the last line names meridian-engine" bash -c "tail -1 <<<\"\$OUT\" | grep -q meridian-engine"
+  ckp "meridian-status exits 1, with 'exit status 1' on stderr" viaddev 1
+  ckp "the meridian-engine line shows unhealthy" bash -c "grep -E '^meridian-engine +' <<<\"\$SOUT\" | grep -q unhealthy"
+  ckp "the last line of STDOUT names meridian-engine" bash -c "tail -1 <<<\"\$SOUT\" | grep -q meridian-engine"
   docker restart "$C_EN" >/dev/null 2>&1 || true
   ckp "restarting the container regenerates the bundle and it is healthy again" wait_state "$C_EN" "running healthy" 120
 
@@ -822,8 +930,8 @@ live_checks() {
   ckp "the router binds 3001 on 127.0.0.1 only" bash -c "docker port ddev-router 2>/dev/null | grep -E '^3001/tcp' | grep -q '127.0.0.1'"
 
   case_start TC-T06-43 "${LT[43]}"
-  ckp "git status --porcelain is empty for the whole repository" bash -c "o=\$(git status --porcelain); echo \"\$o\"; [[ -z \"\$o\" ]]"
-  ckp "no tracked file changed by DDEV (git diff --quiet)" git diff --quiet
+  ckp "git status --porcelain equals the baseline taken at the start of the run (so start, restart, stop, poweroff and dumps added nothing)" bash -c "o=\$(gs_now); [[ \"\$o\" == \"\$GS0\" ]] || { diff <(echo \"\$GS0\") <(echo \"\$o\") | head; exit 1; }"
+  ckp "no tracked file changed by DDEV (git diff is byte-identical to the start of the run)" bash -c "[[ \"\$(gd_now)\" == \"\$GD0\" ]]"
   ckp "git status --ignored .ddev shows no unexpected generated path (review in the report)" bash -c "git status --ignored --porcelain .ddev | head -20"
 }
 
@@ -835,12 +943,13 @@ clean_clone() {
     blk "destructive to the local DDEV registration (ddev stop --unlist meridian); re-run with T06_CONFIRM=1"
     case_start TC-T06-45 "clean clone: AC2 and AC6a checks"; blk "needs TC-T06-44 (T06_CONFIRM=1)"
     case_start TC-T06-46 "clean clone: start-script switch with a temporary package.json"; blk "needs TC-T06-44 (T06_CONFIRM=1)"
+    case_start TC-T06-54 "clean clone: runbook steps 4 to 7, Verification and T06 commands"; blk "needs TC-T06-44 (T06_CONFIRM=1)"
     case_start TC-T06-47 "clean clone: ddev delete and the Postgres volume"; blk "needs TC-T06-44 (T06_CONFIRM=1)"
     return 0
   fi
   if ! have_ddev; then
     blk "ddev and/or Docker not available: owner-run"
-    for id in 45 46 47; do case_start "TC-T06-$id" "clean-clone case"; blk "needs DDEV"; done
+    for id in 45 46 54 47; do case_start "TC-T06-$id" "clean-clone case"; blk "needs DDEV"; done
     return 0
   fi
   local scratch br t0 t1 out rc
@@ -895,6 +1004,47 @@ JS
   OUT=$o
   ckp "the placeholder is served again (switch works in both directions; got: $o)" bash -c "[[ \"\$OUT\" == '200 0' ]] && grep -qF '$PLACEHOLDER' '$WORK/sw2.txt'"
   ckp "the scratch clone has no package.json left, git status is empty" bash -c "[[ ! -e apps/web/package.json && -z \$(git status --porcelain) ]]"
+
+  case_start TC-T06-54 "clean clone: docs/runbooks/local-setup.md steps 4 to 7, Verification and the T06 commands, as written (C7)"
+  note "deviation from step 1: the clone is made from file://$ROOT (branch $br), because this branch is not on the remote"
+  rcof ddev drupal-install
+  ckp "step 4: ddev drupal-install exits 0 and prints 'No differences between DB and sync' and 'Next step: ddev drush uli'" bash -c "[[ $RC -eq 0 ]] && grep -q 'No differences between DB and sync' <<<\"\$OUT\" && grep -q 'Next step: ddev drush uli' <<<\"\$OUT\""
+  note "drupal-install tail: $(tail -3 <<<"$OUT" | tr '\n' ' ' | cut -c1-240)"
+  rcof ddev drush uli
+  ckp "step 5: ddev drush uli exits 0 and prints a https://meridian.ddev.site/user/reset/ link" bash -c "[[ $RC -eq 0 ]] && grep -q 'https://meridian.ddev.site/user/reset/' <<<\"\$OUT\""
+  rcof ddev meridian-status
+  ckp "step 6: ddev meridian-status exits 0, five 'running healthy' lines and OK" bash -c "[[ $RC -eq 0 && \$(grep -cE '^(web|db|meridian-postgres|meridian-engine|meridian-web) +running +healthy' <<<\"\$OUT\") -eq 5 ]] && grep -q '^OK' <<<\"\$OUT\""
+  t0=$(date +%s); rcof scripts/bootstrap-dev.sh; t1=$(date +%s); note "step 7: scripts/bootstrap-dev.sh took $((t1-t0)) s"
+  ckp "step 7: scripts/bootstrap-dev.sh exits 0 and prints 'Done. Hooks installed (pre-commit and commit-msg).'" bash -c "[[ $RC -eq 0 ]] && grep -qF 'Done. Hooks installed (pre-commit and commit-msg).' <<<\"\$OUT\""
+  show_out "$(tail -4 <<<"$OUT")"
+  rcof ddev composer validate
+  ckp "Verification: ddev composer validate exits 0" eq "$RC" 0 rc
+  rcof ddev drush status
+  ckp "Verification: ddev drush status shows 'Drupal bootstrap : Successful'" bash -c "grep -E 'Drupal bootstrap *: *Successful' <<<\"\$OUT\""
+  rcof ddev drush config:status
+  ckp "Verification: ddev drush config:status says No differences" bash -c "grep -qi 'No differences' <<<\"\$OUT\""
+  rcof ddev drush cex -y
+  ckp "Verification: ddev drush cex -y exits 0 and git status --porcelain is empty" bash -c "[[ $RC -eq 0 && -z \$(git status --porcelain) ]]"
+  t0=$(date +%s); rcof ddev quality; t1=$(date +%s); note "ddev quality took $((t1-t0)) s"
+  printf '%s\n' "$OUT" >"$WORK/q54.txt"; show_out "$(tail -12 "$WORK/q54.txt")"
+  ckp "Verification: ddev quality exits 0 (rc=$RC)" eq "$RC" 0 rc
+  ckp "Verification: PASS component-drupal; SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist); engine and web steps SKIP" bash -c "grep -qE '^\s*PASS\s+component-drupal\b' '$WORK/q54.txt' && grep -E 'SKIP\s+component-drupal-tests' '$WORK/q54.txt' | grep -q phpunit && grep -qE 'SKIP\s+component-engine' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-web' '$WORK/q54.txt'"
+  ckp "git status --porcelain is empty after the whole walk-through" bash -c "o=\$(git status --porcelain); echo \"\$o\"; [[ -z \"\$o\" ]]"
+  rcof ddev engine python3 --version
+  ckp "T06 section: ddev engine python3 --version prints Python 3.12.x" bash -c "[[ $RC -eq 0 && \"\$OUT\" == 'Python 3.12.'* ]]"
+  rcof ddev next node --version
+  ckp "T06 section: ddev next node --version prints v22.x" bash -c "[[ $RC -eq 0 && \"\$OUT\" == v22.* ]]"
+  rcof ddev pg psql -c 'select 1'
+  ckp "T06 section: ddev pg psql -c 'select 1' exits 0" eq "$RC" 0 rc
+  rcof ddev pg dump
+  ckp "T06 section: ddev pg dump exits 0 and names db-dumps/meridian-postgres-<UTC>.dump" bash -c "[[ $RC -eq 0 ]] && grep -qE 'db-dumps/meridian-postgres-[0-9]{8}T[0-9]{6}Z\.dump' <<<\"\$OUT\""
+  local dpath; dpath=$(grep -oE '[^ ]*db-dumps/meridian-postgres-[0-9]{8}T[0-9]{6}Z\.dump' <<<"$OUT" | head -1 || true)
+  rcof ddev pg restore "db-dumps/$(basename -- "${dpath:-none}")" --yes
+  ckp "T06 section: ddev pg restore db-dumps/FILE.dump --yes (the relative form the runbook shows) exits 0" bash -c "[[ $RC -eq 0 ]] && grep -q 'restored' <<<\"\$OUT\""
+  rm -f "${dpath:-/nonexistent}"
+  rcof ddev meridian-status
+  ckp "T06 section: ddev meridian-status exits 0 at the end" eq "$RC" 0 rc
+  ckp "git status --porcelain is empty at the end of the T06 section" bash -c "[[ -z \$(git status --porcelain) ]]"
 
   case_start TC-T06-47 "clean clone: ddev delete and the Postgres volume (plan KD-4, record the behaviour)"
   ckp "runbook (in the clone) tells the reader to run ddev pg dump before ddev delete" allin docs/runbooks/local-setup.md 'ddev delete' 'ddev pg dump'

@@ -1,0 +1,10 @@
+== TC-T06-25 ddev engine: argument fidelity, cwd, exit status, stdin (AC3)
+  PASS  quoting: 'a b', empty and c"d arrive as three exact arguments
+  PASS  shell metacharacters arrive literally (no host or container re-expansion)
+  PASS  ddev engine pwd prints /var/www/html/services/engine
+  PASS  ddev engine python3 --version reaches the container (flags pass through) and is Python 3.12.x
+  PASS  the container exit status propagates (7) when the script runs directly
+  PASS  through ddev: exit 1 and 'error=exit status 7' on stderr (DDEV flattens the code; plan addendum)
+  PASS  stdin is forwarded (echo hello | ddev engine cat)
+  PASS  runs as the host user, not root
+  PASS  a file written through ddev engine is owned by the host user

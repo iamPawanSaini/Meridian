@@ -1,0 +1,13 @@
+== TC-T06-50 a dump cut in half or near the end is refused by pg restore --yes; data unchanged (review finding 1)
+  PASS  seed present: t06_t (50 rows) and t06_big (40000 rows), checksum 315feb654a37937abc9f93fb5a31e08f/8ceb6c0a174555ed1a6d05f263f4b790
+  PASS  ddev pg dump of the seeded database exits 0
+        dump size: 3088059 bytes
+  PASS  the dump is at least 1 MB (1048576 bytes), so a cut in half lands inside the data section
+  PASS  dump cut at 1544029 bytes: restore exits non-zero (ddev gives 1)
+  PASS  dump cut in half: message says the archive is not complete and the database is unchanged
+  PASS  dump cut in half: checksum of both tables unchanged
+  PASS  dump missing its last 10 bytes: restore exits non-zero
+  PASS  dump missing its last 10 bytes: checksum unchanged
+  PASS  control: the complete dump restores (exit 0)
+  PASS  control: checksum identical after the complete restore
+  PASS  all five still healthy

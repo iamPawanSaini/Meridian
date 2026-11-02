@@ -1,0 +1,13 @@
+== TC-T06-43 git status clean after start, restart and dump (KD-7 invariant)
+  FAIL  git status --porcelain is empty for the whole repository
+         M docs/tasks/T06/review.md
+         M docs/tests/T04a/run-checks.sh
+         M docs/tests/T04a/test-cases.md
+         M docs/tests/T06/run-checks.sh
+         M docs/tests/T06/test-cases.md
+        ?? docs/tests/T06/evidence/TC-T06-01.20261102T061852Z.txt
+        ?? docs/tests/T06/evidence/TC-T06-01.20261102T062816Z.txt
+        ?? docs/tests/T06/evidence/TC-T06-02.20261102T061852Z.txt
+  FAIL  no tracked file changed by DDEV (git diff --quiet)
+        
+  PASS  git status --ignored .ddev shows no unexpected generated path (review in the report)

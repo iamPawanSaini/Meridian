@@ -1,0 +1,14 @@
+== TC-T06-45 clean clone: AC2 checks and AC6a with no .env
+  PASS  engine opens a TCP connection to meridian-postgres:5432
+  PASS  negative: port 5999 is refused (the check can fail)
+  PASS  negative: an unknown service name does not resolve
+  PASS  HTTPS to https://meridian.ddev.site/user/login, verification ON, prints 200 (or 403)
+  PASS  meridian.ddev.site resolves inside meridian-engine to a ddev-router address (172.18.0.8 in: 172.18.0.8 )
+  PASS  SSL_CERT_FILE and REQUESTS_CA_BUNDLE both point at /tmp/meridian-ca-bundle.pem in an exec session
+  PASS  negative: without the CA variables certificate verification FAILS (trust comes from the bundle, verification is not off)
+  PASS  bundle keeps the system CAs (more than 50 certificates), so public CAs still work
+  PASS  meridian-web fetch of $DRUPAL_BASE_URL/user/login exits 0 and prints 200 (trusted TLS)
+  PASS  negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust
+  PASS  curl (no -k) to https://meridian.ddev.site:3001/ prints '200 0' (got: 200 0)
+  PASS  body is the fixed placeholder sentence, which names T21
+  PASS  any path answers 200 text/plain (got: 200 text/plain)

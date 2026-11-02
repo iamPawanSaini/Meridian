@@ -1,0 +1,231 @@
+== TC-T05-01 DDEV project configuration keys (AC1)
+  PASS  name is meridian
+  PASS  type is drupal11
+  PASS  composer_root is apps/drupal
+  PASS  docroot is apps/drupal/web (relative to the project root, not the composer root)
+  PASS  webserver_type is nginx-fpm
+  PASS  database type is mariadb
+  PASS  xdebug off by default
+  PASS  config.yaml is short and hand-written (no full commented ddev config output)
+== TC-T05-02 DDEV hook, settings management and no secrets in config (AC1, C6)
+  PASS  post-start hook runs composer install (vendor matches the lock after ddev start)
+  PASS  settings management stays on
+  PASS  no web_environment secrets, tokens or keys in config.yaml
+  PASS  no extra hostnames or additional_hostnames (T06 owns meridian-web)
+  PASS  no Mutagen or performance_mode override
+== TC-T05-03 pantheon.yml keys (AC3)
+  PASS  api_version 1
+  PASS  web_docroot true
+  PASS  build_step true (Integrated Composer)
+  PASS  php_version is a major.minor number
+  PASS  database.version present
+  PASS  no drush_version key (Drush comes from vendor)
+  PASS  no pantheon.upstream.yml is tracked
+  PASS  pantheon.yml is at the composer root apps/drupal (subtree split root, ADR-0004)
+== TC-T05-04 PHP and database version parity, three-way (AC3)
+  PASS  pantheon.yml php_version == .ddev php_version == composer config.platform.php (major.minor)
+  PASS  pantheon.yml database.version == .ddev database.version
+  PASS  composer config.platform.php is a full x.y.z version
+  PASS  php_version is 8.3 or later (CODING_STANDARDS.md and Drupal 11 floor)
+  PASS  database.version is 10.6 or later
+  PASS  negative: harness self-test, a skewed php_version fixture (8.4) does not equal 8.3
+== TC-T05-05 composer.json structure (AC5, KD-1)
+  PASS  composer.json is valid JSON
+  PASS  name meridian/drupal
+  PASS  type project
+  PASS  license key present
+  PASS  minimum-stability stable
+  PASS  prefer-stable true
+  PASS  config.sort-packages true
+  PASS  require has the five planned packages
+  PASS  require holds nothing else (no JSON:API, Simple OAuth or other contrib)
+  PASS  require-dev has drupal/core-dev
+  PASS  repositories include https://packages.drupal.org/8
+  PASS  no upstream-configuration path repository or script (ADR-0004: subtree deploy)
+  PASS  allow-plugins explicit, no wildcard, installers and scaffold allowed
+  PASS  scaffold web-root is web/
+  PASS  pantheon-systems/drupal-integrations is in scaffold allowed-packages
+  PASS  installer-paths: core, contrib, libraries, drush, custom
+== TC-T05-06 composer.lock committed and consistent (AC5, KD-1)
+  PASS  composer.lock is valid JSON with a content-hash
+  PASS  lock holds core 11.x, Drush 13 or later, the Pantheon integration, core-dev
+  PASS  lock platform-overrides.php equals composer.json config.platform.php
+  PASS  every composer-plugin package in the lock has an explicit allow-plugins decision
+  PASS  lock contains phpcs, Drupal coder, PHPStan, phpstan-drupal, deprecation rules, PHPUnit
+  PASS  host composer validate (lock matches composer.json)
+  PASS  vendor/ and web/core are not tracked
+== TC-T05-07 settings.php include order and config sync directory (AC4, KD-4)
+  PASS  settings.php exists and lints (php -l, if PHP present)
+  PASS  config_sync_directory is '../config/sync' (resolves to apps/drupal/config/sync)
+  PASS  order: settings.pantheon.php < settings.ddev.php < config_sync_directory < settings.local.php
+  PASS  pantheon, ddev and local includes are guarded by file_exists()
+  PASS  DDEV block is conditional on IS_DDEV_PROJECT
+  PASS  skip_permissions_hardening set as in the upstream
+  PASS  file_private_path and OAuth key paths are NOT set yet (T10)
+== TC-T05-08 settings.php carries no secrets (C6, D7)
+  PASS  no literal hash_salt
+  PASS  no literal database credentials
+  PASS  no key material, API key or token pattern
+  PASS  databases array is reset empty and not populated with literals
+  PASS  settings.ddev.php, settings.local.php and settings.pantheon.php are not tracked
+== TC-T05-09 git ignore rules and the generated-file invariant (KD-7)
+  PASS  ignored: apps/drupal/vendor/autoload.php
+  PASS  ignored: apps/drupal/web/core/index.php
+  PASS  ignored: apps/drupal/web/modules/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/themes/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/profiles/contrib/x/x.info.yml
+  PASS  ignored: apps/drupal/web/libraries/x/x.js
+  PASS  ignored: apps/drupal/web/sites/default/settings.ddev.php
+  PASS  ignored: apps/drupal/web/sites/default/settings.local.php
+  PASS  ignored: apps/drupal/web/sites/default/settings.pantheon.php
+  PASS  ignored: apps/drupal/web/sites/default/files/x.txt
+  PASS  ignored: apps/drupal/private/x
+  PASS  ignored: apps/drupal/web/index.php
+  PASS  ignored: apps/drupal/web/update.php
+  PASS  ignored: apps/drupal/web/autoload.php
+  PASS  ignored: apps/drupal/web/.htaccess
+  PASS  ignored: apps/drupal/web/robots.txt
+  PASS  ignored: apps/drupal/web/web.config
+  PASS  ignored: apps/drupal/web/sites/default/default.settings.php
+  PASS  ignored: apps/drupal/web/sites/default/default.services.yml
+  PASS  ignored: apps/drupal/drush/Commands/contrib/x/x.php
+  PASS  NOT ignored (owned): apps/drupal/web/sites/default/settings.php
+  PASS  NOT ignored (owned): apps/drupal/web/modules/custom/.gitkeep
+  PASS  NOT ignored (owned): apps/drupal/composer.json
+  PASS  NOT ignored (owned): apps/drupal/composer.lock
+  PASS  NOT ignored (owned): apps/drupal/pantheon.yml
+  PASS  NOT ignored (owned): apps/drupal/config/sync/core.extension.yml
+  PASS  NOT ignored (owned): .ddev/config.yaml
+  PASS  NOT ignored (owned): .ddev/commands/web/drupal-install
+  PASS  NOT ignored (owned): .ddev/commands/host/quality
+  PASS  NOT ignored (owned): apps/drupal/phpcs.xml.dist
+  PASS  NOT ignored (owned): apps/drupal/phpstan.neon.dist
+  PASS  no tracked file matches an ignore rule (apps/drupal, .ddev)
+  PASS  no generated scaffold file is tracked
+  PASS  old rule apps/drupal/drush/contrib/ replaced by drush/Commands/contrib/
+  PASS  apps/drupal/private/ is ignored in .gitignore
+== TC-T05-10 config/sync baseline from the minimal profile (AC4, KD-5, C6)
+  PASS  config/sync holds a real export (at least 10 YAML files, not a stub)
+  PASS  core.extension.yml names profile minimal
+  PASS  core.extension.yml lists the system module
+  PASS  no contrib or API modules yet (jsonapi, rest, simple_oauth, basic_auth: T09/T10)
+  PASS  system.site.yml has a UUID
+  PASS  system.site.yml site mail is example.com (RFC 2606)
+  PASS  system.site.yml name is Meridian
+  PASS  no hash salt or key in config/sync; system.mail mailer_dsn.password is null
+  PASS  no uuid-free system.site (UUID kept so --existing-config keeps site identity)
+== TC-T05-11 drupal-install command, static (AC2, KD-5)
+  PASS  exists and is executable
+  PASS  header: ## Description, ## Usage with [--force], ## Example (DDEV command format)
+  PASS  strict mode: set -euo pipefail
+  PASS  runs composer install --no-interaction
+  PASS  one call does site install plus config import: site:install --existing-config
+  PASS  installs the minimal profile or uses the config profile, as admin with an example.com mail
+  PASS  refuses (exit 1) when Drupal is already installed unless --force
+  PASS  installed-check uses drush status bootstrap
+  PASS  rebuilds cache and fails on config:status differences
+  PASS  prints the next step: ddev drush uli
+  PASS  negative: no password argument and no hard-coded password
+  PASS  negative: not named like the drush command (ddev drupal-install, not site-install)
+== TC-T05-12 ddev quality activation: quality.sh and host command (C4, KD-6)
+  PASS  quality.sh still names the three manifests (T04a invariant)
+  PASS  quality.sh has component-drupal and component-drupal-tests steps
+  PASS  component-drupal-tests is keyed on apps/drupal/phpunit.xml.dist (SKIP until T09)
+  PASS  component-drupal runs composer validate, phpcs and phpstan
+  PASS  tool version calls always run (missing tool is a FAIL)
+  PASS  any empty-tree guard cites T05 and the T09 removal
+  PASS  host quality defaults the runner: ${QUALITY_RUNNER:-ddev}
+  PASS  host quality still honours an explicit QUALITY_RUNNER=native (default, not forced)
+  PASS  scripts/quality.sh parses (bash -n)
+== TC-T05-13 runbook docs/runbooks/local-setup.md content (AC6, C7)
+  PASS  runbook exists, non-empty
+  PASS  follows the runbook template headings
+  PASS  documents the commands: ddev start, ddev drupal-install, ddev drush uli
+  PASS  documents verification: ddev drush cex or config:status, ddev drush status, ddev composer validate, ddev quality
+  PASS  prerequisites: Docker, DDEV, git; clone on the WSL2 Linux filesystem, not /mnt/c
+  PASS  WSL2 HTTPS: mkcert -install
+  PASS  host composer is not used (use ddev composer)
+  PASS  never apply Pantheon dashboard upstream updates
+  PASS  do not record the admin password; use ddev drush uli
+  PASS  reinstall path: ddev drupal-install --force, and what it destroys
+  PASS  clean-clone note: ddev stop --unlist meridian for a second clone
+  PASS  rollback: ddev delete / ddev poweroff
+  PASS  no real credential or token pasted in the runbook
+  PASS  negative: runbook does not tell people to run host composer or --no-verify
+== TC-T05-14 documentation updates (C5, scope list)
+  PASS  runbooks index lists local-setup.md
+  PASS  .ddev/README.md covers config.yaml, drupal-install and the default quality runner
+  PASS  apps/drupal/README.md: layout, version table with URL and date, upstream reference, config workflow
+  PASS  version table rows carry a source URL or 'owner to verify' (every verify item resolved)
+  PASS  CLAUDE.md Commands table lists ddev start, ddev drupal-install, ddev drush uli
+  PASS  root README Getting started points to the runbook
+  PASS  CODING_STANDARDS tool table: phpcs/coder/phpstan rows no longer say verify
+  PASS  TRACEABILITY R-11 / FR-26 rows name the T05 evidence (filled at close)
+== TC-T05-15 no new environment variable, no secrets in changed files (C6, KD-8)
+  PASS  no .env file tracked
+  PASS  no secret-shaped strings in T05 files
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T05-24)
+== TC-T05-16 simulation-only denylist (FR-11, ADR-0006, CLAUDE.md)
+  PASS  denylist scan over every new T05 file is clean (non-empty file set required)
+  PASS  composer.lock package names contain no broker, trading or order SDK
+  PASS  composer.lock source and dist URLs contain no trading host
+  PASS  no composer.json 'require' of any non-Drupal-ecosystem trading package
+  PASS  .ddev/config.yaml has no outbound host other than DDEV/Drupal tooling
+== TC-T05-17 naming (C-criteria, section 0)
+  PASS  scripts/check-names.sh passes
+  PASS  .ddev/config.yaml name is exactly meridian (not a placeholder name)
+  PASS  composer name uses the meridian vendor
+  PASS  no old placeholder names in T05 files (case-insensitive)
+== TC-T05-18 shell hygiene of the new command (C4, standards: Shell)
+  PASS  drupal-install parses (bash -n)
+  PASS  drupal-install has a bash shebang
+  SKIP  shellcheck not installed: the pre-commit shellcheck hook covers it (TC-T05-24)
+  PASS  drupal-install quotes variables (no bare $VAR in test brackets)
+== TC-T05-19 empty custom tree and PHP tooling configs (KD-6)
+  PASS  web/modules/custom/.gitkeep tracked (phpcs/PHPStan path exists)
+  PASS  phpcs.xml.dist and phpstan.neon.dist unchanged in scope: level 6, no baseline, ignores need comments
+  PASS  phpstan.neon.dist has no baseline
+  PASS  phpstan config loads phpstan-drupal (explicit include or extension-installer comment)
+== TC-T05-20 composer.lock size vs check-added-large-files (KD-7)
+  PASS  lock under 1024 KB, or narrowly excluded with a T05 comment and the global limit unchanged
+== TC-T05-21 T04a regression suite still green (C4)
+  PASS  T04a run-checks.sh --regression exits 0 (no invariant regression)
+  PASS  T03 and T04 regression sets exit 0
+== TC-T05-22 only example.com addresses in T05 files (KD-5, no real mailbox)
+  PASS  every e-mail address in T05 files is example.com/org/net (or github.com for git remotes)
+  PASS  drupal-install uses admin@example.com for site and account mail
+== TC-T05-23 scope discipline: no extra services, no deploy config (non-goals)
+  PASS  no providers/pantheon.yaml and no deploy-drupal workflow content (T07)
+  PASS  no ci.yml Drupal job added (T08)
+== TC-T05-24 pre-commit hooks over the T05 changes (C4)
+  PASS  pre-commit run --all-files exits 0
+
+== Roll-up per case
+  PASS     TC-T05-01
+  PASS     TC-T05-02
+  PASS     TC-T05-03
+  PASS     TC-T05-04
+  PASS     TC-T05-05
+  PASS     TC-T05-06
+  PASS     TC-T05-07
+  PASS     TC-T05-08
+  PASS     TC-T05-09
+  PASS     TC-T05-10
+  PASS     TC-T05-11
+  PASS     TC-T05-12
+  PASS     TC-T05-13
+  PASS     TC-T05-14
+  PASS     TC-T05-15
+  PASS     TC-T05-16
+  PASS     TC-T05-17
+  PASS     TC-T05-18
+  PASS     TC-T05-19
+  PASS     TC-T05-20
+  PASS     TC-T05-21
+  PASS     TC-T05-22
+  PASS     TC-T05-23
+  PASS     TC-T05-24
+
+NOTE: --regression: 6 at-close (snapshot) checks excluded.
+SUMMARY: mode=reg cases: 24 PASS, 0 FAIL, 0 BLOCKED; checks executed: 175; SKIP (optional tools): 2; BLOCKED lines: 0
+RESULT: ALL EXECUTED CHECKS PASSED (0 case(s) blocked)

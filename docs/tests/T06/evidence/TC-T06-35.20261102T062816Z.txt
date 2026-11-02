@@ -1,0 +1,12 @@
+== TC-T06-35 meridian-status healthy: exit 0, five running healthy lines (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      running      healthy
+        meridian-web         running      healthy
+        OK: all services running and healthy
+  PASS  exit 0
+  PASS  five service lines, each 'running healthy'
+  PASS  no colour escape codes in piped output
+  PASS  ddev describe is informational only; it runs (output kept in evidence)

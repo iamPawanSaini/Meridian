@@ -1,0 +1,9 @@
+== TC-T06-12 scope discipline: runtimes only (KD-1, non-goals)
+  PASS  [at-close] no services/engine/pyproject.toml (T13)
+  PASS  [at-close] no apps/web/package.json tracked or present (T21; the start-script switch is tested in a scratch clone only)
+  PASS  [at-close] no Dockerfile in the repo (T13, T21)
+  PASS  [at-close] no ddev e2e command (T27)
+  PASS  [at-close] .ddev/config.yaml unchanged since the branch point 6e9e69d
+  PASS  [at-close] scripts/quality.sh and .ddev/commands/host/quality unchanged (the ddev runner already maps to ddev engine / ddev next)
+  PASS  quality.sh maps the ddev runner to ddev engine and ddev next
+  PASS  no providers/pantheon.yaml (T07) and no ci.yml DDEV job (T08)

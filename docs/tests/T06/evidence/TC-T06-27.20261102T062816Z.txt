@@ -1,0 +1,7 @@
+== TC-T06-27 ddev pg psql (AC3)
+  PASS  ddev pg psql -c 'select 1' exits 0
+  PASS  connects as user meridian on database meridian
+  PASS  quoted SQL with a space passes through unchanged
+  PASS  server major version is 16
+  PASS  database encoding is UTF8
+  PASS  negative: a failing statement gives a non-zero exit

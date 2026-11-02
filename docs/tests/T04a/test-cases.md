@@ -134,6 +134,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | 2026-11-01 | Prose lines in `docs/tests/T02`, `T03`, `T04` test-cases and test-report reflowed to 100 characters | Review finding 5: word-neutral (0 word changes in `git diff --word-diff=porcelain`; PASS counts of the three `run-checks.sh` unchanged; `evidence/reflow-*.txt`) |
 | 2026-11-02 | `run-checks.sh`, `reflow_md.py`, `reference/*.py`: Formatting, lint hygiene and typing only (DEF-004): ruff format and check, shellcheck and markdownlint made clean. No check was added, removed or loosened. Case text in TC-T04a-xx rows: pipes in a code span escaped, two code spans with edge spaces reworded (MD038, MD056) | DEF-004. Inline suppressions: one file-level SC2329 and four SC2016, each with a `T04a:` reason |
 | 2026-11-02 | TC-30 rule 1: the T03 and T04 re-runs now FAIL on any FAIL line, a non-zero exit, or a PASS count below the count at close; both numbers are printed. Equal or higher PASS passes. Four negative controls added (equal, higher, dropped, FAIL line or non-zero exit). | DEF-005: the exact-count rule failed when SKIP checks became PASS once the hooks were available (354 to 355, 118 to 119). A drop in PASS still fails, so it is not loosened for regressions. |
+| 2026-11-02 | `run-checks.sh` TC-T04a-33 `envsame` compares only the variable lines (`NAME=value`) of `.env.example` with the parent of the first T04a commit, not the whole file. TC-T04a-33 expected result reworded the same way | T06 (DEF-free check conflict, found by T06 review): T06 plan KD-9 allows comment edits in `.env.example`, which the byte diff rejected. Names and values are still compared, so a new, removed or revalued variable still fails |
 
 ## Cases: standards and review checklist
 
@@ -633,7 +634,7 @@ Deferred: 48 to 51, 57, 58 (6). Manual: 52 (1). Total 58.
 | Type | Automated |
 | Preconditions | Repo root |
 | Steps | 1. Read block `== TC-T04a-33` |
-| Expected result | No broker vendor name or trading hostname, and no secret pattern, in the standards, scripts, configs, `.ddev` and this file (at least 10 files scanned); `.env.example` is identical to its content at the parent of the first `T04a:` commit (review finding 6); `check-names.sh` passes |
+| Expected result | No broker vendor name or trading hostname, and no secret pattern, in the standards, scripts, configs, `.ddev` and this file (at least 10 files scanned); the variable lines of `.env.example` are identical to those at the parent of the first `T04a:` commit (review finding 6; comments may change since T06); `check-names.sh` passes |
 | Actual result | 4 PASS, 0 FAIL (HEAD e56df69, also 4 PASS in a clean clone) |
 | Evidence | `evidence/TC-T04a-33.txt` |
 | Status | Pass |

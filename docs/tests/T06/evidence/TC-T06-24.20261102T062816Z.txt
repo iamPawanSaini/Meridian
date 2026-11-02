@@ -1,0 +1,3 @@
+== TC-T06-24 meridian-web reaches Drupal over trusted HTTPS (AC2)
+  PASS  meridian-web fetch of $DRUPAL_BASE_URL/user/login exits 0 and prints 200 (trusted TLS)
+  PASS  negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust

@@ -1,0 +1,4 @@
+== TC-T06-43 git status clean after start, restart and dump (KD-7 invariant)
+  PASS  git status --porcelain equals the baseline taken at the start of the run (so start, restart, stop, poweroff and dumps added nothing)
+  PASS  no tracked file changed by DDEV (git diff is byte-identical to the start of the run)
+  PASS  git status --ignored .ddev shows no unexpected generated path (review in the report)

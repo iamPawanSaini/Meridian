@@ -1,0 +1,5 @@
+== TC-T06-22 engine reaches meridian-postgres:5432 (AC2)
+  PASS  engine opens a TCP connection to meridian-postgres:5432
+  PASS  negative: port 5999 is refused (the check can fail)
+  PASS  negative: an unknown service name does not resolve
+  PASS  meridian-postgres resolves inside meridian-engine

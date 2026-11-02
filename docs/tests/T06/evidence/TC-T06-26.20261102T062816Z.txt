@@ -1,0 +1,7 @@
+== TC-T06-26 ddev next: argument fidelity, cwd, exit status (AC3)
+  PASS  quoting: 'a b', empty and c"d arrive as three exact arguments
+  PASS  ddev next pwd prints /var/www/html/apps/web
+  PASS  ddev next node --version is v22.x
+  PASS  the container exit status propagates (5) when the script runs directly
+  PASS  through ddev: exit 1 and 'error=exit status 5' on stderr (DDEV flattens the code; plan addendum)
+  PASS  runs as the host user, not root

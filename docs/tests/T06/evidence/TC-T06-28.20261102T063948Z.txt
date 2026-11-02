@@ -1,0 +1,21 @@
+== TC-T06-28 usage and exit codes of the four commands (AC3)
+  PASS  ddev engine --help exits 0 and prints Usage
+  PASS  ddev next --help exits 0 and prints Usage
+  PASS  ddev pg --help exits 0 and prints Usage
+  PASS  ddev meridian-status --help exits 0 and prints Usage
+  PASS  engine with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev engine with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev engine with no argument: nothing on stdout
+  PASS  next with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev next with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev next with no argument: nothing on stdout
+  PASS  pg with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev pg with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev pg with no argument: nothing on stdout
+  PASS  negative: pg bogus (run directly) exits 2
+  PASS  negative: ddev pg bogus: exit 1 and 'exit status 2'
+  PASS  negative: pg restore with no file (run directly) exits 2
+  PASS  negative: ddev pg restore with no file: exit 1 and 'exit status 2'
+  PASS  negative: meridian-status --bogus (run directly) exits 2
+  PASS  negative: ddev meridian-status --bogus: exit 1 and 'exit status 2'
+  PASS  ddev engine python3 --help is passed to python (T06 usage only for a bare --help)

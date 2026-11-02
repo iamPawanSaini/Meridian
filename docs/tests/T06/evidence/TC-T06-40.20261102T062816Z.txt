@@ -1,0 +1,6 @@
+== TC-T06-40 AC6a: https://meridian.ddev.site:3001/ trusted TLS, 200, placeholder body
+  PASS  curl (no -k) to https://meridian.ddev.site:3001/ prints '200 0' (got: 200 0)
+  PASS  body is the fixed placeholder sentence, which names T21
+  PASS  any path answers 200 text/plain (got: 200 text/plain)
+  PASS  meridian-status shows meridian-web running healthy
+  PASS  router sends port 3001 to meridian-web (VIRTUAL_HOST / HTTPS_EXPOSE visible in the container environment)

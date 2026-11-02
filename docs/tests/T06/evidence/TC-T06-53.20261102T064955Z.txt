@@ -1,0 +1,3 @@
+== TC-T06-53 a relative FILE resolves against the directory ddev was run from (review finding 5)
+        run from docs/: relative FILE landed in: docs  (output: t06-rel-1094610.dump (870 bytes))
+  PASS  ddev pg dump REL run from docs/ writes docs/REL, as the runbook and --help say

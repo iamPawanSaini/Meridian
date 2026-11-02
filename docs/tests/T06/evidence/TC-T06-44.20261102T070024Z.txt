@@ -1,0 +1,8 @@
+== TC-T06-44 clean clone, no .env: ddev start and five healthy services (C7, AC1)
+  PASS  the clone has no .env (clean machine)
+        ddev start (cold, first pull included) took 43 s (NFR-17 data point, budget 30 min)
+  PASS  ddev start exit 0 with no .env and no manual step
+  PASS  all five containers running and healthy
+  PASS  ddev meridian-status exits 0 in the clean clone
+  PASS  git status --porcelain empty after ddev start
+  PASS  Postgres initialised from the .env.example placeholder password (login through the socket works)

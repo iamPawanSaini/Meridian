@@ -1,0 +1,7 @@
+== TC-T06-09 pg dump and restore script logic (AC4, KD-8)
+  PASS  dump: custom format, --no-owner, --no-acl, default path under db-dumps/ with a UTC timestamp, umask 077, temp file then rename
+  PASS  restore requires --yes and explains that it replaces the database
+  PASS  restore reads the WHOLE archive (pg_restore -f /dev/null; --list reads only the table of contents) BEFORE the call that runs dropdb (plan addendum 2026-11-02, review finding 1)
+  PASS  restore: dropdb --force --if-exists, createdb -O meridian, pg_restore --exit-on-error --no-owner --no-acl from stdin
+  PASS  streams use docker exec -i (no TTY, no ddev exec for binary data)
+  PASS  negative: no password on a command line or in the script

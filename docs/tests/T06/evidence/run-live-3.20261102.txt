@@ -1,0 +1,475 @@
+== TC-T06-01 compose files, service names, container names and DDEV labels (AC1, KD-2)
+  PASS  the three compose files exist, each defines only its one section 0 service
+  PASS  no old placeholder service names in .ddev compose files (files must exist)
+  PASS  no other docker-compose.*.yaml in .ddev (exactly postgres, engine, next)
+  PASS  each compose file starts with a comment naming T06
+== TC-T06-02 images pinned by exact tag and digest (AC1, KD-2, KD-4 to KD-6, dependency policy)
+  PASS  postgres:16.x, python:3.12.x-slim and node:22.x each pinned name:tag@sha256:<64 hex>; no latest; no build:
+  PASS  official Docker Hub images only (no registry host, no third-party namespace)
+  PASS  CODING_STANDARDS Docker rule no longer says 'where T06 confirms it'
+== TC-T06-03 health checks defined on all three services (AC5, KD-4 to KD-6)
+  PASS  healthcheck with test, interval, timeout, retries, start_period; per-service content as the plan; engine and web checks do not call Postgres or Drupal
+  PASS  no restart policy on any service (a dead container must stay down for the status command)
+== TC-T06-04 env_file order, no values in compose, no new project variable (KD-3, C6)
+  PASS  env_file is [${DDEV_APPROOT}/.env.example (required), ${DDEV_APPROOT}/.env (required: false)] on every service
+  PASS  no secret-like literal, no .env.example placeholder value in any compose file
+  PASS  no .ddev/.env or .ddev/.env.* file (single source: root .env)
+  PASS  compose files reference only variable names already in .env.example
+== TC-T06-05 no host ports, no extra router variables, shared service settings (AC2, KD-2, KD-4)
+  PASS  no ports:, no restart:, networks (if declared) include default and ddev_default; non-postgres services run as DDEV_UID:DDEV_GID with HOME=/tmp and the repo mounted at /var/www/html
+  PASS  meridian-postgres has no router variables, no expose of 5432 to the host
+== TC-T06-06 router route and CA trust wiring (AC2, AC6a, KD-5, KD-6)
+  PASS  web: VIRTUAL_HOST meridian.ddev.site, HTTPS_EXPOSE=3001:3000, no HTTP_EXPOSE, NODE_EXTRA_CA_CERTS, working_dir apps/web, start.sh; engine: SSL_CERT_FILE and REQUESTS_CA_BUNDLE bundle, init true, entrypoint.sh, working_dir services/engine; both: external_links ddev-router:meridian.ddev.site and read-only ddev-global-cache (external)
+== TC-T06-07 meridian-postgres service and data volume (AC4, KD-4)
+  PASS  POSTGRES_DB and POSTGRES_USER meridian, UTF8 / C.UTF-8 initdb args, password from MERIDIAN_POSTGRES_PASSWORD via exec docker-entrypoint.sh, health check pg_isready, named data volume at /var/lib/postgresql/data with both DDEV labels
+  PASS  health check retries 12 and pg_isready target 127.0.0.1
+  PASS  negative: no literal POSTGRES_PASSWORD value
+== TC-T06-08 host commands engine, next, pg, meridian-status: form and annotations (AC3)
+  PASS  .ddev/commands/host/engine: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/engine: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/engine: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/engine: parses (bash -n)
+  PASS  .ddev/commands/host/next: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/next: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/next: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/next: parses (bash -n)
+  PASS  .ddev/commands/host/pg: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/pg: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/pg: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/pg: parses (bash -n)
+  PASS  .ddev/commands/host/meridian-status: exists, executable, bash shebang, set -euo pipefail
+  PASS  .ddev/commands/host/meridian-status: ## Description, ## Usage, ## Example headers; no ## Flags (arguments pass through unparsed)
+  PASS  .ddev/commands/host/meridian-status: handles -h/--help (exit 0) and sends usage errors to stderr with exit 2
+  PASS  .ddev/commands/host/meridian-status: parses (bash -n)
+  PASS  engine runs in meridian-engine at /var/www/html/services/engine and forwards "$@"
+  PASS  next runs in meridian-web at /var/www/html/apps/web and forwards "$@"
+  PASS  engine and next do not use eval, sh -c string building or unquoted $*
+  PASS  pg offers psql, dump and restore; psql as user meridian on database meridian
+  PASS  meridian-status lists all five services and uses docker inspect
+  PASS  ddev e2e, status and describe are not overridden (e2e is T27)
+== TC-T06-09 pg dump and restore script logic (AC4, KD-8)
+  PASS  dump: custom format, --no-owner, --no-acl, default path under db-dumps/ with a UTC timestamp, umask 077, temp file then rename
+  PASS  restore requires --yes and explains that it replaces the database
+  PASS  restore reads the WHOLE archive (pg_restore -f /dev/null; --list reads only the table of contents) BEFORE the call that runs dropdb (plan addendum 2026-11-02, review finding 1)
+  PASS  restore: dropdb --force --if-exists, createdb -O meridian, pg_restore --exit-on-error --no-owner --no-acl from stdin
+  PASS  streams use docker exec -i (no TTY, no ddev exec for binary data)
+  PASS  negative: no password on a command line or in the script
+== TC-T06-10 meridian-status logic (AC5, KD-10)
+  PASS  prints SERVICE STATE HEALTH, reports missing containers, exits 1 when any is not running+healthy, names the bad services last
+  PASS  no colour codes unless stdout is a terminal
+  PASS  container names: ddev-meridian-web, ddev-meridian-db and ddev-meridian-<service>
+== TC-T06-11 helper scripts and the placeholder server (AC6a, KD-1, KD-5, KD-6)
+  PASS  entrypoint.sh, start.sh executable, bash -n clean, set -euo pipefail
+  PASS  entrypoint builds /tmp/meridian-ca-bundle.pem from the system bundle and the mkcert root, warns on stderr if the root is absent, then exec "$@"
+  PASS  start.sh switches on apps/web/package.json: npm run dev -- --hostname 0.0.0.0 --port 3000, else the placeholder server
+  PASS  placeholder is at most 40 lines, node:http only, no import of a package
+  PASS  placeholder text is exactly the fixed sentence (names T21), listens on 0.0.0.0:3000, answers 200 text/plain
+  PASS  placeholder serves no data: no fs, no process.env, no fetch
+  PASS  no README in .ddev/meridian-engine or .ddev/meridian-web (ignored by .ddev/.gitignore; documented in .ddev/README.md)
+== TC-T06-12 scope discipline: runtimes only (KD-1, non-goals)
+  PASS  [at-close] no services/engine/pyproject.toml (T13)
+  PASS  [at-close] no apps/web/package.json tracked or present (T21; the start-script switch is tested in a scratch clone only)
+  PASS  [at-close] no Dockerfile in the repo (T13, T21)
+  PASS  [at-close] no ddev e2e command (T27)
+  PASS  [at-close] .ddev/config.yaml unchanged since the branch point 6e9e69d
+  PASS  [at-close] scripts/quality.sh and .ddev/commands/host/quality unchanged (the ddev runner already maps to ddev engine / ddev next)
+  PASS  quality.sh maps the ddev runner to ddev engine and ddev next
+  PASS  no providers/pantheon.yaml (T07) and no ci.yml DDEV job (T08)
+== TC-T06-13 git ignore: dumps and generated files stay out of git (AC4, C6)
+  PASS  git check-ignore -v names the root .gitignore for db-dumps/x.dump and any .dump
+  PASS  no tracked file matches an ignore rule (.ddev, docs/tests/T06)
+  PASS  the new .ddev files are NOT ignored (compose, commands, helpers)
+  PASS  no dump file or db-dumps/ content tracked
+  PASS  no .env tracked
+== TC-T06-14 documentation updated (C5, AC3, decision condition 3)
+  PASS  runbook documents ddev engine, ddev next, ddev pg psql/dump/restore (--yes), ddev meridian-status
+  PASS  runbook: port 3001 URL serves a placeholder until T21
+  PASS  runbook: ddev delete removes Postgres data, run ddev pg dump first; dumps stay out of git and chat
+  PASS  runbook: password change after first init (ALTER ROLE), mkcert root, port check, .env visible to all containers
+  PASS  runbook keeps the template headings and the T05 steps
+  PASS  .ddev/README.md: three compose files, four commands, e2e is T27 not T06, placeholder until T21, Verified facts (T06) table
+  PASS  .ddev/README.md no longer lists ddev e2e under T06
+  PASS  CLAUDE.md Commands table lists ddev engine, ddev next, ddev pg and ddev meridian-status
+  PASS  root README local stack paragraph mentions the five services or the placeholder
+  PASS  services/engine/README.md and apps/web/README.md name the container; apps/web README says 3001 serves a placeholder until T21
+  PASS  technical-design D7: T06 result recorded (router, mkcert, NODE_EXTRA_CA_CERTS/SSL_CERT_FILE, 3001); the 'unverified (T06)' sentence is gone
+  PASS  technical-design open-items row for DDEV in-container resolution is marked resolved
+  PASS  docs state no overclaim: no doc says the Next.js dev server runs in T06
+== TC-T06-15 .env.example: names and values unchanged, comments only (C6, KD-3, KD-9)
+  PASS  [at-close] .env.example variable names and values are identical to 6e9e69d (comments may differ)
+  PASS  .env.example MERIDIAN_WEB_BASE_URL is still https://meridian.ddev.site:3001 and the Drupal base URLs are https://meridian.ddev.site
+  PASS  .env.example comment no longer says 'host fixed in T06'
+  PASS  no new variable name appears in the compose files, helper scripts or commands (files must exist)
+== TC-T06-16 no secrets in T06 files (C6)
+  PASS  no key, token or credential pattern in any T06 file
+  PASS  the mkcert CA key (rootCA-key.pem) is never read or copied by T06 files (files must exist)
+  PASS  ddev-global-cache is mounted read-only wherever it appears
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T06-19)
+== TC-T06-17 simulation-only denylist over T06 files (FR-11, ADR-0006, CLAUDE.md)
+  PASS  denylist scan over every T06 implementation file (non-empty set required)
+  PASS  denylist scan over the lines T06 adds outside docs/tests (existing rule sentences are not scanned)
+  PASS  images are only postgres, python, node; no broker or trading image or package
+  PASS  no outbound host in T06 helper scripts other than meridian.ddev.site, 127.0.0.1, localhost
+== TC-T06-18 naming (section 0, C-criteria)
+  PASS  scripts/check-names.sh passes
+  PASS  service names and container names use the section 0 names (meridian-postgres, meridian-engine, meridian-web)
+  PASS  no old placeholder names in T06 files (case-insensitive)
+== TC-T06-19 hygiene: shellcheck, yamllint, check-yaml, pre-commit on T06 files, earlier regression sets (C4)
+  SKIP  shellcheck not on PATH: the pre-commit shellcheck hook covers it
+  SKIP  yamllint not on PATH: covered by the pre-commit yamllint hook below
+  PASS  pre-commit run --files <every T06 file> exits 0 (never --all-files here; T05 TC-T05-24 owns that)
+  PASS  T05 run-checks.sh --regression exits 0 (TC-T05-15 and 23 re-tagged cka by the tester)
+  PASS  T04a, T03 and T04 regression sets exit 0
+        tree baseline at the start of the live run: 5 status lines (the tester does not commit; 0 on a committed tree)
+== TC-T06-20 ddev start: five containers running and healthy (AC1)
+        ddev start (warm) took 14 s
+  PASS  ddev start exits 0
+  PASS  all five containers (web, db, meridian-postgres, meridian-engine, meridian-web) are running and healthy
+  PASS  ddev meridian-status exits 0
+  PASS  the three new containers report a health status (a health check is defined and running)
+  PASS  pg_isready answers inside meridian-postgres
+== TC-T06-21 ddev stop and start manage the new containers by label (AC1, KD-2)
+  PASS  ddev stop exits 0
+  PASS  no container with label com.ddev.site-name=meridian is still running
+  PASS  the three new containers are not running
+        ddev start after stop took 25 s
+  PASS  ddev start exits 0 and all five are healthy again
+  PASS  all five healthy after start
+== TC-T06-22 engine reaches meridian-postgres:5432 (AC2)
+  PASS  engine opens a TCP connection to meridian-postgres:5432
+  PASS  negative: port 5999 is refused (the check can fail)
+  PASS  negative: an unknown service name does not resolve
+  PASS  meridian-postgres resolves inside meridian-engine
+== TC-T06-23 engine reaches https://meridian.ddev.site with trusted TLS (AC2)
+  PASS  HTTPS to https://meridian.ddev.site/user/login, verification ON, prints 200 (or 403)
+  PASS  meridian.ddev.site resolves inside meridian-engine to a ddev-router address (172.18.0.8 in: 172.18.0.8 )
+  PASS  SSL_CERT_FILE and REQUESTS_CA_BUNDLE both point at /tmp/meridian-ca-bundle.pem in an exec session
+  PASS  negative: without the CA variables certificate verification FAILS (trust comes from the bundle, verification is not off)
+  PASS  bundle keeps the system CAs (more than 50 certificates), so public CAs still work
+== TC-T06-24 meridian-web reaches Drupal over trusted HTTPS (AC2)
+  PASS  meridian-web fetch of $DRUPAL_BASE_URL/user/login exits 0 and prints 200 (trusted TLS)
+  PASS  negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust
+== TC-T06-25 ddev engine: argument fidelity, cwd, exit status, stdin (AC3)
+  PASS  quoting: 'a b', empty and c"d arrive as three exact arguments
+  PASS  shell metacharacters arrive literally (no host or container re-expansion)
+  PASS  ddev engine pwd prints /var/www/html/services/engine
+  PASS  ddev engine python3 --version reaches the container (flags pass through) and is Python 3.12.x
+  PASS  the container exit status propagates (7) when the script runs directly
+  PASS  through ddev: exit 1 and 'error=exit status 7' on stderr (DDEV flattens the code; plan addendum)
+  PASS  stdin is forwarded (echo hello | ddev engine cat)
+  PASS  runs as the host user, not root
+  PASS  a file written through ddev engine is owned by the host user
+== TC-T06-26 ddev next: argument fidelity, cwd, exit status (AC3)
+  PASS  quoting: 'a b', empty and c"d arrive as three exact arguments
+  PASS  ddev next pwd prints /var/www/html/apps/web
+  PASS  ddev next node --version is v22.x
+  PASS  the container exit status propagates (5) when the script runs directly
+  PASS  through ddev: exit 1 and 'error=exit status 5' on stderr (DDEV flattens the code; plan addendum)
+  PASS  runs as the host user, not root
+== TC-T06-27 ddev pg psql (AC3)
+  PASS  ddev pg psql -c 'select 1' exits 0
+  PASS  connects as user meridian on database meridian
+  PASS  quoted SQL with a space passes through unchanged
+  PASS  server major version is 16
+  PASS  database encoding is UTF8
+  PASS  negative: a failing statement gives a non-zero exit
+== TC-T06-28 usage and exit codes of the four commands (AC3)
+  PASS  ddev engine --help exits 0 and prints Usage
+  PASS  ddev next --help exits 0 and prints Usage
+  PASS  ddev pg --help exits 0 and prints Usage
+  PASS  ddev meridian-status --help exits 0 and prints Usage
+  PASS  engine with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev engine with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev engine with no argument: nothing on stdout
+  PASS  next with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev next with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev next with no argument: nothing on stdout
+  PASS  pg with no argument (run directly) exits 2 with usage on stderr and nothing on stdout
+  PASS  ddev pg with no argument: exit 1 and 'exit status 2' on stderr
+  PASS  ddev pg with no argument: nothing on stdout
+  PASS  negative: pg bogus (run directly) exits 2
+  PASS  negative: ddev pg bogus: exit 1 and 'exit status 2'
+  PASS  negative: pg restore with no file (run directly) exits 2
+  PASS  negative: ddev pg restore with no file: exit 1 and 'exit status 2'
+  PASS  negative: meridian-status --bogus (run directly) exits 2
+  PASS  negative: ddev meridian-status --bogus: exit 1 and 'exit status 2'
+  PASS  ddev engine python3 --help is passed to python (T06 usage only for a bare --help)
+== TC-T06-29 QUALITY_STEPS probe through ddev engine and ddev next (AC3, KD-7)
+        PASS  probe-engine
+        PASS  probe-next
+        FAIL  probe-fail
+              [31mFailed to run engine bash -c exit 3; error=exit status 3[0m
+        summary: PASS 2 FAIL 1 SKIP 0
+  PASS  PASS probe-engine (the %q-quoted command reaches meridian-engine in services/engine; ../../scripts/coverage_gate.py resolves)
+  PASS  PASS probe-next (same for meridian-web in apps/web)
+  PASS  negative: FAIL probe-fail (a failing command inside the container is a FAIL, exit status propagates)
+== TC-T06-30 ddev quality exits 0 with engine and web steps SKIP (C4)
+  PASS  ddev quality exits 0 (rc=0)
+  PASS  SKIP component-engine (no services/engine/pyproject.toml)
+  PASS  SKIP component-web (no apps/web/package.json)
+  PASS  PASS component-drupal still passes; no FAIL line
+== TC-T06-31 rows survive ddev restart (AC4)
+  PASS  seed present before restart (25 rows, checksum 5fd435f6e0fd4da7cfdb0d9ecc768f2d)
+  PASS  ddev restart exits 0
+  PASS  all five healthy after restart
+  PASS  rows and checksum identical after ddev restart
+  PASS  meridian-status exits 0 after restart
+== TC-T06-32 rows survive stop/start and poweroff/start; volume labels (AC4)
+  PASS  checksum identical after ddev stop + ddev start
+  PASS  ddev start after poweroff exits 0
+  PASS  all five healthy after poweroff + start
+  PASS  checksum identical after ddev poweroff + ddev start
+  PASS  docker volume meridian-postgres-data exists and carries com.ddev.site-name and com.ddev.approot
+  PASS  label com.ddev.site-name is meridian
+== TC-T06-33 dump and restore round trip (AC4)
+  PASS  ddev pg dump exits 0
+        dump path: /home/pawan/Meridian/db-dumps/meridian-postgres-20261102T065650Z.dump  (output: /home/pawan/Meridian/db-dumps/meridian-postgres-20261102T065650Z.dump (2631 bytes))
+  PASS  a dump file named db-dumps/meridian-postgres-<UTC>.dump exists and is non-empty
+  PASS  the dump is a pg_dump custom archive (magic PGDMP)
+  PASS  file mode is not group or world readable (umask 077)
+  PASS  git check-ignore -v names the root .gitignore for the dump
+  PASS  git status --porcelain is unchanged from the start of the run after the dump (empty on a committed tree)
+  PASS  data was changed on purpose (t06_t gone, t06_extra present)
+  PASS  ddev pg restore <file> --yes exits 0
+  PASS  restore prints a table count
+  PASS  checksum after restore equals the checksum before the dump (315feb654a37937abc9f93fb5a31e08f)
+  PASS  the extra table created after the dump is gone
+  PASS  ownership: the restored table belongs to meridian (--no-owner)
+  PASS  all five still healthy after the restore
+== TC-T06-34 dump and restore negatives: --yes guard, bad files, open session, explicit path, failed dump (AC4)
+  PASS  no --yes (run directly): exit 2
+  PASS  no --yes through ddev: exit 1 and 'exit status 2'
+  PASS  no --yes: message says the database would be replaced
+  PASS  no --yes: data unchanged
+  PASS  garbage file: exit 1 and 'exit status 1'
+  PASS  garbage file: data unchanged (validation happens before dropdb)
+  PASS  truncated archive (64 bytes): non-zero exit
+  PASS  truncated archive: data unchanged
+  PASS  missing file: exit 1 and 'exit status 1'
+  PASS  missing file: data unchanged
+  PASS  empty file: exit 1 and data unchanged
+  PASS  a client session is open on the meridian database
+  PASS  restore with an open session succeeds (dropdb --force)
+  PASS  checksum correct after the forced restore
+  PASS  dump to an explicit FILE exits 0, file is a PGDMP archive
+  PASS  the explicit file restores (round trip from a non-default path)
+  PASS  failed dump (unwritable target): non-zero exit and no partial file
+  PASS  no stray temporary dump files left in db-dumps/ (*.tmp, *.partial, dot-files)
+== TC-T06-50 a dump cut in half or near the end is refused by pg restore --yes; data unchanged (review finding 1)
+  PASS  seed present: t06_t (50 rows) and t06_big (40000 rows), checksum 315feb654a37937abc9f93fb5a31e08f/8ceb6c0a174555ed1a6d05f263f4b790
+  PASS  ddev pg dump of the seeded database exits 0
+        dump size: 3088059 bytes
+  PASS  the dump is at least 1 MB (1048576 bytes), so a cut in half lands inside the data section
+  PASS  dump cut at 1544029 bytes: restore exits non-zero (ddev gives 1)
+  PASS  dump cut in half: message says the archive is not complete and the database is unchanged
+  PASS  dump cut in half: checksum of both tables unchanged
+  PASS  dump missing its last 10 bytes: restore exits non-zero
+  PASS  dump missing its last 10 bytes: checksum unchanged
+  PASS  control: the complete dump restores (exit 0)
+  PASS  control: checksum identical after the complete restore
+  PASS  all five still healthy
+== TC-T06-51 dump path containing a single quote: dump, restore and trap cleanup (review finding 3)
+  PASS  dump into a directory whose name contains a single quote exits 0 and writes a PGDMP archive
+  PASS  no temporary file is left next to it
+  PASS  a dump that fails after the temp file exists (no such container) exits non-zero
+  PASS  the EXIT trap removed the temp file: nothing but x.dump in the quoted directory, no y.dump
+  PASS  no shell error from the trap (no 'command not found', 'syntax error', 'unexpected EOF')
+  PASS  restore from the quoted path exits 0
+  PASS  checksum after restore from the quoted path equals the checksum before
+== TC-T06-52 a directory given as the dump or restore target is refused (review finding 4)
+  PASS  pg dump DIRECTORY (run directly): exit 2
+  PASS  message says it is a directory
+  PASS  through ddev: exit 1 and 'exit status 2'
+  PASS  nothing was created in the directory (no .pgdump.* temp file)
+  PASS  pg restore DIRECTORY --yes: exit 1 and 'exit status 1'
+  PASS  pg restore DIRECTORY: data unchanged
+== TC-T06-53 a relative FILE resolves against the directory ddev was run from (review finding 5)
+        run from docs/: relative FILE landed in: docs  (output: t06-rel-1094610.dump (870 bytes))
+  PASS  ddev pg dump REL run from docs/ writes docs/REL, as the runbook and --help say
+== TC-T06-35 meridian-status healthy: exit 0, five running healthy lines (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      running      healthy
+        meridian-web         running      healthy
+        OK: all services running and healthy
+  PASS  exit 0
+  PASS  five service lines, each 'running healthy'
+  PASS  no colour escape codes in piped output
+  PASS  ddev describe is informational only; it runs (output kept in evidence)
+== TC-T06-36 stopped meridian-engine is reported: exit 1, named (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      exited       unhealthy
+        meridian-web         running      healthy
+        NOT OK: meridian-engine
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  docker stop ddev-meridian-meridian-engine: ddev meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-engine line shows exited (and not running)
+  PASS  the last line of STDOUT names meridian-engine
+  PASS  the other services are not named as bad on the last stdout line
+        ddev describe (information only):
+        ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+        │ Project: meridian ~/Meridian https://meridian.ddev.site                                 │
+        │ Docker platform: wsl2-docker-ce                                                         │
+        │ Router: traefik                                                                         │
+        ├──────────────┬────────┬──────────────────────────────────────────┬──────────────────────┤
+        │ SERVICE      │ STAT   │ URL/PORT                                 │ INFO                 │
+        ├──────────────┼────────┼──────────────────────────────────────────┼──────────────────────┤
+        │ web          │ [32mOK[0m     │ https://meridian.ddev.site               │ drupal11 PHP 8.3     │
+  PASS  ddev start brings meridian-engine back
+  PASS  all five healthy again
+  PASS  meridian-status exits 0 again
+== TC-T06-37 stopped meridian-postgres is reported; no cascade to engine or web health (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    exited       unhealthy
+        meridian-engine      running      healthy
+        meridian-web         running      healthy
+        NOT OK: meridian-postgres
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  docker stop ddev-meridian-meridian-postgres: ddev meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-postgres line shows exited (and not running)
+  PASS  the last line of STDOUT names meridian-postgres
+  PASS  the other services are not named as bad on the last stdout line
+  PASS  no cascade: meridian-engine and meridian-web stay running healthy while Postgres is down
+        ddev describe (information only):
+        ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+        │ Project: meridian ~/Meridian https://meridian.ddev.site                                 │
+        │ Docker platform: wsl2-docker-ce                                                         │
+        │ Router: traefik                                                                         │
+        ├──────────────┬────────┬──────────────────────────────────────────┬──────────────────────┤
+        │ SERVICE      │ STAT   │ URL/PORT                                 │ INFO                 │
+        ├──────────────┼────────┼──────────────────────────────────────────┼──────────────────────┤
+        │ web          │ [32mOK[0m     │ https://meridian.ddev.site               │ drupal11 PHP 8.3     │
+  PASS  ddev start brings meridian-postgres back
+  PASS  all five healthy again
+  PASS  meridian-status exits 0 again
+== TC-T06-38 stopped meridian-web is reported (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      running      healthy
+        meridian-web         exited       unhealthy
+        NOT OK: meridian-web
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  docker stop ddev-meridian-meridian-web: ddev meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-web line shows exited (and not running)
+  PASS  the last line of STDOUT names meridian-web
+  PASS  the other services are not named as bad on the last stdout line
+        ddev describe (information only):
+        ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+        │ Project: meridian ~/Meridian https://meridian.ddev.site                                 │
+        │ Docker platform: wsl2-docker-ce                                                         │
+        │ Router: traefik                                                                         │
+        ├──────────────┬────────┬──────────────────────────────────────────┬──────────────────────┤
+        │ SERVICE      │ STAT   │ URL/PORT                                 │ INFO                 │
+        ├──────────────┼────────┼──────────────────────────────────────────┼──────────────────────┤
+        │ web          │ [32mOK[0m     │ https://meridian.ddev.site               │ drupal11 PHP 8.3     │
+  PASS  ddev start brings meridian-web back
+  PASS  all five healthy again
+  PASS  meridian-status exits 0 again
+== TC-T06-39 unhealthy meridian-engine is reported (AC5)
+        engine state after 24s: running unhealthy
+  PASS  the engine health check turns unhealthy within the retry window (3 x 10 s)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      running      unhealthy
+        meridian-web         running      healthy
+        NOT OK: meridian-engine
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-engine line shows unhealthy
+  PASS  the last line of STDOUT names meridian-engine
+  PASS  restarting the container regenerates the bundle and it is healthy again
+== TC-T06-40 AC6a: https://meridian.ddev.site:3001/ trusted TLS, 200, placeholder body
+  PASS  curl (no -k) to https://meridian.ddev.site:3001/ prints '200 0' (got: 200 0)
+  PASS  body is the fixed placeholder sentence, which names T21
+  PASS  any path answers 200 text/plain (got: 200 text/plain)
+  PASS  meridian-status shows meridian-web running healthy
+  PASS  router sends port 3001 to meridian-web (VIRTUAL_HOST / HTTPS_EXPOSE visible in the container environment)
+== TC-T06-41 AC6a negative: no HTTP 3000 route, no host port for Postgres or meridian-web
+  PASS  http://meridian.ddev.site:3000/ does not reach the placeholder through the router (got: curl: (7) Failed to connect to meridian.ddev.site port 3000 )
+  PASS  meridian-postgres publishes no host port (docker port is empty)
+  PASS  meridian-engine and meridian-web publish no host port
+  PASS  the router does not bind host port 3000 or 5432 for this project
+  PASS  the router binds 3001 on 127.0.0.1 only
+== TC-T06-43 git status clean after start, restart and dump (KD-7 invariant)
+  PASS  git status --porcelain equals the baseline taken at the start of the run (so start, restart, stop, poweroff and dumps added nothing)
+  PASS  no tracked file changed by DDEV (git diff is byte-identical to the start of the run)
+  PASS  git status --ignored .ddev shows no unexpected generated path (review in the report)
+== TC-T06-42 AC6b: the Next.js dev server answers on https://meridian.ddev.site:3001 (deferred to T21)
+  BLOCKED  Blocked (accepted, re-run in T21): no apps/web/package.json exists until T21, so only the placeholder can be tested (AC6a, TC-T06-40). The owner must accept this deferral in writing at T06 close; an agent message is not acceptance.
+        Procedure for T21 (run unchanged against npm run dev; cite this ID):
+          1. ddev next npm ci ; ddev restart ; wait until ddev meridian-status shows meridian-web running healthy (first compile can exceed 120 s: if not, T21 adjusts start_period)
+          2. curl -sS -o body.txt -w '%{http_code} %{ssl_verify_result}' https://meridian.ddev.site:3001/   (no -k)
+             expect a status below 500 (200, or the 307 redirect from the T21 middleware) and ssl_verify_result 0
+          3. the response comes from the Next.js dev server: a known page body or the middleware redirect; body does NOT contain 'meridian-web placeholder; the dashboard arrives in T21'
+          4. ddev meridian-status exits 0 and shows meridian-web running healthy
+          5. store evidence under docs/tests/T21/evidence/; T21 back-annotates docs/tests/T06/test-report.md (dated addendum)
+== TC-T06-48 AC6a owner-run: https://meridian.ddev.site:3001 opens in the Windows browser without a certificate warning
+  BLOCKED  owner-run: after ddev start, open https://meridian.ddev.site:3001 in the Windows browser (same mkcert prerequisite as TC-T05-40); expect the placeholder sentence naming T21, no warning; record a screenshot or note
+== TC-T06-49 C7 owner-run: the runbook followed verbatim on a clean machine or container
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word through ddev meridian-status exit 0 and the dump and restore steps; record each command, output and the total time; not automatable
+
+== Roll-up per case
+  PASS     TC-T06-01
+  PASS     TC-T06-02
+  PASS     TC-T06-03
+  PASS     TC-T06-04
+  PASS     TC-T06-05
+  PASS     TC-T06-06
+  PASS     TC-T06-07
+  PASS     TC-T06-08
+  PASS     TC-T06-09
+  PASS     TC-T06-10
+  PASS     TC-T06-11
+  PASS     TC-T06-12
+  PASS     TC-T06-13
+  PASS     TC-T06-14
+  PASS     TC-T06-15
+  PASS     TC-T06-16
+  PASS     TC-T06-17
+  PASS     TC-T06-18
+  PASS     TC-T06-19
+  PASS     TC-T06-20
+  PASS     TC-T06-21
+  PASS     TC-T06-22
+  PASS     TC-T06-23
+  PASS     TC-T06-24
+  PASS     TC-T06-25
+  PASS     TC-T06-26
+  PASS     TC-T06-27
+  PASS     TC-T06-28
+  PASS     TC-T06-29
+  PASS     TC-T06-30
+  PASS     TC-T06-31
+  PASS     TC-T06-32
+  PASS     TC-T06-33
+  PASS     TC-T06-34
+  PASS     TC-T06-50
+  PASS     TC-T06-51
+  PASS     TC-T06-52
+  PASS     TC-T06-53
+  PASS     TC-T06-35
+  PASS     TC-T06-36
+  PASS     TC-T06-37
+  PASS     TC-T06-38
+  PASS     TC-T06-39
+  PASS     TC-T06-40
+  PASS     TC-T06-41
+  PASS     TC-T06-43
+  BLOCKED  TC-T06-42
+  BLOCKED  TC-T06-48
+  BLOCKED  TC-T06-49
+
+SUMMARY: mode=live run=20261102T064955Z cases: 46 PASS, 0 FAIL, 3 BLOCKED; checks executed: 280; SKIP (optional tools): 3; BLOCKED lines: 3
+RESULT: ALL EXECUTED CHECKS PASSED (3 case(s) blocked)
+rc=0

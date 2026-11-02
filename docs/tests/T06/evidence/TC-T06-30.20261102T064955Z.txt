@@ -1,0 +1,5 @@
+== TC-T06-30 ddev quality exits 0 with engine and web steps SKIP (C4)
+  PASS  ddev quality exits 0 (rc=0)
+  PASS  SKIP component-engine (no services/engine/pyproject.toml)
+  PASS  SKIP component-web (no apps/web/package.json)
+  PASS  PASS component-drupal still passes; no FAIL line

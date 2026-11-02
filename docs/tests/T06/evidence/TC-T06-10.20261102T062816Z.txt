@@ -1,0 +1,4 @@
+== TC-T06-10 meridian-status logic (AC5, KD-10)
+  PASS  prints SERVICE STATE HEALTH, reports missing containers, exits 1 when any is not running+healthy, names the bad services last
+  PASS  no colour codes unless stdout is a terminal
+  PASS  container names: ddev-meridian-web, ddev-meridian-db and ddev-meridian-<service>

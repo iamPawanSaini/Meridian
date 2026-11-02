@@ -1,0 +1,4 @@
+== TC-T06-18 naming (section 0, C-criteria)
+  PASS  scripts/check-names.sh passes
+  PASS  service names and container names use the section 0 names (meridian-postgres, meridian-engine, meridian-web)
+  PASS  no old placeholder names in T06 files (case-insensitive)

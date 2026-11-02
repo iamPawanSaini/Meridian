@@ -1,0 +1,98 @@
+== TC-T06-44 clean clone, no .env: ddev start and five healthy services (C7, AC1)
+  PASS  the clone has no .env (clean machine)
+        ddev start (cold, first pull included) took 43 s (NFR-17 data point, budget 30 min)
+  PASS  ddev start exit 0 with no .env and no manual step
+  PASS  all five containers running and healthy
+  PASS  ddev meridian-status exits 0 in the clean clone
+  PASS  git status --porcelain empty after ddev start
+  PASS  Postgres initialised from the .env.example placeholder password (login through the socket works)
+== TC-T06-45 clean clone: AC2 checks and AC6a with no .env
+  PASS  engine opens a TCP connection to meridian-postgres:5432
+  PASS  negative: port 5999 is refused (the check can fail)
+  PASS  negative: an unknown service name does not resolve
+  PASS  HTTPS to https://meridian.ddev.site/user/login, verification ON, prints 200 (or 403)
+  PASS  meridian.ddev.site resolves inside meridian-engine to a ddev-router address (172.18.0.8 in: 172.18.0.8 )
+  PASS  SSL_CERT_FILE and REQUESTS_CA_BUNDLE both point at /tmp/meridian-ca-bundle.pem in an exec session
+  PASS  negative: without the CA variables certificate verification FAILS (trust comes from the bundle, verification is not off)
+  PASS  bundle keeps the system CAs (more than 50 certificates), so public CAs still work
+  PASS  meridian-web fetch of $DRUPAL_BASE_URL/user/login exits 0 and prints 200 (trusted TLS)
+  PASS  negative: without NODE_EXTRA_CA_CERTS the fetch fails on certificate trust
+  PASS  curl (no -k) to https://meridian.ddev.site:3001/ prints '200 0' (got: 200 0)
+  PASS  body is the fixed placeholder sentence, which names T21
+  PASS  any path answers 200 text/plain (got: 200 text/plain)
+== TC-T06-46 clean clone: start-script switch with a temporary apps/web/package.json (decision condition 2)
+  PASS  precondition: no apps/web/package.json in the clone, placeholder is served
+  PASS  meridian-web is running healthy again with the probe dev server (health: status below 500)
+  PASS  curl (no -k) returns '200 0' (got: 200 0)
+  PASS  body is the probe server's body, with the --port and --hostname arguments start.sh passed (port=3000 host=0.0.0.0)
+  PASS  negative: the body is NOT the placeholder sentence
+  PASS  after removing package.json and restarting, meridian-web is healthy again
+  PASS  the placeholder is served again (switch works in both directions; got: 200 0)
+  PASS  the scratch clone has no package.json left, git status is empty
+== TC-T06-54 clean clone: docs/runbooks/local-setup.md steps 4 to 7, Verification and the T06 commands, as written (C7)
+        deviation from step 1: the clone is made from file:///home/pawan/Meridian (branch task/T06-ddev-services), because this branch is not on the remote
+  PASS  step 4: ddev drupal-install exits 0 and prints 'No differences between DB and sync' and 'Next step: ddev drush uli'
+        drupal-install tail:  [success] Cache rebuild complete.  [notice] No differences between DB and sync directory. Drupal is installed. Next step: ddev drush uli 
+  PASS  step 5: ddev drush uli exits 0 and prints a https://meridian.ddev.site/user/reset/ link
+  PASS  step 6: ddev meridian-status exits 0, five 'running healthy' lines and OK
+        step 7: scripts/bootstrap-dev.sh took 5 s
+  PASS  step 7: scripts/bootstrap-dev.sh exits 0 and prints 'Done. Hooks installed (pre-commit and commit-msg).'
+        pre-commit installed at .git/hooks/pre-commit
+        pre-commit installed at .git/hooks/commit-msg
+        Done. Hooks installed (pre-commit and commit-msg).
+        Run 'scripts/quality.sh' to check the tree.
+  PASS  Verification: ddev composer validate exits 0
+  PASS  Verification: ddev drush status shows 'Drupal bootstrap : Successful'
+  PASS  Verification: ddev drush config:status says No differences
+  PASS  Verification: ddev drush cex -y exits 0 and git status --porcelain is empty
+        ddev quality took 20 s
+        PASS  pre-commit
+        PASS  branch-name
+        PASS  commit-range
+        PASS  exceptions
+        PASS  assets
+        SKIP  component-engine (no services/engine/pyproject.toml)
+        PASS  component-drupal
+        SKIP  component-drupal-tests (no apps/drupal/phpunit.xml.dist)
+  PASS  Verification: ddev quality exits 0 (rc=0)
+  PASS  Verification: PASS component-drupal; SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist); engine and web steps SKIP
+  PASS  git status --porcelain is empty after the whole walk-through
+  PASS  T06 section: ddev engine python3 --version prints Python 3.12.x
+  PASS  T06 section: ddev next node --version prints v22.x
+  PASS  T06 section: ddev pg psql -c 'select 1' exits 0
+  PASS  T06 section: ddev pg dump exits 0 and names db-dumps/meridian-postgres-<UTC>.dump
+  PASS  T06 section: ddev pg restore db-dumps/FILE.dump --yes (the relative form the runbook shows) exits 0
+  PASS  T06 section: ddev meridian-status exits 0 at the end
+  PASS  git status --porcelain is empty at the end of the T06 section
+== TC-T06-47 clean clone: ddev delete and the Postgres volume (plan KD-4, record the behaviour)
+  PASS  runbook (in the clone) tells the reader to run ddev pg dump before ddev delete
+        RECORDED: meridian-postgres-data was removed by ddev delete -Oy
+  PASS  the runbook says that ddev delete removes the Postgres data (as the plan assumes)
+  PASS  no container of the deleted project remains
+== TC-T06-42 AC6b: the Next.js dev server answers on https://meridian.ddev.site:3001 (deferred to T21)
+  BLOCKED  Blocked (accepted, re-run in T21): no apps/web/package.json exists until T21, so only the placeholder can be tested (AC6a, TC-T06-40). The owner must accept this deferral in writing at T06 close; an agent message is not acceptance.
+        Procedure for T21 (run unchanged against npm run dev; cite this ID):
+          1. ddev next npm ci ; ddev restart ; wait until ddev meridian-status shows meridian-web running healthy (first compile can exceed 120 s: if not, T21 adjusts start_period)
+          2. curl -sS -o body.txt -w '%{http_code} %{ssl_verify_result}' https://meridian.ddev.site:3001/   (no -k)
+             expect a status below 500 (200, or the 307 redirect from the T21 middleware) and ssl_verify_result 0
+          3. the response comes from the Next.js dev server: a known page body or the middleware redirect; body does NOT contain 'meridian-web placeholder; the dashboard arrives in T21'
+          4. ddev meridian-status exits 0 and shows meridian-web running healthy
+          5. store evidence under docs/tests/T21/evidence/; T21 back-annotates docs/tests/T06/test-report.md (dated addendum)
+== TC-T06-48 AC6a owner-run: https://meridian.ddev.site:3001 opens in the Windows browser without a certificate warning
+  BLOCKED  owner-run: after ddev start, open https://meridian.ddev.site:3001 in the Windows browser (same mkcert prerequisite as TC-T05-40); expect the placeholder sentence naming T21, no warning; record a screenshot or note
+== TC-T06-49 C7 owner-run: the runbook followed verbatim on a clean machine or container
+  BLOCKED  owner-run (or tester with a fresh container): follow docs/runbooks/local-setup.md word for word through ddev meridian-status exit 0 and the dump and restore steps; record each command, output and the total time; not automatable
+
+== Roll-up per case
+  PASS     TC-T06-44
+  PASS     TC-T06-45
+  PASS     TC-T06-46
+  PASS     TC-T06-54
+  PASS     TC-T06-47
+  BLOCKED  TC-T06-42
+  BLOCKED  TC-T06-48
+  BLOCKED  TC-T06-49
+
+SUMMARY: mode=clone run=20261102T070024Z cases: 5 PASS, 0 FAIL, 3 BLOCKED; checks executed: 49; SKIP (optional tools): 0; BLOCKED lines: 3
+RESULT: ALL EXECUTED CHECKS PASSED (3 case(s) blocked)
+rc=0

@@ -1,0 +1,5 @@
+== TC-T06-15 .env.example: names and values unchanged, comments only (C6, KD-3, KD-9)
+  PASS  [at-close] .env.example variable names and values are identical to 6e9e69d (comments may differ)
+  PASS  .env.example MERIDIAN_WEB_BASE_URL is still https://meridian.ddev.site:3001 and the Drupal base URLs are https://meridian.ddev.site
+  PASS  .env.example comment no longer says 'host fixed in T06'
+  PASS  no new variable name appears in the compose files, helper scripts or commands (files must exist)

@@ -1,0 +1,25 @@
+== TC-T06-36 stopped meridian-engine is reported: exit 1, named (AC5)
+        SERVICE              STATE        HEALTH
+        web                  running      healthy
+        db                   running      healthy
+        meridian-postgres    running      healthy
+        meridian-engine      exited       unhealthy
+        meridian-web         running      healthy
+        NOT OK: meridian-engine
+        [31mFailed to run meridian-status ; error=exit status 1[0m
+  PASS  docker stop ddev-meridian-meridian-engine: ddev meridian-status exits 1, with 'exit status 1' on stderr
+  PASS  the meridian-engine line shows exited (and not running)
+  PASS  the last line of STDOUT names meridian-engine
+  PASS  the other services are not named as bad on the last stdout line
+        ddev describe (information only):
+        ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+        │ Project: meridian ~/Meridian https://meridian.ddev.site                                 │
+        │ Docker platform: wsl2-docker-ce                                                         │
+        │ Router: traefik                                                                         │
+        ├──────────────┬────────┬──────────────────────────────────────────┬──────────────────────┤
+        │ SERVICE      │ STAT   │ URL/PORT                                 │ INFO                 │
+        ├──────────────┼────────┼──────────────────────────────────────────┼──────────────────────┤
+        │ web          │ [32mOK[0m     │ https://meridian.ddev.site               │ drupal11 PHP 8.3     │
+  PASS  ddev start brings meridian-engine back
+  PASS  all five healthy again
+  PASS  meridian-status exits 0 again

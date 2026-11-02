@@ -1,0 +1,7 @@
+== TC-T06-20 ddev start: five containers running and healthy (AC1)
+        ddev start (warm) took 33 s
+  PASS  ddev start exits 0
+  PASS  all five containers (web, db, meridian-postgres, meridian-engine, meridian-web) are running and healthy
+  PASS  ddev meridian-status exits 0
+  PASS  the three new containers report a health status (a health check is defined and running)
+  PASS  pg_isready answers inside meridian-postgres

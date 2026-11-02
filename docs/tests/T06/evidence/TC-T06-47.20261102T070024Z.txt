@@ -1,0 +1,5 @@
+== TC-T06-47 clean clone: ddev delete and the Postgres volume (plan KD-4, record the behaviour)
+  PASS  runbook (in the clone) tells the reader to run ddev pg dump before ddev delete
+        RECORDED: meridian-postgres-data was removed by ddev delete -Oy
+  PASS  the runbook says that ddev delete removes the Postgres data (as the plan assumes)
+  PASS  no container of the deleted project remains
