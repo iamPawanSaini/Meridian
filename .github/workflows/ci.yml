@@ -115,6 +115,9 @@ jobs:
         with:
           path: .tools
           key: "tools-${{ runner.os }}-${{ hashFiles('scripts/tool-versions.env') }}"
+      - name: Install the Python packages the docs suites import
+        shell: bash
+        run: python -m pip install --no-input -r scripts/requirements-docs-tests.txt
       - name: Install the pinned tools
         shell: bash
         run: scripts/bootstrap-dev.sh

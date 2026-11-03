@@ -21,7 +21,7 @@ toolchain, then runs `scripts/quality.sh --group <g>` and uploads the reports.
 | Job | Group | Setup | Steps (see `scripts/quality.sh --list`) |
 |---|---|---|---|
 | `core` | `core` | Python 3.12, caches, `scripts/bootstrap-dev.sh` | pre-commit, branch-name, commit-range, exceptions, assets, tooling-tests, secret-history, ci-config |
-| `docs` | `docs` | the same | docs-regression (every `docs/tests/T*/run-checks.sh --regression`) |
+| `docs` | `docs` | the same, plus `pip install -r scripts/requirements-docs-tests.txt` (PyYAML, which the suites import) | docs-regression (every `docs/tests/T*/run-checks.sh --regression`) |
 | `drupal` | `drupal` | setup-php 8.3, Composer, Composer cache | build-drupal, component-drupal, component-drupal-tests, audit-drupal |
 | `engine` | `engine` | none yet (T13) | build-engine, component-engine, audit-engine |
 | `web` | `web` | none yet (T21) | build-web, component-web, audit-web |
