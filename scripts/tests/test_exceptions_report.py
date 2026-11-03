@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 import unittest
@@ -184,6 +185,58 @@ class ConfigExcludeTests(unittest.TestCase):
             self.assertEqual(tickets["T32"], 1)
             self.assertEqual(len(problems), 1)
             os.chdir("/")
+
+
+class ComposerAuditIgnoreTests(unittest.TestCase):
+    """T08: Composer `config.audit.ignore` entries need a ticket and a review date."""
+
+    def scan(self, ignore: object) -> tuple[dict[str, int], dict[str, int], list[str]]:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "composer.json"
+            path.write_text(json.dumps({"config": {"audit": {"ignore": ignore}}}))
+            counts, tickets, problems = er.scan_composer(str(path), {"T32", "T99"})
+            return dict(counts), dict(tickets), problems
+
+    def test_object_form_with_ticket_and_review_date_is_counted(self) -> None:
+        counts, tickets, problems = self.scan(
+            {"CVE-0000-0000": "T99: reason, review by 2027-01-01"}
+        )
+        self.assertEqual(problems, [])
+        self.assertEqual(counts, {er.AUDIT_TOOL: 1})
+        self.assertEqual(tickets, {"T99": 1})
+
+    def test_missing_ticket_review_date_or_unknown_ticket_is_flagged(self) -> None:
+        bad = ["reason only", "T99: no date", "T77: reason, review by 2027-01-01", 7]
+        for reason in bad:
+            with self.subTest(reason=reason):
+                counts, _, problems = self.scan({"CVE-0000-0001": reason})
+                self.assertEqual(counts, {er.AUDIT_TOOL: 1})
+                self.assertEqual(len(problems), 1)
+
+    def test_list_form_is_flagged(self) -> None:
+        counts, _, problems = self.scan(["CVE-0000-0002"])
+        self.assertEqual(counts, {er.AUDIT_TOOL: 1})
+        self.assertEqual(len(problems), 1)
+
+    def test_no_audit_section_means_no_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "composer.json"
+            path.write_text(json.dumps({"config": {"sort-packages": True}}))
+            self.assertEqual(er.scan_composer(str(path), {"T32"}), ({}, {}, []))
+
+    def test_main_counts_entry_and_fails_on_a_bad_one(self) -> None:
+        good = {"config": {"audit": {"ignore": {"CVE-0000-0000": "T10: x, review by 2027-01-01"}}}}
+        bad = {"config": {"audit": {"ignore": {"CVE-0000-0000": "no ticket"}}}}
+        for data, expected in ((good, 0), (bad, 1)):
+            with self.subTest(expected=expected), tempfile.TemporaryDirectory() as tmp:
+                cwd = os.getcwd()
+                self.addCleanup(os.chdir, cwd)
+                repo = _helpers.make_repo(Path(tmp) / "r", {"composer.json": json.dumps(data)})
+                os.chdir(repo)
+                out = repo / "report.txt"
+                self.assertEqual(er.main(["--out", str(out)]), expected)
+                self.assertIn(f"{er.AUDIT_TOOL}: 1", out.read_text(encoding="utf-8"))
+                os.chdir(cwd)
 
 
 if __name__ == "__main__":
