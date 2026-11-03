@@ -1,0 +1,59 @@
+# Ignore rules for the Drupal Composer root (T07, DEF-010). Tracked on purpose: `git subtree split`
+# sends only apps/drupal to Pantheon, so the root .gitignore does not travel with it, and the
+# Integrated Composer build fails on untracked scaffold output. Keep this file in step with the
+# apps/drupal block of the root .gitignore. Every path the build generates must be listed here, so
+# drupal/core-composer-scaffold (gitignore auto mode) finds them ignored and never rewrites this file.
+# Owned paths stay tracked: composer.json, composer.lock, pantheon.yml, config/sync/,
+# web/sites/default/settings.php, web/*/custom/.
+
+# Composer and contrib build output
+/web/core/
+/web/modules/contrib/
+/web/themes/contrib/
+/web/profiles/contrib/
+/web/libraries/
+/web/sites/*/files/
+/web/sites/*/private/
+/web/sites/*/settings.local.php
+/web/sites/*/services.local.yml
+/web/sites/simpletest/
+/drush/Commands/contrib/
+/vendor/
+/private/
+
+# Scaffold files (core-composer-scaffold, pantheon-systems/drupal-integrations)
+/.editorconfig
+/.gitattributes
+/recipes/README.txt
+/recipes/.gitignore
+/web/.csslintrc
+/web/.eslintignore
+/web/.eslintrc.json
+/web/.gitignore
+/web/.ht.router.php
+/web/.htaccess
+/web/INSTALL.txt
+/web/README.md
+/web/autoload.php
+/web/autoload_runtime.php
+/web/example.gitignore
+/web/index.php
+/web/robots.txt
+/web/update.php
+/web/web.config
+/web/modules/.gitignore
+/web/modules/README.txt
+/web/profiles/.gitignore
+/web/profiles/README.txt
+/web/themes/.gitignore
+/web/themes/README.txt
+/web/sites/.gitignore
+/web/sites/README.txt
+/web/sites/development.services.yml
+/web/sites/example.*
+/web/sites/*/.gitignore
+/web/sites/*/default.settings.php
+/web/sites/*/default.services*.yml
+/web/sites/*/settings.ddev.php
+/web/sites/*/settings.pantheon.php
+/web/sites/*/drushrc.php

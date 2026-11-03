@@ -258,8 +258,10 @@ terminus remote:drush meridian-trade.dev -- config:status     # "No differences"
   `upstream-require` scripts, and nothing refers to them.
 - Integrated Composer installs `require-dev` on Dev and Multidev (documented), so
   `drupal/core-dev` is expected on Pantheon dev. Not a risk.
-- The split tree has no `.gitignore` (scaffold-owned and ignored at the repo root, T05 KD-7). T07
-  does **not** add one. Build output never reaches the split because only tracked files are
+- **Amended 2026-11-03 (DEF-010):** the split tree carries a tracked `apps/drupal/.gitignore`. The
+  original text ("the split tree has no `.gitignore`; T07 does not add one") failed on the first
+  Pantheon build: Integrated Composer stops on untracked scaffold output, and the root `.gitignore`
+  does not travel with the split. Build output never reaches the split because only tracked files are
   split, and the stage 2 guard fails on any build path. Dev stays in Git mode; SFTP mode is
   forbidden in the runbook, because an SFTP commit on Pantheon would break the non-force push.
 - The developer records from the first build log: the Composer version, that the build succeeded

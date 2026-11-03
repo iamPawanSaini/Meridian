@@ -171,6 +171,7 @@ their executed checks passed: TC-T07-31, 42, 44, 45, 46), 0 not run.
 | DEF-007 Earlier regression suites fail on T07's legitimate changes | Low (test design) | Retest passed |
 | DEF-008 Remaining T07 check problems (review list and first live run) | Low (test design) | Retest passed |
 | DEF-009 Cloudflare challenge for non-allowlisted User-Agents on the Sandbox edge | Medium (design assumption, affects T10, T21, T28) | Open |
+| DEF-010 First Pantheon build fails: split tree has no `.gitignore` for the build output | High (blocks every Pantheon build) | Fixed, retest pending (next Pantheon build) |
 
 ## Coverage notes
 

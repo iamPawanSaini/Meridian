@@ -196,9 +196,11 @@ against that file. The **app server** (drush) is deliberately not pinned, becaus
 changes its key at container migrations; `terminus env:code-log` (HTTPS) and the HTTPS smoke
 check verify the result instead (`docs/tasks/T07/decision-host-keys.md`).
 
-The file holds no key yet. Capture it once the PAT works (day 1), repeat on a second day and from
-a second network, compare the SHA256 fingerprints, and only then commit the key line (with the
-fingerprint in a comment) to `scripts/pantheon_known_hosts` through a reviewed change. Every push,
+The key was pinned on 2026-11-03 (RSA, `SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE`),
+after matching scans on two days and from two networks (TC-T07-52). The procedure was: capture it
+once the PAT works (day 1), repeat on a second day and from a second network, compare the SHA256
+fingerprints, and only then commit the key line (with the fingerprint in a comment) to
+`scripts/pantheon_known_hosts` through a reviewed change. Every push,
 including the first one (O-4) and the emergency push, then runs with the pinned
 `GIT_SSH_COMMAND` shown in the first-push step and in "Emergency force push". Capture the key
 with:
@@ -210,7 +212,16 @@ ddev exec 'ssh-keyscan -p 2222 <git_host> | tee /tmp/k | ssh-keygen -lf -'
 
 If the code server key changes later, the deploy fails closed. Fetch the new key from two
 networks, compare the fingerprints, and commit it through a reviewed pull request. Pantheon
-publishes no host key list (searched 2026-11-02, none found).
+publishes no host key list (searched 2026-11-02, none found; Terminus 4.3.3 has no such command,
+checked 2026-11-03).
+
+### Ignore rules travel with the split
+
+Only `apps/drupal` reaches Pantheon, so the root `.gitignore` does not. `apps/drupal/.gitignore` is
+tracked and must list every path the Integrated Composer build generates (`vendor/`, `web/core/`,
+contrib folders, scaffold files such as `web/index.php` and `settings.pantheon.php`). Without it the
+build ("Sync code on dev") fails on untracked scaffold output (DEF-010). When a Composer change adds
+a new scaffold file, add it to both ignore files.
 
 ## Verification
 

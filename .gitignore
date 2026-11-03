@@ -82,7 +82,7 @@ apps/drupal/private/
 # composer.lock, pantheon.yml, config/sync/, web/sites/default/settings.php, web/*/custom/.
 apps/drupal/.editorconfig
 apps/drupal/.gitattributes
-apps/drupal/.gitignore
+# apps/drupal/.gitignore is tracked (DEF-010): the subtree split must carry its own ignore rules.
 apps/drupal/recipes/README.txt
 apps/drupal/recipes/.gitignore
 apps/drupal/web/.csslintrc

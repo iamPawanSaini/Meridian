@@ -641,7 +641,15 @@ case_start TC-T07-01 "AC1: pantheon.yml committed in apps/drupal with the build 
 ckp "apps/drupal/pantheon.yml is tracked by git" bash -c "git ls-files --error-unmatch apps/drupal/pantheon.yml"
 ckp "pantheon.yml: build_step true, web_docroot true, php 8.3, MariaDB 10.6, api_version 1" allin apps/drupal/pantheon.yml 'build_step: *true' 'web_docroot: *true' 'php_version: *8\.3' 'version: *10\.6' 'api_version: *1'
 ckp "the split tree holds no pantheon.upstream.yml and no upstream-configuration path (KD-7)" bash -c "! git ls-files apps/drupal | grep -E 'pantheon\.upstream\.yml|upstream-configuration' && ! grep -q 'upstream-configuration' apps/drupal/composer.json"
-ckp "the split tree holds no .gitignore (KD-7: scaffold-owned, T07 does not add one)" bash -c "! git ls-files apps/drupal | grep -qx 'apps/drupal/.gitignore'"
+ckp "the split tree carries its own tracked .gitignore (DEF-010; KD-7 amended)" bash -c "git ls-files --error-unmatch apps/drupal/.gitignore >/dev/null"
+gi_only() { # $1 = want (ignored|kept), rest = paths; tests apps/drupal/.gitignore alone in an empty repository
+  local want=$1 d p; shift; d=$(mktemp -d); git -C "$d" init -q; cp apps/drupal/.gitignore "$d/.gitignore" || { rm -rf "$d"; return 1; }
+  for p in "$@"; do
+    if git -C "$d" check-ignore -q --no-index "$p"; then [[ $want == ignored ]] || { echo "ignored: $p"; rm -rf "$d"; return 1; }
+    else [[ $want == kept ]] || { echo "not ignored: $p"; rm -rf "$d"; return 1; }; fi
+  done; rm -rf "$d"; }
+ckp "apps/drupal/.gitignore on its own ignores the build output and scaffold files the Pantheon build creates" gi_only ignored vendor/autoload.php web/core/lib/Drupal.php web/modules/contrib/x/x.module web/index.php web/.htaccess web/sites/default/settings.pantheon.php web/sites/default/default.services.pantheon.preproduction.yml web/sites/.gitignore recipes/README.txt .editorconfig .gitattributes
+ckp "apps/drupal/.gitignore ignores no owned path (composer.json, composer.lock, pantheon.yml, config/sync, settings.php, custom code)" gi_only kept composer.json composer.lock pantheon.yml config/sync/system.site.yml web/sites/default/settings.php web/modules/custom/x/x.info.yml phpcs.xml.dist
 ckp "runbook records the upstream 'Drupal (Composer Managed)' and the site name $SITE" allin "$RB" 'Composer Managed' "$SITE"
 
 case_start TC-T07-02 "AC2: PAT setup, 90-day rotation, expiry table in the runbook; token never committed"

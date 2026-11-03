@@ -98,6 +98,46 @@ site. Needs a decision by the technical-architect: a documented User-Agent for t
 different host or plan for T28, or a Pantheon/Cloudflare allowlist request. Not a T07 code change:
 the deploy script's smoke check uses curl and is not affected.
 
+### DEF-010: First Pantheon build fails: the split tree has no `.gitignore` for the build output
+
+| Field | Value |
+|---|---|
+| ID | DEF-010 |
+| Severity | High (blocks every Pantheon build, so AC4 and part 2 of T07) |
+| Found in | T07 part 2, O-4 (first push of split `2a60eba8574d39928deb7898cc6af185c13be904`, 2026-11-03) |
+| Status | Fixed, retest pending (next Pantheon build) |
+| Fix commit | |
+| Retest result | Local build simulation clean; Pantheon build pending |
+
+**Steps to reproduce**
+
+1. Push the split of `apps/drupal` (any commit before the fix) to Pantheon dev `master`.
+2. Watch the Integrated Composer workflow "Sync code on \"dev\"" (workflow
+   `f51435ea-d756-11f1-b21d-eebcb0a64446`, 114 s).
+
+**Expected:** the build runs `composer install`, scaffolds Drupal and succeeds (plan KD-7: "the
+build succeeded with only `pantheon.yml`").
+
+**Actual:** the workflow fails. The build log (dashboard only; `terminus workflow:info:logs` says
+"Workflow operations did not contain any logs") lists the scaffold output as untracked:
+`.editorconfig`, `.gitattributes`, `web/.htaccess`, `web/index.php`, `web/autoload.php`,
+`web/sites/default/settings.pantheon.php`, `web/sites/default/default.settings.php` and others.
+
+**Cause:** the ignore rules for `apps/drupal` live only in the root `.gitignore`, which does not
+travel with `git subtree split`. The split tree had no `.gitignore` (plan line 261, T05 KD-7: "T07
+does not add one"). The plan assumption was wrong, not the deploy script.
+
+**Fix:** a tracked `apps/drupal/.gitignore` that lists the build output and every scaffold file (taken
+from the root rules for `apps/drupal`), and the root `.gitignore` no longer ignores that file. The
+scaffold plugin's gitignore auto mode finds every path already ignored and leaves the file alone.
+TC-T07-01 now checks the file on its own in an empty repository (ignored: build output and
+scaffold files; kept: owned paths), with negative controls. Plan KD-7 note amended, runbook section
+"Ignore rules travel with the split" added.
+
+**Local evidence:** a fresh repository with only the tracked `apps/drupal` files plus the new file,
+with the full local `composer install` output copied over it, gives an empty `git status
+--porcelain`. Without the file the same setup lists the untracked files from the Pantheon log.
+
 ## Closed
 
 ### DEF-001: Path guard misparses quoted shell operators
