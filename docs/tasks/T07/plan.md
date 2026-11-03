@@ -301,11 +301,12 @@ The runbook has these sections, with the warnings below in a box:
 1. **Roll back code:** `git revert` the bad change on a task branch, merge to `main` with a merge
    commit, deploy `main` (workflow or `ddev deploy-drupal`). Config-only rollbacks are the same.
 2. **Restore the database:** `terminus backup:list meridian-trade.dev --element=db`, then
-   `terminus backup:restore meridian-trade.dev --element=db --file=<name> --yes`, then
-   `cache:rebuild`, `config:status` and the smoke check. Both options are mandatory.
+   `terminus backup:restore meridian-trade.dev --file=<name>_database.sql.gz --yes`, then
+   `cache:rebuild`, `config:status` and the smoke check. **Amended 2026-11-03 (DEF-011):** the
+   original text required `--element=db` and `--file` together; Terminus 4.3.3 refuses that pair.
 3. **Forbidden on Pantheon dev:** the dashboard Restore button; `backup:restore` without
-   `--element`; `--element=all` or `--element=code`. They reset code on Pantheon and break the
-   non-force deploy path.
+   `--file` of a `_database.sql.gz` backup; `--element=all` or `--element=code`. They reset code
+   on Pantheon and break the non-force deploy path.
 4. **Emergency force push (owner only):** only when a revert cannot reach `main` in time. Backup
    `--element=db --keep-for=30`, `git push --force` of the split of a commit **that is on
    `main`**, run stages 7 to 9 by hand (or rerun the script, which then skips the push), and

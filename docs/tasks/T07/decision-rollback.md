@@ -32,13 +32,16 @@ Two Pantheon facts shape the answer:
    a task branch, merge it to `main` with a merge commit, deploy `main` (workflow or
    `ddev deploy-drupal`). Config-only rollbacks are the same: the reverted `config/sync` is
    re-imported by the deploy.
-2. **Database rollback is a database-only restore** of the pre-deploy backup, always with both
-   options: `terminus backup:restore meridian-trade.dev --element=db --file=<name> --yes`, the
+2. **Database rollback is a database-only restore** of the pre-deploy backup, by file name:
+   `terminus backup:restore meridian-trade.dev --file=<name>_database.sql.gz --yes` (amended
+   2026-11-03, DEF-011: the original "both options, `--element=db --file`" is refused by Terminus
+   4.3.3 with "You cannot specify a file and an element at the same time"), the
    file name taken from `terminus backup:list meridian-trade.dev --element=db`. After it:
    `cache:rebuild`, `config:status`, and the smoke check.
 3. **Forbidden on Pantheon dev:** the dashboard Restore button, `backup:restore` without
-   `--element`, and `--element=all` or `--element=code`. Reason: they reset code on Pantheon,
-   which breaks the non-force deploy path. The runbook says this in a warning box.
+   `--file` of a `_database.sql.gz` backup, and `--element=all` or `--element=code`. Reason:
+   they reset code on Pantheon, which breaks the non-force deploy path. The runbook
+   says this in a warning box.
 4. **Force push is an owner-only emergency step**, documented with the exact command, used only
    when a revert cannot reach `main` in time. Steps: backup (`--element=db`), push the split of
    a commit **that is on `main`** with `git push --force`, run stages 6 to 8 of the script by

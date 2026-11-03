@@ -788,14 +788,15 @@ case_start TC-T07-20 "AC6: runbook deploy.md: owner steps, deploy, rollback, for
 ckp "runbook exists with the template headings (Steps, Verification, Rollback)" allin "$RB" '^# ' '^## Steps' '^## Verification' '^## Rollback'
 ckp "sections: First push (O-4), Reinstall Pantheon dev, Pull (ddev pull pantheon, ddev snapshot first), Roll back code, Restore the database, Emergency force push, Troubleshooting, event log" allin "$RB" 'First push' 'Reinstall Pantheon dev' 'ddev pull pantheon' 'ddev snapshot' 'Roll back code' 'Restore the database' 'Emergency force push' 'Troubleshooting' 'log'
 ckp "Roll back code: git revert on a task branch, merge commit (no squash, no rebase), deploy main (workflow or ddev deploy-drupal)" allin "$RB" 'git revert' 'merge commit' 'squash' 'rebase' 'ddev deploy-drupal'
-ckp "Restore the database: backup:list --element=db and backup:restore --element=db --file=<name> --yes, then cache:rebuild, config:status, smoke check" allin "$RB" 'backup:list' 'backup:restore' '--element=db' '--file=' '--yes' 'cache:rebuild' 'config:status'
-ckp "Forbidden on Pantheon dev: dashboard Restore button, backup:restore without --element, --element=all, --element=code" allin "$RB" 'dashboard.{0,30}Restore|Restore button' 'without .{0,3}--element' '--element=all' '--element=code' 'forbidden|never'
+ckp "Restore the database: backup:list --element=db, backup:restore --file=<name>_database.sql.gz --yes, then cache:rebuild, config:status (DEF-011)" allin "$RB" 'backup:list meridian-trade.dev --element=db' 'backup:restore meridian-trade.dev --file=<name>_database.sql.gz --yes' 'cache:rebuild' 'config:status'
+ckp "the runbook never pairs --file with --element in a backup:restore (Terminus 4.3.3 refuses it, DEF-011)" bash -c "! grep -nE 'backup:restore.*(--element=[a-z]+.*--file|--file.*--element=)' '$RB'"
+ckp "Forbidden on Pantheon dev: dashboard Restore button, backup:restore without --file, --element=all, --element=code" allin "$RB" 'dashboard.{0,30}Restore|Restore button' 'without .{0,3}--file' '--element=all' '--element=code' 'forbidden|never'
 ckp "Emergency force push: owner only, backup first, a commit that is on main, run stages 7 to 9 by hand, record in the log table" allin "$RB" 'owner only|only the owner' 'git push --force' 'on .main.|on main' 'log'
 ckp "First push (O-4): backup --element=db --keep-for=30, then git push --force <git_url> <split_sha>:refs/heads/master with the split SHA from --dry-run --ref origin/main; the only forced push outside an emergency" allin "$RB" 'ddev deploy-drupal --ref origin/main --dry-run' 'refs/heads/master' '--keep-for=30'
 ckp "Reinstall: env:wipe, site:install --existing-config, warning that it destroys the dev database, admin password never pasted (user:login)" allin "$RB" 'env:wipe' 'site:install --existing-config' 'destroy' 'user:login' 'password'
 ckp "Upstream rule text: dashboard upstream and Composer updates are never applied; if applied by mistake use Emergency force push" allin "$RB" 'never (be )?applied|never apply' 'upstream' 'by mistake'
 ckp "SFTP mode is forbidden (an SFTP commit breaks the non-force push); dev stays in Git mode" allin "$RB" 'SFTP' 'Git mode|git mode'
-ckp "no instruction in the runbook uses --element=all or a bare backup:restore as a step (only in the forbidden list)" bash -c "[[ -s $RB ]] && ! grep -nE '^\s*(terminus )?backup:restore [^#]*\$' $RB | grep -vE -- '--element=db'"
+ckp "no instruction in the runbook uses --element=all or a bare backup:restore as a step (only in the forbidden list)" bash -c "[[ -s $RB ]] && ! grep -nE '^\s*(terminus )?backup:restore [^#]*\$' $RB | grep -vE -- '--file=[^ ]*_database\.sql\.gz'"
 ckp "runbook has 'Last verified' with a date" allin "$RB" 'Last verified.{0,40}20[0-9]{2}-[0-9]{2}-[0-9]{2}'
 
 case_start TC-T07-21 "AC6: runbook records sandbox sleep, freeze, limits and the interstitial (KD-12, SA-6)"
@@ -1223,13 +1224,13 @@ live_checks() {
     ckp "backup:create --element=db succeeds ($((t1-t0)) s)" eq "$RC" 0 rc
     dxs 'terminus backup:list "$PANTHEON_SITE.dev" --element=db --format=json'
     local file; file=$(python3 -I -c 'import json,sys; d=json.loads(sys.argv[1]); d=d if isinstance(d,list) else list(d.values()); print(sorted(d,key=lambda x:x.get("date",0))[-1]["file"])' "$OUT" 2>/dev/null || true)
-    ckp "newest database backup file name found: '${file:-none}' (JSON field names assumed: file, date)" test -n "$file"
+    ckp "newest database backup file name found: '${file:-none}' and it is a database backup (ends in _database.sql.gz)" bash -c "[[ \$1 == *_database.sql.gz ]]" _ "$file"
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:set system.site name T07-RESTORE-PROBE -y'
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string'
     ckp "the probe value is set (got: $OUT)" bash -c "grep -q T07-RESTORE-PROBE <<<\"\$1\"" _ "$OUT"
-    t1=$(date +%s); dxs "terminus backup:restore \"\$PANTHEON_SITE.dev\" --element=db --file='$file' --yes 2>&1"; t2=$(date +%s)
+    t1=$(date +%s); dxs "terminus backup:restore \"\$PANTHEON_SITE.dev\" --file='$file' --yes 2>&1"; t2=$(date +%s)
     note "backup:restore output (exit $RC):"; show_out "$(grep -v 'read-only Git mode' <<<"$OUT" | tail -8)"
-    ckp "backup:restore --element=db --file=<name> --yes succeeds ($((t2-t1)) s)" eq "$RC" 0 rc
+    ckp "backup:restore --file=<name>_database.sql.gz --yes succeeds (no --element, DEF-011) ($((t2-t1)) s)" eq "$RC" 0 rc
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- cache:rebuild'
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string'
     ckp "the value is back to the original ($name0)" bash -c "! grep -q T07-RESTORE-PROBE <<<\"\$1\" && grep -qF \"\$2\" <<<\"\$1\"" _ "$OUT" "$name0"

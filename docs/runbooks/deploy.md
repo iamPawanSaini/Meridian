@@ -254,20 +254,23 @@ Every deploy that pushes first takes a database backup (`--element=db --keep-for
 
 ```bash
 terminus backup:list meridian-trade.dev --element=db
-terminus backup:restore meridian-trade.dev --element=db --file=<name> --yes
+terminus backup:restore meridian-trade.dev --file=<name>_database.sql.gz --yes
 terminus remote:drush meridian-trade.dev -- cache:rebuild
 terminus remote:drush meridian-trade.dev -- config:status
 ```
 
-Then run the smoke check (load `/user/login`). Both options (`--element=db` and `--file`) are
-mandatory. Backup and restore times: not yet measured (the restore test of T07 records them).
+Then run the smoke check (load `/user/login`). `--file` is mandatory and must name a
+`..._database.sql.gz` backup from the list, so only the database is restored. Do not add
+`--element`: Terminus 4.3.3 refuses `--file` together with `--element` ("You cannot specify a file
+and an element at the same time", DEF-011). Backup and restore times: recorded by TC-T07-48.
 
 ### Forbidden on Pantheon dev
 
 Never do these. They reset code on Pantheon and break the non-force deploy path:
 
 - the dashboard Restore button (it restores code, database and files together);
-- `terminus backup:restore` without `--element` (it restores the most recent backup of any type);
+- `terminus backup:restore` without `--file` (it restores the most recent backup of any type), or
+  with a `--file` that is not a `..._database.sql.gz` backup;
 - `--element=all` or `--element=code`;
 - applying Pantheon upstream or Composer updates;
 - switching dev to SFTP mode (an SFTP commit on Pantheon breaks the non-force push; dev stays in

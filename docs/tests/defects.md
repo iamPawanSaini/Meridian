@@ -138,6 +138,40 @@ scaffold files; kept: owned paths), with negative controls. Plan KD-7 note amend
 with the full local `composer install` output copied over it, gives an empty `git status
 --porcelain`. Without the file the same setup lists the untracked files from the Pantheon log.
 
+### DEF-011: The documented database restore (`--element=db --file=<name>`) is refused by Terminus 4.3.3
+
+| Field | Value |
+|---|---|
+| ID | DEF-011 |
+| Severity | High (the only database rollback path in the runbook does not run; workaround: `--file` alone) |
+| Found in | T07 part 2, TC-T07-48 (run `20261103T093614Z`; owner re-run with `-vvv` 2026-11-03 10:22 UTC) |
+| Status | Fixed, retest pending (TC-T07-48 in the next live run) |
+| Fix commit | |
+| Retest result | Runbook checks pass (static); live restore pending |
+
+**Steps to reproduce**
+
+1. `terminus backup:create meridian-trade.dev --element=db --keep-for=30`, note the file name from
+   `terminus backup:list meridian-trade.dev --element=db`.
+2. `terminus backup:restore meridian-trade.dev --element=db --file=<name> --yes`.
+
+**Expected:** the database is restored (runbook "Restore the database", decision-rollback.md item 2:
+"always with both options").
+
+**Actual:** exit 1 within 3 s, no restore: `[error] You cannot specify a file and an element at the
+same time.` (Terminus 4.3.3). The probe value `T07-RESTORE-PROBE` stayed on Pantheon dev.
+
+**Cause:** the decision and the runbook were written from the Terminus 3.x documentation (S2), which
+lists both options; 4.3.3 makes them mutually exclusive. The harness checks enforced the same wrong
+pair, so the static checks passed.
+
+**Fix:** restore by file name only: `terminus backup:restore meridian-trade.dev
+--file=<name>_database.sql.gz --yes`. A `_database.sql.gz` file restores only the database. Runbook,
+plan item 2 and decision-rollback.md item 2 amended; the forbidden list now names `backup:restore`
+without `--file` (or with a file that is not a database backup). TC-T07-20 checks the new text and
+that no `backup:restore` pairs `--file` with `--element`; TC-T07-48 uses `--file` alone and checks
+that the file is a database backup.
+
 ## Closed
 
 ### DEF-001: Path guard misparses quoted shell operators
