@@ -1,0 +1,41 @@
+# TC-T07-52 (KD-2, SA-4, owner-run): code server host key equal on two days and from a second network
+# Recorded 2026-11-03 by the main session; copies 2 and 3 run and verified by the owner.
+
+## Fingerprints per copy (from the raw evidence files)
+### host-key-copy1.txt
+# UTC: 2026-11-02T18:02:45Z
+# Network: this machine (WSL2 on the owner's workstation network, tester run, copy 1 of the host key check)
+2048 SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE [codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 (RSA)
+### host-key-copy2.txt
+# UTC: 2026-11-03T03:32:07Z
+# Network: home/office line, copy 2 (day 2)
+2048 SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE [codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 (RSA)
+### host-key-copy3-second-network.txt
+# UTC: 2026-11-03T06:09:15Z
+# Network: phone hotspot, public IP 1.187.64.4
+2048 SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE [codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 (RSA)
+
+## Key lines identical across copies (count of distinct ssh-rsa lines)
+1
+
+## Committed file
+$ ssh-keygen -lf scripts/pantheon_known_hosts
+2048 SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE [codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 (RSA)
+
+## Key types: ssh-rsa only (ecdsa, ed25519 requested, not offered; banner SSH-2.0-Pantheon-SSH)
+
+## Pantheon host key list: none published (decision-host-keys.md, 2026-11-02); Terminus 4.3.3 re-checked 2026-11-03
+$ ddev exec 'terminus list --raw | grep -iE "host|key|fingerprint"'
+ssh-key:add                  Associates a SSH public key with the currently logged-in user.
+ssh-key:list                 Displays the list of SSH public keys associated with the currently logged-in user.
+ssh-key:remove               Disassociates a SSH public key from the currently logged-in user.
+vcs:github-host:add          Register a GitHub Enterprise Server instance with Pantheon.
+(ssh-key:* manage the user's own public keys; none returns server host keys)
+
+## Pin works: read-only ls-remote, StrictHostKeyChecking=yes, UserKnownHostsFile=scripts/pantheon_known_hosts
+39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	HEAD
+39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	refs/heads/main
+deb98de72ac768de2f58b62bda2b8796c06f23e5	refs/heads/master
+exit 0
+
+## Owner statement (2026-11-03): "I verified TC-T07-52 copies are matching all three"; "I have verified TC-T07-52"

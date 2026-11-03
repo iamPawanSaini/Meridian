@@ -73,7 +73,7 @@ PATs in use (never write the value here):
 
 | Owner | Purpose | Store | Created | Expires |
 |---|---|---|---|---|
-| Owner (Pawan Kumar) | `ddev pull pantheon`, `ddev deploy-drupal` | `~/.ddev/global_config.yaml` | owner records (O-1) | created plus 90 days |
+| Owner (Pawan Kumar) | `ddev pull pantheon`, `ddev deploy-drupal` | `~/.ddev/global_config.yaml` | 2026-11-01 | 2027-01-30 |
 | Meridian CI bot (machine user, only if O-5 succeeds) | `deploy-drupal.yml` | GitHub Secrets `TERMINUS_MACHINE_TOKEN` | not created | not created |
 
 **Rotation** (before the expiry date):

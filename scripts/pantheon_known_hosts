@@ -2,15 +2,19 @@
 # Used by scripts/deploy-drupal.sh through GIT_SSH_COMMAND with StrictHostKeyChecking=yes.
 # This file is public data. It holds no private key.
 #
-# STATUS: no key recorded yet. The deploy script refuses to push over SSH while this file holds
-# no key line (fail closed). The key can only be read once the owner's Pantheon PAT works from
-# the DDEV web container (plan O-1 to O-3). Then:
-#   1. host and port: terminus connection:info meridian-trade.dev --fields=git_host,git_port
-#   2. ssh-keyscan -p 2222 <git_host> and ssh-keygen -lf - to see the SHA256 fingerprint
-#   3. repeat on a second day and from a second network; the fingerprints must match
-#   4. add one comment line per key (fingerprint, date, how fetched) and the key line, in the form
-#      [codeserver.dev.<site-uuid>.drush.in]:2222 ssh-rsa AAAA...
+# STATUS: code server key pinned on 2026-11-03 (TC-T07-52). Pantheon offers ssh-rsa only
+# (ecdsa and ed25519 were requested and not offered). Pantheon publishes no host key list and
+# Terminus 4.3.3 has no command that returns host keys (checked 2026-11-03), so the key was
+# compared across three independent scans:
+#   copy 1  2026-11-02T18:02:45Z  owner workstation line   SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE
+#   copy 2  2026-11-03T03:32:07Z  home/office line (day 2) SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE
+#   copy 3  2026-11-03T06:09:15Z  phone hotspot (network 2) SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE
+# Fetched with: ssh-keyscan -p 2222 -t rsa,ecdsa,ed25519 <git_host> | ssh-keygen -lf -
+# Evidence: docs/tests/T07/evidence/host-key-copy{1,2,3-second-network}.txt
+# If Pantheon ever changes this key, the push fails closed; re-run the three-scan check above
+# before replacing the line (SA-4 decision 4).
 #
 # The app server (terminus remote:drush) is deliberately NOT pinned here: Pantheon changes its
 # key at container migrations. env:code-log and the HTTPS smoke check verify the result instead.
 # Reasoning: docs/tasks/T07/decision-host-keys.md
+[codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSY3gnr0DrbqJJSnEFy6jazDmAdBm4Zs/EkWIQa7x31qgSYyYJMz5V+pk62lBf2BN42VtubwO83vW9G+yG2K1RGOvZJaK5GBvBb/Ws2ZPcp/4sNHpPzkdd75e5/Pk8AWA59XUbJcBWmrDrHMbWV1j2zqPPikxbqGeTTjSx4QR18LIRei5OwT6VQnaVnJqPAqFZ+oCbpr0DL96foL3UEY8EWT/6GH2cANEGZO4ppbhdDw4uG6TaI7S0lxWMQEVy+iwjCNH/nanjd73cwoYd90E0OVdgNDr3hVbIuE6sUW6UwlaAwuyOM/xJYPg1y0rF66958pyVJlZ9KD5A0kY3bHg7

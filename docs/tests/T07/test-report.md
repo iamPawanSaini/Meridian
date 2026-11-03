@@ -140,11 +140,13 @@ What this means for the plan:
 | TC-T07-43 | AC3 | Pass | `evidence/TC-T07-43.20261102T185155Z.txt` |
 | TC-T07-44, 45, 46 | AC6 | Measured (edge assertions Pass); installed-site assertions await O-4 | `evidence/TC-T07-44..46.20261102T185155Z.txt` |
 | TC-T07-32 to 41 (except 31), 47 to 49 | AC4, AC5, AC6 | Blocked: awaiting O-4 (part 2) (TC-T07-41 also awaits L-3) | n/a |
-| TC-T07-50 to 54, 56, 57 | AC2, AC4, C7 | Blocked: owner-run or CI (O-5 to O-7); TC-T07-50 needs the owner's written acceptance at close | n/a |
+| TC-T07-50, 51, 53, 54, 57 | AC4, C7 | Blocked: owner-run or CI (O-5 to O-7); TC-T07-50 needs the owner's written acceptance at close | n/a |
+| TC-T07-52 | AC4 | Pass (2026-11-03): one RSA fingerprint `SHA256:yPEkh1Am...ZZE` on 2026-11-02 and 2026-11-03 and from a phone hotspot; equals `scripts/pantheon_known_hosts`; no host key list published (Terminus re-checked 2026-11-03); pinned `ls-remote` exit 0 | `evidence/TC-T07-52.20261103T061000Z.txt`, `evidence/host-key-copy1.txt`, `host-key-copy2.txt`, `host-key-copy3-second-network.txt` |
+| TC-T07-56 | AC2 | Pass (2026-11-03): runbook PAT row 2026-11-01 / 2027-01-30, `auth:login --machine-token` and `auth:whoami` exit 0 in `ddev exec`, owner confirms no PAT value pasted | `evidence/TC-T07-56.20261103T062710Z.txt` |
 | TC-T07-55 | C7 | Blocked: `T07_CONFIRM=1 ... --clean-clone` stops the project's DDEV; runs in part 2 | n/a |
 | TC-T07-58 to 62 | AC3, AC4, C4 | Pass | `evidence/static-part1.txt` |
 
-Totals (61 cases): 33 pass, 0 fail, 28 blocked (5 of the blocked ones were measured in part and
+Totals (61 cases): 35 pass, 0 fail, 26 blocked (5 of the blocked ones were measured in part and
 their executed checks passed: TC-T07-31, 42, 44, 45, 46), 0 not run.
 
 ## Cases waiting for part 2 (O-4 and later)
@@ -154,8 +156,10 @@ their executed checks passed: TC-T07-31, 42, 44, 45, 46), 0 not run.
   restore, `T07_CONFIRM_RESTORE=1`), 49 (history replaced).
 - Needs the reinstall (`T07_CONFIRM_WIPE=1`): TC-T07-39, then the content assertions of
   TC-T07-42 and the installed-site parts of TC-T07-44 to 47 (including the private files probe).
-- Needs the committed host key: TC-T07-07 content checks, TC-T07-40, 41, 52.
-- Owner-run or CI: TC-T07-50 to 54, 56, 57; TC-T07-55 in a clean clone; TC-T07-27 at close.
+- Needs the committed host key: TC-T07-07 content checks, TC-T07-40, 41 (key committed
+  2026-11-03; TC-T07-52 passed).
+- Owner-run or CI: TC-T07-50, 51, 53, 54, 57 (TC-T07-52 and 56 passed 2026-11-03); TC-T07-55
+  in a clean clone; TC-T07-27 at close.
 - Review conditions 3 and 4: the "completed successfully for commit" line on the first deploy and
   on the re-run (L-4, L-10); the finding-13 ticket stays with the solution-architect.
 
