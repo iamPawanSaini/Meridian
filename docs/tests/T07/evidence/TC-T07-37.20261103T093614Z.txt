@@ -1,0 +1,3 @@
+== TC-T07-37 KD-5 live: config_sync_directory on Pantheon resolves to /code/config/sync
+  FAIL  php:eval prints /code/config/sync
+        

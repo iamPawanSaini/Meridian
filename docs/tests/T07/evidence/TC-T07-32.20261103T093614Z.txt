@@ -1,0 +1,17 @@
+== TC-T07-32 AC4 live (phase 2): ddev deploy-drupal deploys the branch to Pantheon dev
+        2026-11-03 09:37:30 UTC[+0000] [notice] Command: meridian-trade.dev -- drush updatedb [Exit: 1] (Attempt 1/1)
+        2026-11-03 09:37:30 UTC[+0000] [error]  Command: meridian-trade.dev -- drush updatedb [Exit: 1] (All attempts failed) 
+        2026-11-03 09:37:30 UTC[+0000] [error]  
+        In BootstrapHook.php line 40:
+                                                                              
+          Bootstrap failed. Run your command with -vvv for more information.  
+                                                                              
+        
+  FAIL  exit 0
+        rc: expected '0', got '1'
+  FAIL  last output line is the deployed split SHA (40 hex): 'none'
+        
+  PASS  output names every stage and a warning about merge commits (--allow-unmerged)
+  PASS  output contains no token, no private key and no full git URL user part
+  PASS  a backup was created by the script before the push (backup stage printed)
+  PASS  the build was confirmed: output holds 'completed successfully for commit' (review condition 3, L-4)

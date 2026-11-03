@@ -1,0 +1,2 @@
+== TC-T07-35 AC4 live negative: an older ancestor of origin/main is rejected by Pantheon, never forced
+  BLOCKED  no older commit touching apps/drupal on origin/main to use as a rewind target (fetch origin, or merge T07 first)

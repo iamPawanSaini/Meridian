@@ -1,0 +1,14 @@
+== TC-T07-34 AC4 live: idempotent re-run takes no backup and pushes nothing
+                                                                              
+          Bootstrap failed. Run your command with -vvv for more information.  
+                                                                              
+        
+         
+        deploy-drupal: error: drush updatedb failed
+        
+        [31mFailed to run deploy-drupal --ref task/T07-pantheon-dev --allow-unmerged: exit status 1[0m
+  FAIL  exit 0
+        rc: expected '0', got '1'
+  PASS  database backup count unchanged (8 before, 8 after)
+  PASS  output says the push was skipped (already at the split SHA)
+  PASS  the re-run still confirmed the build: output holds 'completed successfully for commit' (workflow:wait --start=1; review condition 3, L-4/L-10)

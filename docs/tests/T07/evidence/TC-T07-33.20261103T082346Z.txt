@@ -1,0 +1,8 @@
+== TC-T07-33 AC4 live: independent verification of the deploy (code-log, ls-remote, smoke)
+  FAIL  env:code-log: the newest hash equals the split SHA (f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5)
+        
+  FAIL  git ls-remote master equals the split SHA
+        
+  PASS  GET /user/login (certificate verified, bypass header only if needed) returns '200 0' (got: 200 0)
+  PASS  body holds the Drupal marker user-login-form
+  PASS  drush bootstraps on Pantheon (Successful)

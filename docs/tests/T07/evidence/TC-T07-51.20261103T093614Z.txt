@@ -1,0 +1,2 @@
+== TC-T07-51 Addendum: first push-triggered run of deploy-drupal.yml on main after the merge is 'skipped' (not a close condition)
+  BLOCKED  owner-run after merge: the first run on main must show the skip step 'deploy-drupal: not configured (PANTHEON_SITE unset), skipped' and a green job; record the run URL as an addendum

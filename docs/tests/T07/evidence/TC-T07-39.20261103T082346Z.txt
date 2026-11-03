@@ -1,0 +1,15 @@
+== TC-T07-39 KD-6 live (destructive): wipe and reinstall Pantheon dev from config/sync; admin password redacted
+  PASS  safety backup (--element=db --keep-for=30) succeeded
+  PASS  env:wipe exits 0
+        site:install output (password line redacted at source and again by redact()):
+        2026-11-03 08:36:54 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+        ssh: connect to host appserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in port 2222: Connection timed out
+        2026-11-03 08:39:08 UTC[+0000] [notice] Command: meridian-trade.dev -- drush site:install [Exit: 255] (Attempt 1/1)
+        2026-11-03 08:39:08 UTC[+0000] [error]  Command: meridian-trade.dev -- drush site:install [Exit: 255] (All attempts failed) 
+        2026-11-03 08:39:08 UTC[+0000] [error]   
+  FAIL  site:install --existing-config exits 0 on Pantheon (if it fails, the KD-6 fallback needs a review note)
+        
+  PASS  cache:rebuild exits 0
+  FAIL  config:status says No differences after the reinstall
+        
+  PASS  the evidence of this case holds no password value (redaction applied)

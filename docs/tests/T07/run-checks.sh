@@ -1067,10 +1067,10 @@ live_checks() {
     ssh-keygen -q -t rsa -b 2048 -N '' -f "$WORK/wrongkey" >/dev/null 2>&1
     local host; host=$(grep -oE '\[codeserver\.dev\.[0-9a-f-]+\.drush\.in\]:2222' "$KH" | head -1)
     printf '%s %s\n' "$host" "$(cut -d' ' -f1,2 "$WORK/wrongkey.pub")" >"$WORK/kh_wrong"
-    dxs "cd /var/www/html && head -c 0 /dev/null; mkdir -p /tmp/t07 && cat > /tmp/t07/kh_wrong <<'EOF'
-$(cat "$WORK/kh_wrong")
-EOF
-GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/tmp/t07/kh_wrong -o BatchMode=yes' git ls-remote '$url' 2>&1; echo EXIT=\$?"
+    # ddev exec stops at the first failing command (errexit), so '; echo EXIT=$?' never ran after the
+    # expected ls-remote failure (run 20261103T093614Z). Capture the code with '|| rc=$?' instead.
+    dxs "mkdir -p /tmp/t07 && printf '%s\n' '$(cat "$WORK/kh_wrong")' > /tmp/t07/kh_wrong && rc=0 && { GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/tmp/t07/kh_wrong -o BatchMode=yes -o ConnectTimeout=30' git ls-remote '$url' 2>&1 || rc=\$?; }; echo EXIT=\$rc"
+    show_out "$(tail -3 <<<"$OUT")"
     ckp "wrong pinned key: connection refused with a host key error (REMOTE HOST IDENTIFICATION or Host key verification failed), non-zero exit" bash -c "grep -qiE 'host key verification failed|REMOTE HOST IDENTIFICATION' <<<\"\$1\" && grep -qE 'EXIT=[1-9]' <<<\"\$1\"" _ "$OUT"
     dxs "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/var/www/html/$KH -o BatchMode=yes' git ls-remote '$url' 2>&1 | head -2; echo EXIT=\${PIPESTATUS[0]}"
     ckp "control: the committed known_hosts file lets git ls-remote succeed" bash -c "grep -q 'EXIT=0' <<<\"\$1\" && grep -q 'refs/' <<<\"\$1\"" _ "$OUT"
@@ -1155,7 +1155,12 @@ GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/n
     o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code}' "$PUB/user/login" 2>&1) || true
     ckp "installed site, with the header: GET /user/login is Drupal's form (200 and user-login-form)" bash -c "[[ '$o' == 200 ]] && grep -q 'user-login-form' '$WORK/m.body'"
     o=$(curl -sS --max-time 90 -H "Deterrence-Bypass: $BYPASS" -o "$WORK/m.body" -w '%{http_code} %{content_type}' "$PUB/jsonapi" 2>&1) || true
-    ckp "installed site, with the header: GET /jsonapi is Drupal's answer (200/401/403 and a JSON content type) (got: $o)" bash -c "grep -qE '^(200|401|403) .*json' <<<\"\$1\"" _ "$o"
+    if grep -qE '^  jsonapi:' apps/drupal/config/sync/core.extension.yml; then
+      ckp "installed site, with the header: GET /jsonapi is Drupal's answer (200/401/403 and a JSON content type) (got: $o)" bash -c "grep -qE '^(200|401|403) .*json' <<<\"\$1\"" _ "$o"
+    else
+      ckp "installed site, with the header: GET /jsonapi reaches Drupal: its 404 page while JSON:API is not enabled (T11 enables the read API) (got: $o)" bash -c "grep -qE '^404 text/html' <<<\"\$1\" && grep -q 'Page not found' '$WORK/m.body'" _ "$o"
+      note "JSON:API is not enabled in config/sync yet (T11). Re-check the JSON answer in T11 and T28."
+    fi
     ckp "the runbook and D8 record the measured result" allin "$RB" 'Deterrence-Bypass'
   fi
 
@@ -1222,7 +1227,8 @@ GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/n
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:set system.site name T07-RESTORE-PROBE -y'
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string'
     ckp "the probe value is set (got: $OUT)" bash -c "grep -q T07-RESTORE-PROBE <<<\"\$1\"" _ "$OUT"
-    t1=$(date +%s); dxs "terminus backup:restore \"\$PANTHEON_SITE.dev\" --element=db --file='$file' --yes"; t2=$(date +%s)
+    t1=$(date +%s); dxs "terminus backup:restore \"\$PANTHEON_SITE.dev\" --element=db --file='$file' --yes 2>&1"; t2=$(date +%s)
+    note "backup:restore output (exit $RC):"; show_out "$(grep -v 'read-only Git mode' <<<"$OUT" | tail -8)"
     ckp "backup:restore --element=db --file=<name> --yes succeeds ($((t2-t1)) s)" eq "$RC" 0 rc
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- cache:rebuild'
     dxs 'terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string'

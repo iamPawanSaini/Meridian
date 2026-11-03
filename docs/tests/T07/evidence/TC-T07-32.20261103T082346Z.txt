@@ -1,0 +1,19 @@
+== TC-T07-32 AC4 live (phase 2): ddev deploy-drupal deploys the branch to Pantheon dev
+        deploy-drupal: stage 3: authenticate
+        deploy-drupal: code server codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in (host key pinned in scripts/pantheon_known_hosts)
+        deploy-drupal: stage 4: wake meridian-trade.dev
+        2026-11-03 08:24:30 UTC[+0000] [notice] OK >> dev-meridian-trade.pantheonsite.io responded
+        ssh: connect to host codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in port 2222: Connection timed out
+        fatal: Could not read from remote repository.
+        
+        Please make sure you have the correct access rights
+  FAIL  exit 0
+        rc: expected '0', got '1'
+  FAIL  last output line is the deployed split SHA (40 hex): 'none'
+        
+  PASS  output names every stage and a warning about merge commits (--allow-unmerged)
+  PASS  output contains no token, no private key and no full git URL user part
+  FAIL  a backup was created by the script before the push (backup stage printed)
+        
+  FAIL  the build was confirmed: output holds 'completed successfully for commit' (review condition 3, L-4)
+        

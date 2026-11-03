@@ -1,0 +1,6 @@
+== TC-T07-45 KD-12 live: edge body size 8 MB and 9 MB, post_max_size and upload_max_filesize
+        POST 8,388,608 bytes -> 302 ; POST 9,437,184 bytes -> 302 (2026-11-03); path /user/login, no data changes
+  PASS  8 MB body: the response is not 413 from the edge (design value met; got 302)
+        9 MB result recorded only (the limit may be higher or lower): 302
+  PASS  post_max_size and upload_max_filesize recorded: '2026-11-03 08:46:27 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+100M 100M2026-11-03 08:46:33 UTC[+0000] [notice] Command: meridian-trade.dev -- drush php:eval echo ini_get("post_max_size")." ".ini_get("upload_max_filesize"); [Exit: 0] (Attempt 1/1)'

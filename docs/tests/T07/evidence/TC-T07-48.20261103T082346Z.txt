@@ -1,0 +1,52 @@
+== TC-T07-48 TH-8 live (destructive): database-only restore changes the value back and leaves code untouched
+  PASS  backup:create --element=db succeeds (60 s)
+  PASS  newest database backup file name found: 'meridian-trade_dev_2026-11-03T08-50-14_UTC_database.sql.gz' (JSON field names assumed: file, date)
+  FAIL  the probe value is set (got: 2026-11-03 08:51:25 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+
+                                                                               
+  Command config:get was not found. Drush was unable to query the database. A  
+  s a result, many commands are unavailable. Re-run your command with --debug  
+   to see relevant log messages.                                               
+                                                                               
+
+2026-11-03 08:51:30 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:get system.site name [Exit: 1] (Attempt 1/1)
+2026-11-03 08:51:30 UTC[+0000] [error]  Command: meridian-trade.dev -- drush config:get system.site name [Exit: 1] (All attempts failed) 
+2026-11-03 08:51:30 UTC[+0000] [error]  
+                                                                               
+  Command config:get was not found. Drush was unable to query the database. A  
+  s a result, many commands are unavailable. Re-run your command with --debug  
+   to see relevant log messages.                                               
+                                                                               
+
+ 
+
+[31mFailed to execute command `terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string`: exit status 1[0m)
+        
+  FAIL  backup:restore --element=db --file=<name> --yes succeeds (3 s)
+        rc: expected '0', got '1'
+  PASS  the value is back to the original (2026-11-03 08:50:06 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+
+                                                                               
+  Command config:get was not found. Drush was unable to query the database. A  
+  s a result, many commands are unavailable. Re-run your command with --debug  
+   to see relevant log messages.                                               
+                                                                               
+
+2026-11-03 08:50:11 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:get system.site name [Exit: 1] (Attempt 1/1)
+2026-11-03 08:50:11 UTC[+0000] [error]  Command: meridian-trade.dev -- drush config:get system.site name [Exit: 1] (All attempts failed) 
+2026-11-03 08:50:11 UTC[+0000] [error]  
+                                                                               
+  Command config:get was not found. Drush was unable to query the database. A  
+  s a result, many commands are unavailable. Re-run your command with --debug  
+   to see relevant log messages.                                               
+                                                                               
+
+ 
+
+[31mFailed to execute command `terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string`: exit status 1[0m)
+  FAIL  git ls-remote master unchanged ()
+        
+  PASS  env:code-log newest hash unchanged (f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5)
+  FAIL  config:status clean after the restore
+        
+        timings recorded for the report: backup 79 s, restore 3 s
