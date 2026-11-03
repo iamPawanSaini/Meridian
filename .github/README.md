@@ -91,6 +91,7 @@ Actions, General (plan KD-10); the other four are GitHub-owned.
 | pre-commit (zipapp) | 4.7.0 | 2026-10-13 | release asset digest, <https://api.github.com/repos/pre-commit/pre-commit/releases/tags/v4.7.0> (equals the SHA-256 of the file downloaded earlier by T00) |
 | gitleaks (Linux x64) | 8.30.1 | 2026-03-21 | <https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt> |
 | actionlint (Linux amd64) | 1.7.12 | 2026-03-30 | <https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt> |
+| shellcheck (Linux x86_64) | 0.11.0 | 2025-08-04 | release asset digest, <https://api.github.com/repos/koalaman/shellcheck/releases/tags/v0.11.0>. The runner image has 0.9.0, which flags info-level findings in older suites (T04a, T06); the `docs` group puts the pinned binary first on `PATH` |
 
 ### Adding the heavier set
 

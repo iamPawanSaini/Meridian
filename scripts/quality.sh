@@ -161,14 +161,14 @@ builtin_steps() {
   # another by default (they share pre-commit and DDEV, so parallel runs on a developer machine
   # can clash). CI sets QUALITY_DOCS_JOBS=4 because one after another they would use most of the
   # 10 minute budget (NFR-07); each suite writes to its own file and the results are reported in
-  # order. T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already
-  # runs each of them once. The command must be one line (the steps file is line based), so
+  # order. .tools/suite-bin (the pinned shellcheck only) goes first on PATH.
+  # T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already runs each once. The command must be one line (the steps file is line based), so
   # newlines become spaces.
   docs_regression="$(
     cat <<'EOF'
 mkdir -p .tools; echo $$ > .tools/docs-regression.lock; d="$(mktemp -d)";
 trap 'rm -f .tools/docs-regression.lock; rm -rf "$d"' EXIT;
-export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-1}";
+if [ -x .tools/shellcheck ]; then mkdir -p .tools/suite-bin; ln -sf ../shellcheck .tools/suite-bin/shellcheck; export PATH="$PWD/.tools/suite-bin:$PATH"; fi; export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-1}";
 for s in docs/tests/T*/run-checks.sh; do
   if [ ! -f "$s" ]; then echo "no docs suites found: $s"; exit 1; fi;
   n=$((n + 1)); k="${s#docs/tests/}"; k="${k%%/*}";

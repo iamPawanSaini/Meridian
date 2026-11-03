@@ -96,9 +96,9 @@ install_release_binary() {
   fi
   have=""
   if [[ -x "$tools_dir/$name" ]]; then
-    have="$("$tools_dir/$name" "$vcmd" 2>/dev/null | head -n 1 || true)"
+    have="$("$tools_dir/$name" "$vcmd" 2>/dev/null || true)"
   fi
-  if [[ "$have" == "$version"* ]]; then
+  if [[ "$have" == *"$version"* ]]; then
     return 0
   fi
   stage="$(mktemp -d)"
@@ -122,8 +122,13 @@ al_url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERS
 install_release_binary actionlint "$ACTIONLINT_VERSION" \
   "${al_url}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
   "${ACTIONLINT_SHA256:-}" actionlint -version
+sc_url="https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}"
+install_release_binary shellcheck "$SHELLCHECK_VERSION" \
+  "${sc_url}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.gz" \
+  "${SHELLCHECK_SHA256:-}" "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" --version
 "$tools_dir/gitleaks" version
 "$tools_dir/actionlint" -version | head -n 1
+"$tools_dir/shellcheck" --version | sed -n 2p
 
 "$wrapper" --version
 "$wrapper" install --install-hooks --hook-type pre-commit --hook-type commit-msg
