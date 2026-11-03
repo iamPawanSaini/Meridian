@@ -53,7 +53,10 @@ jobs:
         # actions/cache v6.1.0
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: .tools
+          path: |
+            .tools
+            !.tools/reports
+            !.tools/suite-bin
           key: "tools-${{ runner.os }}-${{ hashFiles('scripts/tool-versions.env') }}"
       - name: Install the pinned tools
         shell: bash
@@ -113,7 +116,10 @@ jobs:
         # actions/cache v6.1.0
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: .tools
+          path: |
+            .tools
+            !.tools/reports
+            !.tools/suite-bin
           key: "tools-${{ runner.os }}-${{ hashFiles('scripts/tool-versions.env') }}"
       - name: Install the Python packages the docs suites import
         shell: bash
