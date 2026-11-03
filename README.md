@@ -5,6 +5,8 @@ Simulation-only research agent for NSE (India) equities.
 > **Scope guard:** Meridian never places real orders. It contains no broker SDK or
 > order-placement code.
 
+Simulation-only research software. It places no orders and gives no investment advice.
+
 Meridian has three parts:
 
 - A Python engine that analyses a watchlist once per trading day.
