@@ -21,6 +21,8 @@
 #                               .tools/docs-regression.lock with its pid, because ddev drops the
 #                               environment), so a suite that runs `ddev quality` cannot start
 #                               docs-regression again: the docs group is left out, with a note.
+#   QUALITY_DOCS_JOBS=N         how many docs suites docs-regression runs at once (default 1; CI
+#                               sets 4 on a runner with no DDEV).
 #   GITHUB_STEP_SUMMARY=FILE    when set, a Markdown table of the steps is appended to FILE.
 # SKIP happens only when a component manifest is absent. A missing tool is a FAIL. A built-in
 # step that SKIPs without a line in quality/expected-skips.txt is a FAIL, and so is a step that
@@ -155,17 +157,18 @@ builtin_steps() {
   # that exits non-zero fails the step and is named. BLOCKED and optional-tool SKIP lines inside
   # a suite do not change its exit code.
   # QUALITY_NESTED and the lock file stop recursion: a docs suite (T04a, T05, T06) may run
-  # `ddev quality`, and a nested run leaves out the docs group. The suites run in parallel
-  # (QUALITY_DOCS_JOBS at a time, default 4) because run one after another they would use most
-  # of the 10 minute CI budget (NFR-07); each one writes to its own file and the results are
-  # reported in order. T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already
+  # `ddev quality`, and a nested run leaves out the docs group. The suites run one after
+  # another by default (they share pre-commit and DDEV, so parallel runs on a developer machine
+  # can clash). CI sets QUALITY_DOCS_JOBS=4 because one after another they would use most of the
+  # 10 minute budget (NFR-07); each suite writes to its own file and the results are reported in
+  # order. T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already
   # runs each of them once. The command must be one line (the steps file is line based), so
   # newlines become spaces.
   docs_regression="$(
     cat <<'EOF'
 mkdir -p .tools; echo $$ > .tools/docs-regression.lock; d="$(mktemp -d)";
 trap 'rm -f .tools/docs-regression.lock; rm -rf "$d"' EXIT;
-export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-4}";
+export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-1}";
 for s in docs/tests/T*/run-checks.sh; do
   if [ ! -f "$s" ]; then echo "no docs suites found: $s"; exit 1; fi;
   n=$((n + 1)); k="${s#docs/tests/}"; k="${k%%/*}";

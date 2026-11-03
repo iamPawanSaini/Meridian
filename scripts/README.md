@@ -59,6 +59,12 @@ built-in step in run order and exits 0. `--group G` runs only the steps of group
   `NAME<TAB>MANIFEST<TAB>COMMAND` (`-` as the manifest means always run). The tests use it. The
   expected-skips rule does not apply to it. `QUALITY_EXPECTED_SKIPS=FILE` replaces
   `quality/expected-skips.txt` (test hook).
+- `docs-regression` runs the suites one after another (`QUALITY_DOCS_JOBS=1`). CI sets
+  `QUALITY_DOCS_JOBS=4` in the `docs` job, where there is no DDEV, to stay inside the 10 minute
+  budget. A suite that runs `ddev quality` (T04a) starts a nested run: it leaves out the docs
+  group (guard: `QUALITY_NESTED` and `.tools/docs-regression.lock`), so there is no recursion.
+  The step also sets `T07_SKIP_NESTED=1`, because T07 would run T02 to T06 again. Locally a full
+  `ddev quality` is slow (several minutes) because of these nested runs.
 - `GITHUB_STEP_SUMMARY`: when set (it is, on GitHub), a Markdown table of the steps and their
   results is appended to that file, each SKIP row with its reason. The exit code is unchanged.
 - Reports are written to `.tools/reports/` (git-ignored): `gitleaks.json` and

@@ -88,6 +88,7 @@ jobs:
       contents: read
     env:
       QUALITY_RUNNER: native
+      QUALITY_DOCS_JOBS: 4
     steps:
       - name: Check out the full history
         # actions/checkout v7.0.1
