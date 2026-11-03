@@ -70,6 +70,8 @@ class CheckCiTestCase(unittest.TestCase):
 
 
 class GoodTreeTests(CheckCiTestCase):
+    """TC-T08-32: The good fixture set and the real repository pass."""
+
     def test_good_fixture_passes_every_rule(self) -> None:
         code, out = self.tree.run()
         self.assertEqual(code, 0, out)
@@ -96,6 +98,8 @@ class GoodTreeTests(CheckCiTestCase):
 
 
 class Rule1Tests(CheckCiTestCase):
+    """TC-T08-33: Rule 1, group coverage."""
+
     def test_missing_group(self) -> None:
         self.tree.use("group-missing.yml")
         self.assertFails(1, "group 'docs'", self.tree.run())
@@ -120,6 +124,8 @@ class Rule1Tests(CheckCiTestCase):
 
 
 class Rule2Tests(CheckCiTestCase):
+    """TC-T08-34: Rule 2, toolchain parity."""
+
     def test_php_mismatch_with_ci(self) -> None:
         self.tree.use("php-mismatch.yml")
         self.assertFails(
@@ -173,6 +179,8 @@ class Rule2Tests(CheckCiTestCase):
 
 
 class Rule3Tests(CheckCiTestCase):
+    """TC-T08-35: Rule 3, action pins and comments."""
+
     def test_unpinned_short_branch_and_missing_comment_fail(self) -> None:
         for name, needle in (
             ("unpinned.yml", "not owner/repo@<40 hex"),
@@ -202,6 +210,8 @@ class Rule3Tests(CheckCiTestCase):
 
 
 class Rule4Tests(CheckCiTestCase):
+    """TC-T08-39: Rule 4, secret and variable names."""
+
     def test_undocumented_secret_and_variable_fail(self) -> None:
         shutil.copy(BAD / "undocumented-secret.yml", self.tree.base / "workflows" / "x.yml")
         code, out = self.tree.run()
@@ -223,6 +233,8 @@ class Rule4Tests(CheckCiTestCase):
 
 
 class Rule5Tests(CheckCiTestCase):
+    """TC-T08-37: Rule 5, least privilege."""
+
     def test_missing_top_level_permissions(self) -> None:
         self.tree.use("no-top-permissions.yml")
         self.assertFails(5, "no top-level 'permissions:'", self.tree.run())
@@ -244,6 +256,8 @@ MOD = "apps/drupal/web/modules/custom/x/tests/src/"
 
 
 class Rule6Tests(CheckCiTestCase):
+    """TC-T08-40: Rule 6, heavier-set tripwire."""
+
     def make_marker(self, rel: str, text: str = "x\n") -> None:
         path = self.tree.root / rel
         path.parent.mkdir(parents=True, exist_ok=True)

@@ -83,8 +83,8 @@ Actions, General (plan KD-10); the other four are GitHub-owned.
 ### Pinned tools
 
 `scripts/tool-versions.env` holds the version and SHA-256 of each tool that
-`scripts/bootstrap-dev.sh` installs. The values were copied from the publisher files on
-2026-11-03 and bootstrap fails on a mismatch.
+`scripts/bootstrap-dev.sh` installs (pre-commit, gitleaks, actionlint and shellcheck). The
+values were copied from the publisher files on 2026-11-03 and bootstrap fails on a mismatch.
 
 | Tool | Version | Released | Source of the SHA-256 |
 |---|---|---|---|
@@ -92,6 +92,16 @@ Actions, General (plan KD-10); the other four are GitHub-owned.
 | gitleaks (Linux x64) | 8.30.1 | 2026-03-21 | <https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt> |
 | actionlint (Linux amd64) | 1.7.12 | 2026-03-30 | <https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt> |
 | shellcheck (Linux x86_64) | 0.11.0 | 2025-08-04 | release asset digest, <https://api.github.com/repos/koalaman/shellcheck/releases/tags/v0.11.0>. The runner image has 0.9.0, which flags info-level findings in older suites (T04a, T06); the `docs` group puts the pinned binary first on `PATH` |
+
+### Dependency audit (T08, CODING_STANDARDS "Audit before adding")
+
+Two dependencies were added after the plan was approved. The review of 2026-11-04 accepts them
+as plan departures.
+
+| Dependency | Licence | Released | Advisories | Why needed |
+|---|---|---|---|---|
+| PyYAML 6.0.3 (`scripts/requirements-docs-tests.txt`) | MIT | 2025-09-25 (latest on PyPI at the check) | none in PyPI metadata or OSV (`api.osv.dev` query for PyPI/PyYAML 6.0.3 returned no entry), 2026-11-04 | The docs suites (T04a and later) import `yaml`; the CI runner Python has no PyYAML. Used only in the `docs` job and on a developer's own Python. Pinned by version; hash pinning is an open owner decision |
+| shellcheck 0.11.0 binary (`scripts/tool-versions.env`) | GPL-3.0 (a tool that is run, not shipped) | 2025-08-04 | no repository security advisory (GitHub API, 2026-11-04) | The suites call `shellcheck` from `PATH`; the runner's 0.9.0 reports findings the pre-commit hook (0.11.0.1) does not. SHA-256 pinned |
 
 ### Adding the heavier set
 
@@ -114,9 +124,9 @@ contract for the task that adds the first job:
 
 ### Not verifiable until the first run
 
-Two facts are recorded after the first run on GitHub, in the test report: whether `shellcheck`
-is on the runner image (actionlint then also checks `run:` blocks), and that `branch-name` sees
-`main` on a `push` event.
+The runner image has `shellcheck` 0.9.0 (measured on PR #3), so actionlint also checks `run:`
+blocks, with that older version. One fact is recorded after the first `push` run on GitHub, in
+the test report: that `branch-name` sees `main` on a `push` event.
 
 ## deploy-drupal.yml (T07)
 

@@ -1,3 +1,4 @@
-# Python packages the docs-task suites (docs/tests/T*/run-checks.sh) import. Installed by the CI docs job (T08).
-# Local developers get PyYAML from their system Python; DDEV does not need it.
+# Python packages the docs-task suites (docs/tests/T*/run-checks.sh) import.
+# Installed by the CI docs job (T08). Local developers install it too
+# (docs/runbooks/local-setup.md, Prerequisites); DDEV does not need it.
 PyYAML==6.0.3

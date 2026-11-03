@@ -188,7 +188,7 @@ class ConfigExcludeTests(unittest.TestCase):
 
 
 class ComposerAuditIgnoreTests(unittest.TestCase):
-    """T08: Composer `config.audit.ignore` entries need a ticket and a review date."""
+    """TC-T08-28: Composer `config.audit.ignore` entries need a ticket and a review date."""
 
     def scan(self, ignore: object) -> tuple[dict[str, int], dict[str, int], list[str]]:
         with tempfile.TemporaryDirectory() as tmp:

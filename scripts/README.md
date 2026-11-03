@@ -4,11 +4,12 @@ Repository tooling. Every script runs from any directory inside the repo.
 
 | Script | Purpose |
 |---|---|
-| `bootstrap-dev.sh` | Installs pinned pre-commit, gitleaks and actionlint into `.tools/` (git-ignored), each checked against its SHA-256, and installs the git hooks. Run it again after a pin changes |
+| `bootstrap-dev.sh` | Installs pinned pre-commit, gitleaks, actionlint and shellcheck into `.tools/` (git-ignored), each checked against its SHA-256 (the binaries are re-installed from the verified tarball on every run), and installs the git hooks. Run it again after a pin changes |
 | `tool-versions.env` | Pinned tool versions and SHA-256 checksums used by the bootstrap, with the source of each value |
 | `check-names.sh` | Fails if a stale placeholder project name appears (section 0 naming) |
 | `demo-secret-scan.sh` | Shows, in a throwaway repo, that a commit containing a fake key is rejected (T00 evidence) |
 | `quality.sh` | Runs every quality check once and prints PASS, FAIL or SKIP per step (T04a) |
+| `docs_regression.sh` | The `docs-regression` step of `quality.sh` (T08): runs every `docs/tests/T*/run-checks.sh --regression`, `QUALITY_DOCS_JOBS` at a time. Per-suite output goes to `.tools/reports/docs/` |
 | `check_commit_msg.py` | Commit-msg hook and `--range` check: `Txx: summary`, known task ID, 72 characters |
 | `check_branch_name.py` | Branch must be `main` or `task/Txx-slug` with a known task ID |
 | `exceptions_report.py` | Every lint or type suppression and config exclude must cite a ticket; writes counts |
@@ -49,8 +50,8 @@ built-in step in run order and exits 0. `--group G` runs only the steps of group
   task that adds a manifest deletes its line and the coverage gate applies at once. A line
   without a ticket, or naming an unknown step, exits 2. With `--group`, only the selected
   groups are checked.
-- `secret-history` and the `audit-*` steps need network access (the advisory databases are
-  remote). With no network `audit-drupal` is a `FAIL`, never a pass. Run one area with
+- The `audit-*` steps need network access (the advisory databases are remote). With no network
+  `audit-drupal` is a `FAIL`, never a pass. `secret-history` is local. Run one area with
   `--group` when working offline.
 - `QUALITY_RUNNER=native|ddev` chooses where component tools run (default `native`; `ddev
   quality` sets `ddev`, which maps to `ddev exec`, `ddev engine` and `ddev next`). The runner
@@ -59,7 +60,8 @@ built-in step in run order and exits 0. `--group G` runs only the steps of group
   `NAME<TAB>MANIFEST<TAB>COMMAND` (`-` as the manifest means always run). The tests use it. The
   expected-skips rule does not apply to it. `QUALITY_EXPECTED_SKIPS=FILE` replaces
   `quality/expected-skips.txt` (test hook).
-- `docs-regression` runs the suites one after another (`QUALITY_DOCS_JOBS=1`). CI sets
+- `docs-regression` (`scripts/docs_regression.sh`) runs the suites one after another
+  (`QUALITY_DOCS_JOBS=1`; the value must be an integer of at least 1, otherwise exit 2). CI sets
   `QUALITY_DOCS_JOBS=4` in the `docs` job, where there is no DDEV, to stay inside the 10 minute
   budget. A suite that runs `ddev quality` (T04a) starts a nested run: it leaves out the docs
   group (guard: `QUALITY_NESTED` and `.tools/docs-regression.lock`), so there is no recursion.
@@ -84,6 +86,8 @@ version match (later Python and Node). These differences are accepted:
 2. setup-php's PHP extension set can differ from `ddev-webserver`'s.
    `composer check-platform-reqs --lock` (in `build-drupal`) covers what the code needs.
 3. The PHP patch level floats in both places.
+4. CI installs PyYAML 6.0.3 for the docs suites, while a local run uses the PyYAML of the
+   developer's Python (any version that imports as `yaml`).
 
 A check that passes in one place and fails in the other is a defect to fix, never a reason to
 skip the check. A task that changes `quality.sh` records both `ddev quality` and the CI run.
