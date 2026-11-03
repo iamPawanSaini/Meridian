@@ -14,6 +14,8 @@ Repository tooling. Every script runs from any directory inside the repo.
 | `exceptions_report.py` | Every lint or type suppression and config exclude must cite a ticket; writes counts |
 | `coverage_gate.py` | Cobertura line coverage against `quality/coverage-thresholds.json` |
 | `check_assets.py` | No third-party font, style, script or icon hosts, and no hex colours outside tokens |
+| `deploy-drupal.sh` | Deploys `apps/drupal` to Pantheon dev (subtree split, non-force push, drush apply, smoke check); `ddev deploy-drupal` and `deploy-drupal.yml` call it (T07). See `docs/runbooks/deploy.md` |
+| `pantheon_known_hosts` | Pinned SSH host key of the Pantheon code server for the deploy push (T07). Public data |
 | `taskids.py` | Shared lookup of task IDs and defect IDs used by the checks above |
 | `tests/` | `unittest` tests for the checks: `python3 -m unittest discover -s scripts/tests` |
 
@@ -58,3 +60,20 @@ each running lint, types, tests and the coverage gate.
   must contain the prefixes in the thresholds file, for example `meridian_engine/scoring/`.
 - The asset check allows hex colours only in the tokens file `apps/web/styles/tokens.css` (T21a
   owns the final allowlist).
+
+## deploy-drupal.sh (T07)
+
+`scripts/deploy-drupal.sh [--ref REF] [--dry-run] [--allow-unmerged] [-h]`. Needs
+`PANTHEON_SITE`; uses `TERMINUS_MACHINE_TOKEN` if set. Exit 0 deployed and verified, 1 a step or
+check failed (including a build that is not confirmed), 2 usage error or a guard (unknown
+argument, `PANTHEON_SITE` unset, `DEPLOY_SMOKE_BUDGET` not whole seconds, unknown ref, missing
+`origin/main`, ref not merged into `origin/main`, no code server key in
+`scripts/pantheon_known_hosts`, unexpected `git_url` form).
+`--dry-run` splits and checks the tree and prints the
+split SHA with no network access. Tests: `scripts/tests/test_deploy_drupal.py` (fake `terminus`
+and `curl` on `PATH`, a local bare repository as Pantheon) and
+`docs/tests/T07/run-checks.sh`.
+
+The workflow linter is actionlint 1.7.12 (2026-03-30), installed by hand into `.tools/` from the
+GitHub release (sha256 `8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8` for
+`actionlint_1.7.12_linux_amd64.tar.gz`). Adding it to CI is T08.

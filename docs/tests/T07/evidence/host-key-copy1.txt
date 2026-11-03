@@ -1,0 +1,8 @@
+# UTC: 2026-11-02T18:02:45Z
+# Network: this machine (WSL2 on the owner's workstation network, tester run, copy 1 of the host key check)
+# Command: ssh-keyscan -p 2222 -t rsa,ecdsa,ed25519 codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in
+# codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in:2222 SSH-2.0-Pantheon-SSH
+# codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in:2222 SSH-2.0-Pantheon-SSH
+[codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSY3gnr0DrbqJJSnEFy6jazDmAdBm4Zs/EkWIQa7x31qgSYyYJMz5V+pk62lBf2BN42VtubwO83vW9G+yG2K1RGOvZJaK5GBvBb/Ws2ZPcp/4sNHpPzkdd75e5/Pk8AWA59XUbJcBWmrDrHMbWV1j2zqPPikxbqGeTTjSx4QR18LIRei5OwT6VQnaVnJqPAqFZ+oCbpr0DL96foL3UEY8EWT/6GH2cANEGZO4ppbhdDw4uG6TaI7S0lxWMQEVy+iwjCNH/nanjd73cwoYd90E0OVdgNDr3hVbIuE6sUW6UwlaAwuyOM/xJYPg1y0rF66958pyVJlZ9KD5A0kY3bHg7
+# fingerprints (ssh-keygen -lf -):
+2048 SHA256:yPEkh1Amd9WFBSP5syXD5rhUByTjaKBxQnlb5CahZZE [codeserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222 (RSA)

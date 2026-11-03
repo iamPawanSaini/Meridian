@@ -1,0 +1,2 @@
+== TC-T07-41 KD-2 live: the committed code-server key matches ssh-keyscan today
+  BLOCKED  awaiting L-3: no key is committed yet. Copy 1 is in evidence/host-key-copy1.txt; copy 2 (next UTC day) and the second network are owner/tester steps in the report

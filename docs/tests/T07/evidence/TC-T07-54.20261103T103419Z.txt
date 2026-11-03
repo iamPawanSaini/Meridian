@@ -1,0 +1,2 @@
+== TC-T07-54 KD-7 owner-run: dashboard upstream-updates notice observed once after O-4
+  BLOCKED  owner-run: open the Pantheon dashboard for meridian-trade after O-4, record what the upstream-updates notice says (screenshot or note) and that ignoring it is harmless; do not click Apply Updates

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Automated structural checks for T02 (docs-only task). Designed from the acceptance
 # criteria in docs/TASKS.md and the approved plan, not from the finished documents.
-# Usage: docs/tests/T02/run-checks.sh   (exits non-zero if any check fails)
+# Usage: docs/tests/T02/run-checks.sh [--regression]   (exits non-zero if any check fails)
+#   --regression  skips the at-close snapshot checks (tag cka), as in T03 to T06 (decision D-5). Today that is
+#                 TC-T02-29 ".env.example unchanged vs task/T01-agents": later tasks (T03, T05, T06, T07)
+#                 legitimately changed .env.example. Count of skipped checks is printed.
 # A missing document makes every dependent check FAIL; nothing passes vacuously.
 # Conventions assumed (from the plan): '##' section headings, Markdown tables for
 # FR/NFR, risks, cost map, open questions and naming checks; ADR files docs/adr/ADR-000N-*.md.
@@ -9,10 +12,19 @@
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)" || exit 2
 
+REG=0
+case "${1:-}" in
+  "") ;;
+  --regression) REG=1 ;;
+  *) echo "usage: $0 [--regression]" >&2; exit 2 ;;
+esac
+excluded=0
 fail=0
 pass() { printf '  PASS  %s\n' "$1"; }
 bad()  { printf '  FAIL  %s\n' "$1"; fail=1; }
 ck()   { local d=$1; shift; if "$@" >/dev/null 2>&1; then pass "$d"; else bad "$d"; fi; }
+# cka DESC CMD...: snapshot check, true only at the close of T02; skipped with --regression.
+cka()  { if [ "$REG" -eq 1 ]; then excluded=$((excluded+1)); return 0; fi; ck "[at-close] $1" "${@:2}"; }
 
 SA=docs/architecture/solution-architecture.md
 NM=docs/architecture/naming.md
@@ -280,7 +292,7 @@ echo "== TC-T02-28 C5 docs updated"
 ck "architecture README links solution-architecture and naming" bash -c "grep -q 'solution-architecture' docs/architecture/README.md && grep -q 'naming' docs/architecture/README.md"
 
 echo "== TC-T02-29 C6 no secrets, .env.example unchanged"
-ck ".env.example unchanged vs base branch task/T01-agents (absent from main)" git diff --quiet task/T01-agents -- .env.example
+cka ".env.example unchanged vs base branch task/T01-agents (absent from main)" git diff --quiet task/T01-agents -- .env.example
 if [ -x .tools/pre-commit ]; then
   ck "pre-commit (secret scan etc.) passes on all files" .tools/pre-commit run --all-files
 else
@@ -305,5 +317,6 @@ else
 fi
 
 echo
+[ "$REG" -eq 1 ] && echo "NOTE: --regression: $excluded at-close (snapshot) check(s) excluded."
 if [ "$fail" -eq 0 ]; then echo "ALL AUTOMATED CHECKS PASSED"; else echo "SOME CHECKS FAILED"; fi
 exit "$fail"

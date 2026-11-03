@@ -170,8 +170,11 @@ ckp "post-start hook runs composer install (vendor matches the lock after ddev s
 no_dsm() { need_file "$DDEVCFG" || return 1; ! grep -qE '^\s*disable_settings_management\s*:\s*true' "$DDEVCFG" \
   || { echo "disable_settings_management must not be true (KD-3)"; return 1; }; }
 ckp "settings management stays on" no_dsm
-ckp "no web_environment secrets, tokens or keys in config.yaml" allout "$DDEVCFG" \
-  'web_environment' '(api[_-]?key|secret|token|password|passwd)\s*[:=]\s*\S'
+# T07: the bare key web_environment is allowed (KD-4 sets PANTHEON_SITE=meridian-trade, not a secret); only its values are checked
+we_values() { need_file "$DDEVCFG" || return 1
+  local v; v=$(awk '/^web_environment:/{f=1;next} /^[^ #-]/{f=0} f' "$DDEVCFG")
+  ! grep -qiE '(api[_-]?key|secret|token|password|passwd)\s*[:=]\s*\S' <<<"$v" || { echo "secret-shaped web_environment value"; return 1; }; }
+ckp "no web_environment secrets, tokens or keys in config.yaml (values only)" we_values
 ckp "no extra hostnames or additional_hostnames (T06 owns meridian-web)" allout "$DDEVCFG" 'additional_(hostnames|fqdns)\s*:\s*\[?\s*\S'
 ckp "no Mutagen or performance_mode override" allout "$DDEVCFG" '^\s*performance_mode\s*:'
 
@@ -494,7 +497,7 @@ ckp "drupal-install uses admin@example.com for site and account mail" allin "$DI
 
 case_start TC-T05-23 "scope discipline: no extra services, no deploy config (non-goals)"
 cka "no docker-compose or extra DDEV services added (T06)" bash -c "[[ -z \$(git ls-files .ddev | grep -E 'docker-compose\.[a-z_-]+\.yaml' || true) ]]"
-ckp "no providers/pantheon.yaml and no deploy-drupal workflow content (T07)" bash -c "[[ ! -e .ddev/providers/pantheon.yaml ]]"
+cka "no providers/pantheon.yaml and no deploy-drupal workflow content (T07)" bash -c "[[ ! -e .ddev/providers/pantheon.yaml ]]"
 ckp "no ci.yml Drupal job added (T08)" bash -c "[[ ! -e .github/workflows/ci.yml ]] || ! grep -qi 'ddev' .github/workflows/ci.yml"
 cka "no ddev engine/pg/next/e2e commands (T06)" bash -c "[[ -z \$(ls .ddev/commands/web .ddev/commands/host 2>/dev/null | grep -E '^(engine|pg|next|e2e)\$' || true) ]]"
 cka "only the planned DDEV commands under .ddev/commands" bash -c \

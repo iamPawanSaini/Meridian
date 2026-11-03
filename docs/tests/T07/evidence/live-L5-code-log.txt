@@ -1,0 +1,32 @@
+# L-5 and Fact h: env:code-log json shape and order (read-only), backup:list json fields (read-only)
+# UTC 2026-11-02T18:23:47Z. Dev currently holds the Pantheon upstream history, not our split.
+entries: 4
+keys of entry 0: ['author', 'datetime', 'hash', 'labels', 'message']
+datetimes (first 4): ['2026-11-01T16:36:24', '2026-11-01T16:36:23', '2026-11-01T16:34:25', '2026-11-01T16:34:21']
+hash of entry 0 is 40 hex: True
+newest first (datetime descending): True
+2026-11-02 18:23:53 UTC[+0000] [warning] You have no backups.
+[]
+{
+    "f1fc84d0-d697-11f1-afad-baf3e69d656c": {
+        "id": "f1fc84d0-d697-11f1-afad-baf3e69d656c",
+        "env": "dev",
+        "workflow": "Enable git push mode for \"dev\"",
+        "status": "succeeded"
+    },
+    "9f5f0fa2-d612-11f1-83c0-069f8299256d": {
+        "id": "9f5f0fa2-d612-11f1-83c0-069f8299256d",
+        "env": "dev",
+        "workflow": "Converge resources based on updated properties",
+        "status": "succeeded"
+    },
+    "88cf2b8c-d612-11f1-9ca7-baf60c8b1a22": {
+        "id": "88cf2b8c-d612-11f1-9ca7-baf60c8b1a22",
+        "env": "dev",
+        "workflow": "Sync code on \"dev\"",
+        "status": "succeeded"
+    },
+    "1c54f324-d612-11f1-9780-aa0869a3a913": {
+        "id": "1c54f324-d612-11f1-9780-aa0869a3a913",
+        "env": "dev",
+        "workflow": "Converge

@@ -1,0 +1,3 @@
+# hadolint configuration (T07).
+ignored:
+  - DL3061  # T07: permanent; DDEV prepends FROM to .ddev/web-build/Dockerfile (re-decide in T13)

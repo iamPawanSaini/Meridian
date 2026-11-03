@@ -1,0 +1,24 @@
+# Pantheon dev reinstall from config/sync after the first successful build (split 7b790a1), owner-run 2026-11-03
+# (the agent's run was refused by the Claude Code auto-mode classifier as an irreversible deletion).
+# Commands: runbook "Reinstall Pantheon dev from config/sync"; site:install output piped through
+# sed -E 's/(pass(word)?[^:=]{0,20}[:=] *).*/\1[REDACTED]/I' at source. Output pasted by the owner:
+
+2026-11-03 08:08:07 UTC[+0000] [notice] Created a backup of the dev environment.
+2026-11-03 08:08:11 UTC[+0000] [notice] Wiping the "dev" environment of "meridian-trade"
+2026-11-03 08:08:23 UTC[+0000] [notice] Wiped files and database in "dev"
+2026-11-03 08:08:25 UTC[+0000] [warning] This environment is in read-only Git mode. (...)
+Warning: Permanently added '[appserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in]:2222' (RSA) to the list of known hosts.
+ // Do you want to continue?: yes.
+ [notice] Starting Drupal installation. This takes a while.
+ [notice] Performed install task: install_select_language ... install_config_import_batch ... install_finished
+ [success] Installation complete. (Admin)
+ [success] User name: admin  User password: [REDACTED]
+2026-11-03 08:08:35 UTC[+0000] [notice] Command: meridian-trade.dev -- drush site:install [Exit: 0] (Attempt 1/1)
+ [success] Cache rebuild complete.
+2026-11-03 08:08:42 UTC[+0000] [notice] Command: meridian-trade.dev -- drush cache:rebuild [Exit: 0] (Attempt 1/1)
+ [notice] No differences between DB and sync directory.
+2026-11-03 08:08:49 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:status [Exit: 0] (Attempt 1/1)
+
+# Notes: site:install --existing-config works on Pantheon (KD-6 fallback not needed).
+# The app server key line was added to the web container's own ~/.ssh/known_hosts by the plain
+# terminus call (expected; the app server is deliberately not pinned, decision-host-keys.md).

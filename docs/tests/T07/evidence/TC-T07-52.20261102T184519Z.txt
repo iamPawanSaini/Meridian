@@ -1,0 +1,2 @@
+== TC-T07-52 KD-2 owner-run: code server host key fingerprints equal on two days and from a second network
+  BLOCKED  owner-run: ssh-keyscan -p 2222 of the code server on day 1 (committed in scripts/pantheon_known_hosts comments), on day 2, and once from a second network (phone hotspot or GitHub runner); record the three SHA256 fingerprints and dates; any difference is raised at review (SA-4 decision 4)

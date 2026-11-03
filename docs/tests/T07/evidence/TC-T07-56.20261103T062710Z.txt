@@ -1,0 +1,30 @@
+# TC-T07-56 (AC2, owner-run): PAT dates in the runbook, PAT works from the global DDEV config
+# Run id: 20261103T062710Z. Executed by: main session (O-3 authority), owner statements quoted below.
+
+## 1. Token source (value never printed)
+$ grep web_environment ~/.ddev/global_config.yaml (value redacted)
+web_environment:
+    - TERMINUS_MACHINE_TOKEN=[redacted]
+$ ddev exec 'test -n "$TERMINUS_MACHINE_TOKEN" && echo set, length ${#TERMINUS_MACHINE_TOKEN}'
+set, length 78
+
+## 2. First attempt by the owner (plain auth:login, no cached token): expected failure, not a defect
+2026-11-03 06:15:57 UTC [error] Please visit the dashboard to generate a machine token: ...
+Failed to execute command `terminus auth:login`: exit status 1
+(Plain auth:login reads only cached tokens; it does not read TERMINUS_MACHINE_TOKEN. The runbook
+step 4 already uses --machine-token.)
+
+## 3. Runbook command
+$ ddev exec 'terminus auth:login --machine-token="$TERMINUS_MACHINE_TOKEN" && terminus auth:whoami'
+2026-11-03 06:27:10 UTC[+0000] [notice] Logging in via machine token.
+2026-11-03 06:27:12 UTC[+0000] [notice] Found a machine token for pawanksaini2011@gmail.com.
+2026-11-03 06:27:13 UTC[+0000] [notice] Logged in via machine token.
+pawanksaini2011@gmail.com
+exit: 0
+
+## 4. Owner statements (owner's message, 2026-11-03)
+"not pasted the PAT, date of creation is 01-11-2026"
+Read as DD-MM-YYYY: created 2026-11-01; expiry = created + 90 days = 2027-01-30.
+
+## 5. Runbook table
+76:| Owner (Pawan Kumar) | `ddev pull pantheon`, `ddev deploy-drupal` | `~/.ddev/global_config.yaml` | 2026-11-01 | 2027-01-30 |

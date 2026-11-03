@@ -1,0 +1,22 @@
+== TC-T07-48 TH-8 live (destructive): database-only restore changes the value back and leaves code untouched
+  PASS  backup:create --element=db succeeds (55 s)
+  PASS  newest database backup file name found: 'meridian-trade_dev_2026-11-03T10-50-24_UTC_database.sql.gz' and it is a database backup (ends in _database.sql.gz)
+  FAIL  the probe value is set (got: 2026-11-03 10:51:30 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+ssh: connect to host appserver.dev.904ad1a6-f47f-4807-af26-a9986348c59d.drush.in port 2222: Connection timed out
+2026-11-03 10:53:43 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:get system.site name [Exit: 255] (Attempt 1/1)
+2026-11-03 10:53:43 UTC[+0000] [error]  Command: meridian-trade.dev -- drush config:get system.site name [Exit: 255] (All attempts failed) 
+2026-11-03 10:53:43 UTC[+0000] [error]   
+2026-11-03 10:56:17 UTC[+0000] [error]  HTTP request POST https://terminus.pantheon.io/api/track has failed with error Connection refused for URI https://terminus.pantheon.io/api/track. 
+
+[31mFailed to execute command `terminus remote:drush "$PANTHEON_SITE.dev" -- config:get system.site name --format=string`: exit status 255[0m)
+        
+        backup:restore output (exit 0):
+         0/3 [>---------------------------] Restoring database in "dev"2026-11-03 10:58:23 UTC[+0000] [notice] Restored the database backup to dev.
+  PASS  backup:restore --file=<name>_database.sql.gz --yes succeeds (no --element, DEF-011) (127 s)
+  PASS  the value is back to the original (2026-11-03 10:50:14 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+Meridian
+2026-11-03 10:50:19 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:get system.site name [Exit: 0] (Attempt 1/1))
+  PASS  git ls-remote master unchanged (f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5)
+  PASS  env:code-log newest hash unchanged (f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5)
+  PASS  config:status clean after the restore
+        timings recorded for the report: backup 357 s, restore 127 s

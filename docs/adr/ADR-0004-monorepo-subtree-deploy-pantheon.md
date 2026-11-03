@@ -57,3 +57,10 @@ Vercel builds `apps/web` from the same repository. The engine image builds from
 - Follow-ups: T05 (layout matches `pantheon.yml`), T07 (deploy path, Integrated Composer
   check, rollback, sleep behaviour in `docs/runbooks/deploy.md`), T08 (CI), T28 (deployed
   dev).
+
+## Follow-up (2026-11-02, T07)
+
+Pantheon tokens are personal access tokens (PATs) that expire after 90 days. CI uses a machine
+user's PAT in GitHub Secrets; local deploys and `ddev pull pantheon` use the owner's PAT in the
+global DDEV config. If no machine user is possible, deploys are local-only. Rollback is
+revert-forward (`docs/tasks/T07/decision-rollback.md`). The decision above is unchanged.

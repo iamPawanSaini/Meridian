@@ -101,7 +101,7 @@ and the absence checks for scope).
 | Type | Static |
 | Preconditions | as TC-T05-01 |
 | Steps | 1. Read block `== TC-T05-02` |
-| Expected result | `hooks.post-start` runs `composer install`; `disable_settings_management` is not true; no `web_environment` block, no key, token or password; no `additional_hostnames` (T06 owns them); no `performance_mode` override |
+| Expected result | `hooks.post-start` runs `composer install`; `disable_settings_management` is not true; no secret-shaped value (key, token, password) under `web_environment` (the key itself is allowed since T07, which sets `PANTHEON_SITE=meridian-trade`); no `additional_hostnames` (T06 owns them); no `performance_mode` override |
 | Actual result | |
 | Evidence | `evidence/TC-T05-02.txt` |
 | Status | Not run |
@@ -702,3 +702,4 @@ acceptance (OQ-T04a-1, unconfirmed).
 | 2026-11-01 | `run-checks.sh` clean-clone mode: the uncommitted-tree flag covers T05 deliverable paths only | Pre-commit fixers had rewritten unrelated tracked files (DEF-004); those are not part of the clone test |
 | 2026-11-01 | `run-checks.sh`: file-level `shellcheck disable` for SC2329, SC2015, SC2016, SC2034, ticket T05 | The shellcheck hook failed on the tester script |
 | 2026-11-02 | `run-checks.sh` TC-T05-23 ("no docker-compose or extra DDEV services", "no ddev engine/pg/next/e2e commands", "only the planned DDEV commands") and TC-T05-15 (".env.example unchanged by T05 commits") re-tagged from `ckp` (invariant) to `cka` (snapshot) | They describe the state at T05 close, not an invariant. T06 adds compose files, commands and `.env.example` comments by design (T06 plan, "Test hooks needed"). Maintenance, not a T05 defect |
+| 2026-11-02 | `run-checks.sh` TC-T05-02: the web_environment check inspects only the values under `web_environment:` for secret-shaped text, no longer the bare key; expected result reworded. TC-T05-23 "no providers/pantheon.yaml" re-tagged `ckp` to `cka` (snapshot). TC-T05-21 passes again once TC-T04a-33 is fixed | T07 review (suspected test defects): KD-4 requires `web_environment: [PANTHEON_SITE=meridian-trade]`, which is not a secret. The provider file check is a scope snapshot that T07 legitimately ends |

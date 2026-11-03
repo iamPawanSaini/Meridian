@@ -1,0 +1,15 @@
+== TC-T07-34 AC4 live: idempotent re-run takes no backup and pushes nothing
+        2026-11-03 08:32:47 UTC[+0000] [notice] Command: meridian-trade.dev -- drush cache:rebuild [Exit: 0] (Attempt 1/1)
+        deploy-drupal: stage 8: config:status
+        2026-11-03 08:32:49 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+         [notice] No differences between DB and sync directory.
+        2026-11-03 08:32:54 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:status [Exit: 0] (Attempt 1/1)
+        deploy-drupal: stage 9: smoke check
+        deploy-drupal: smoke check passed: HTTP 200 with user-login-form at https://dev-meridian-trade.pantheonsite.io/user/login
+        deploy-drupal: deployed f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5
+  PASS  exit 0
+  FAIL  database backup count unchanged (4 before, 5 after)
+        count: expected '4', got '5'
+  FAIL  output says the push was skipped (already at the split SHA)
+        
+  PASS  the re-run still confirmed the build: output holds 'completed successfully for commit' (workflow:wait --start=1; review condition 3, L-4/L-10)

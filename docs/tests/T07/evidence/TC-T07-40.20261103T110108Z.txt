@@ -1,0 +1,6 @@
+== TC-T07-40 TH-6 live: SSH host key pinning blocks git push with a wrong key (negative) and accepts the real key (control)
+        Please make sure you have the correct access rights
+        and the repository exists.
+        EXIT=128
+  PASS  wrong pinned key: connection refused with a host key error (REMOTE HOST IDENTIFICATION or Host key verification failed), non-zero exit
+  PASS  control: the committed known_hosts file lets git ls-remote succeed

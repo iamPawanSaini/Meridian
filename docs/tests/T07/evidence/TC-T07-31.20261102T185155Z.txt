@@ -1,0 +1,4 @@
+== TC-T07-31 KD-1/R5 live discovery: dev branch name; backup:create exit code on failure with a real call
+  PASS  connection:info returns a ssh:// git URL on codeserver.dev.<uuid>.drush.in:2222
+  BLOCKED  awaiting L-3: scripts/pantheon_known_hosts holds no key yet. Part 1 ran the same ls-remote with a temporary pin of host-key copy 1 (evidence/live-31-discovery.txt)
+  PASS  backup:create against a non-existent environment exits non-zero (record the exact exit code)

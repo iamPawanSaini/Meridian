@@ -63,6 +63,8 @@ docs/               all project documentation (see below)
 | Run in the engine or web container | `ddev engine <cmd>`, `ddev next <cmd>` (T06) |
 | Local Postgres | `ddev pg psql`, `ddev pg dump [FILE]`, `ddev pg restore FILE --yes` (T06) |
 | State and health of the five services | `ddev meridian-status` (T06) |
+| Deploy `apps/drupal` to Pantheon dev | `ddev deploy-drupal [--dry-run] [--ref REF]` (T07; see `docs/runbooks/deploy.md`) |
+| Pull the Pantheon dev database and files | `ddev pull pantheon` (T07; needs the PAT in global DDEV config and `ddev auth ssh`) |
 | Full quality suite | `ddev quality` (runs in DDEV; `scripts/quality.sh` is the single implementation) |
 | Coding standards and review checklist | `docs/standards/CODING_STANDARDS.md`, `docs/standards/REVIEW_CHECKLIST.md` |
 

@@ -1,0 +1,7 @@
+== TC-T07-31 KD-1/R5 live discovery: dev branch name; backup:create exit code on failure with a real call
+  PASS  connection:info returns a ssh:// git URL on codeserver.dev.<uuid>.drush.in:2222
+        ls-remote (host part only shown by redaction rule: refs below): 39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	HEAD
+39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	refs/heads/main
+7b790a198d06461f39cb813ced2db6716611eb9e	refs/heads/master
+  PASS  dev branch is master (ls-remote lists refs/heads/master, pinned known_hosts accepted)
+  PASS  backup:create against a non-existent environment exits non-zero (record the exact exit code)

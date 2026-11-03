@@ -18,10 +18,10 @@ servers:
   - url: https://meridian.ddev.site
     description: Local DDEV site
   - url: https://dev-{site}.pantheonsite.io
-    description: Pantheon dev environment (sandbox). The site machine name is set in T07.
+    description: Pantheon dev environment (sandbox).
     variables:
       site:
-        default: meridian
+        default: meridian-trade
         description: Pantheon site machine name.
 tags:
   - name: ingest

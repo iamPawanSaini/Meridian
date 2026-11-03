@@ -1,0 +1,7 @@
+# L-2: terminus auth:whoami when logged out (session only; the PAT in the web container is untouched), then log back in
+# UTC 2026-11-02T18:24:50Z
+logout exit=0
+whoami exit=0 stdout_length=0
+stderr: 2026-11-02 18:24:51 UTC[+0000] [notice] You are not logged in.
+login with the PAT from the environment, output discarded, exit=0
+whoami exit=0 has_email=yes

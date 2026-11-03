@@ -395,7 +395,7 @@ cka "no ddev e2e command (T27)" bash -c "[[ ! -e $CMDD/e2e ]]"
 cka ".ddev/config.yaml unchanged since the branch point $BASE" bash -c "git diff --quiet $BASE -- .ddev/config.yaml"
 cka "scripts/quality.sh and .ddev/commands/host/quality unchanged (the ddev runner already maps to ddev engine / ddev next)" bash -c "git diff --quiet $BASE -- scripts/quality.sh $CMDD/quality"
 ckp "quality.sh maps the ddev runner to ddev engine and ddev next" allin scripts/quality.sh 'ddev engine' 'ddev next'
-ckp "no providers/pantheon.yaml (T07) and no ci.yml DDEV job (T08)" bash -c "[[ ! -e .ddev/providers/pantheon.yaml ]] && { [[ ! -e .github/workflows/ci.yml ]] || ! grep -qi ddev .github/workflows/ci.yml; }"
+cka "no providers/pantheon.yaml (T07) and no ci.yml DDEV job (T08)" bash -c "[[ ! -e .ddev/providers/pantheon.yaml ]] && { [[ ! -e .github/workflows/ci.yml ]] || ! grep -qi ddev .github/workflows/ci.yml; }"
 
 case_start TC-T06-13 "git ignore: dumps and generated files stay out of git (AC4, C6)"
 ckp "git check-ignore -v names the root .gitignore for db-dumps/x.dump and any .dump" bash -c "git check-ignore -v db-dumps/meridian-postgres-20260101T000000Z.dump | grep -q '\.gitignore' && git check-ignore -q some/where/x.dump"

@@ -63,7 +63,114 @@ and Note findings may be ticketed.
 
 ## Open
 
-(none)
+### DEF-009: The Pantheon Sandbox edge challenges requests from non-allowlisted User-Agents (Cloudflare 403)
+
+| Field | Value |
+|---|---|
+| ID | DEF-009 |
+| Severity | Medium (design assumption invalid; workaround exists; blocks nothing in T07, affects T10, T21 and T28) |
+| Found in | T07 part 1, TC-T07-44 (`evidence/live-44-*.txt`, `evidence/TC-T07-44.*.txt`) |
+| Status | Open |
+| Fix commit | |
+| Retest result | |
+
+**Steps to reproduce** (run 2026-11-02 from the tester's network; Pantheon dev then held a
+dashboard-installed, not yet installed Drupal, so the edge result is independent of our code)
+
+1. `curl -sS -A 'python-httpx/0.27.0' -o /dev/null -w '%{http_code}\n' https://dev-meridian-trade.pantheonsite.io/jsonapi`
+2. Repeat with `-H 'Deterrence-Bypass: 1'`, and with the User-Agents `undici`, `python-requests/2.32.3`,
+   `meridian-engine/0.1`, `Go-http-client/2.0`, `Mozilla/5.0 (...) Chrome/126.0`, and an empty one.
+3. Compare with `curl/8.5.0`, `node` and `Wget/1.21`.
+
+**Expected:** the design (technical design D8, KD-12, plan A7) assumes that the only edge hurdle is
+the Sandbox warning page and that the header `Deterrence-Bypass` removes it, so the engine (T10)
+and the Next.js server (T21) can call the Drupal API with it.
+
+**Actual:** two separate behaviours. (1) The Sandbox warning page ("Sandbox Environment Notice",
+HTTP 200) is served only to GET requests that send `Accept: text/html`; default curl, POST and
+JSON requests are not intercepted, and `Deterrence-Bypass: 1` removes the page (the page itself sets
+the cookie `Deterrence-Bypass=1`). (2) A Cloudflare managed challenge (HTTP 403, `cf-mitigated:
+challenge`, title "Just a moment...") answers every request from the User-Agents `undici`,
+`python-httpx`, `python-requests`, `Go-http-client`, `Mozilla/...`, `Python-urllib`, `aiohttp`,
+`meridian-engine/0.1` and from an empty User-Agent, with or without the bypass header. `curl`,
+`node` and `Wget` pass. A Python engine client would therefore get 403 from a Pantheon Sandbox dev
+site. Needs a decision by the technical-architect: a documented User-Agent for the engine, a
+different host or plan for T28, or a Pantheon/Cloudflare allowlist request. Not a T07 code change:
+the deploy script's smoke check uses curl and is not affected.
+
+### DEF-010: First Pantheon build fails: the split tree has no `.gitignore` for the build output
+
+| Field | Value |
+|---|---|
+| ID | DEF-010 |
+| Severity | High (blocks every Pantheon build, so AC4 and part 2 of T07) |
+| Found in | T07 part 2, O-4 (first push of split `2a60eba8574d39928deb7898cc6af185c13be904`, 2026-11-03) |
+| Status | Retest passed |
+| Fix commit | `f958a5d` (split `7b790a198d06461f39cb813ced2db6716611eb9e`) |
+| Retest result | Pass 2026-11-03: fast-forward push `2a60eba..7b790a1`; workflow `79c49794-d75c-11f1-bbb3-123c6bba4b1c` "Sync code on dev" completed successfully for commit 7b790a1 (08:02:02 UTC); local build simulation clean |
+
+**Steps to reproduce**
+
+1. Push the split of `apps/drupal` (any commit before the fix) to Pantheon dev `master`.
+2. Watch the Integrated Composer workflow "Sync code on \"dev\"" (workflow
+   `f51435ea-d756-11f1-b21d-eebcb0a64446`, 114 s).
+
+**Expected:** the build runs `composer install`, scaffolds Drupal and succeeds (plan KD-7: "the
+build succeeded with only `pantheon.yml`").
+
+**Actual:** the workflow fails. The build log (dashboard only; `terminus workflow:info:logs` says
+"Workflow operations did not contain any logs") lists the scaffold output as untracked:
+`.editorconfig`, `.gitattributes`, `web/.htaccess`, `web/index.php`, `web/autoload.php`,
+`web/sites/default/settings.pantheon.php`, `web/sites/default/default.settings.php` and others.
+
+**Cause:** the ignore rules for `apps/drupal` live only in the root `.gitignore`, which does not
+travel with `git subtree split`. The split tree had no `.gitignore` (plan line 261, T05 KD-7: "T07
+does not add one"). The plan assumption was wrong, not the deploy script.
+
+**Fix:** a tracked `apps/drupal/.gitignore` that lists the build output and every scaffold file (taken
+from the root rules for `apps/drupal`), and the root `.gitignore` no longer ignores that file. The
+scaffold plugin's gitignore auto mode finds every path already ignored and leaves the file alone.
+TC-T07-01 now checks the file on its own in an empty repository (ignored: build output and
+scaffold files; kept: owned paths), with negative controls. Plan KD-7 note amended, runbook section
+"Ignore rules travel with the split" added.
+
+**Local evidence:** a fresh repository with only the tracked `apps/drupal` files plus the new file,
+with the full local `composer install` output copied over it, gives an empty `git status
+--porcelain`. Without the file the same setup lists the untracked files from the Pantheon log.
+
+### DEF-011: The documented database restore (`--element=db --file=<name>`) is refused by Terminus 4.3.3
+
+| Field | Value |
+|---|---|
+| ID | DEF-011 |
+| Severity | High (the only database rollback path in the runbook does not run; workaround: `--file` alone) |
+| Found in | T07 part 2, TC-T07-48 (run `20261103T093614Z`; owner re-run with `-vvv` 2026-11-03 10:22 UTC) |
+| Status | Retest passed (owner run); TC-T07-48 re-runs it in the next live run |
+| Fix commit | `a47c96e` |
+| Retest result | Pass 2026-11-03 (owner-run): `terminus backup:restore meridian-trade.dev --file='meridian-trade_dev_2026-11-03T09-48-13_UTC_database.sql.gz' --yes` restored the database; `config:get system.site name` then printed `Meridian` (was `T07-RESTORE-PROBE`). Runbook checks pass (static) |
+
+**Steps to reproduce**
+
+1. `terminus backup:create meridian-trade.dev --element=db --keep-for=30`, note the file name from
+   `terminus backup:list meridian-trade.dev --element=db`.
+2. `terminus backup:restore meridian-trade.dev --element=db --file=<name> --yes`.
+
+**Expected:** the database is restored (runbook "Restore the database", decision-rollback.md item 2:
+"always with both options").
+
+**Actual:** exit 1 within 3 s, no restore: `[error] You cannot specify a file and an element at the
+same time.` (Terminus 4.3.3). The probe value `T07-RESTORE-PROBE` stayed on Pantheon dev.
+
+**Cause:** the decision and the runbook were written from the Terminus 3.x documentation (S2), which
+lists both options; 4.3.3 makes them mutually exclusive. The harness checks enforced the same wrong
+pair, so the static checks passed.
+
+**Fix:** restore by file name only: `terminus backup:restore meridian-trade.dev
+--file=<name>_database.sql.gz --yes`. A `_database.sql.gz` file restores only the database. Runbook,
+plan item 2 and decision-rollback.md item 2 amended; the forbidden list now names `backup:restore`
+without `--file` (or with a file that is not a database backup). TC-T07-20 checks the new text and
+that no `backup:restore` pairs `--file` with `--element`; TC-T07-48 uses `--file` alone and checks
+that the file is a database backup.
 
 ## Closed
 
@@ -240,3 +347,78 @@ improvement look like a regression. The DEF-004 review says TC-T04a-30 rule 1 sh
 against the scripts as of 990e95c, not the counts. Needs a decision by the technical-architect and
 owner on how the rule is expressed (for example, no FAIL and exit 0, or refreshed close evidence).
 I have not changed the expected result.
+
+### DEF-006: T07 harness predates the build confirmation (review finding 1)
+
+| Field | Value |
+|---|---|
+| ID | DEF-006 |
+| Severity | Low (test-design defect; made TC-T07-13 to 16, 18 and 19 print FAIL) |
+| Found in | T07 re-review, TC-T07-13, 14, 15, 16, 18, 19 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T07/run-checks.sh` and the T07 Change log |
+| State history | Open (reviewer, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: static run `evidence/static-part1.txt`: 31 PASS, 0 FAIL, 30 BLOCKED. Negative controls with broken script copies fail the right cases (`evidence/negative-controls-part1.txt`) |
+
+**Steps to reproduce:** `docs/tests/T07/run-checks.sh` at 3794178.
+
+**Expected:** a deploy against the fixture exits 0.
+
+**Actual:** the fake `workflow:wait` printed `workflow done`, but the script (correctly, Terminus
+4.3.3 facts b and c) requires `Workflow <id> completed successfully for commit <sha>`. Every
+fixture deploy exited 1 and the later checks failed as a cascade. The fake now prints the 4.3.3
+notice; timeout and not-found fakes were added; TC-T07-15 and 34 expect `--start=1` and
+`env:code-log` on a re-run and have three negative re-run cases.
+
+### DEF-007: Earlier regression suites fail on T07's legitimate changes (snapshots tagged as invariants)
+
+| Field | Value |
+|---|---|
+| ID | DEF-007 |
+| Severity | Low (test-design defect) |
+| Found in | T07 review, TC-T04a-33, TC-T05-02, TC-T05-21, TC-T05-23, TC-T06-12, TC-T06-19 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T04a/run-checks.sh`, `docs/tests/T05/run-checks.sh`, `docs/tests/T06/run-checks.sh` and the three Change logs |
+| State history | Open (reviewer, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: `--regression` exits 0 for T02 to T06 and T07 (`evidence/regression-*-part1.txt`, `evidence/part1-rc.txt`): T05 24 PASS 0 FAIL, T06 and T04a green |
+
+**Steps to reproduce:** `docs/tests/T05/run-checks.sh --regression` and the T04a and T06 equivalents
+at 3794178.
+
+**Expected:** invariant checks pass after T07; snapshot checks are skipped.
+
+**Actual:** the T04a `.env.example` variable comparison (T07 changes `PANTHEON_SITE` and adds
+variables), "no providers/pantheon.yaml" in T05 and T06 (T07 delivers it) and the T05 check that
+treated the bare key `web_environment` as forbidden (KD-4 requires
+`web_environment: [PANTHEON_SITE=meridian-trade]`) were tagged `ckp`. Fixes: the first two are
+re-tagged `cka`; a new invariant checks `.env.example` for secret-shaped values; the T05 check now
+inspects only the values under `web_environment`. TC-T05-21 and TC-T06-19 only nest these.
+
+### DEF-008: Remaining T07 check problems found by review and by the first live run
+
+| Field | Value |
+|---|---|
+| ID | DEF-008 |
+| Severity | Low (test-design defect) |
+| Found in | T07 review, TC-T07-07, 09, 10, 23, 27; part 1 live run, TC-T07-31, 42 |
+| Status | Retest passed |
+| Fix commit | Uncommitted at retest: `docs/tests/T07/run-checks.sh`, `docs/tests/T07/test-cases.md` |
+| State history | Open (reviewer and tester, 2026-11-02), Fixed (tester, 2026-11-02), Retest passed (tester, 2026-11-02) |
+| Retest result | 2026-11-02: static `evidence/static-part1.txt` and live `evidence/live-only-part1.txt` (the first live run, `live-only-part1-run1-before-check-fixes.txt`, showed the two live defects below) |
+
+**Actual and fix, one line each**
+
+- TC-T07-09 expected Terminus 3.6.2 and the inline `${{ inputs.ref }}`; now 4.3.3 with SHA-256
+  `e7ca9bca...bade`, `--ref "$DEPLOY_REF"` through `env:`, and no `${{` in any `run:`.
+- TC-T07-10 looked only for `actionlint` on PATH; it now uses `.tools/actionlint` first.
+- TC-T07-23 regex could not match `$settings['config_sync_directory'] = ...`; fixed.
+- TC-T07-07 and the live `GIT_SSH_COMMAND` strings lacked `GlobalKnownHostsFile=/dev/null`; added.
+  The known-hosts content checks are Blocked until the key is committed, not Fail.
+- TC-T07-27 is Blocked until `T07_CLOSE=1` (it is an at-close snapshot).
+- TC-T07-31 (live) read the exit code through `; echo EXIT=$?`, which `ddev exec` never reaches
+  after a failing command; it now uses `|| echo "EXIT=$?"`.
+- TC-T07-42 (live) tested `web/sites/default/files`; the docroot is `apps/drupal/web`.
+- The live gate and the TC-T07-42 precondition called `terminus auth:login` without
+  `--machine-token` and tested `auth:whoami` by exit status; Terminus 4.3.3 needs the option, and
+  `whoami` exits 0 when logged out (live item L-2 confirmed this).
+- New cases: TC-T07-58 to 62 (Terminus pin, version in DDEV, budget, subdirectory, git_url forms).

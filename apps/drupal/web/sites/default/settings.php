@@ -39,6 +39,9 @@ if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev
 }
 
 // 4. Config sync directory, relative to web/: resolves to apps/drupal/config/sync.
+// This line must stay after the Pantheon include (step 2). settings.pantheon.php sets a different
+// default ('../config' or 'sites/default/config') when the setting is empty, so only this later
+// assignment makes Pantheon dev use /code/config/sync (T07, KD-5).
 $settings['config_sync_directory'] = '../config/sync';
 
 // 5. Local overrides, never committed.

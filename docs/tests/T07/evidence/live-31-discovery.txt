@@ -1,0 +1,23 @@
+# TC-T07-31 part 1: dev git URL form, ls-remote with a TEMPORARY pin of host-key copy 1 (the committed scripts/pantheon_known_hosts is untouched), wrong-key negative, backup:create on a missing env
+# UTC 2026-11-02T18:22:45Z
+git_url shape: ssh://codeserver.dev.<uuid>@codeserver.dev.<uuid>.drush.in:2222/~/repository.git
+PASS shape matches ssh://codeserver.dev.<uuid>@codeserver.dev.<uuid>.drush.in:2222/~/repository.git
+--- control: pinned copy 1 (StrictHostKeyChecking=yes, GlobalKnownHostsFile=/dev/null)
+39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	HEAD
+39456b6fbd5ac1ce344f66d72a4a85e2ceacf9a2	refs/heads/main
+deb98de72ac768de2f58b62bda2b8796c06f23e5	refs/heads/master
+88e8e3badae10988d3bf67e54d81d023d2e0032c	refs/tags/pantheon.initialize
+3d6cd5577775e999c794d52077d41b280dde1ef5	refs/tags/pantheon_build_artifacts_live
+EXIT=0
+--- negative (TH-6, early): a wrong key must fail closed
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+EXIT=141
+--- backup:create against a non-existent environment
+2026-11-02 18:23:46 UTC[+0000] [error]  Could not find an environment identified by no-such-env-t07. 
+
+[31mFailed to execute command `terminus backup:create meridian-trade.no-such-env-t07 --element=db --keep-for=1 2>&1; echo "EXIT=$?"`: exit status 1[0m

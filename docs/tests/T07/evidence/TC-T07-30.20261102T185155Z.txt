@@ -1,0 +1,11 @@
+== TC-T07-30 AC1 live: the Sandbox site exists on the Composer-managed upstream
+  PASS  site:info succeeds for meridian-trade
+        {
+            "id": "904ad1a6-f47f-4807-af26-a9986348c59d",
+            "name": "meridian-trade",
+            "framework": "drupal8",
+            "upstream": "bde48795-b16d-443f-af01-8b1790caa1af: https://github.com/pantheon-upstreams/drupal-composer-managed.git",
+            "plan_name": "Sandbox"
+        }
+  PASS  framework is drupal-composer-managed (or the upstream label says Composer Managed); plan is sandbox
+  PASS  dev connection mode is git (SFTP mode is forbidden)

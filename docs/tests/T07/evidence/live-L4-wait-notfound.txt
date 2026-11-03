@@ -1,0 +1,11 @@
+# L-4 part 1: workflow:wait for a commit that does not exist (read-only). Shows the not-found text and exit code (facts c).
+# UTC 2026-11-02T18:23:56Z
+2026-11-02 18:23:59 UTC[+0000] [notice] Waiting for workflow on site meridian-trade environment meridian-trade.dev.
+2026-11-02 18:23:59 UTC[+0000] [notice] Waiting for workflow on environment dev.
+2026-11-02 18:23:59 UTC[+0000] [notice] Waiting for workflow with commit 0000000000000000000000000000000000000000 on environment dev.
+2026-11-02 18:24:50 UTC[+0000] [warning] Workflow with commit 0000000000000000000000000000000000000000 not found after 10 attempts.
+EXIT=0
+
+real	0m53.112s
+user	0m0.565s
+sys	0m0.046s

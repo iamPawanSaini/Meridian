@@ -1,0 +1,2 @@
+== TC-T07-49 O-4 result: Pantheon master descends only from a split of main (history replaced once)
+  PASS  the oldest commit on Pantheon master is a commit of the apps/drupal split (not the Pantheon upstream root)

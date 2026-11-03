@@ -1,0 +1,28 @@
+# UTC 2026-11-02T18:04:28Z, this machine's network. Pantheon dev runs a dashboard-installed Drupal that is not yet installed (redirects to /core/install.php).
+## browser-like User-Agent and Accept: text/html, follow redirects
+GET /user/login (browser UA, -L) hdr=none -> 403 text/html; charset=UTF-8 final=https://dev-meridian-trade.pantheonsite.io/user/login t=0.111088 | title: <title>Just a moment... | sandbox/warning words: 1
+GET /user/login (browser UA, -L) hdr=bypass1 -> 403 text/html; charset=UTF-8 final=https://dev-meridian-trade.pantheonsite.io/user/login t=0.107968 | title: <title>Just a moment... | sandbox/warning words: 1
+## POST small bodies, default curl UA
+POST /user/login hdr=none -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+POST /user/login hdr=bypass1 -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+POST /jsonapi/node/article hdr=none -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+POST /jsonapi/node/article hdr=bypass1 -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+POST /jsonapi hdr=none -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+POST /jsonapi hdr=bypass1 -> 302 text/html; charset=utf-8 | head: <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta http-equiv="refresh
+## Response headers (HEAD-like GET -D)
+HTTP/2 302 
+date: Mon, 02 Nov 2026 18:04:31 GMT
+content-type: text/html; charset=utf-8
+content-length: 314
+location: /core/install.php
+cf-ray: a5450fe8ccd2d97b-DEL
+cf-cache-status: BYPASS
+cache-control: no-cache, private
+server: cloudflare
+strict-transport-security: max-age=300
+vary: Cookie
+via: 1.1 google
+x-robots-tag: noindex
+set-cookie: [omitted]
+x-styx-req-id: da826274-d6e7-11f1-a6b1-56dbeaae7616
+

@@ -1,0 +1,2 @@
+== TC-T07-56 AC2 owner-run: the PAT table in the runbook holds real creation and expiry dates and no value; the PAT works from the global DDEV config
+  BLOCKED  owner-run: after O-1, the owner states the creation date; the runbook table shows creation plus 90 days as the expiry; terminus auth:whoami succeeds in ddev exec; the owner confirms by message that no PAT value was pasted into chat or a file

@@ -17,3 +17,8 @@ hooks:
     - composer: install
 # A failing hook (for example composer install) must fail ddev start, not hide (AC1).
 fail_on_hook_fail: true
+# Pantheon site machine name (T07, KD-4). Not a secret. The provider commands and
+# `ddev deploy-drupal` run in the web container, which does not read the repo-root .env.
+# The PAT (TERMINUS_MACHINE_TOKEN) is never set here; it lives in the global DDEV config.
+web_environment:
+  - PANTHEON_SITE=meridian-trade

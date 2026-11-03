@@ -1,0 +1,5 @@
+== TC-T07-36 AC5 live: config:status is clean on Pantheon dev and locally; site UUIDs agree
+  PASS  Pantheon: config:status says No differences
+  PASS  local: ddev drush config:status says No differences
+  PASS  Pantheon active system.site uuid equals config/sync (b2b35684-f8d9-40f6-af6f-d1a1980f2938)
+  PASS  local active system.site uuid equals config/sync

@@ -1,0 +1,2 @@
+== TC-T07-48 TH-8 live (destructive): database-only restore changes the value back and leaves code untouched
+  BLOCKED  T07_O4_DONE=1 not set: the owner has not done the one-time force push (plan O-4)

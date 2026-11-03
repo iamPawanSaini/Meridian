@@ -794,7 +794,9 @@ envsame() { local first base   # review finding 6: base = parent of the first T0
   base=$(git rev-parse "$first^") || return 1; echo "base $base"
   # T06: variable lines only (comments may change, T06 plan KD-9); names and values must be identical
   diff <(git show "$base:.env.example" | grep -E '^[A-Za-z_][A-Za-z0-9_]*=') <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.example); }
-ckp ".env.example variable lines unchanged since the parent of the first T04a commit (no new variables; comments may change)" envsame
+cka ".env.example variable lines unchanged since the parent of the first T04a commit (snapshot: T07 changed PANTHEON_SITE and added variables, T06 and T07 plans)" envsame
+envsecret() { [ -s .env.example ] && ! grep -nE '^[A-Za-z_][A-Za-z0-9_]*=.*(sk-ant-[A-Za-z0-9]|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20}|xox[bp]-)' .env.example; }
+ckp ".env.example holds no secret-shaped value (invariant that replaces the unchanged-variables check)" envsecret
 ckp "check-names.sh clean" scripts/check-names.sh
 
 echo "== TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]"

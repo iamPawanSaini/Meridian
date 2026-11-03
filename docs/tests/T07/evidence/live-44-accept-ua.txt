@@ -1,0 +1,58 @@
+# UTC 2026-11-02T18:05:15Z
+## curl UA + Accept: text/html (previous run gave 200)
+hdr=none -> 200 text/html; charset=utf-8 size=9623
+  title: <title>Sandbox Environment Notice; sandbox-words: 5
+ 
+ 
+ 
+ 
+ Sandbox Environment Notice 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ function cont() {
+ document.cookie = "Deterrence-Bypass=1; domain=dev-meridian-trade.pantheonsite.io; path=/; max-age=86400;";
+ window.location.reload();
+ }
+ 
+ 
+ /* Light theme, the default. These are the PDS light token values. */
+ :root {
+ /* --pds-color-surface-default-secondary */
+ --page-background: #f6f6f6;
+ /* --pds-color-foreground-default */
+ --page-foreground: #1a1a1a;
+ /* --pds-color-foreground-default-secondary */
+ --page-foregrou
+server: cloudflare
+hdr=bypass1 -> 302 text/html; charset=utf-8 size=314
+  title: <title>Redirecting to /core/install.php; sandbox-words: 0
+ 
+ 
+ 
+ 
+ 
+ Redirecting to /core/install.php 
+ 
+ 
+ Redirecting to /core/install.php .
+ 
+ 
+location: /core/install.php
+server: cloudflare
+## Accept: application/json and */*, curl UA
+GET /jsonapi Accept=application/json -> 302 text/html; charset=utf-8 | <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta
+GET /jsonapi Accept=*/* -> 302 text/html; charset=utf-8 | <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta
+GET /jsonapi Accept=application/vnd.api+json -> 302 text/html; charset=utf-8 | <!DOCTYPE html> <html>     <head>         <meta charset="UTF-8" />         <meta
+## Python-like UAs with and without Accept, with and without bypass
+UA=python-httpx/0.27.0 hdr=none -> 403 cf-mitigated=%header{cf-mitigated}
+UA=python-httpx/0.27.0 hdr=bypass1 -> 403 cf-mitigated=%header{cf-mitigated}
+UA=python-requests/2.32.3 hdr=none -> 403 cf-mitigated=%header{cf-mitigated}
+UA=python-requests/2.32.3 hdr=bypass1 -> 403 cf-mitigated=%header{cf-mitigated}
+UA=meridian-engine/0.1 hdr=none -> 403 cf-mitigated=%header{cf-mitigated}
+UA=meridian-engine/0.1 hdr=bypass1 -> 403 cf-mitigated=%header{cf-mitigated}

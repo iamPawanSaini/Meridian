@@ -1,0 +1,306 @@
+== TC-T07-01 AC1: pantheon.yml committed in apps/drupal with the build settings
+  PASS  apps/drupal/pantheon.yml is tracked by git
+  PASS  pantheon.yml: build_step true, web_docroot true, php 8.3, MariaDB 10.6, api_version 1
+  PASS  the split tree holds no pantheon.upstream.yml and no upstream-configuration path (KD-7)
+  PASS  the split tree holds no .gitignore (KD-7: scaffold-owned, T07 does not add one)
+  PASS  runbook records the upstream 'Drupal (Composer Managed)' and the site name meridian-trade
+== TC-T07-02 AC2: PAT setup, 90-day rotation, expiry table in the runbook; token never committed
+  PASS  runbook explains PAT (formerly machine token), 90 days, creation and expiry date table
+  PASS  runbook: where to create it, not in Microsoft Edge, global DDEV config command, restart
+  PASS  runbook: rotation steps (create new, replace in every store, terminus auth:whoami, revoke old)
+  PASS  runbook: PAT table has columns owner, purpose, store, creation date, expiry date and no token value
+  PASS  runbook: rotate any PAT expiring within the T31 window plus 7 days; an expired PAT breaks deploys and pulls, not the daily run
+  PASS  runbook: RSA key (ed25519 not supported), ddev auth ssh, never paste the token in chat or the repo
+  PASS  runbook: evidence never includes env, printenv or ddev exec env output (global web_environment is visible in the container)
+  PASS  docs/TASKS.md T07 AC2 carries the PAT wording
+== TC-T07-03 C6: no secrets in T07 files; .env.example and DDEV config hold placeholders only
+  PASS  no key, token or credential pattern in any T07 file (implementation files must exist)
+  PASS  .env.example: TERMINUS_MACHINE_TOKEN and PANTHEON_DEPLOY_KEY have empty values
+  PASS  .env.example: PANTHEON_SITE=meridian-trade and the PAT wording (formerly machine token, 90 days)
+  PASS  no TERMINUS_MACHINE_TOKEN value in .ddev/config.yaml, the workflow, the provider or the wrapper (all four must exist)
+  PASS  no private key block or key file tracked under scripts/, .ddev/ or .github/
+  PASS  no set -x in the script, wrapper, provider or workflow
+  SKIP  gitleaks not on PATH: the pre-commit hook covers it (TC-T07-24)
+== TC-T07-04 AC3 static: the DDEV Pantheon provider is pull-only, uses PANTHEON_SITE, takes a fresh backup
+  PASS  provider file exists and has no '#ddev-generated' line (DDEV would overwrite it)
+  PASS  provider parses; has auth_command, db_pull_command, files_pull_command; no *push* key; backup:create before backup:get with --element=db|files --keep-for=30; uses ${PANTHEON_SITE:?}; PAT wording; no set -x
+  PASS  provider text has no 'terminus .* push' or 'db_push' or 'files_push' command anywhere
+  PASS  provider does not use the static 'project' variable for the site (uses PANTHEON_SITE)
+== TC-T07-05 KD-4: PANTHEON_SITE has one value, meridian-trade, in every place
+  PASS  .ddev/config.yaml web_environment holds PANTHEON_SITE=meridian-trade and no token
+  PASS  .ddev/config.yaml value equals the .env.example value
+  PASS  openapi.yaml server variable 'site' defaults to meridian-trade
+  PASS  technical-design D7: PANTHEON_SITE DDEV column says .ddev/config.yaml web_environment; TERMINUS_MACHINE_TOKEN row says PAT (formerly machine token; expires 90 days)
+== TC-T07-06 AC4 static: scripts/deploy-drupal.sh exists, is safe by construction (KD-1)
+  PASS  script exists, is executable, has a bash shebang, bash -n passes
+  SKIP  shellcheck not on PATH: the pre-commit shellcheck hook covers it
+  PASS  no force push: no --force, -f, --force-with-lease or '+' refspec in a git push line (script and wrapper)
+  PASS  git subtree split --prefix=apps/drupal is used without -b
+  PASS  script pushes <sha>:refs/heads/master, uses --element=db and --keep-for=30, workflow:wait --commit, env:code-log, remote:drush, config:status
+  PASS  script has --ref, --dry-run, --allow-unmerged, -h and the exit codes 0, 1, 2 documented
+  PASS  script never echoes the token or dumps the environment (no printenv, no bare env, no echo or printf that expands TERMINUS_MACHINE_TOKEN; help text naming the variable is fine)
+  PASS  smoke check uses https:// with certificate verification: no -k, --insecure or 'curl -s' without verify; checks user-login-form
+  PASS  script contains no real-order or broker API call and only pantheon, drush.in, pantheonsite.io, github hosts
+== TC-T07-07 SA-4: SSH host key pinning statics and TERMINUS_SSH_COMMAND
+  PASS  script sets GIT_SSH_COMMAND with StrictHostKeyChecking=yes, GlobalKnownHostsFile=/dev/null, UserKnownHostsFile pointing at scripts/pantheon_known_hosts, BatchMode=yes
+  PASS  script sets TERMINUS_SSH_COMMAND to exactly: ssh -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o LogLevel=ERROR
+  PASS  script never sets TERMINUS_ALTERNATE_NAMESERVER (it swaps names for IPs and breaks pinning); the wrapper and workflow do not either
+  BLOCKED  awaiting L-3 (review condition 1): the key is committed only after copies from two days and two networks match; the developer owns scripts/pantheon_known_hosts. Copy 1 is in evidence/host-key-copy1.txt
+== TC-T07-08 AC4 static: ddev deploy-drupal wrapper (KD-1)
+  PASS  wrapper exists, is executable, passes bash -n, is a DDEV web-container command (## Description / ## Usage header)
+  PASS  wrapper calls scripts/deploy-drupal.sh and passes its arguments through ("$@")
+  PASS  wrapper has no set -x, no force push, no token echo, does not unset PANTHEON_SITE
+  SKIP  shellcheck not on PATH
+  PASS  .ddev/README.md lists ddev deploy-drupal (or the commands index does)
+== TC-T07-09 AC4 static: deploy-drupal.yml is a thin, guarded, pinned wrapper (TH-9, KD-8)
+  PASS  workflow file exists and parses
+  PASS  triggers (push main + 3 paths, dispatch ref default main), concurrency deploy-drupal no-cancel, permissions contents:read, timeout 30, if: vars.PANTHEON_SITE, skip line, run step passes --ref DEPLOY_REF (from env:) with DEPLOY_SMOKE_* in env:, no GitHub expression inside any run:, secrets in env only, actions pinned by SHA, no third-party action, Terminus 4.3.3 + SHA-256 e7ca9bca...bade checked with --strict, ssh-add -, fetch-depth 0, no --allow-unmerged
+  PASS  workflow has no 'set -x', no --force, no inline secret, no broker host
+  PASS  no secrets.* or vars.* expression is used inside a run: block (they arrive through env:)
+== TC-T07-10 C4 stand-in: pinned actionlint, yamllint and check-yaml on the workflow
+  PASS  actionlint (.tools/actionlint) exits 0 on .github/workflows/deploy-drupal.yml (record the version in the report; it must be the pinned version)
+        actionlint version: 1.7.12
+  PASS  the pinned actionlint version is written down (runbook, scripts/README.md or tool-versions)
+  SKIP  yamllint not on PATH: covered by pre-commit in TC-T07-24
+== TC-T07-11 AC4 offline harness: --dry-run on a fixture repo (TH-1)
+  PASS  dry-run prints a split SHA whose tree equals REF:apps/drupal, is deterministic, creates no ref or branch, makes no external call, names the target
+== TC-T07-12 AC4 offline harness: split-tree guard stops before any network step (TH-2, KD-1 stage 2)
+  PASS  split containing apps/drupal/vendor/x exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/web/core/x exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/web/modules/contrib/m/m.info.yml exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/web/sites/default/files/x.txt exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/private/x exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/.env exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/keys/a.key exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/keys/a.pem exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split containing apps/drupal/web/sites/default/settings.local.php exits 1 (or 2) before terminus, curl or push; nothing arrives on Pantheon
+  PASS  split without composer.json exits non-zero before any network step
+  PASS  split without composer.lock exits non-zero before any network step
+  PASS  split without pantheon.yml exits non-zero before any network step
+  PASS  split without config/sync/system.site.yml exits non-zero before any network step
+== TC-T07-13 AC4 offline harness: ancestor guard, --allow-unmerged, usage and exit-2 errors (KD-1 stage 1)
+  PASS  ref not reachable from origin/main: exit 2 without --allow-unmerged; with it exit 0 and a warning about merge commit and squash/rebase
+  PASS  missing origin/main: exit 2 with 'git fetch origin'
+  PASS  unknown option, unresolvable ref, PANTHEON_SITE unset: exit 2; no token and no session: non-zero and no push; -h: exit 0 and lists options
+== TC-T07-14 AC4 offline harness: first deploy runs every stage, in order, without force (TH-3)
+  PASS  exit 0; pushed tree equals HEAD:apps/drupal; one non-force push of <sha>:refs/heads/master; backup (--element=db --keep-for=30) then wake then push then workflow:wait --commit then code-log then updatedb, config:import -y, cache:rebuild, config:status; smoke URL https, no -k; split SHA is the last line
+== TC-T07-15 AC4 offline harness: idempotent re-run (TH-3, KD-1 stage 4)
+  PASS  second run: exit 0, no backup, no push; workflow:wait --commit=<sha> --start=1 and env:code-log still run and the output holds 'completed successfully for commit'; drush stages and smoke check run; master unchanged; split SHA last
+  PASS  negative re-run, build failed: exit 1, no drush, no smoke check, no backup, no push, no 'deployed', master unchanged
+  PASS  negative re-run, workflow:wait gives up (timeout, exit 0): exit 1 and the same absences
+  PASS  negative re-run, no matching workflow (not found, exit 0): exit 1 and the same absences
+== TC-T07-16 AC4 offline harness: a rewind push is rejected, never forced (TH-3, SA-2)
+  PASS  deploying an older ancestor of origin/main after a newer deploy: exit 1, master unchanged, message points to 'Roll back code' and 'Emergency force push' in docs/runbooks/deploy.md, no forced push, no later stage
+== TC-T07-17 AC4 offline harness: a failed backup stops the deploy before the push (SA-2 decision 5)
+  PASS  backup:create exits 1: script exits 1, no git push, nothing on Pantheon
+== TC-T07-18 AC4 offline harness: verification failures exit 1 (TH-3, SA-4, R5)
+  PASS  env:code-log shows another newest hash: exit 1 and no drush stage
+  PASS  workflow:wait fails: exit 1 and no drush stage
+  PASS  workflow:wait gives up (timeout, exit 0, no success notice): exit 1, no drush stage, no 'deployed'
+  PASS  workflow:wait finds no workflow (not found, exit 0, no success notice): exit 1, no drush stage, no 'deployed'
+  PASS  config:status reports differences: exit 1 and no smoke check
+  PASS  smoke check: HTTP 200 with the Sandbox interstitial body (no user-login-form marker): exit 1 (can take up to the 120 s wake retry budget)
+  PASS  smoke check: HTTP 503: exit 1 (can take up to the 120 s wake retry budget)
+== TC-T07-19 C6 harness: the PAT stays out of output; token optional; TERMINUS_SSH_COMMAND reaches terminus (TH-4, TH-5)
+  PASS  fake PAT is received by terminus (auth:login) and absent from stdout and stderr of the script; without a token the script uses auth:whoami and no auth:login
+  PASS  every terminus call sees TERMINUS_SSH_COMMAND exactly as decided and TERMINUS_ALTERNATE_NAMESERVER unset
+== TC-T07-20 AC6: runbook deploy.md: owner steps, deploy, rollback, forbidden actions, emergency force push (KD-9, SA-2)
+  PASS  runbook exists with the template headings (Steps, Verification, Rollback)
+  PASS  sections: First push (O-4), Reinstall Pantheon dev, Pull (ddev pull pantheon, ddev snapshot first), Roll back code, Restore the database, Emergency force push, Troubleshooting, event log
+  PASS  Roll back code: git revert on a task branch, merge commit (no squash, no rebase), deploy main (workflow or ddev deploy-drupal)
+  PASS  Restore the database: backup:list --element=db and backup:restore --element=db --file=<name> --yes, then cache:rebuild, config:status, smoke check
+  PASS  Forbidden on Pantheon dev: dashboard Restore button, backup:restore without --element, --element=all, --element=code
+  PASS  Emergency force push: owner only, backup first, a commit that is on main, run stages 7 to 9 by hand, record in the log table
+  PASS  First push (O-4): backup --element=db --keep-for=30, then git push --force <git_url> <split_sha>:refs/heads/master with the split SHA from --dry-run --ref origin/main; the only forced push outside an emergency
+  PASS  Reinstall: env:wipe, site:install --existing-config, warning that it destroys the dev database, admin password never pasted (user:[REDACTED]
+  PASS  Upstream rule text: dashboard upstream and Composer updates are never applied; if applied by mistake use Emergency force push
+  PASS  SFTP mode is forbidden (an SFTP commit breaks the non-force push); dev stays in Git mode
+  PASS  no instruction in the runbook uses --element=all or a bare backup:restore as a step (only in the forbidden list)
+  PASS  runbook has 'Last verified' with a date
+== TC-T07-21 AC6: runbook records sandbox sleep, freeze, limits and the interstitial (KD-12, SA-6)
+  PASS  sleep: idle about 1 hour, a web request wakes it, observed wake time recorded
+  PASS  freeze: 4 months old, 3 months without Git activity, 530 Site Frozen, unfreeze from the workspace Sites tab
+  PASS  limits: two Sandbox sites per account, no custom domains, no automatic backups, timeouts 59 s edge and 120 s PHP, 180 s cron
+  PASS  interstitial warning page: all Sandbox environments, Deterrence-Bypass header with the measured value and the date, what it intercepts
+  PASS  body size limit: measured result with date (or 'unverified' with reason); private files path result
+  PASS  pre-T31 check: last Git activity on Pantheon under 60 days or run a deploy before the window
+  PASS  backups: Sandbox has none automatically; a pull takes a fresh backup first (--keep-for=30)
+== TC-T07-22 C5: documentation follow-ups (plan step 11, interfaces touched)
+  PASS  technical-design D8: git subtree split without -b, database backup step, code server pinned and app server not, env:code-log check, interstitial result, rollback paragraph
+  PASS  technical-design: the 'machine user on Sandbox is unverified (T07)' sentence is replaced by the O-5 result or the local-only rule
+  PASS  technical-design: the SSH host key sentence ('pinned in the workflow's known_hosts') is replaced
+  PASS  technical-design NFR-04 Pantheon row: T07 records wake, warm GET and body limit; T10 measures the 100-item ingest; T28 confirms
+  PASS  technical-design ingest body size row carries the T07 result with a date or stays unverified with the reason
+  PASS  technical-design unverified register: the T07 row items are closed with results, 'Sandbox interstitial and API requests' added
+  PASS  ADR-0004 carries a dated follow-up note (PAT 90 days, local deploys use the owner's PAT) and no new ADR file was added
+  PASS  scripts/README.md, .github/README.md, docs/runbooks/README.md name deploy-drupal.sh, deploy-drupal.yml, deploy.md; local-setup.md links to the pull steps
+  PASS  CLAUDE.md Commands table lists ddev deploy-drupal and ddev pull pantheon
+  PASS  docs/tests/T07/test-cases.md exists and has one case per TC id run here
+== TC-T07-23 KD-5: settings.php changed by a comment only; config_sync_directory still set after the Pantheon include
+  PASS  settings.php: config_sync_directory = '../config/sync' still set, after the settings.pantheon.php include, with a comment saying it must stay after the include
+  PASS  [at-close] settings.php diff against the branch point adds comment lines only
+== TC-T07-24 C4: pre-commit on T07 files, bash -n, earlier regression sets (stand-in for CI until T08)
+  PASS  pre-commit run --files <every T07 file> exits 0 (shellcheck, yamllint, check-yaml, gitleaks, check-names)
+  PASS  bash -n on the deploy script, the wrapper and this test script
+  PASS  T02 to T06 run-checks.sh --regression exit 0
+        ddev quality (scripts/quality.sh) is run by the tester at execution time and attached as TC-T07-24 evidence (needs DDEV)
+== TC-T07-25 SIM: no broker domain, SDK or order call; only Pantheon and GitHub hosts (ADR-0006, CLAUDE.md)
+  PASS  denylist scan over the T07 implementation files (non-empty set required). The word 'trade' in the site name meridian-trade is allowed: the pattern matches broker names and kite.trade only
+  PASS  denylist scan over the lines T07 adds outside docs/tests
+  PASS  hosts named in T07 implementation files are only Pantheon, GitHub, ddev.site, localhost, or documentation hosts
+  PASS  no broker SDK package added to any composer.json, package.json or pyproject by T07
+  PASS  the workflow and runbook do not suggest pushing data from local to Pantheon (no db_push, no 'ddev push pantheon' instruction)
+== TC-T07-26 naming (section 0) and placeholder names
+  PASS  scripts/check-names.sh passes
+  PASS  no old placeholder names in T07 files (case-insensitive); the DDEV project is meridian, the site is meridian-trade
+== TC-T07-27 C5 close step: TRACEABILITY and PROGRESS carry the SA-7 wording (snapshot at close)
+  BLOCKED  runs at /close-task with T07_CLOSE=1: TRACEABILITY R-11 and FR-27 evidence cells: 'T07: AC4 Pass by local deploy (TC-T07-nn); CI run TC-T07-nn Blocked (accepted, owner-run after O-6)'; R-11 stays Open
+  BLOCKED  runs at /close-task with T07_CLOSE=1: PROGRESS T07 notes: 'AC4 by local deploy; CI deploy run owed after O-6 (owner-accepted)'
+  BLOCKED  runs at /close-task with T07_CLOSE=1: the T07 test report states which SA-1 branch applied: machine user, local-only, or owner credentials accepted (date)
+== TC-T07-28 evidence hygiene: no PAT, key, admin password or env dump in docs/tests/T07/evidence (R7)
+  PASS  no secret-shaped text and no environment dump in any evidence file (empty folder passes; the report must say so)
+  SKIP  gitleaks not on PATH
+== TC-T07-58 Terminus 4.3.3 pin: Dockerfile, workflow and runbook agree; checksum verified with --strict
+  PASS  Dockerfile pins ARG TERMINUS_VERSION=4.3.3 and ARG TERMINUS_SHA256=e7ca9bcad3acbb1cfc0cec32550eeb2351e578dc6d5f79cd3a5303201893bade
+  PASS  workflow pins TERMINUS_VERSION: 4.3.3 and the same SHA-256
+  PASS  runbook 'Tool versions' names Terminus 4.3.3 and the same SHA-256
+  PASS  Dockerfile and workflow verify the checksum from a file with sha256sum --check --strict
+  PASS  Dockerfile fails the build unless terminus --version equals Terminus ${TERMINUS_VERSION}; workflow runs terminus --version
+  PASS  no 3.x pin remains: no 3.x TERMINUS_VERSION value in the Dockerfile or workflow, no 3.6.2 in the workflow (the Dockerfile comment may name 3.6.2 as the reason)
+  PASS  the same 64-hex digest is the only one pinned in all three files
+== TC-T07-59 Terminus 4.3.3 in the DDEV web container (one terminus on PATH)
+  PASS  ddev exec terminus --version prints exactly 'Terminus 4.3.3'
+  PASS  which -a terminus lists exactly one path (the pinned phar replaces the DDEV copy)
+== TC-T07-60 Harness: DEPLOY_SMOKE_BUDGET must be whole seconds (exit 2 before any network call)
+  PASS  DEPLOY_SMOKE_BUDGET='abc': exit 2, message names the variable, no terminus, curl or push
+  PASS  DEPLOY_SMOKE_BUDGET='-5': exit 2, message names the variable, no terminus, curl or push
+  PASS  DEPLOY_SMOKE_BUDGET='1.5': exit 2, message names the variable, no terminus, curl or push
+== TC-T07-61 Harness: the script runs from a subdirectory of the repository
+  PASS  dry-run from apps/drupal/config, -h from scripts/, a full deploy from apps/ all work
+== TC-T07-62 Harness: unexpected git_url forms and ssh:// without a pinned key fail closed
+  PASS  scp-style git_url: exit 2 'unexpected git_url form', no wake, backup, ls-remote or push
+  PASS  https git_url: exit 2 'unexpected git_url form' and the same absences
+  PASS  ssh:// git_url with a comment-only pantheon_known_hosts: exit 2 before env:wake, backup, ls-remote and push
+  PASS  ssh:// git_url with pantheon_known_hosts missing: exit 2 and the same absences
+== TC-T07-30 AC1 live: Sandbox site on the Composer-managed upstream
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-31 KD-1/R5 live discovery
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-32 AC4 live: ddev deploy-drupal real deploy
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-33 AC4 live: independent verification
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-34 AC4 live: idempotent re-run
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-35 AC4 live: rewind rejected
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-36 AC5 live: config:status both sides
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-37 KD-5 live: config_sync_directory
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-38 KD-7 live: build facts
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-39 KD-6 live: reinstall
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-40 TH-6 live: host key pinning
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-41 KD-2 live: ssh-keyscan matches
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-42 AC3 live: ddev pull pantheon
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-43 AC3 live: pull provider details
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-44 KD-12 interstitial
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-45 KD-12 body size
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-46 KD-12 wake and warm timing
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-47 KD-12 private files
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-48 TH-8 restore
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-49 O-4 result
+  BLOCKED  live case: run with --live (needs T07_OWNER_OK=1 and, for some, confirm variables)
+== TC-T07-55 C7: ddev deploy-drupal --dry-run from a fresh clone (needs DDEV)
+  BLOCKED  clean-clone case: run T07_CONFIRM=1 docs/tests/T07/run-checks.sh --clean-clone
+== TC-T07-50 AC4 CI run: workflow_dispatch of deploy-drupal.yml on main deploys to Pantheon dev (SA-7)
+  BLOCKED  Blocked (accepted, owner-run after O-6): the owner accepts this deferral in writing at T07 close; an agent message is not acceptance. Procedure: after O-5 and O-6 (secrets TERMINUS_MACHINE_TOKEN and PANTHEON_DEPLOY_KEY, variable PANTHEON_SITE=meridian-trade) the owner runs 'Run workflow' on main (O-7) and sends the URL; expect job success, the last log line is the split SHA, env:code-log newest hash equals it, config:status clean, no token in the log. If deploys stay local-only the case becomes 'Not run: deploys are local-only by decision'. T28 cannot close until this is Pass (machine user branch).
+== TC-T07-51 Addendum: first push-triggered run of deploy-drupal.yml on main after the merge is 'skipped' (not a close condition)
+  BLOCKED  owner-run after merge: the first run on main must show the skip step 'deploy-drupal: not configured (PANTHEON_SITE unset), skipped' and a green job; record the run URL as an addendum
+== TC-T07-52 KD-2 owner-run: code server host key fingerprints equal on two days and from a second network
+  BLOCKED  owner-run: ssh-keyscan -p 2222 of the code server on day 1 (committed in scripts/pantheon_known_hosts comments), on day 2, and once from a second network (phone hotspot or GitHub runner); record the three SHA256 fingerprints and dates; any difference is raised at review (SA-4 decision 4)
+== TC-T07-53 O-5 owner-run: machine user result (SA-1 branch)
+  BLOCKED  owner-run: create the machine user and invite it (terminus site:team:add meridian-trade <bot email> [role]); record terminus site:team:list output and role, or the exact error, date and command (then deploys are local-only). The report states 'machine user', 'local-only' or 'owner credentials accepted (date)'. Also: owner reads the account and acceptable-use sections and records 'read, no conflict found' with the date
+== TC-T07-54 KD-7 owner-run: dashboard upstream-updates notice observed once after O-4
+  BLOCKED  owner-run: open the Pantheon dashboard for meridian-trade after O-4, record what the upstream-updates notice says (screenshot or note) and that ignoring it is harmless; do not click Apply Updates
+== TC-T07-56 AC2 owner-run: the PAT table in the runbook holds real creation and expiry dates and no value; the PAT works from the global DDEV config
+  BLOCKED  owner-run: after O-1, the owner states the creation date; the runbook table shows creation plus 90 days as the expiry; terminus auth:whoami succeeds in ddev exec; the owner confirms by message that no PAT value was pasted into chat or a file
+== TC-T07-57 C7 owner-run: docs/runbooks/deploy.md followed verbatim from a fresh clone (ddev deploy-drupal --dry-run, ddev pull pantheon)
+  BLOCKED  owner-run (or tester with the owner's credentials loaded): follow the runbook word for word on a fresh clone through the dry run and the pull; record each command, output and the total time. TC-T07-55 automates the credential-free half
+
+== Roll-up per case
+  PASS     TC-T07-01
+  PASS     TC-T07-02
+  PASS     TC-T07-03
+  PASS     TC-T07-04
+  PASS     TC-T07-05
+  PASS     TC-T07-06
+  BLOCKED  TC-T07-07
+  PASS     TC-T07-08
+  PASS     TC-T07-09
+  PASS     TC-T07-10
+  PASS     TC-T07-11
+  PASS     TC-T07-12
+  PASS     TC-T07-13
+  PASS     TC-T07-14
+  PASS     TC-T07-15
+  PASS     TC-T07-16
+  PASS     TC-T07-17
+  PASS     TC-T07-18
+  PASS     TC-T07-19
+  PASS     TC-T07-20
+  PASS     TC-T07-21
+  PASS     TC-T07-22
+  PASS     TC-T07-23
+  PASS     TC-T07-24
+  PASS     TC-T07-25
+  PASS     TC-T07-26
+  BLOCKED  TC-T07-27
+  PASS     TC-T07-28
+  PASS     TC-T07-58
+  PASS     TC-T07-59
+  PASS     TC-T07-60
+  PASS     TC-T07-61
+  PASS     TC-T07-62
+  BLOCKED  TC-T07-30
+  BLOCKED  TC-T07-31
+  BLOCKED  TC-T07-32
+  BLOCKED  TC-T07-33
+  BLOCKED  TC-T07-34
+  BLOCKED  TC-T07-35
+  BLOCKED  TC-T07-36
+  BLOCKED  TC-T07-37
+  BLOCKED  TC-T07-38
+  BLOCKED  TC-T07-39
+  BLOCKED  TC-T07-40
+  BLOCKED  TC-T07-41
+  BLOCKED  TC-T07-42
+  BLOCKED  TC-T07-43
+  BLOCKED  TC-T07-44
+  BLOCKED  TC-T07-45
+  BLOCKED  TC-T07-46
+  BLOCKED  TC-T07-47
+  BLOCKED  TC-T07-48
+  BLOCKED  TC-T07-49
+  BLOCKED  TC-T07-55
+  BLOCKED  TC-T07-50
+  BLOCKED  TC-T07-51
+  BLOCKED  TC-T07-52
+  BLOCKED  TC-T07-53
+  BLOCKED  TC-T07-54
+  BLOCKED  TC-T07-56
+  BLOCKED  TC-T07-57
+
+SUMMARY: mode=static run=20261102T191157Z cases: 31 PASS, 0 FAIL, 30 BLOCKED; checks executed: 140; SKIP (optional tools): 5; BLOCKED lines: 32
+RESULT: ALL EXECUTED CHECKS PASSED (30 case(s) blocked)

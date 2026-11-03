@@ -1,0 +1,2 @@
+== TC-T07-57 C7 owner-run: docs/runbooks/deploy.md followed verbatim from a fresh clone (ddev deploy-drupal --dry-run, ddev pull pantheon)
+  BLOCKED  owner-run (or tester with the owner's credentials loaded): follow the runbook word for word on a fresh clone through the dry run and the pull; record each command, output and the total time. TC-T07-55 automates the credential-free half

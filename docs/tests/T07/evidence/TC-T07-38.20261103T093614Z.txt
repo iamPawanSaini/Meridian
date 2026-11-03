@@ -1,0 +1,7 @@
+== TC-T07-38 KD-7 live: Integrated Composer build facts
+  FAIL  settings.pantheon.php exists on Pantheon (scaffolded by the build): prints 1
+        
+  PASS  a build workflow ('Build' / 'sync_code') succeeded for the deployed commit (recorded; field names assumed)
+  FAIL  web_docroot honoured without pantheon.upstream.yml: drupal kernel loads from the docroot
+        
+        Record in the report: Composer version from the build log, require-dev installed (drupal/core-dev expected), dashboard upstream notice (TC-T07-54)
