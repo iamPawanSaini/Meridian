@@ -3,21 +3,93 @@
 # call it, and it runs the pre-commit hooks as its first step. Prints PASS, FAIL or SKIP per
 # step and a summary, and exits non-zero when any step FAILs.
 #
-# Usage: scripts/quality.sh
+# Usage: scripts/quality.sh [--group GROUP]... | --list
+#   --list         print GROUP<TAB>STEP for every built-in step, in run order, and exit 0
+#   --group GROUP  run only the built-in steps of GROUP (repeatable). Groups: core, docs, drupal,
+#                  engine, web. Without --group every step runs. An unknown group exits 2.
 # Environment:
 #   QUALITY_RUNNER=native|ddev  where component tools run (default native; `ddev quality` sets
 #                               ddev). `ddev` maps to `ddev exec`, `ddev engine`, `ddev next`.
+#                               The runner never changes which steps exist or which SKIP.
 #   QUALITY_STEPS=FILE          replaces the built-in steps. Each line is
 #                               NAME<TAB>MANIFEST<TAB>COMMAND. MANIFEST '-' always runs; a
 #                               MANIFEST path that does not exist gives SKIP; a present manifest
-#                               with a failing or missing command gives FAIL.
-# SKIP happens only when a component manifest is absent. A missing tool is a FAIL.
+#                               with a failing or missing command gives FAIL. Not allowed with
+#                               --group, and the expected-skips rule does not apply to it.
+#   QUALITY_EXPECTED_SKIPS=FILE replaces quality/expected-skips.txt (test hook).
+#   QUALITY_NESTED=1            set by docs-regression for the suites it runs (and a lock file
+#                               .tools/docs-regression.lock with its pid, because ddev drops the
+#                               environment), so a suite that runs `ddev quality` cannot start
+#                               docs-regression again: the docs group is left out, with a note.
+#   QUALITY_DOCS_JOBS=N         how many docs suites docs-regression runs at once (default 1; CI
+#                               sets 4 on a runner with no DDEV).
+#   GITHUB_STEP_SUMMARY=FILE    when set, a Markdown table of the steps is appended to FILE.
+# SKIP happens only when a component manifest is absent. A missing tool is a FAIL. A built-in
+# step that SKIPs without a line in quality/expected-skips.txt is a FAIL, and so is a step that
+# runs while it is still listed there (T08, KD-3).
+# A step may print lines that start with "detail: ". They are shown under its result line.
 # No -e on purpose: every step's exit status is captured and counted, and a failing step must
 # not stop the later steps. The summary and the final exit code carry the result.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root" || exit 2
+
+known_groups="core docs drupal engine web"
+list_only=0
+selected=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --list) list_only=1 ;;
+    --group)
+      if [[ $# -lt 2 || -z "$2" ]]; then
+        echo "error: --group needs a group name (one of: $known_groups)" >&2
+        exit 2
+      fi
+      selected+=("$2")
+      shift
+      ;;
+    -h | --help)
+      sed -n '2,/^set -uo/p' "${BASH_SOURCE[0]}" | sed '$d' | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument '$1' (use --list, --group GROUP)" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+# A docs suite may run `ddev quality`, and ddev does not pass the environment on, so a lock file
+# with the pid of the running docs-regression step marks a nested run as well.
+nested=0
+nest_lock="$root/.tools/docs-regression.lock"
+if [[ -n "${QUALITY_NESTED:-}" ]]; then
+  nested=1
+elif [[ -r "$nest_lock" ]] && kill -0 "$(cat "$nest_lock")" 2>/dev/null; then
+  nested=1
+fi
+if [[ "$nested" -eq 1 ]]; then
+  for g in ${selected[@]+"${selected[@]}"}; do
+    if [[ "$g" == "docs" ]]; then
+      echo "error: the docs group cannot run inside docs-regression (a nested run)" >&2
+      exit 2
+    fi
+  done
+fi
+for g in ${selected[@]+"${selected[@]}"}; do
+  case " $known_groups " in
+    *" $g "*) ;;
+    *)
+      echo "error: unknown group '$g' (use one of: $known_groups)" >&2
+      exit 2
+      ;;
+  esac
+done
+if [[ -n "${QUALITY_STEPS:-}" && ${#selected[@]} -gt 0 ]]; then
+  echo "error: --group cannot be used with QUALITY_STEPS" >&2
+  exit 2
+fi
 
 runner="${QUALITY_RUNNER:-native}"
 case "$runner" in
@@ -43,18 +115,84 @@ precommit="pre-commit"
 if [[ -x "$root/.tools/pre-commit" ]]; then
   precommit="$root/.tools/pre-commit"
 fi
+gitleaks="gitleaks"
+if [[ -x "$root/.tools/gitleaks" ]]; then
+  gitleaks=".tools/gitleaks"
+fi
 
-# Built-in steps as NAME<TAB>MANIFEST<TAB>COMMAND lines.
+# step GROUP NAME MANIFEST COMMAND: one built-in step as a tab-separated line. A step with no
+# valid group is a programming error (exit 2).
+step() {
+  local group="$1" name="$2" manifest="$3" cmd="$4"
+  case " $known_groups " in
+    *" $group "*) ;;
+    *) group="" ;;
+  esac
+  if [[ -z "$group" ]]; then
+    echo "error: built-in step '$name' has no valid group" >&2
+    exit 2
+  fi
+  printf '%s\t%s\t%s\t%s\n' "$group" "$name" "$manifest" "$cmd"
+}
+
+# Built-in steps as GROUP<TAB>NAME<TAB>MANIFEST<TAB>COMMAND lines, in run order. Which steps
+# exist, and which SKIP, depends only on the manifests, never on QUALITY_RUNNER.
 builtin_steps() {
-  local engine drupal drupal_tests web commit_range
+  local engine engine_audit drupal drupal_tests drupal_build web web_audit commit_range
+  local secret_history docs_regression tooling_tests
   commit_range="git rev-parse --verify -q origin/main >/dev/null"
   commit_range+=" || { echo 'origin/main not found: run git fetch origin'; exit 1; };"
   commit_range+=" python3 scripts/check_commit_msg.py --range origin/main..HEAD"
+  tooling_tests="rc=0;"
+  tooling_tests+=" python3 -m unittest discover -s scripts/tests || rc=1;"
+  tooling_tests+=" python3 -m unittest discover -s .claude/hooks/tests || rc=1; exit \$rc"
+  # T08: the full-history scan. --redact is mandatory because the JSON report is uploaded as a
+  # CI artifact. A missing gitleaks binary is a FAIL, never a pass.
+  secret_history="command -v $gitleaks >/dev/null"
+  secret_history+=" || { echo 'gitleaks not found: run scripts/bootstrap-dev.sh'; exit 1; };"
+  secret_history+=" mkdir -p .tools/reports &&"
+  secret_history+=" $gitleaks git --redact --no-banner --config .gitleaks.toml"
+  secret_history+=" --report-format json --report-path .tools/reports/gitleaks.json"
+  # T08: every docs-task suite in --regression mode (decision D-5), one after another. A suite
+  # that exits non-zero fails the step and is named. BLOCKED and optional-tool SKIP lines inside
+  # a suite do not change its exit code.
+  # QUALITY_NESTED and the lock file stop recursion: a docs suite (T04a, T05, T06) may run
+  # `ddev quality`, and a nested run leaves out the docs group. The suites run one after
+  # another by default (they share pre-commit and DDEV, so parallel runs on a developer machine
+  # can clash). CI sets QUALITY_DOCS_JOBS=4 because one after another they would use most of the
+  # 10 minute budget (NFR-07); each suite writes to its own file and the results are reported in
+  # order. .tools/suite-bin (the pinned shellcheck only) goes first on PATH.
+  # T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already runs each once. The command must be one line (the steps file is line based), so
+  # newlines become spaces.
+  docs_regression="$(
+    cat <<'EOF'
+mkdir -p .tools; echo $$ > .tools/docs-regression.lock; d="$(mktemp -d)";
+trap 'rm -f .tools/docs-regression.lock; rm -rf "$d"' EXIT;
+if [ -x .tools/shellcheck ]; then mkdir -p .tools/suite-bin; ln -sf ../shellcheck .tools/suite-bin/shellcheck; export PATH="$PWD/.tools/suite-bin:$PATH"; fi; export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-1}";
+for s in docs/tests/T*/run-checks.sh; do
+  if [ ! -f "$s" ]; then echo "no docs suites found: $s"; exit 1; fi;
+  n=$((n + 1)); k="${s#docs/tests/}"; k="${k%%/*}";
+  ( "$s" --regression >"$d/$k.out" 2>&1; echo $? >"$d/$k.rc" ) &
+  while [ "$(jobs -rp | wc -l)" -ge "$max" ]; do wait -n; done;
+done; wait;
+for s in docs/tests/T*/run-checks.sh; do
+  k="${s#docs/tests/}"; k="${k%%/*}";
+  if [ "$(cat "$d/$k.rc")" = 0 ]; then echo "detail: ok $s";
+  else echo "FAILED: $s --regression"; tail -n 40 "$d/$k.out"; rc=1; fi;
+done; echo "detail: $n docs suites run"; exit $rc
+EOF
+  )"
+  docs_regression="${docs_regression//$'\n'/ }"
   # Verify the exact tool commands when T13 (engine) and T21 (web) add the manifests.
   engine="ruff check . && ruff format --check . && mypy meridian_engine"
   engine+=" && pytest --cov=meridian_engine --cov-branch --cov-report=xml:coverage.xml"
+  engine+=" --junitxml=junit.xml"
   engine+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   engine+=" ../../quality/coverage-thresholds.json --require meridian_engine/ coverage.xml"
+  # T13 sets the exact pip-audit command with the lock tool.
+  engine_audit="pip-audit"
+  drupal_build="composer install --no-interaction --no-progress"
+  drupal_build+=" && composer check-platform-reqs --lock"
   drupal="composer validate --no-check-publish --no-interaction"
   drupal+=" && vendor/bin/phpcs --version && vendor/bin/phpstan --version"
   drupal+=" && vendor/bin/phpcs --standard=phpcs.xml.dist"
@@ -66,70 +204,190 @@ builtin_steps() {
   drupal+=" -o -name '*.inc' -o -name '*.install' \\) -print -quit)\" ]; then"
   drupal+=" vendor/bin/phpstan analyse -c phpstan.neon.dist;"
   drupal+=" else echo 'phpstan: not run, no custom PHP yet (T09)'; fi"
-  drupal_tests="vendor/bin/phpunit --coverage-cobertura=coverage.xml"
+  drupal_tests="vendor/bin/phpunit --log-junit junit.xml --coverage-cobertura=coverage.xml"
   drupal_tests+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   drupal_tests+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"
   drupal_tests+=" coverage.xml"
-  web="npx eslint . && npx tsc --noEmit && npx prettier --check . && npx vitest run --coverage"
+  web="npx eslint . && npx tsc --noEmit && npx prettier --check ."
+  web+=" && npx vitest run --coverage --reporter=default --reporter=junit"
+  web+=" --outputFile.junit=junit.xml"
   web+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   web+=" ../../quality/coverage-thresholds.json --require apps/web/lib/"
   web+=" coverage/cobertura-coverage.xml"
+  # T21 sets the exact npm audit command.
+  web_audit="npm audit"
 
-  printf '%s\t%s\t%s\n' "pre-commit" "-" "$precommit run --all-files"
-  printf '%s\t%s\t%s\n' "branch-name" "-" "python3 scripts/check_branch_name.py"
-  printf '%s\t%s\t%s\n' "commit-range" "-" "$commit_range"
-  printf '%s\t%s\t%s\n' "exceptions" "-" \
-    "mkdir -p .tools && python3 scripts/exceptions_report.py --out .tools/exceptions-report.txt"
-  printf '%s\t%s\t%s\n' "assets" "-" "python3 scripts/check_assets.py"
-  printf '%s\t%s\t%s\n' "component-engine" "services/engine/pyproject.toml" \
-    "$(wrap 'ddev engine' services/engine "$engine")"
-  printf '%s\t%s\t%s\n' "component-drupal" "apps/drupal/composer.json" \
+  step core "pre-commit" "-" "$precommit run --all-files --show-diff-on-failure"
+  step core "branch-name" "-" "python3 scripts/check_branch_name.py"
+  step core "commit-range" "-" "$commit_range"
+  step core "exceptions" "-" \
+    "mkdir -p .tools/reports && python3 scripts/exceptions_report.py --out .tools/reports/exceptions-report.txt"
+  step core "assets" "-" "python3 scripts/check_assets.py"
+  step core "tooling-tests" "-" "$tooling_tests"
+  step core "secret-history" "-" "$secret_history"
+  step core "ci-config" "-" "python3 scripts/check_ci.py"
+  step docs "docs-regression" "-" "$docs_regression"
+  step drupal "build-drupal" "apps/drupal/composer.lock" \
+    "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal_build")"
+  step drupal "component-drupal" "apps/drupal/composer.json" \
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal")"
   # T05: PHPUnit and the coverage gate wait for apps/drupal/phpunit.xml.dist (added by T09 with
   # the first module). Until then this step shows a visible SKIP.
-  printf '%s\t%s\t%s\n' "component-drupal-tests" "apps/drupal/phpunit.xml.dist" \
+  step drupal "component-drupal-tests" "apps/drupal/phpunit.xml.dist" \
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal_tests")"
-  printf '%s\t%s\t%s\n' "component-web" "apps/web/package.json" \
+  step drupal "audit-drupal" "apps/drupal/composer.lock" \
+    "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal \
+      'composer audit --locked --abandoned=report --no-interaction')"
+  # T13 verifies the build command. Docker runs on the host, so this step is not wrapped.
+  step engine "build-engine" "services/engine/Dockerfile" \
+    "docker build -t meridian-engine:ci services/engine"
+  step engine "component-engine" "services/engine/pyproject.toml" \
+    "$(wrap 'ddev engine' services/engine "$engine")"
+  step engine "audit-engine" "services/engine/pyproject.toml" \
+    "$(wrap 'ddev engine' services/engine "$engine_audit")"
+  step web "build-web" "apps/web/package.json" \
+    "$(wrap 'ddev next' apps/web 'npm run build')"
+  step web "component-web" "apps/web/package.json" \
     "$(wrap 'ddev next' apps/web "$web")"
+  step web "audit-web" "apps/web/package.json" \
+    "$(wrap 'ddev next' apps/web "$web_audit")"
 }
 
+if [[ "$list_only" -eq 1 ]]; then
+  builtin_steps | cut -f1,2
+  exit "${PIPESTATUS[0]}"
+fi
+
+builtin=1
+steps_file="$(mktemp)"
+trap 'rm -f "$steps_file"' EXIT
 if [[ -n "${QUALITY_STEPS:-}" ]]; then
-  steps_file="$QUALITY_STEPS"
-  if [[ ! -r "$steps_file" ]]; then
-    echo "error: QUALITY_STEPS file '$steps_file' is not readable" >&2
+  builtin=0
+  if [[ ! -r "$QUALITY_STEPS" ]]; then
+    echo "error: QUALITY_STEPS file '$QUALITY_STEPS' is not readable" >&2
     exit 2
   fi
+  # The test hook has no group column: give every line the placeholder group '-'.
+  sed 's/^/-\t/' "$QUALITY_STEPS" >"$steps_file"
 else
-  steps_file="$(mktemp)"
-  trap 'rm -f "$steps_file"' EXIT
-  builtin_steps >"$steps_file"
+  builtin_steps >"$steps_file" || exit $?
 fi
+
+# Expected SKIPs (KD-3), built-in steps only.
+declare -A expected=()
+if [[ "$builtin" -eq 1 ]]; then
+  skips_file="${QUALITY_EXPECTED_SKIPS:-$root/quality/expected-skips.txt}"
+  if [[ ! -r "$skips_file" ]]; then
+    echo "error: expected-skips file '$skips_file' is not readable" >&2
+    exit 2
+  fi
+  declare -A known_steps=()
+  while IFS=$'\t' read -r _ sname _; do
+    known_steps["$sname"]=1
+  done <"$steps_file"
+  skip_re='^[[:space:]]*#[[:space:]]*T[0-9]{2}a?:[[:space:]]*[^[:space:]]'
+  lineno=0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    lineno=$((lineno + 1))
+    trimmed="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "$trimmed" || "${trimmed:0:1}" == "#" ]] && continue
+    sname="${trimmed%%#*}"
+    sname="${sname%"${sname##*[![:space:]]}"}"
+    comment=""
+    [[ "$trimmed" == *"#"* ]] && comment="#${trimmed#*#}"
+    if [[ ! "$comment" =~ $skip_re ]]; then
+      echo "error: $skips_file:$lineno: '$sname' has no '# Txx: reason' ticket" >&2
+      exit 2
+    fi
+    if [[ -z "${known_steps[$sname]:-}" ]]; then
+      echo "error: $skips_file:$lineno: unknown step '$sname'" >&2
+      exit 2
+    fi
+    expected["$sname"]=1
+  done <"$skips_file"
+fi
+
+reports_dir="$root/.tools/reports"
+mkdir -p "$reports_dir"
 
 pass=0
 fail=0
 skip=0
 read_count=0
+rows=()
+nested_noted=0
 # Steps are read on fd 3 and each step gets stdin from /dev/null, so a step that reads stdin
 # (ddev exec, docker exec -i, any pipe reader) cannot swallow the remaining step lines.
-while IFS=$'\t' read -r -u 3 name manifest cmd; do
+while IFS=$'\t' read -r -u 3 group name manifest cmd; do
   [[ -z "$name" ]] && continue
-  read_count=$((read_count + 1))
-  if [[ "$manifest" != "-" && ! -e "$manifest" ]]; then
-    echo "SKIP  $name (no $manifest)"
-    skip=$((skip + 1))
+  if [[ ${#selected[@]} -gt 0 ]]; then
+    in_group=0
+    for g in "${selected[@]}"; do
+      [[ "$g" == "$group" ]] && in_group=1
+    done
+    [[ "$in_group" -eq 1 ]] || continue
+  fi
+  if [[ "$nested" -eq 1 && "$group" == "docs" ]]; then
+    if [[ "$nested_noted" -eq 0 ]]; then
+      echo "note: group docs not run (nested inside docs-regression)"
+      nested_noted=1
+    fi
     continue
   fi
-  if output="$(bash -c "$cmd" 2>&1 </dev/null)"; then
+  read_count=$((read_count + 1))
+  if [[ "$manifest" != "-" && ! -e "$manifest" ]]; then
+    if [[ "$builtin" -eq 1 && -z "${expected[$name]:-}" ]]; then
+      echo "FAIL  $name"
+      echo "      unexpected SKIP: $name (no $manifest)"
+      echo "      add the step to quality/expected-skips.txt with a ticket, or add the manifest"
+      fail=$((fail + 1))
+      rows+=("| $name | FAIL | unexpected SKIP (no \`$manifest\`) |")
+    else
+      echo "SKIP  $name (no $manifest)"
+      skip=$((skip + 1))
+      rows+=("| $name | SKIP | no \`$manifest\` |")
+    fi
+    continue
+  fi
+  status=0
+  output="$(bash -c "$cmd" 2>&1 </dev/null)" || status=1
+  details="$(printf '%s\n' "$output" | sed -n 's/^detail: /      /p')"
+  note=""
+  if [[ "$builtin" -eq 1 && -n "${expected[$name]:-}" ]]; then
+    note="$name ran but is listed in quality/expected-skips.txt: remove the line"
+    status=1
+  fi
+  if [[ "$status" -eq 0 ]]; then
     echo "PASS  $name"
+    [[ -n "$details" ]] && printf '%s\n' "$details"
     pass=$((pass + 1))
+    rows+=("| $name | PASS | |")
   else
     echo "FAIL  $name"
     printf '%s\n' "$output" | sed 's/^/      /'
+    [[ -n "$note" ]] && echo "      $note"
     fail=$((fail + 1))
+    rows+=("| $name | FAIL | ${note:-see the job log} |")
   fi
 done 3<"$steps_file"
 
 echo "summary: PASS $pass FAIL $fail SKIP $skip"
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "### Meridian quality (${selected[*]:-all groups})"
+    echo
+    echo "| Step | Result | Detail |"
+    echo "|---|---|---|"
+    for row in ${rows[@]+"${rows[@]}"}; do
+      printf '%s\n' "$row"
+    done
+    echo
+    echo "PASS $pass, FAIL $fail, SKIP $skip"
+    echo
+  } >>"$GITHUB_STEP_SUMMARY"
+fi
+
 if [[ $((pass + fail + skip)) -ne "$read_count" ]]; then
   echo "error: $read_count steps were read but $((pass + fail + skip)) were counted" >&2
   exit 1

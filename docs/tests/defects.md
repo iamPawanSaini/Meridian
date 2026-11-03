@@ -145,9 +145,9 @@ with the full local `composer install` output copied over it, gives an empty `gi
 | ID | DEF-011 |
 | Severity | High (the only database rollback path in the runbook does not run; workaround: `--file` alone) |
 | Found in | T07 part 2, TC-T07-48 (run `20261103T093614Z`; owner re-run with `-vvv` 2026-11-03 10:22 UTC) |
-| Status | Retest passed (owner run); TC-T07-48 re-runs it in the next live run |
+| Status | Retest passed |
 | Fix commit | `a47c96e` |
-| Retest result | Pass 2026-11-03 (owner-run): `terminus backup:restore meridian-trade.dev --file='meridian-trade_dev_2026-11-03T09-48-13_UTC_database.sql.gz' --yes` restored the database; `config:get system.site name` then printed `Meridian` (was `T07-RESTORE-PROBE`). Runbook checks pass (static) |
+| Retest result | Pass 2026-11-03 (owner run; TC-T07-48 re-runs it in the next live run): `terminus backup:restore meridian-trade.dev --file='meridian-trade_dev_2026-11-03T09-48-13_UTC_database.sql.gz' --yes` restored the database; `config:get system.site name` then printed `Meridian` (was `T07-RESTORE-PROBE`). Runbook checks pass (static) |
 
 **Steps to reproduce**
 

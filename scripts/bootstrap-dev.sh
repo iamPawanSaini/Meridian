@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Install the pinned repository tooling into .tools/ and install the git hooks.
 # Usage: scripts/bootstrap-dev.sh
-# Needs: python3 (3.9 or newer), curl, git.
+# Needs: python3 (3.9 or newer), curl, git, tar.
+# Installs pre-commit, gitleaks and actionlint into .tools/ with SHA-256 checks
+# (scripts/tool-versions.env). Run it again after a pin changes (T08).
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
@@ -51,18 +53,16 @@ if [[ ! -f "$pyz" ]]; then
 fi
 
 actual_sha="$(sha256sum "$pyz" | cut -d' ' -f1)"
-if [[ -n "${PRE_COMMIT_SHA256:-}" ]]; then
-  if [[ "$actual_sha" != "$PRE_COMMIT_SHA256" ]]; then
-    echo "ERROR: checksum mismatch for $pyz" >&2
-    echo "  expected $PRE_COMMIT_SHA256" >&2
-    echo "  actual   $actual_sha" >&2
-    rm -f "$pyz"
-    exit 1
-  fi
-else
-  echo "WARNING: PRE_COMMIT_SHA256 is not pinned in scripts/tool-versions.env." >&2
-  echo "  Downloaded file SHA-256: $actual_sha" >&2
-  echo "  Compare it with the GitHub release, then record it in tool-versions.env." >&2
+if [[ -z "${PRE_COMMIT_SHA256:-}" ]]; then
+  echo "ERROR: PRE_COMMIT_SHA256 is not pinned in scripts/tool-versions.env." >&2
+  exit 1
+fi
+if [[ "$actual_sha" != "$PRE_COMMIT_SHA256" ]]; then
+  echo "ERROR: checksum mismatch for $pyz" >&2
+  echo "  expected $PRE_COMMIT_SHA256" >&2
+  echo "  actual   $actual_sha" >&2
+  rm -f "$pyz"
+  exit 1
 fi
 
 cat >"$wrapper" <<EOF
@@ -70,6 +70,65 @@ cat >"$wrapper" <<EOF
 exec python3 "$pyz" "\$@"
 EOF
 chmod +x "$wrapper"
+
+# install_release_binary NAME VERSION URL SHA256 MEMBER VERSION-COMMAND
+# Downloads the release tarball into .tools/ and checks its SHA-256 every run (a mismatch is
+# fatal and the tarball is removed). Installs MEMBER to .tools/NAME unless that version is there.
+install_release_binary() {
+  local name="$1" version="$2" url="$3" sha="$4" member="$5" vcmd="$6"
+  local archive="$tools_dir/${name}-${version}.tar.gz" actual have stage
+  if [[ -z "$sha" ]]; then
+    echo "ERROR: the SHA-256 of $name is not pinned in scripts/tool-versions.env." >&2
+    exit 1
+  fi
+  if [[ ! -f "$archive" ]]; then
+    echo "Downloading $name $version"
+    curl --fail --silent --show-error --location -o "$archive.part" "$url"
+    mv "$archive.part" "$archive"
+  fi
+  actual="$(sha256sum "$archive" | cut -d' ' -f1)"
+  if [[ "$actual" != "$sha" ]]; then
+    echo "ERROR: checksum mismatch for $archive" >&2
+    echo "  expected $sha" >&2
+    echo "  actual   $actual" >&2
+    rm -f "$archive"
+    exit 1
+  fi
+  have=""
+  if [[ -x "$tools_dir/$name" ]]; then
+    have="$("$tools_dir/$name" "$vcmd" 2>/dev/null || true)"
+  fi
+  if [[ "$have" == *"$version"* ]]; then
+    return 0
+  fi
+  stage="$(mktemp -d)"
+  tar -xzf "$archive" -C "$stage" "$member"
+  install -m 0755 "$stage/$member" "$tools_dir/$name"
+  rm -rf "$stage"
+}
+
+# The gitleaks and actionlint binaries are pinned for Linux x86_64 only. The supported dev
+# platform is WSL2 Linux, and CI runs ubuntu-24.04.
+if [[ "$(uname -s)" != "Linux" || "$(uname -m)" != "x86_64" ]]; then
+  echo "ERROR: the gitleaks and actionlint binaries are pinned for Linux x86_64 only." >&2
+  echo "  This is $(uname -s) $(uname -m). Use WSL2 Linux (docs/runbooks/local-setup.md)." >&2
+  exit 1
+fi
+gl_url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+install_release_binary gitleaks "$GITLEAKS_VERSION" \
+  "${gl_url}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+  "${GITLEAKS_SHA256:-}" gitleaks version
+al_url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
+install_release_binary actionlint "$ACTIONLINT_VERSION" \
+  "${al_url}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+  "${ACTIONLINT_SHA256:-}" actionlint -version
+sc_url="https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}"
+install_release_binary shellcheck "$SHELLCHECK_VERSION" \
+  "${sc_url}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.gz" \
+  "${SHELLCHECK_SHA256:-}" "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" --version
+"$tools_dir/gitleaks" version
+"$tools_dir/actionlint" -version | head -n 1
+"$tools_dir/shellcheck" --version | sed -n 2p
 
 "$wrapper" --version
 "$wrapper" install --install-hooks --hook-type pre-commit --hook-type commit-msg

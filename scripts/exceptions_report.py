@@ -5,7 +5,9 @@ A suppression (`noqa`, `type: ignore`, `pragma: no cover`, `eslint-disable`,
 `@ts-expect-error`, `phpcs:ignore`, `@phpstan-ignore`, and the shellcheck, yamllint,
 markdownlint and hadolint directives) and every path exclude in a tool config must cite a
 ticket on the same line: `Txx: reason`, `Txxa: reason` or `DEF-nnn: reason`. The ticket must
-exist (a heading in docs/TASKS.md or docs/tests/defects.md).
+exist (a heading in docs/TASKS.md or docs/tests/defects.md). A Composer advisory exception
+(`config.audit.ignore` in composer.json, object form) must read "Txx: reason, review by
+YYYY-MM-DD" (T08).
 
 The script scans the tracked and untracked, non-ignored files of the git tree in the current
 directory. It prints each violation as `path:line: tool: reason`, writes the per-tool counts
@@ -17,6 +19,7 @@ Usage: exceptions_report.py [--out FILE] [--tasks-file F] [--defects-file F]
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -211,6 +214,48 @@ def scan_file(path: str, valid: set[str]) -> tuple[Counter[str], Counter[str], l
     return counts, tickets, problems
 
 
+# T08: a Composer advisory exception is `config.audit.ignore` in object form: the key is the
+# advisory ID and the value is "Txx: reason, review by YYYY-MM-DD".
+AUDIT_REASON = re.compile(r"^(T\d{2}a?|DEF-\d{3}): \S.*review by \d{4}-\d{2}-\d{2}\s*$")
+AUDIT_TOOL = "composer audit ignore"
+
+
+def scan_composer(path: str, valid: set[str]) -> tuple[Counter[str], Counter[str], list[str]]:
+    """Return (tool counts, ticket counts, violations) for the audit ignores of a composer.json."""
+    counts: Counter[str] = Counter()
+    tickets: Counter[str] = Counter()
+    problems: list[str] = []
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError):
+        return counts, tickets, problems
+    config = data.get("config") if isinstance(data, dict) else None
+    audit = config.get("audit") if isinstance(config, dict) else None
+    ignore = audit.get("ignore") if isinstance(audit, dict) else None
+    if ignore is None:
+        return counts, tickets, problems
+    if not isinstance(ignore, dict):
+        counts[AUDIT_TOOL] += len(ignore) if isinstance(ignore, list) else 1
+        problems.append(
+            f"{path}: {AUDIT_TOOL}: use the object form"
+            ' {"<ID>": "Txx: reason, review by YYYY-MM-DD"}'
+        )
+        return counts, tickets, problems
+    for advisory, reason in ignore.items():
+        counts[AUDIT_TOOL] += 1
+        match = AUDIT_REASON.match(reason) if isinstance(reason, str) else None
+        if match is None:
+            problems.append(
+                f"{path}: {AUDIT_TOOL}: {advisory}: reason must be"
+                ' "Txx: reason, review by YYYY-MM-DD"'
+            )
+        elif match.group(1) not in valid:
+            problems.append(f"{path}: {AUDIT_TOOL}: {advisory}: unknown ticket {match.group(1)}")
+        else:
+            tickets[match.group(1)] += 1
+    return counts, tickets, problems
+
+
 def build_report(counts: Counter[str], tickets: Counter[str]) -> str:
     """Format the per-tool counts and ticket usage."""
     out = ["Suppression and exclude report (scripts/exceptions_report.py)", ""]
@@ -241,6 +286,12 @@ def main(argv: list[str] | None = None) -> int:
     problems: list[str] = []
     for path in files:
         if SKIP_PATH.match(path):
+            continue
+        if path.endswith("composer.json"):
+            c, t, p = scan_composer(path, valid)
+            counts.update(c)
+            tickets.update(t)
+            problems.extend(p)
             continue
         if not (CODE_FILE.search(path) or CONFIG_FILE.search(path)):
             continue

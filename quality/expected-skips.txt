@@ -1,0 +1,12 @@
+# Steps of scripts/quality.sh that are expected to SKIP today (T08, KD-3).
+# One built-in step per line, each with a ticket: NAME  # Txx: reason.
+# A built-in step that SKIPs and is not listed here fails the run. A listed step that runs also
+# fails the run, so the task that adds the manifest must delete its line here. The coverage
+# gate then applies at once (CODING_STANDARDS: once the manifest exists the gate applies).
+component-drupal-tests  # T09: phpunit.xml.dist arrives with the first custom module
+build-engine            # T13: services/engine/Dockerfile
+component-engine        # T13: services/engine/pyproject.toml
+audit-engine            # T13: engine lock file
+build-web               # T21: apps/web/package.json
+component-web           # T21: apps/web/package.json
+audit-web               # T21: apps/web lockfile

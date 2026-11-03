@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Automated checks for T03 (technical design, docs-only). Designed from the acceptance criteria
 # in docs/TASKS.md and the approved plan docs/tasks/T03/plan.md, not from the finished documents.
-# Usage: docs/tests/T03/run-checks.sh   (exits non-zero if any check fails)
+# Usage: docs/tests/T03/run-checks.sh [--regression]   (exits non-zero if any check fails)
+#   --regression  invariant checks only; snapshot checks (cka) are excluded and counted (decision D-5, T08 retrofit).
+#   Untagged ck/py checks are invariant (ckp). Retagged snapshot checks: see the Change log in test-cases.md.
 # A missing document makes every dependent check FAIL; nothing passes vacuously.
 # Layout assumed (plan): docs/architecture/technical-design.md with sections D1..D8 as '#' headings;
 # docs/specs/data-model.md (see check_data_model.py); docs/architecture/openapi.yaml; .spectral.yaml.
@@ -10,10 +12,19 @@ set -uo pipefail
 cd "$(git rev-parse --show-toplevel)" || exit 2
 T=docs/tests/T03
 
-fail=0
+MODE=static
+case "${1:-}" in
+  "") ;;
+  --regression) MODE=reg ;;
+  *) echo "usage: $0 [--regression]" >&2; exit 2 ;;
+esac
+
+fail=0; excluded=0
 pass() { printf '  PASS  %s\n' "$1"; }
 bad()  { printf '  FAIL  %s\n' "$1"; fail=1; }
 ck()   { local d=$1; shift; if "$@" >/dev/null 2>&1; then pass "$d"; else bad "$d"; fi; }
+# cka = snapshot check (decision D-5): same as ck, but skipped and counted by --regression
+cka()  { if [ "$MODE" = reg ]; then excluded=$((excluded+1)); else ck "$@"; fi; }
 # run a python checker, show its lines, fold failure into the total
 py()   { local out; out=$("$@" 2>&1); local rc=$?; printf '%s\n' "$out" | grep -vE '^RESULT:|^$'; [ $rc -ne 0 ] && fail=1; return 0; }
 
@@ -32,7 +43,8 @@ sec() { [ -s "$1" ] || return 1
   awk -v re="$2" '/^#+ /{match($0,/^#+/); l=RLENGTH; if(on&&l<=lv)on=0;
        if(!on && tolower($0) ~ tolower(re)){on=1;lv=l}} on' "$1"; }
 # gs FILE HEADING_REGEX ERE : pattern occurs inside the named section
-gs() { sec "$1" "$2" | grep -qiE -- "$3"; }
+# (T08: section text captured first; "sec | grep -q" under pipefail could fail on SIGPIPE when grep -q exits early)
+gs() { local o; o=$(sec "$1" "$2"); grep -qiE -- "$3" <<<"$o"; }
 
 echo "== TC-T03-01 technical-design.md structure D1..D8, requirement map"
 ck "technical-design.md exists and non-empty" test -s "$TD"
@@ -162,7 +174,7 @@ ck "payload size limit and rate limit numbers for T10" bash -c "grep -qiE '[0-9]
 ck "provisional values name their confirming gate (measurement before T10)" bash -c "grep -qi provisional $TD && grep -qiE 'measure' $TD && grep -qE 'T10' $TD"
 ck "Pantheon request time limit recorded with source or marked unverified" bash -c "grep -qiE 'request (time|timeout)|time limit|timeout' $TD && grep -qiE 'unverified|https?://' $TD"
 nfr_rows_ok() { [ -s "$SA" ] && [ "$(grep -E '^\| *NFR-0[45] *\|' "$SA" | grep -ciE 'technical-design')" -eq 2 ]; }
-ck "T02 follow-ups: NFR-04 and NFR-05 table rows in SA point to technical-design (exactly 2 rows)" nfr_rows_ok
+cka "T02 follow-ups: NFR-04 and NFR-05 table rows in SA point to technical-design (exactly 2 rows)" nfr_rows_ok
 ck "T02 follow-ups: OQ-01 and OQ-07 resolution updated" bash -c "grep -E '^\\| OQ-01' $SA | grep -qiE 'resolved|decided|decision' && grep -E '^\\| OQ-07' $SA | grep -qiE 'technical-design'"
 ck "T02 follow-ups: SA sign-off has a T03 amendment line" gs "$SA" '^#+ .*sign-off' 'T03 amendment'
 
@@ -231,5 +243,6 @@ ck "no external image/script assets in docs" bash -c "test -s $TD && ! grep -nE 
 if command -v markdownlint >/dev/null 2>&1; then ck "markdownlint clean" markdownlint $TD $DM; else printf '  SKIP  markdownlint not installed\n'; fi
 
 echo
+if [ "$MODE" = reg ]; then echo "regression mode: $excluded snapshot (cka) checks excluded (decision D-5)"; fi
 if [ $fail -eq 0 ]; then echo "RESULT: ALL AUTOMATED CHECKS PASSED"; else echo "RESULT: ONE OR MORE CHECKS FAILED"; fi
 exit $fail

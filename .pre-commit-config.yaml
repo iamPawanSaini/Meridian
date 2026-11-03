@@ -106,6 +106,14 @@ repos:
         pass_filenames: false
         always_run: true
 
+      # T08: the pinned binary from scripts/bootstrap-dev.sh. A missing binary fails the hook.
+      # actionlint also runs shellcheck on run: blocks when shellcheck is on PATH.
+      - id: actionlint
+        name: actionlint (GitHub workflows)
+        entry: .tools/actionlint
+        language: system
+        files: ^\.github/workflows/.*\.ya?ml$
+
       - id: spectral
         name: Spectral (OpenAPI lint)
         entry: spectral lint --ruleset .spectral.yaml --fail-severity=warn

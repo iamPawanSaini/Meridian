@@ -92,4 +92,5 @@ Cases TC-T00-01, 02, 03, 06, 07 and 08 are automated in `docs/tests/T00/run-chec
 
 | Date | Change | Reason |
 |---|---|---|
+| 2026-11-03 | `run-checks.sh`: added `--regression` (decision D-5, retrofit assigned to T08) with `ckp`/`cka` helpers, an excluded-count line and a usage error (exit 2) for any other argument. **Retag list: none.** Every existing check is an invariant (`ckp`); the excluded count is 0. No check was added, removed or loosened; default mode gives the same 121 PASS lines as at `d935c2f`. | T08 plan KD-12 and master test plan "Docs-task checks and `--regression`". For the architect: confirm that none of the T00 checks needs a snapshot tag (counts such as the 12 R-nn rows are bounded by the matrix, not by a task's end state). |
 | 2026-11-02 | `run-checks.sh`: `cd` now exits when it fails (SC2164) and a deliberate eval'd variable carries an inline SC2034 suppression that cites T04a. No check was added, removed or loosened. | DEF-004: the T04a baseline must be clean under the real hooks. |

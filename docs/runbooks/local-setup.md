@@ -116,7 +116,10 @@ running, or you want to reset it. Since T06 the stack has five containers: `web`
    ```
 
    Expected: `Done. Hooks installed (pre-commit and commit-msg).` On Python 3.10 see the
-   Prerequisites first.
+   Prerequisites first. It installs pre-commit, gitleaks and actionlint into `.tools/` and checks
+   each against its pinned SHA-256 (a mismatch stops it). Run it again after a pull that changes
+   `scripts/tool-versions.env` (T08 added gitleaks and actionlint). The gitleaks and actionlint
+   binaries are Linux x86_64 only (WSL2 Linux).
 
 ## Verification
 
@@ -135,8 +138,12 @@ ddev quality
   `git status --porcelain` empty.
 - `ddev quality` exits 0 with `PASS component-drupal` and
   `SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist)`. The engine and web steps SKIP
-  until T13 and T21. `ddev quality` also runs pre-commit (step 7). Run it on a committed tree:
-  the pre-commit fixers rewrite files in place.
+  until T13 and T21; every expected SKIP is listed in `quality/expected-skips.txt`. `ddev
+  quality` also runs pre-commit (step 7). Run it on a committed tree: the pre-commit fixers
+  rewrite files in place.
+- Two steps need network access: `secret-history` is local, but `audit-drupal` reads the
+  Composer advisory database, so it fails with no network. Use `scripts/quality.sh --group core`
+  or `--group docs` offline. `ddev quality --group drupal` runs one group.
 
 ## Engine, Postgres and web commands (T06)
 
