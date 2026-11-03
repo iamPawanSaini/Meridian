@@ -188,7 +188,9 @@ Severity: **Blocker** (must fix before merge), **Major** (must fix in this task)
 | C6 No secrets | Yes | No secrets in `ci.yml`; `.env.example` unchanged; the history scan runs in CI with `--redact` |
 | C7 Clean-checkout works | Partly | Every CI run is a clean checkout. A local fresh clone needs PyYAML, which is undocumented (finding 5a). Evidence comes in TC-T08-71 |
 
-## Approval
+## Approval (original review)
+
+Superseded by the re-review below.
 
 **Changes requested.** Finding 1 (Major) must be fixed on `task/T08-review-fixes`. Findings 2
 to 12 must be fixed or ticketed with an ID before approval. The owner items (finding 17,
@@ -196,3 +198,129 @@ O-3 to O-7) and C3 belong to the test step. The simulation-only rule is met: no 
 broker API or trading domain anywhere in the range, and `scripts/check-names.sh` is clean.
 
 technical-architect, 2026-11-04
+
+## Re-review (2026-11-04)
+
+| Field | Value |
+|---|---|
+| Range | `1dcf8f4..a4354ec` (`e05d714`, `a4354ec`) plus `ffaf747` (owner evidence only) on `task/T08-review-fixes` |
+| Reviewer | technical-architect |
+
+### What was checked
+
+- I read the full diff of `e05d714` and `a4354ec`: `ci.yml`, `bootstrap-dev.sh`, `quality.sh`,
+  the new `scripts/docs_regression.sh`, `requirements-docs-tests.txt`, the new
+  `test_bootstrap_dev.py`, the changes to the three existing test modules, `.github/README.md`,
+  `local-setup.md`, `scripts/README.md` and the standards table. I scanned `ffaf747`'s
+  evidence for tokens and addresses: only the noreply address and the redacted
+  negative-control finding (0 raw key occurrences).
+- Read-only tools at `ffaf747`, on host Python 3.10.12:
+  - `python3 -I scripts/check_ci.py`: rules 1 to 6 PASS.
+  - `.tools/actionlint .github/workflows/*.yml`: exit 0.
+  - `scripts/check-names.sh`: OK.
+  - `.tools/shellcheck` (0.11.0) on `docs_regression.sh`, `quality.sh` and `bootstrap-dev.sh`:
+    exit 0.
+  - `python3 -m unittest discover -s scripts/tests`: 152 tests, OK.
+  - The markdownlint hook on `local-setup.md` and `scripts/README.md`: Passed.
+  - `env -u MYPYPATH .tools/pre-commit run mypy --files scripts/tests/test_check_ci.py
+    scripts/tests/test_bootstrap_dev.py`: **fails** with `test_check_ci.py:14: error: Cannot
+    find implementation or library stub for module named "check_ci" [import-not-found]`
+    (finding R-1).
+
+### Status of the original findings
+
+| # | Sev | Status | Evidence and judgement |
+|---|---|---|---|
+| 1 | Major | Fixed (`e05d714`) | Both `.tools` caches now use `path:` `.tools`, `!.tools/reports`, `!.tools/suite-bin`. **The cache exclusion alone is enough.** Each job runs on a fresh runner with a fresh checkout. `.tools/` is git-ignored, so the only way an older report reached a job was the cache restore, and that path is now closed. Emptying `.tools/reports` in `quality.sh` is not needed, and the developer is right that it would break several `--group` runs in a row locally. Locally a stale file never reaches an artifact. The tester confirms the fix in TC-T08-62 on a warm run (each `reports-<g>` holds only that job's files) |
+| 2 | Minor | Fixed (`a4354ec`) | `^[1-9][0-9]*$` is checked in `quality.sh` (also when the variable is set but empty) and again in `docs_regression.sh`; both exit 2. Tests cover `0`, `abc`, empty, `-1`, `1.5` and `2 3`, the direct script call, and a three-suite parallel run with one failing suite (order and naming) |
+| 3 | Minor | Fixed (`a4354ec`), one residual (R-3) | The logic is in `scripts/docs_regression.sh` (73 lines, shellcheck clean). `quality.sh` drops back to one line for the step, and the long lines are gone |
+| 4 | Minor | Fixed (`a4354ec`) | Audit table in `.github/README.md`, "Dependency audit"; two rows in the CODING_STANDARDS tool table. PyYAML hash pinning stays an open owner choice. It is optional, so it does not block |
+| 5 | Minor | Fixed (`a4354ec`) | (a) PyYAML is a prerequisite in `local-setup.md`. (b) shellcheck is named in bootstrap, the READMEs and the runbook. (c) The network sentence is corrected in both places. (d) The runner shellcheck 0.9.0 is recorded. (e) Accepted difference 4 is added |
+| 6 | Minor | Fixed (`e05d714`) | Each binary is always re-installed from the verified tarball. `test_untrusted_installed_binary_is_replaced_from_the_verified_tarball` proves it |
+| 7 | Minor | Fixed (`a4354ec`), one residual (R-2) | `test_bootstrap_dev.py` has 8 tests with a fake `curl` and `uname`: good pins, empty SHAs, mismatches, cached-tarball re-check, platform guard, planted binary. The tests assert behaviour (exit codes, files present or absent, archive removed, no re-download) |
+| 8 | Minor | Fixed (`a4354ec`) | TC-T08 IDs are in the class and method docstrings of the T08 tests |
+| 9 | Minor | Open (tester) | T03 invariant check and Change log correction |
+| 10 | Minor | Open (tester) | T00 unused `cka` and SC2329 directive |
+| 11 | Minor | Open (tester) | T07 documentation of `T07_SKIP_NESTED` |
+| 12 | Minor | Open (tester) | Ratify the DEF-011 edit |
+| 13 | Note | - | Unchanged; the guard moved into `docs_regression.sh` without change |
+| 14 | Note | Done (`a4354ec`) | Per-suite logs go to `.tools/reports/docs/<Txx>.txt`; the directory is emptied at the start of each docs-regression run. A test asserts the content |
+| 15, 16 | Note | - | Re-checked: `ci.yml` changes only the two cache `path:` blocks. Pins, permissions and expressions are unchanged |
+| 17 | Note | Resolved by the owner (no code change) | Evidence `KD13-secret-scan.20261104.txt`: no repository secrets or variables exist, `DEPLOY_SMOKE_HEADER` is not set, `deploy-drupal.yml` is unchanged. The docs follow-up is R-4 |
+| 18 | Note | Open (close step) | PROGRESS row |
+
+### New findings
+
+| # | Severity | File | Issue | Resolution | Owner | Status |
+|---|---|---|---|---|---|---|
+| R-1 | Minor | `mypy.ini:5-8` (hook in `.pre-commit-config.yaml:53-55`) | **mypy fails on a partial commit unless `MYPYPATH=scripts` is set.** The test modules import `check_ci`, `exceptions_report` and `_helpers` by bare name. When pre-commit passes only a test file, mypy cannot resolve `check_ci` (reproduced above). A full `--all-files` run passes, because the module files are then on the command line. For `a4354ec` the developer set `MYPYPATH` in their own shell. No hook was skipped, so this is not a bypass, but every other contributor and agent will hit the same failure on a commit that touches only a test file. The pattern dates from T04a (`import exceptions_report`), and T08 adds more of it. Setting the path in the developer's shell is not reproducible configuration. | Put it in the config that the hook already reads: add `mypy_path = scripts` (and, if needed, `scripts/tests`) under `[mypy]` in `mypy.ini`. Do not use a hook-only `args:` entry, so that manual `mypy` runs behave the same. Verify both `env -u MYPYPATH .tools/pre-commit run mypy --files scripts/tests/test_check_ci.py` and `--all-files` (watch for "source file found twice"). | developer | Open |
+| R-2 | Minor | `scripts/tests/test_bootstrap_dev.py:62-125` | **The bootstrap tests fail, instead of skipping, on a Python 3.10 host without the DEF-003 workaround.** The copied script runs the DEF-003 guard first. If `python3` on `PATH` is 3.10 without `typing_extensions` 4.16 or newer outside site-packages, every test gets exit 1 at the guard, and `tooling-tests` (and so `ddev quality`) fails for a reason that has nothing to do with the pins. This review host (3.10.12 with the workaround) and CI (3.12) pass. CODING_STANDARDS makes 3.10 the minimum for `scripts/`. | In `setUpClass`, run the same guard probe with the `python3` on `PATH`. If it fails, `skipTest("DEF-003: bootstrap needs Python 3.11+ or the typing_extensions workaround")`; the ticket makes the skip compliant with REVIEW_CHECKLIST 5. Alternatively, fail with one clear message naming DEF-003. Do not change the guard. | developer | Open |
+| R-3 | Minor | `scripts/docs_regression.sh:21` | `set -uo pipefail` without `-e`, and no comment gives the reason (CODING_STANDARDS "Shell scripts": start with `set -euo pipefail`; `quality.sh:31-32` documents its own exception). Leaving out `-e` is correct here, because each suite's failure must be collected and not stop the run. | Add a one-line comment giving the reason, as in `quality.sh`. | developer | Open |
+| R-4 | Minor | `docs/runbooks/ci-secrets.md:53` (and `:42-45`) | The `DEPLOY_SMOKE_HEADER` row still says "Pending the owner decision of plan KD-13 item 2". The owner has now decided: none is set. The secrets table reads as if `TERMINUS_MACHINE_TOKEN` and `PANTHEON_DEPLOY_KEY` are set, but no repository secret exists yet (the deploy job skips itself until `PANTHEON_SITE` is set). | Record the outcome: "2026-11-04: no secrets or variables set; KD-13 item 2 not applicable". Keep the rule for later: a `Deterrence-Bypass` value must be a secret, and the change cites T07. Mark the two secrets "named by the workflow, not set yet". | developer | Open |
+| R-5 | Note | `scripts/tests/test_quality_sh.py` (`test_parallel_run_...`) | The parallel test asserts order and naming, which is what matters, but not that the suites ran at the same time. A sequential run would also pass it. | Optional: assert that three suites that each sleep 0.3 s finish in less than about 0.8 s. | developer (optional) | - |
+| R-6 | Note | `docs/tests/T08/evidence/O6-demo-pr4.20261104.txt` | On demo PR #4 the `docs` job also failed, because T04a's suite runs `unittest discover` over `scripts/tests` and picks up the demo test. That is correct behaviour (a broken tooling test should fail there too), and the merge was blocked either way. | The tester records it in TC-T08-54 as expected. The merge-box screenshot showing that no bypass is offered is still needed for AC2. | tester, owner | - |
+
+### Answers to the coordinator's questions
+
+- **Cache exclusion versus emptying `.tools/reports`:** the exclusion alone closes finding 1
+  (see row 1 above). No change to `quality.sh` is required.
+- **`MYPYPATH=scripts`:** this is a finding (R-1, Minor), not only a note. The hook ran and
+  passed, so there was no bypass. But the passing state depends on an undocumented environment
+  variable, so the setting belongs in `mypy.ini`.
+- **DEF-003 dependency of the bootstrap tests:** R-2, Minor. Skip with the DEF-003 ticket, or
+  fail with one clear message.
+
+### Owner-step status (updates "Left for the test step")
+
+- Done, with evidence in `ffaf747`:
+  - the repository is public (2026-11-04);
+  - the KD-13 full-history scan covered all 15 refs with 0 findings, plus a negative control
+    (TC-T08-65);
+  - KD-13 item 2 is not applicable (no secrets or variables, TC-T08-66);
+  - the owner keeps the email in the T07 evidence (item 3);
+  - the `main` ruleset is active with deletion, non-fast-forward, pull request (merge only),
+    required check `ci-ok` and strict mode (TC-T08-53);
+  - demo PR #4 was closed unmerged with `ci-ok`, `core` and `docs` failing (TC-T08-54 and 55).
+- Still needed:
+  - the merge-box evidence that **no bypass option is offered** (AC2, TC-T08-54). Without it,
+    AC2 is not met;
+  - the O-3 and O-4 settings record (TC-T08-52), and the admin-only post-flip settings
+    (secret scanning, push protection, fork approval; TC-T08-67), which the evidence notes as
+    not visible through the API;
+  - the timing runs (O-7, TC-T08-59 to 61). They are measured after this fix PR, because the
+    cache content changed;
+  - the warm-run artifact check (TC-T08-62 to 64);
+  - the first `push` run on `main` (TC-T08-51), and TC-T08-70 (`ddev quality`; the developer
+    reports PASS 12 FAIL 0 SKIP 7, which the tester records with evidence);
+  - the T08 harness;
+  - findings 9 to 12;
+  - the test-case Change log rows listed above. Also add one for
+    `.tools/reports/docs/<Txx>.txt` and `scripts/docs_regression.sh` (TC-T08-15, 30, 62).
+
+### Common criteria after the re-review
+
+| Criterion | Met? | Notes |
+|---|---|---|
+| C1 | Yes | Unchanged |
+| C2 | Partly | The Major finding is fixed. Findings 9 to 12 (tester) and R-1 to R-4 are open Minors, to be fixed or ticketed before close |
+| C3 | No (test step) | The harness and the executed cases are pending |
+| C4 | Partly | The local checks are green. The CI run on the fix PR and the first `push` run on `main` are still to be recorded |
+| C5 | Partly | Findings 4 and 5 are fixed; R-4 is open. TRACEABILITY, `solution-architecture.md` (solution-architect) and PROGRESS are due at close |
+| C6 | Yes | No secrets; `.env.example` unchanged; the owner evidence holds only redacted output |
+| C7 | Partly | The doc gap is fixed (5a). R-2 affects clean checkouts on Python 3.10. Evidence comes in TC-T08-71 |
+
+## Approval
+
+**Approved with conditions.** No Blocker or Major finding is open. Finding 1 is fixed, and the
+cache exclusion alone is sufficient. The conditions:
+
+1. R-1 to R-4 are fixed on `task/T08-review-fixes`, or each is ticketed with an ID, before
+   `/close-task`.
+2. The tester resolves findings 9 to 12 in the test step.
+3. AC2 is met only when the "no bypass offered" merge-box evidence is in the test report.
+4. AC3 and AC4 are measured on runs that include `e05d714`.
+5. CI is green on the fix PR, and the first `push` run on `main` is recorded (C4).
+
+The simulation-only rule is met: no broker SDK, API or trading domain in the range.
+
+technical-architect, 2026-11-04 (re-review)
