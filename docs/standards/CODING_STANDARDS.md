@@ -380,8 +380,11 @@ a config differ, the config wins and this table is corrected in the same task.
 | shellcheck (shellcheck-py) | Shell | 0.11.0.1 (shellcheck-py rev), verify | [koalaman/shellcheck](https://github.com/koalaman/shellcheck) | 2026-11-01 (recorded; verify) | pre-commit |
 | markdownlint-cli2 | Markdown | 0.18.1, verify | [DavidAnson/markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) | 2026-11-01 (recorded; verify) | pre-commit |
 | Spectral (`@stoplight/spectral-cli`) | OpenAPI | 6.15.0, verify | [stoplightio/spectral](https://github.com/stoplightio/spectral) | 2026-11-01 (recorded; verify) | pre-commit (local node hook) |
-| gitleaks | Secrets | 8.30.1 (pinned since T00) | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) | 2026-11-01 | pre-commit, CI history scan (T08) |
-| pre-commit | All | 4.7.0 (pinned since T00) | [pre-commit.com](https://pre-commit.com/) | 2026-11-01 | `scripts/bootstrap-dev.sh` |
+| gitleaks | Secrets | 8.30.1 (pinned since T00; binary and SHA-256 pinned in `scripts/tool-versions.env` since T08) | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) | 2026-11-03 (T08) | pre-commit (staged changes), `secret-history` step (full history, `.tools/gitleaks`) |
+| pre-commit | All | 4.7.0, SHA-256 pinned in `scripts/tool-versions.env` (T08) | [pre-commit.com](https://pre-commit.com/) | 2026-11-03 (T08) | `scripts/bootstrap-dev.sh` |
+| actionlint | GitHub workflows | 1.7.12, SHA-256 pinned in `scripts/tool-versions.env` (T08) | [rhysd/actionlint](https://github.com/rhysd/actionlint) | 2026-11-03 (T08) | pre-commit (local hook on `.github/workflows/`), `.tools/actionlint` |
+| GitHub setup actions | CI | `actions/checkout` v7.0.1, `actions/setup-python` v7.1.0, `actions/cache` v6.1.0, `actions/upload-artifact` v7.0.2, `shivammathur/setup-php` 2.40.0; full commit SHAs in `.github/README.md` | [GitHub Actions](https://github.com/actions) | 2026-11-03 (T08) | `ci.yml`, `deploy-drupal.yml` |
+| Composer (CI) | PHP | 2.11.1 in setup-php, equal to `ddev exec composer --version` (`.github/README.md`, checked by `scripts/check_ci.py`) | [getcomposer.org](https://getcomposer.org/) | 2026-11-03 (T08) | `drupal` job |
 | web-vitals | Performance tests (NFR-03) | Version verify (current npm release; `main` branch `package.json` showed 6.2.3); licence Apache-2.0, verified | [GoogleChrome/web-vitals package.json](https://github.com/GoogleChrome/web-vitals/blob/main/package.json) | 2026-11-01 (licence checked; version verify) | Playwright (T26); closes OQ-T04-5 pending install |
 
 Runtimes: Python 3.12 for the engine; Python 3.10 (stdlib) is the minimum supported version for
@@ -543,7 +546,13 @@ scripts/quality.sh         # every check; exit code 0 only if nothing failed
 - The script prints `PASS`, `FAIL` or `SKIP` per step and a summary, and exits non-zero on any
   `FAIL`.
 - Steps: pre-commit on all files; branch name and commit range against `origin/main`;
-  exceptions report and asset check; component suites (lint, types, unit tests, coverage gate).
+  exceptions report and asset check; the tooling unit tests; the full-history secret scan; the
+  CI configuration check; the docs-task regression suites; for each component a build, the
+  suite (lint, types, unit tests, coverage gate) and the dependency audit. `scripts/quality.sh
+  --list` prints the steps by group.
+- `--group G` (repeatable) runs one group (`core`, `docs`, `drupal`, `engine`, `web`). CI runs
+  one group per job. A SKIP that is not listed in `quality/expected-skips.txt` is a `FAIL`
+  (T08).
 - A component suite is `SKIP` only when its manifest is absent
   (`services/engine/pyproject.toml`, `apps/drupal/composer.json`, `apps/web/package.json`). A
   missing tool when the manifest exists is a `FAIL`.
