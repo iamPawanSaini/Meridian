@@ -105,9 +105,9 @@ the deploy script's smoke check uses curl and is not affected.
 | ID | DEF-010 |
 | Severity | High (blocks every Pantheon build, so AC4 and part 2 of T07) |
 | Found in | T07 part 2, O-4 (first push of split `2a60eba8574d39928deb7898cc6af185c13be904`, 2026-11-03) |
-| Status | Fixed, retest pending (next Pantheon build) |
-| Fix commit | |
-| Retest result | Local build simulation clean; Pantheon build pending |
+| Status | Retest passed |
+| Fix commit | `f958a5d` (split `7b790a198d06461f39cb813ced2db6716611eb9e`) |
+| Retest result | Pass 2026-11-03: fast-forward push `2a60eba..7b790a1`; workflow `79c49794-d75c-11f1-bbb3-123c6bba4b1c` "Sync code on dev" completed successfully for commit 7b790a1 (08:02:02 UTC); local build simulation clean |
 
 **Steps to reproduce**
 
