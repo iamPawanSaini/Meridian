@@ -10,5 +10,5 @@ Check runs on 5fd53e4:
   web      success https://github.com/iamPawanSaini/Meridian/actions/runs/41706676792/job/126163717382
 core and docs both fail: core at tooling-tests; docs because T04a --regression runs 'python3 -m unittest discover -s scripts/tests' (T04a run-checks.sh:614). ci-ok (the required check) fails.
 git merge-base --is-ancestor 5fd53e4 origin/main -> rc=1 (the failing test is not on main)
-Owner, 2026-11-04: "closed the PR, results are as expected" (merge blocked by ci-ok). Merge-box screenshot showing no bypass option: requested.
+Owner, 2026-11-04: "closed the PR, results are as expected" (merge blocked by ci-ok). Merge-box screenshot: none taken. Owner confirmation, 2026-11-04: "I didn't take a screenshot, record my confirmation" (the merge box offered no bypass option; merge blocked by ci-ok). Recorded as owner-statement evidence for TC-T08-54.
 Branch task/T08-demo-failing-test deleted on GitHub by the owner: GET .../branches/task/T08-demo-failing-test -> HTTP 404 (2026-11-03T19:58:06Z). Local branch and worktree removed by the main session.
