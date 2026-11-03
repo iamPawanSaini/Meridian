@@ -1,0 +1,5 @@
+== TC-T07-41 KD-2 live: the committed code-server key matches ssh-keyscan today
+        ssh-keyscan fingerprints today (2026-11-03): 
+  FAIL  at least one scanned SHA256 fingerprint appears in scripts/pantheon_known_hosts comments
+        
+        Day-2 and second-network scans are owner-run: TC-T07-52

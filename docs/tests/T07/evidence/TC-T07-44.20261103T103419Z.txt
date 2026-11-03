@@ -1,0 +1,35 @@
+== TC-T07-44 KD-12 live: Sandbox warning page and edge behaviour (GET, POST, /jsonapi, Accept, User-Agent, with and without Deterrence-Bypass)
+        Part 1 measurement (edge level; valid whatever Drupal is installed behind it). UTC 2026-11-03T10:47:54Z
+        GET /user/login default curl (Accept */*), no header -> 200 ; title: Log in | Meridian
+  PASS  default curl GET (no Accept: text/html) is not the Sandbox warning page
+        GET /user/login Accept: text/html, no header -> 200 ; title: Sandbox Environment Notice
+  PASS  GET with Accept: text/html and no header returns the Sandbox warning page (title 'Sandbox Environment Notice')
+        GET /user/login Accept: text/html + Deterrence-Bypass: 1 -> 200 ; title: Log in | Meridian
+  PASS  the header 'Deterrence-Bypass: 1' removes the warning page for an HTML GET
+        POST /user/login (Accept: text/html) header=none -> 200 text/html; charset=utf-8 ; title: Log in | Meridian
+  PASS  POST /user/login header=none is not the Sandbox warning page
+        POST /user/login (Accept: text/html) header=bypass -> 200 text/html; charset=utf-8 ; title: Log in | Meridian
+  PASS  POST /user/login header=bypass is not the Sandbox warning page
+        POST /jsonapi (Accept: text/html) header=none -> 404 text/html; charset=utf-8 ; title: Page not found | Meridian
+  PASS  POST /jsonapi header=none is not the Sandbox warning page
+        POST /jsonapi (Accept: text/html) header=bypass -> 404 text/html; charset=utf-8 ; title: Page not found | Meridian
+  PASS  POST /jsonapi header=bypass is not the Sandbox warning page
+        GET /jsonapi User-Agent='curl/8.5.0' header=none -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='curl/8.5.0' header=bypass -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='node' header=none -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='node' header=bypass -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='Wget/1.21' header=none -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='Wget/1.21' header=bypass -> 404 ; title: Page not found | Meridian
+        GET /jsonapi User-Agent='undici' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='undici' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-httpx/0.27.0' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-httpx/0.27.0' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-requests/2.32.3' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='python-requests/2.32.3' header=bypass -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0' header=none -> 403 ; title: Just a moment...
+        GET /jsonapi User-Agent='Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0' header=bypass -> 403 ; title: Just a moment...
+        RESULT recorded for T10 and T21: see the User-Agent lines above; a 403 with title 'Just a moment...' is a Cloudflare challenge that Deterrence-Bypass does not remove
+  PASS  installed site, with the header: GET /user/login is Drupal's form (200 and user-login-form)
+  PASS  installed site, with the header: GET /jsonapi reaches Drupal: its 404 page while JSON:API is not enabled (T11 enables the read API) (got: 404 text/html; charset=utf-8)
+        JSON:API is not enabled in config/sync yet (T11). Re-check the JSON answer in T11 and T28.
+  PASS  the runbook and D8 record the measured result
