@@ -41,8 +41,8 @@ from T08.
 
 | Name | Used by | Where it is set | Who rotates it, and when |
 |---|---|---|---|
-| `TERMINUS_MACHINE_TOKEN` | `deploy-drupal.yml` | Repository secret. A Pantheon personal access token of the machine user (T07) | Owner, before it expires (90 days after creation). See `docs/runbooks/deploy.md` |
-| `PANTHEON_DEPLOY_KEY` | `deploy-drupal.yml` | Repository secret. The SSH private key of the machine user (T07) | Owner, on suspicion of exposure or when the key changes. See `docs/runbooks/deploy.md` |
+| `TERMINUS_MACHINE_TOKEN` | `deploy-drupal.yml` | Repository secret, named, not set yet. A Pantheon personal access token of the machine user (T07) | Owner, before it expires (90 days after creation). See `docs/runbooks/deploy.md` |
+| `PANTHEON_DEPLOY_KEY` | `deploy-drupal.yml` | Repository secret, named, not set yet. The SSH private key of the machine user (T07) | Owner, on suspicion of exposure or when the key changes. See `docs/runbooks/deploy.md` |
 
 ### Variables in use
 
@@ -50,7 +50,7 @@ from T08.
 |---|---|---|---|
 | `PANTHEON_SITE` | `deploy-drupal.yml` | Repository variable | The Pantheon site machine name. The deploy job runs only when it is set |
 | `DEPLOY_SMOKE_BUDGET` | `deploy-drupal.yml` | Repository variable (optional) | Seconds the smoke check retries |
-| `DEPLOY_SMOKE_HEADER` | `deploy-drupal.yml` | Repository variable (optional) | One extra non-secret request header for the smoke check. **Pending the owner decision of plan KD-13 item 2:** if the header holds a `Deterrence-Bypass` value, it moves to a repository secret of the same name in a separate commit (cites T07), and this row moves to the secrets table |
+| `DEPLOY_SMOKE_HEADER` | `deploy-drupal.yml` | Repository variable (optional) | One extra non-secret request header for the smoke check. **KD-13 item 2 (2026-11-04): none set, not applicable.** No `Deterrence-Bypass` value is in use. The rule stays: if the header ever holds a bypass value, it must move to a repository secret of the same name in a separate commit (cites T07), and this row moves to the secrets table |
 
 ### Planned (T20, not set yet)
 

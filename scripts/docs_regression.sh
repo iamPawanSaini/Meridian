@@ -18,6 +18,8 @@
 # a file) make a nested quality.sh leave out the docs group.
 # T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this run already runs each once.
 # .tools/suite-bin (the pinned shellcheck only) goes first on PATH when it is installed.
+# No -e on purpose: every suite's exit status is captured and counted, and a failing suite must
+# not stop the later suites. The final exit code carries the result.
 set -uo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 2

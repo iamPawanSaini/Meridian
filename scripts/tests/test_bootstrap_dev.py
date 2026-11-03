@@ -59,8 +59,31 @@ def tarball(member: str, text: str) -> bytes:
     return buf.getvalue()
 
 
+GUARD_PROBE = """
+import os, sys
+if sys.version_info >= (3, 11):
+    sys.exit(0)
+sys.path[:] = [p for p in sys.path if os.path.basename(p) not in ("site-packages", "dist-packages")]
+from importlib.metadata import distributions
+for dist in distributions(path=sys.path):
+    if (dist.metadata["Name"] or "").lower().replace("-", "_") == "typing_extensions":
+        major, minor = (int(x) for x in dist.version.split(".")[:2])
+        sys.exit(0 if (major, minor) >= (4, 16) else 1)
+sys.exit(1)
+"""
+
+
 class BootstrapTestCase(unittest.TestCase):
     """A temp repo with a copy of the script, fixture pins and fake downloads."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        probe = subprocess.run(["python3", "-c", GUARD_PROBE], capture_output=True, check=False)
+        if probe.returncode != 0:
+            raise unittest.SkipTest(
+                "DEF-003: python3 needs typing_extensions >= 4.16 outside site-packages "
+                "(or Python 3.11+) for bootstrap-dev.sh; see docs/runbooks/local-setup.md"
+            )
 
     def setUp(self) -> None:
         tmp = tempfile.TemporaryDirectory()
