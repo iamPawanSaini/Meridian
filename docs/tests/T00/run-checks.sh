@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 # Automated structural checks for T00 (TC-T00-01, 02, 03, 06, 07, 08).
-# Usage: docs/tests/T00/run-checks.sh   (exits non-zero if any check fails)
+# Usage: docs/tests/T00/run-checks.sh [--regression]   (exits non-zero if any check fails)
+#   --regression  invariant checks only (ckp); snapshot checks (cka) are excluded and counted (decision D-5).
+#   T00 has no snapshot check: every check is invariant, so the excluded count is 0. (T08 retrofit)
+# shellcheck disable=SC2329 # T08: ckp and cka are the D-5 tag helpers; T00 has no snapshot check yet
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)" || exit 2
 
-fail=0
+MODE=static
+case "${1:-}" in
+  "") ;;
+  --regression) MODE=reg ;;
+  *) echo "usage: $0 [--regression]" >&2; exit 2 ;;
+esac
+
+fail=0; excluded=0
 pass() { printf '  PASS  %s\n' "$1"; }
 bad()  { printf '  FAIL  %s\n' "$1"; fail=1; }
+# ckp = invariant check (runs in every mode); cka = snapshot check (skipped, counted, by --regression)
+ckp() { check "$@"; }
+cka() { if [ "$MODE" = reg ]; then excluded=$((excluded+1)); else check "$@"; fi; }
 check() { if eval "$2" >/dev/null 2>&1; then pass "$1"; else bad "$1"; fi; }
 
 echo "== TC-T00-01 folder structure and READMEs"
@@ -70,5 +83,6 @@ for h in "## Goal" "simulation only" "## Repository layout" "## Commands" \
 done
 
 echo
+if [ "$MODE" = reg ]; then echo "regression mode: $excluded snapshot (cka) checks excluded (decision D-5)"; fi
 if [ "$fail" -eq 0 ]; then echo "ALL CHECKS PASSED"; else echo "SOME CHECKS FAILED"; fi
 exit "$fail"

@@ -269,7 +269,9 @@ States, in order: Open, Triaged, In progress, Fixed, Retest passed, Closed, Reop
 ## Regression suite
 
 The regression suite is what CI runs to detect that a change broke something that worked. T08
-implements the jobs in `ci.yml` (and the heavier-set triggers). This plan defines the content.
+implements the PR-set jobs in `ci.yml`. The heavier-set jobs and triggers are added to `ci.yml`
+by the first task with a heavier-set suite (T10; docs/tasks/T08/decision-heavier-set.md);
+`scripts/check_ci.py` fails if such a suite exists without them. This plan defines the content.
 
 **PR set** (every pull request and push, no live network, aim for NFR-07: at most 10 min on a
 clean cache, 6 min warm):
@@ -297,6 +299,7 @@ Playwright) and the coverage reports, and uploads them as workflow artifacts. T0
 - Trigger: a nightly schedule, a manual dispatch, and a push to main (merge to main). A pull
   request can run it by label.
 - Performance and manual cases are not part of either set.
+- Until the first heavier-set job exists (T10), the rule has nothing to run and does not block a close.
 
 **Docs-task checks and `--regression` (decision D-5; new rule, not yet used by T00 to T03).**
 Each docs-task `run-checks.sh` accepts `--regression`. Every check is tagged either invariant
@@ -445,3 +448,9 @@ question OQ-T04-1). Until owner confirmation, the T00 to T02 precedent above is 
 
 None open for the content of this plan except the owner confirmation of decision D-6 (above) and
 the questions OQ-T04-2 to OQ-T04-5 in the decision record, each with a named resolving task.
+
+## Change log
+
+| Date | Change | Reason |
+|---|---|---|
+| 2026-11-03 | "Regression suite": T08 implements the PR-set jobs only; heavier-set jobs and triggers are added by the first task with a heavier-set suite (T10), guarded by `scripts/check_ci.py` rule 6. Added: until then the heavier-set rule does not block a close. | SA-3, `docs/tasks/T08/decision-heavier-set.md`; T08 plan KD-14 item 3 |

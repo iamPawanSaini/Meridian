@@ -1,0 +1,129 @@
+== TC-T00-01 folder structure and READMEs
+  PASS  dir .claude/agents
+  PASS  dir .claude/commands
+  PASS  dir .ddev
+  PASS  dir apps/drupal
+  PASS  dir apps/web
+  PASS  dir services/engine
+  PASS  dir docs/architecture
+  PASS  dir docs/adr
+  PASS  dir docs/specs
+  PASS  dir docs/tasks
+  PASS  dir docs/tests
+  PASS  dir docs/runbooks
+  PASS  dir docs/process
+  PASS  dir .github/workflows
+  PASS  README in .claude
+  PASS  README in .ddev
+  PASS  README in apps
+  PASS  README in services
+  PASS  README in docs
+  PASS  README in .github
+  PASS  README in scripts
+  PASS  README in docs/architecture
+  PASS  README in docs/adr
+  PASS  README in docs/specs
+  PASS  README in docs/tasks
+  PASS  README in docs/tests
+  PASS  README in docs/runbooks
+  PASS  README in docs/process
+  PASS  README in docs/templates
+  PASS  README in docs/design
+  PASS  README in docs/standards
+  PASS  file CLAUDE.md
+  PASS  file README.md
+  PASS  file .env.example
+  PASS  file .gitignore
+  PASS  file docs/PROGRESS.md
+  PASS  file docs/TRACEABILITY.md
+== TC-T00-02 templates with Appendix B fields
+  PASS  test-cases.md has 'TC-Txx-'
+  PASS  test-cases.md has 'Linked criterion'
+  PASS  test-cases.md has 'Preconditions'
+  PASS  test-cases.md has 'Steps'
+  PASS  test-cases.md has 'Expected result'
+  PASS  test-cases.md has 'Actual result'
+  PASS  test-cases.md has 'Evidence'
+  PASS  test-cases.md has 'Status'
+  PASS  test-cases.md has 'Date'
+  PASS  test-cases.md has 'Executed by'
+  PASS  test-report.md has 'Task'
+  PASS  test-report.md has 'Build or commit'
+  PASS  test-report.md has 'Environment'
+  PASS  test-report.md has 'Summary'
+  PASS  test-report.md has 'Defects raised'
+  PASS  test-report.md has 'Coverage notes'
+  PASS  test-report.md has 'Sign-off'
+  PASS  defect.md has 'ID'
+  PASS  defect.md has 'Severity'
+  PASS  defect.md has 'Found in'
+  PASS  defect.md has 'Steps to reproduce'
+  PASS  defect.md has 'Expected'
+  PASS  defect.md has 'Actual'
+  PASS  defect.md has 'Status'
+  PASS  defect.md has 'Fix commit'
+  PASS  defect.md has 'Retest result'
+  PASS  adr.md has 'Status'
+  PASS  adr.md has 'Context'
+  PASS  adr.md has 'Decision'
+  PASS  adr.md has 'Alternatives considered'
+  PASS  adr.md has 'Consequences'
+  PASS  adr.md has 'Date'
+  PASS  plan.md has 'Goal'
+  PASS  plan.md has 'Scope'
+  PASS  plan.md has 'Non-goals'
+  PASS  plan.md has 'Steps'
+  PASS  plan.md has 'Interfaces touched'
+  PASS  plan.md has 'Risks'
+  PASS  plan.md has 'Test hooks needed'
+  PASS  plan.md has 'Definition of done'
+  PASS  review.md has 'Commit range'
+  PASS  review.md has 'Findings'
+  PASS  review.md has 'Severity'
+  PASS  review.md has 'File'
+  PASS  review.md has 'Resolution'
+  PASS  review.md has 'Approval'
+  PASS  runbook.md has 'When to use'
+  PASS  runbook.md has 'Prerequisites'
+  PASS  runbook.md has 'Steps'
+  PASS  runbook.md has 'Verification'
+  PASS  runbook.md has 'Rollback'
+== TC-T00-03 progress board and traceability
+  PASS  PROGRESS task IDs match TASKS.md (36 tasks)
+  PASS  PROGRESS includes T00 and T33
+  PASS  TRACEABILITY has R-01
+  PASS  TRACEABILITY has R-02
+  PASS  TRACEABILITY has R-03
+  PASS  TRACEABILITY has R-04
+  PASS  TRACEABILITY has R-05
+  PASS  TRACEABILITY has R-06
+  PASS  TRACEABILITY has R-07
+  PASS  TRACEABILITY has R-08
+  PASS  TRACEABILITY has R-09
+  PASS  TRACEABILITY has R-10
+  PASS  TRACEABILITY has R-11
+  PASS  TRACEABILITY has R-12
+== TC-T00-06 ignore rules
+  PASS  ignored: .env
+  PASS  ignored: x.sql
+  PASS  ignored: x.sql.gz
+  PASS  ignored: x.dump
+  PASS  ignored: x.db
+  PASS  ignored: node_modules/x
+  PASS  ignored: vendor/x
+  PASS  ignored: records/x
+  PASS  ignored: apps/web/node_modules/x
+  PASS  ignored: apps/drupal/vendor/x
+  PASS  not ignored: .env.example
+== TC-T00-07 naming
+  PASS  check-names.sh passes on tree
+  PASS  check-names.sh rejects a stale name
+== TC-T00-08 CLAUDE.md content
+  PASS  CLAUDE.md has '## Goal'
+  PASS  CLAUDE.md has 'simulation only'
+  PASS  CLAUDE.md has '## Repository layout'
+  PASS  CLAUDE.md has '## Commands'
+  PASS  CLAUDE.md has '## Per-task loop'
+  PASS  CLAUDE.md has '## Where documents live'
+
+ALL CHECKS PASSED
