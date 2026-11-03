@@ -87,3 +87,10 @@ Pantheon site (T07) or a browser.
 requires `vendor/autoload_runtime.php`, which that plugin generates (with it off, every page
 fatals; found by the live login check). `php-http/discovery` and `tbachert/spi` are `false`: Drupal
 does not need their plugin hooks. Add new plugins only on purpose and never use `"*": true`.
+
+## Ignore rules
+
+`.gitignore` in this folder is tracked on purpose. Only `apps/drupal` is split and pushed to
+Pantheon, so the root `.gitignore` does not travel with it, and the Integrated Composer build fails
+on untracked scaffold output without this file (DEF-010). Keep it in step with the `apps/drupal`
+block of the root `.gitignore`; when a Composer change adds a scaffold file, add it to both.
