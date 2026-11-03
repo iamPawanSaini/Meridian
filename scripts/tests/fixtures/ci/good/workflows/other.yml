@@ -1,0 +1,16 @@
+name: other
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          TOKEN: ${{ secrets.FIXTURE_TOKEN }}
+          GH: ${{ secrets.GITHUB_TOKEN }}
+          SITE: ${{ vars.FIXTURE_SITE }}
+        run: echo "$SITE"

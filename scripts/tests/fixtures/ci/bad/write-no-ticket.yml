@@ -1,0 +1,82 @@
+name: Fixture CI
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  core:
+    name: core
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        # actions/checkout v7.0.1
+        uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - name: Quality
+        shell: bash
+        run: scripts/quality.sh --group core 2>&1 | tee q.txt
+  docs:
+    name: docs
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        # actions/checkout v7.0.1
+        uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - name: Quality
+        shell: bash
+        run: scripts/quality.sh --group docs 2>&1 | tee q.txt
+  drupal:
+    name: drupal
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        # actions/checkout v7.0.1
+        uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - name: PHP
+        # shivammathur/setup-php 2.40.0
+        uses: shivammathur/setup-php@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        with:
+          php-version: '8.3'
+          tools: composer:2.11.1
+      - name: Quality
+        shell: bash
+        run: scripts/quality.sh --group drupal 2>&1 | tee q.txt
+  engine:
+    name: engine
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        # actions/checkout v7.0.1
+        uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - name: Quality
+        shell: bash
+        run: scripts/quality.sh --group engine 2>&1 | tee q.txt
+  web:
+    name: web
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        # actions/checkout v7.0.1
+        uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - name: Quality
+        shell: bash
+        run: scripts/quality.sh --group web 2>&1 | tee q.txt
+  ci-ok:
+    name: ci-ok
+    needs: [core, docs, drupal, engine, web]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo ok

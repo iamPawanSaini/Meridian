@@ -1,0 +1,3 @@
+services:
+  meridian-engine:
+    image: python:3.12.16-slim-trixie@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
