@@ -1,0 +1,8 @@
+== TC-T07-46 KD-12 live: wake time and warm GET latency (p50, p95 over 20 requests)
+        env:wake exit 0 in 7.4 s (from asleep only if the env was idle > 1 h; record which)
+  PASS  env:wake exits 0 within the 120 s retry budget
+        status codes of the 20 warm GETs:      20 200 
+  PASS  20 warm GETs return no 4xx or 5xx (the status itself depends on what is installed: 302 before install, 200 after)
+        warm GET /user/login: p50=0.797561s p95=1.006055s (n=20, 2026-11-03)
+  PASS  p95 below the 59 s edge timeout (recorded value 1.006055s)
+  PASS  installed site: 20 warm GETs all return 200

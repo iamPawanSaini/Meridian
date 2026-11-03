@@ -1,0 +1,18 @@
+== TC-T07-42 AC3 live: ddev pull pantheon from a fresh shell pulls database and files (no manual terminus auth:login)
+  PASS  local snapshot taken first (runbook: ddev snapshot before a pull)
+  PASS  precondition: the Terminus session is logged out (4.3.3: whoami exits 0 with empty stdout), so the provider's auth_command is what authenticates
+        ddev auth ssh exit 1 (owner key already loaded; passphrase prompts need the owner)
+        2026-11-03 11:10:15 UTC[+0000] [notice] Logged in via machine token.
+        Obtaining databases...
+         0/2 [>---------------------------] Exporting database/files from "dev"2026-11-03 11:11:51 UTC[+0000] [notice] Created a backup of the dev environment.
+        Importing databases [/home/pawan/Meridian/.ddev/.downloads/db.sql.gz]
+        
+        [33mUser-managed /home/pawan/Meridian/.ddev/.gitignore will not be managed/overwritten by ddev[0m
+        Obtaining files...
+         0/2 [>---------------------------] Exporting database/files from "dev"2026-11-03 11:13:13 UTC[+0000] [notice] Created a backup of the dev environment.
+  PASS  ddev pull pantheon -y exits 0
+  PASS  local site UUID equals config/sync after the pull (both sides share the UUID since the KD-6 reinstall)
+  PASS  local config:status says No differences after the pull
+  PASS  files were pulled: apps/drupal/web/sites/default/files exists locally and the pull log names files
+  PASS  the pulled database has users (count >= 1)
+        AC3 reading (SA-5/KD-11): ddev auth pantheon does not exist in DDEV v1.24.4; the report records this note

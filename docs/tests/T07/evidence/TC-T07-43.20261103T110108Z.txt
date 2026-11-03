@@ -1,0 +1,5 @@
+== TC-T07-43 AC3 live: pull provider takes a fresh backup, never pushes, leaks nothing
+  PASS  pull log shows backup:create for db and for files before backup:get
+  PASS  pull log has no terminus push, env:wipe, backup:restore, or set -x trace (+ terminus lines)
+  PASS  pull log contains no token, key or password text
+  PASS  static provider check TC-T07-04 already proved there is no push command; ddev push help is informational (exit 0)

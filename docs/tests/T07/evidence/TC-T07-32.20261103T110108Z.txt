@@ -1,0 +1,15 @@
+== TC-T07-32 AC4 live (phase 2): ddev deploy-drupal deploys the branch to Pantheon dev
+         [notice] There are no changes to import.
+        2026-11-03 11:03:06 UTC[+0000] [notice] Command: meridian-trade.dev -- drush config:import [Exit: 0] (Attempt 1/1)
+        2026-11-03 11:03:09 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+         [success] Cache rebuild complete.
+        2026-11-03 11:03:16 UTC[+0000] [notice] Command: meridian-trade.dev -- drush cache:rebuild [Exit: 0] (Attempt 1/1)
+        deploy-drupal: stage 8: config:status
+        2026-11-03 11:03:19 UTC[+0000] [warning] This environment is in read-only Git mode. If you want to make changes to the codebase of this site (e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.
+         [notice] No differences between DB and sync directory.
+  PASS  exit 0
+  PASS  last output line is the deployed split SHA (40 hex): 'f86d9458f7af9841c3dc2abde8ce5dde4d4f14c5'
+  PASS  output names every stage and a warning about merge commits (--allow-unmerged)
+  PASS  output contains no token, no private key and no full git URL user part
+  PASS  a backup was created by the script before the push (backup stage printed)
+  PASS  the build was confirmed: output holds 'completed successfully for commit' (review condition 3, L-4)

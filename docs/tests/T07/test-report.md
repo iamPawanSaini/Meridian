@@ -10,7 +10,7 @@
 | Date | 2026-11-02 (UTC) |
 | Executed by | tester |
 | Authority | The owner's message of 2026-11-02: "O-3: agents may run Pantheon commands with my credentials for T07" |
-| SA-1 branch applied (so far) | Owner credentials, used from the owner's machine only; no machine user exists (O-5 not done) |
+| SA-1 branch applied | **Owner credentials accepted (2026-11-03)**: deploys run from the owner's machine with the owner's PAT; no machine user (O-5 not done). Owner's message, 2026-11-03: "owner credentials accepted, accept CI deferral, defer TC-T07-57" |
 
 ## What part 1 did and did not do
 
@@ -140,7 +140,11 @@ What this means for the plan:
 | TC-T07-43 | AC3 | Pass | `evidence/TC-T07-43.20261102T185155Z.txt` |
 | TC-T07-44, 45, 46 | AC6 | Measured (edge assertions Pass); installed-site assertions await O-4 | `evidence/TC-T07-44..46.20261102T185155Z.txt` |
 | TC-T07-32 to 41 (except 31), 47 to 49 | AC4, AC5, AC6 | Blocked: awaiting O-4 (part 2) (TC-T07-41 also awaits L-3) | n/a |
-| TC-T07-50, 51, 53, 54, 57 | AC4, C7 | Blocked: owner-run or CI (O-5 to O-7); TC-T07-50 needs the owner's written acceptance at close | n/a |
+| TC-T07-50 | AC4 | Blocked (accepted by the owner in writing, 2026-11-03): CI deploy run waits for a machine user and secrets (O-5, O-6); T28 cannot close until it passes | owner's message |
+| TC-T07-51 | AC4 | Blocked: addendum after the merge (first push-triggered run shows 'skipped'); not a close condition | n/a |
+| TC-T07-53 | AC4 | Pass (decision recorded, 2026-11-03): SA-1 branch 'owner credentials accepted'; no machine user | owner's message |
+| TC-T07-54 | AC4 | Blocked: owner glance at the dashboard upstream-updates notice after O-4 | n/a |
+| TC-T07-57 | C7 | Deferred (owner-accepted, 2026-11-03): fresh-clone runbook walk-through; the automated runbook checks (TC-T07-20, 55) still run | owner's message |
 | TC-T07-52 | AC4 | Pass (2026-11-03): one RSA fingerprint `SHA256:yPEkh1Am...ZZE` on 2026-11-02 and 2026-11-03 and from a phone hotspot; equals `scripts/pantheon_known_hosts`; no host key list published (Terminus re-checked 2026-11-03); pinned `ls-remote` exit 0 | `evidence/TC-T07-52.20261103T061000Z.txt`, `evidence/host-key-copy1.txt`, `host-key-copy2.txt`, `host-key-copy3-second-network.txt` |
 | TC-T07-56 | AC2 | Pass (2026-11-03): runbook PAT row 2026-11-01 / 2027-01-30, `auth:login --machine-token` and `auth:whoami` exit 0 in `ddev exec`, owner confirms no PAT value pasted | `evidence/TC-T07-56.20261103T062710Z.txt` |
 | TC-T07-55 | C7 | Blocked: `T07_CONFIRM=1 ... --clean-clone` stops the project's DDEV; runs in part 2 | n/a |
@@ -158,7 +162,8 @@ their executed checks passed: TC-T07-31, 42, 44, 45, 46), 0 not run.
   TC-T07-42 and the installed-site parts of TC-T07-44 to 47 (including the private files probe).
 - Needs the committed host key: TC-T07-07 content checks, TC-T07-40, 41 (key committed
   2026-11-03; TC-T07-52 passed).
-- Owner-run or CI: TC-T07-50, 51, 53, 54, 57 (TC-T07-52 and 56 passed 2026-11-03); TC-T07-55
+- Owner-run or CI: TC-T07-51, 54 (TC-T07-52, 53 and 56 passed; TC-T07-50 and 57 owner-accepted
+  deferrals, 2026-11-03); TC-T07-55
   in a clean clone; TC-T07-27 at close.
 - Review conditions 3 and 4: the "completed successfully for commit" line on the first deploy and
   on the re-run (L-4, L-10); the finding-13 ticket stays with the solution-architect.
