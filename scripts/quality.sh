@@ -176,15 +176,18 @@ builtin_steps() {
   drupal="composer validate --no-check-publish --no-interaction"
   drupal+=" && vendor/bin/phpcs --version && vendor/bin/phpstan --version"
   drupal+=" && vendor/bin/phpcs --standard=phpcs.xml.dist"
-  # T05: on a tree with no PHP, PHPStan prints "[ERROR] No files found to analyse" yet exits 0,
-  # a vacuous pass. The guard makes the not-run state explicit and runs PHPStan once custom PHP
-  # exists. The version calls above always run, so a missing tool is still a FAIL. T09 adds the
-  # first module and removes this guard.
-  drupal+=" && if [ -n \"\$(find web/modules/custom \\( -name '*.php' -o -name '*.module'"
-  drupal+=" -o -name '*.inc' -o -name '*.install' \\) -print -quit)\" ]; then"
-  drupal+=" vendor/bin/phpstan analyse -c phpstan.neon.dist;"
-  drupal+=" else echo 'phpstan: not run, no custom PHP yet (T09)'; fi"
-  drupal_tests="vendor/bin/phpunit --log-junit junit.xml --coverage-cobertura=coverage.xml"
+  # T09: the module exists, so PHPStan always runs (the T05 empty-tree guard is removed).
+  drupal+=" && vendor/bin/phpstan analyse -c phpstan.neon.dist"
+  # T09: PHPUnit (Unit and Kernel) with Cobertura coverage and the 70% gate. CI uses pcov. The
+  # DDEV web image has no pcov build for PHP 8.3 (the Sury key has expired), so the ddev runner
+  # loads Xdebug in coverage mode for this command only (scripts/README.md, accepted
+  # differences). SIMPLETEST_DB comes from the environment (DDEV config, or the CI service).
+  drupal_php="php"
+  if [[ "$runner" == "ddev" ]]; then
+    drupal_php="php -d zend_extension=xdebug -d xdebug.mode=coverage"
+  fi
+  drupal_tests="$drupal_php vendor/bin/phpunit --log-junit junit.xml"
+  drupal_tests+=" --coverage-cobertura=coverage.xml"
   drupal_tests+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   drupal_tests+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"
   drupal_tests+=" coverage.xml"
@@ -212,8 +215,7 @@ builtin_steps() {
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal_build")"
   step drupal "component-drupal" "apps/drupal/composer.json" \
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal")"
-  # T05: PHPUnit and the coverage gate wait for apps/drupal/phpunit.xml.dist (added by T09 with
-  # the first module). Until then this step shows a visible SKIP.
+  # T09: apps/drupal/phpunit.xml.dist exists, so this step runs and the coverage gate applies.
   step drupal "component-drupal-tests" "apps/drupal/phpunit.xml.dist" \
     "$(wrap 'ddev exec -d /var/www/html/apps/drupal' apps/drupal "$drupal_tests")"
   step drupal "audit-drupal" "apps/drupal/composer.lock" \

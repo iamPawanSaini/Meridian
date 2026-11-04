@@ -34,6 +34,9 @@ jobs:
   drupal:
     name: drupal
     runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.6.22
     permissions:
       contents: write
     steps:

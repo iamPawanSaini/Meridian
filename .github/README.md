@@ -57,6 +57,13 @@ rule 2 checks them against this file.
 - PHP: 8.3, from `.ddev/config.yaml` and `apps/drupal/pantheon.yml`; the patch level floats in
   both places. Accepted differences: `scripts/README.md`, "Accepted differences".
 
+- MariaDB: the `drupal` job runs a `mariadb:10.6.22` service container (health check, port
+  3306) and sets `SIMPLETEST_DB` for the Kernel tests (T09). The tag must share its major.minor
+  with `database.version` in `.ddev/config.yaml` and `apps/drupal/pantheon.yml` (rule 2). The
+  root password in the job is a throwaway for an ephemeral container, not a secret.
+- Coverage: setup-php `coverage: pcov` in the `drupal` job (DDEV uses Xdebug coverage, see
+  `scripts/README.md`, "Accepted differences").
+
 To change the Composer version, update the `ddev exec composer --version` line above and
 `tools: composer:<version>` in `ci.yml` together.
 

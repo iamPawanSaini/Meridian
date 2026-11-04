@@ -139,6 +139,42 @@ class Rule2Tests(CheckCiTestCase):
         self.tree.edit("pantheon.yml", "8.3", "8.2")
         self.assertFails(2, "apps/drupal/pantheon.yml 8.2", self.tree.run())
 
+    def test_database_versions_agree(self) -> None:
+        """TC-T09-60: DDEV, Pantheon and the CI MariaDB service share one major.minor."""
+        self.assertEqual(self.tree.run()[0], 0)
+
+    def test_database_mismatch_in_ci(self) -> None:
+        self.tree.edit("workflows/ci.yml", "mariadb:10.6.22", "mariadb:10.11.5")
+        self.assertFails(
+            2,
+            "database: ci.yml mariadb 10.11.5 differs from .ddev/config.yaml 10.6",
+            self.tree.run(),
+        )
+
+    def test_database_mismatch_in_ddev(self) -> None:
+        self.tree.edit("ddev/config.yaml", '"10.6"', '"10.11"')
+        self.assertFails(2, "mariadb 10.6.22 differs from .ddev/config.yaml 10.11", self.tree.run())
+
+    def test_database_mismatch_in_pantheon(self) -> None:
+        self.tree.edit("pantheon.yml", "version: 10.6", "version: 10.4")
+        self.assertFails(
+            2, "mariadb 10.6.22 differs from apps/drupal/pantheon.yml 10.4", self.tree.run()
+        )
+
+    def test_database_service_missing_or_unversioned(self) -> None:
+        self.tree.edit("workflows/ci.yml", "mariadb:10.6.22", "mariadb:latest")
+        self.assertFails(2, "no 'image: mariadb:X.Y.Z' service", self.tree.run())
+        self.tree.edit("workflows/ci.yml", "mariadb:latest", "mariadb:10.6")
+        self.assertFails(2, "no 'image: mariadb:X.Y.Z' service", self.tree.run())
+        self.tree.edit(
+            "workflows/ci.yml", "    services:\n      mariadb:\n        image: mariadb:10.6\n", ""
+        )
+        self.assertFails(2, "no 'image: mariadb:X.Y.Z' service", self.tree.run())
+
+    def test_database_type_must_be_mariadb(self) -> None:
+        self.tree.edit("ddev/config.yaml", "type: mariadb", "type: mysql")
+        self.assertFails(2, "database type is mysql, expected mariadb", self.tree.run())
+
     def test_composer_mismatch_and_missing_record(self) -> None:
         self.tree.use("composer-mismatch.yml")
         self.assertFails(

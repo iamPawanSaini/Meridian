@@ -144,8 +144,11 @@ ddev quality
 - `ddev drush status` shows `Drupal bootstrap : Successful` and the database connected.
 - `ddev drush config:status` says `No differences`, and `ddev drush cex -y` leaves
   `git status --porcelain` empty.
-- `ddev quality` exits 0 with `PASS component-drupal` and
-  `SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist)`. The engine and web steps SKIP
+- `ddev quality` exits 0 with `PASS component-drupal` and `PASS component-drupal-tests` (the Unit
+  and Kernel suites with coverage, T09). To run only the Drupal tests:
+  `ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel` (or `unit`).
+  They use `SIMPLETEST_DB`, which DDEV sets to the project database (`apps/drupal/README.md`,
+  "Tests"). The engine and web steps SKIP
   until T13 and T21; every expected SKIP is listed in `quality/expected-skips.txt`. `ddev
   quality` also runs pre-commit (step 7). Run it on a committed tree: the pre-commit fixers
   rewrite files in place.

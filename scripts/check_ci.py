@@ -154,6 +154,48 @@ def image_tag(compose: str | None, image: str) -> str | None:
     return first_match(compose, rf"^\s*image:\s*{re.escape(image)}:([0-9][0-9.]*)")
 
 
+def nested_value(text: str | None, parent: str, key: str) -> str | None:
+    """Return the value of `key:` inside the top-level mapping `parent:` of a small YAML file."""
+    if text is None:
+        return None
+    inside = False
+    for line in text.splitlines():
+        if re.match(rf"^{re.escape(parent)}:\s*$", line):
+            inside = True
+        elif inside and re.match(r"^\S", line):
+            inside = False
+        elif inside:
+            match = re.match(rf"^\s+{re.escape(key)}:\s*['\"]?([A-Za-z0-9.]+)", line)
+            if match:
+                return match.group(1)
+    return None
+
+
+def database_problems(ci_text: str, ddev_config: Path, pantheon_config: Path) -> list[str]:
+    """Database parity (T09): DDEV, Pantheon and the CI MariaDB service share one major.minor."""
+    problems = []
+    ddev_text = read(ddev_config)
+    ddev_type = nested_value(ddev_text, "database", "type")
+    ddev_version = nested_value(ddev_text, "database", "version")
+    pantheon_version = nested_value(read(pantheon_config), "database", "version")
+    ci_version = first_match(
+        ci_text, r"^\s*image:\s*['\"]?mariadb:([0-9]+\.[0-9]+\.[0-9]+)(?![0-9.])"
+    )
+    if ddev_type != "mariadb":
+        problems.append(f".ddev/config.yaml: database type is {ddev_type}, expected mariadb")
+    if ci_version is None:
+        problems.append("ci.yml has no 'image: mariadb:X.Y.Z' service (exact tag, T09)")
+    for label, value in (
+        (".ddev/config.yaml", ddev_version),
+        ("apps/drupal/pantheon.yml", pantheon_version),
+    ):
+        if value is None:
+            problems.append(f"{label}: database version not found")
+        elif ci_version is not None and major_minor(value) != major_minor(ci_version):
+            problems.append(f"database: ci.yml mariadb {ci_version} differs from {label} {value}")
+    return problems
+
+
 def rule2(
     ci_text: str | None,
     ddev_config: Path,
@@ -178,6 +220,7 @@ def rule2(
             problems.append(f"{label}: php_version not found")
         elif ci_php is not None and major_minor(value) != major_minor(ci_php):
             problems.append(f"php: ci.yml php-version {ci_php} differs from {label} {value}")
+    problems += database_problems(ci_text, ddev_config, pantheon_config)
     ci_composer = first_match(ci_text, r"^\s*tools:.*\bcomposer:([0-9][0-9.]*)")
     readme = read(github_readme)
     readme_composer = None
