@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @file
  * MG-1, NFR-04 entity-layer measurement (T09, docs/tasks/T09/decision-measurement-scope.md).
@@ -31,6 +33,14 @@ if (extension_loaded('xdebug')) {
 
 $storage = \Drupal::entityTypeManager()->getStorage('node');
 $database = \Drupal::database();
+
+// The script deletes every Decision between runs and at the end, so it refuses to touch a
+// site that holds records.
+$existing = $storage->getQuery()->accessCheck(FALSE)->condition('type', ['decision', 'daily_run'], 'IN')->count()->execute();
+if ($existing > 0) {
+  fwrite(STDERR, "Refusing to run: $existing decision or daily_run nodes exist. Use a throwaway install (ddev drupal-install --force).\n");
+  exit(1);
+}
 
 /**
  * Builds a JSON object string of about the given size in bytes.
@@ -80,7 +90,7 @@ $run = Node::create([
 $check($run, 'daily_run');
 $run->save();
 
-$decision_values = static function (int $i) use ($payload, $run): array {
+$decision_values = static function (int $i) use ($run): array {
   $symbol = sprintf('SYM%03d', $i % 50);
   $date = gmdate('Y-m-d', strtotime('2026-01-01 +' . intdiv($i, 50) . ' days'));
   return [
