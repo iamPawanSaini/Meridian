@@ -54,14 +54,29 @@ requires `view meridian records` (Decision, Position, Daily Run, Price Snapshot)
 `view meridian watchlist` (Watchlist Item) to view a node at all (design D6, "Entity
 access"). A role not listed in "Visible to" reads neither the entity nor the field.
 
-Uniqueness: `external_id` is unique per bundle. `meridian_ingest` is the only writer of the
-four ingested bundles, and it serialises requests with a lock (design D5). So the core
-`UniqueField` constraint that T09 attaches to `field_external_id` on every bundle cannot
-race, and it is the binding rule. T09 also adds a unique database index on
-(`bundle`, `field_external_id_value`) in the `meridian_core` install hook as defence in
-depth; the index part is **unverified** against Drupal 11 field storage, and T09 confirms
-it. Nodes are never deleted through the API; records are unpublished only by an
-administrator.
+Uniqueness: `external_id` is unique per bundle. `meridian_core` enforces it at entity level with
+the `MeridianUniqueInBundle` constraint on `field_external_id` of every bundle (core
+`UniqueField` checks the whole entity type with no bundle condition, read in core 11.4.11, and
+the field storage is shared). This is the binding rule. `meridian_ingest` is the only writer of
+the four ingested bundles and serialises requests with a lock (design D5), so the check cannot
+race for them. A unique database key on (`bundle`, `field_external_id_value`) backs it up
+(T09 result: see the design's "Unverified items"). Watchlist `symbol` uniqueness is
+entity-level (`MeridianUniqueInBundle` on `field_symbol`). The database backstop for it is the
+key on the derived `external_id` (`wl-{symbol}`), because a unique key on the shared
+`field_symbol` table is impossible. Nodes are never deleted through the API; records are
+unpublished only by an administrator.
+
+Shared status storage: Position and Daily Run share the storage `field_status`. Its allowed
+values are the union of both lists, and each bundle accepts only its own list (third-party
+setting `meridian_core.allowed_values`, T09).
+
+Permissions matrix: [permissions.md](permissions.md).
+
+Revision note (T09 amendment, 2026-11-04): the Uniqueness text follows
+`docs/tasks/T09/decision-uniqueness.md` (DN-11). The conditional fields, the `external_id`
+equality rules, the Position's Decision, the `raw_llm_output` shape and the Watchlist `symbol`
+rule follow `docs/tasks/T09/decision-field-rules.md` (DN-3 to DN-8). The Postgres checks named
+below are for T14 parity.
 
 Entity references: a record carries the `external_id` of the record it points to in the
 ingest payload (for example `run_external_id`). `meridian_ingest` resolves it to the target
@@ -72,7 +87,7 @@ node and stores an `entity_reference`. An unknown reference is an item error (D3
 | Field | Type | Card. | Required | Validation | Indexed | Visible to |
 |---|---|---|---|---|---|---|
 | `title` | string (core) | 1 | yes | Set by ingest to `{symbol} {mode} {trade_date}`, maximum 255 | no | All read roles |
-| `external_id` | string (64) | 1 | yes | Regex `^dec-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}-[a-z]{4,5}$`, suffix equals `mode`; unique per bundle | yes, unique | All read roles |
+| `external_id` | string (64) | 1 | yes | Regex `^dec-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}-[a-z]{4,5}$`; equals `dec-{trade_date}-{symbol}-{mode}` built from the record's own fields; unique per bundle | yes, unique | All read roles |
 | `trade_date` | datetime (date only) | 1 | yes | Valid date, not after today (IST) | yes | All read roles |
 | `symbol` | string (20) | 1 | yes | Symbol regex `^[A-Z0-9&-]{1,20}$` | yes | All read roles |
 | `mode` | list_string | 1 | yes | Allowed values `long`, `short` | yes | All read roles |
@@ -86,7 +101,7 @@ node and stores an `entity_reference`. An unknown reference is an item error (D3
 | `prompt_version` | string (32) | 1 | yes | Version label regex | no | All read roles |
 | `model_name` | string (64) | 1 | yes | Model name regex | no | All read roles |
 | `inputs_snapshot` | string_long | 1 | yes | Valid JSON object, at most 65,536 bytes | no | `administrator`, `analyst` |
-| `raw_llm_output` | string_long | 1 | yes | Valid JSON, at most 32,768 bytes; `{"status":"not_called"}` when no review ran; rendered escaped | no | `administrator` only |
+| `raw_llm_output` | string_long | 1 | yes | Valid JSON object, at most 32,768 bytes; `{"status":"not_called"}` when no review ran; a reply that is not a JSON object is stored wrapped in an object (T17); rendered escaped | no | `administrator` only |
 | `llm_rationale` | string_long | 1 | no | Plain text, at most 2,000 characters; rendered escaped (RK-02) | no | All read roles |
 | `close_price` | decimal (14,4) | 1 | yes | Greater than 0 | no | All read roles |
 | `run` | entity_reference (node: `daily_run`) | 1 | yes | Resolved from `run_external_id`; target must exist | yes | All read roles |
@@ -104,7 +119,7 @@ Provenance (FR-12): `inputs_snapshot`, `raw_llm_output`, `prompt_version`, `mode
 | Field | Type | Card. | Required | Validation | Indexed | Visible to |
 |---|---|---|---|---|---|---|
 | `title` | string (core) | 1 | yes | Set by ingest to `{symbol} {mode} {entry_date}` | no | All read roles |
-| `external_id` | string (64) | 1 | yes | Regex `^pos-[A-Z0-9&-]{1,20}-[a-z]{4,5}-[0-9]{4}-[0-9]{2}-[0-9]{2}$`; unique per bundle | yes, unique | All read roles |
+| `external_id` | string (64) | 1 | yes | Regex `^pos-[A-Z0-9&-]{1,20}-[a-z]{4,5}-[0-9]{4}-[0-9]{2}-[0-9]{2}$`; equals `pos-{symbol}-{mode}-{entry_date}` built from the record's own fields; unique per bundle | yes, unique | All read roles |
 | `symbol` | string (20) | 1 | yes | Symbol regex `^[A-Z0-9&-]{1,20}$` | yes | All read roles |
 | `mode` | list_string | 1 | yes | Allowed values `long`, `short` | yes | All read roles |
 | `status` | list_string | 1 | yes | Allowed values `open`, `closed` | yes | All read roles |
@@ -114,17 +129,17 @@ Provenance (FR-12): `inputs_snapshot`, `raw_llm_output`, `prompt_version`, `mode
 | `stop_price` | decimal (14,4) | 1 | yes | Greater than 0 and below `entry_price` | no | All read roles |
 | `target_price` | decimal (14,4) | 1 | yes | Above `entry_price` | no | All read roles |
 | `time_stop_date` | datetime (date only) | 1 | no | Required when `mode` is `short`, after `entry_date`; empty for `long` | no | All read roles |
-| `exit_date` | datetime (date only) | 1 | no | Required when `status` is `closed`; after `entry_date` | yes | All read roles |
-| `exit_price` | decimal (14,4) | 1 | no | Greater than 0; required when `closed` | no | All read roles |
-| `exit_reason` | list_string | 1 | no | Allowed values `stop`, `gap_stop`, `target`, `time_stop`; required when `closed` | no | All read roles |
+| `exit_date` | datetime (date only) | 1 | no | Required when `status` is `closed`, empty when `open`; after `entry_date` | yes | All read roles |
+| `exit_price` | decimal (14,4) | 1 | no | Greater than 0; required when `closed`, empty when `open` | no | All read roles |
+| `exit_reason` | list_string | 1 | no | Allowed values `stop`, `gap_stop`, `target`, `time_stop`; required when `closed`, empty when `open` | no | All read roles |
 | `costs_total` | decimal (12,2) | 1 | yes | At least 0 (FR-10, both sides) | no | All read roles |
-| `realised_pnl` | decimal (14,2) | 1 | no | Any sign; required when `closed` | no | All read roles |
+| `realised_pnl` | decimal (14,2) | 1 | no | Any sign; required when `closed`, empty when `open` | no | All read roles |
 | `unrealised_pnl` | decimal (14,2) | 1 | no | Any sign; empty when `closed` | no | All read roles |
 | `last_mark_price` | decimal (14,4) | 1 | no | Greater than 0 | no | All read roles |
 | `last_mark_date` | datetime (date only) | 1 | no | Not before `entry_date` | no | All read roles |
 | `r_multiple` | decimal (8,3) | 1 | no | Range -100.000 to 100.000 | no | All read roles |
 | `run` | entity_reference (node: `daily_run`) | 1 | yes | Opening run, resolved from `run_external_id` | yes | All read roles |
-| `decision` | entity_reference (node: `decision`) | 1 | yes | Opening BUY decision, resolved from `decision_external_id` | yes | All read roles |
+| `decision` | entity_reference (node: `decision`) | 1 | yes | Opening BUY decision, resolved from `decision_external_id`; the target has `action` `BUY`, the same `symbol` and `mode`, and a `trade_date` on or before `entry_date` | yes | All read roles |
 | `source_version` | integer | 1 | yes | At least 1; never decreases | no | `administrator` |
 | `payload_hash` | string (64) | 1 | yes | Regex `^[0-9a-f]{64}$`; computed by Drupal | no | `administrator` |
 
@@ -137,13 +152,13 @@ One node per trade date. A rerun of the date updates the same node (D3).
 | Field | Type | Card. | Required | Validation | Indexed | Visible to |
 |---|---|---|---|---|---|---|
 | `title` | string (core) | 1 | yes | Set by ingest to `Run {trade_date}` | no | All read roles |
-| `external_id` | string (64) | 1 | yes | Regex `^run-[0-9]{4}-[0-9]{2}-[0-9]{2}$`; unique per bundle | yes, unique | All read roles |
-| `trade_date` | datetime (date only) | 1 | yes | Valid date; equals the date in `external_id` | yes | All read roles |
+| `external_id` | string (64) | 1 | yes | Regex `^run-[0-9]{4}-[0-9]{2}-[0-9]{2}$`; equals `run-{trade_date}`; unique per bundle | yes, unique | All read roles |
+| `trade_date` | datetime (date only) | 1 | yes | Valid date | yes | All read roles |
 | `run_id` | string (36) | 1 | yes | UUID regex `^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$` (latest attempt) | no | All read roles |
 | `attempt` | integer | 1 | yes | At least 1 | no | All read roles |
 | `status` | list_string | 1 | yes | Allowed values `success`, `failed`, `skipped` | yes | All read roles |
-| `skip_reason` | string (255) | 1 | no | Required when `status` is `skipped` | no | All read roles |
-| `watchlist_source` | list_string | 1 | no | Allowed values `drupal`, `snapshot`, `seed` (FR-01); required unless `skipped` | no | All read roles |
+| `skip_reason` | string (255) | 1 | no | Required when `status` is `skipped`; empty when `success`; optional when `failed` (for example `stale_lock`, D2) | no | All read roles |
+| `watchlist_source` | list_string | 1 | no | Allowed values `drupal`, `snapshot`, `seed` (FR-01); required when `status` is `success`, optional otherwise | no | All read roles |
 | `symbols_total` | integer | 1 | yes | 0 to 50 | no | All read roles |
 | `decisions_count` | integer | 1 | yes | At least 0 | no | All read roles |
 | `buy_count` | integer | 1 | yes | At least 0, at most `decisions_count` | no | All read roles |
@@ -171,7 +186,7 @@ Summary only: the EOD bar of each published trade date for watchlist symbols and
 | Field | Type | Card. | Required | Validation | Indexed | Visible to |
 |---|---|---|---|---|---|---|
 | `title` | string (core) | 1 | yes | Set by ingest to `{symbol} {trade_date}` | no | All read roles |
-| `external_id` | string (64) | 1 | yes | Regex `^px-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}$`; unique per bundle | yes, unique | All read roles |
+| `external_id` | string (64) | 1 | yes | Regex `^px-[0-9]{4}-[0-9]{2}-[0-9]{2}-[A-Z0-9&-]{1,20}$`; equals `px-{trade_date}-{symbol}` built from the record's own fields; unique per bundle | yes, unique | All read roles |
 | `trade_date` | datetime (date only) | 1 | yes | Valid date | yes | All read roles |
 | `symbol` | string (20) | 1 | yes | Symbol regex `^[A-Z0-9&-]{1,20}$` | yes | All read roles |
 | `open` | decimal (14,4) | 1 | yes | Greater than 0 | no | All read roles |
@@ -193,7 +208,7 @@ reads them. `external_id` is set by `meridian_core` on save, never by the engine
 |---|---|---|---|---|---|---|
 | `title` | string (core) | 1 | yes | Display name, maximum 255 | no | All read roles, `engine-ingest` |
 | `external_id` | string (64) | 1 | yes | Regex `^wl-[A-Z0-9&-]{1,20}$`, derived from `symbol`; unique per bundle | yes, unique | All read roles, `engine-ingest` |
-| `symbol` | string (20) | 1 | yes | Symbol regex `^[A-Z0-9&-]{1,20}$`; unique per bundle | yes, unique | All read roles, `engine-ingest` |
+| `symbol` | string (20) | 1 | yes | Symbol regex `^[A-Z0-9&-]{1,20}$`; unique per bundle; cannot change after creation | yes, unique | All read roles, `engine-ingest` |
 | `enabled` | boolean | 1 | yes | Default true. At most 50 enabled items (A-01), checked on save | yes | All read roles, `engine-ingest` |
 | `modes` | list_string | 1 to 2 | yes | Allowed values `long`, `short`; no duplicates | no | All read roles, `engine-ingest` |
 | `sort_order` | integer | 1 | yes | 0 to 999 | yes | All read roles, `engine-ingest` |
@@ -220,9 +235,9 @@ One row per run attempt. Primary key `run_id`.
 | `trigger` | text | NOT NULL | `ck_runs_trigger`: `schedule`, `manual` |
 | `command` | text | NOT NULL | `ck_runs_command`: `daily`, `run`, `publish`, `replay` |
 | `status` | text | NOT NULL | `ck_runs_status`: `running`, `success`, `failed`, `skipped` |
-| `skip_reason` | text | NULL | Required by `ck_runs_skip` when `status = 'skipped'` |
+| `skip_reason` | text | NULL | Required by `ck_runs_skip` when `status = 'skipped'`, and NULL when `status = 'success'` |
 | `published` | text | NOT NULL | Default `none`. `ck_runs_published`: `none`, `partial`, `full` (FR-25) |
-| `watchlist_source` | text | NULL | `ck_runs_wl_source`: `drupal`, `snapshot`, `seed` |
+| `watchlist_source` | text | NULL | `ck_runs_wl_source`: `drupal`, `snapshot`, `seed`; NOT NULL when `status = 'success'` (`ck_runs_wl_source_required`) |
 | `rule_version` | text | NOT NULL | |
 | `prompt_version` | text | NOT NULL | |
 | `model_name` | text | NOT NULL | |
@@ -332,6 +347,10 @@ predictable 422 at ingest (review finding 8):
 - `ck_decisions_llm_size`: `octet_length(raw_llm_output::text) <= 32768`.
 - `ck_decisions_rationale`: `llm_rationale` is NULL or at most 2,000 characters.
 - `ck_decisions_close`: `close_price > 0`.
+- `ck_decisions_external_id`: `external_id = 'dec-' || to_char(trade_date, 'YYYY-MM-DD') ||
+  '-' || symbol || '-' || mode`.
+- `ck_decisions_inputs_object`: `jsonb_typeof(inputs_snapshot) = 'object'`;
+  `ck_decisions_llm_object`: `jsonb_typeof(raw_llm_output) = 'object'`.
 
 The publisher also validates each outbox row against `openapi.yaml` before sending (design
 D4), which catches the version-label and model-name patterns.
@@ -369,7 +388,10 @@ Primary key `position_id`. Natural key (`symbol`, `mode`, `entry_date`).
 | `updated_at` | timestamptz | NOT NULL | |
 
 Constraints and indexes: unique `uq_positions_symbol_mode_entry` on (`symbol`, `mode`,
-`entry_date`); check `ck_positions_closed` (closed implies exit date, price and reason);
+`entry_date`); check `ck_positions_closed`: `status = 'closed'` if and only if `exit_date`,
+`exit_price`, `exit_reason` and `realised_pnl` are all NOT NULL, and `unrealised_pnl` is NULL
+when `closed`; checks `ck_positions_external_id`: `external_id = 'pos-' || symbol || '-' ||
+mode || '-' || to_char(entry_date, 'YYYY-MM-DD')`;
 partial index `ix_positions_open` on (`symbol`) `WHERE status = 'open'`; index
 `ix_positions_decision` on (`decision_id`). Drupal `costs_total` = `entry_costs` +
 `exit_costs`.
