@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The JSON document rule: valid JSON object, size in bytes (DN-7).
+ * The JSON document rule: valid JSON object, size in bytes (DN-7, TC-T09-09).
  */
 #[Group('meridian_core')]
 class JsonDocumentValidatorTest extends TestCase {

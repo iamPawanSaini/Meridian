@@ -95,9 +95,9 @@ version match (later Python and Node). These differences are accepted:
    major.minor.
 6. (T09) The coverage driver differs: CI uses pcov (setup-php `coverage: pcov`). The DDEV web
    image cannot install `php8.3-pcov` (the Sury apt key has expired, checked 2026-11-04), so
-   `ddev quality` switches Xdebug on with `enable_xdebug` (and off again on exit) and runs
-   PHPUnit with `XDEBUG_MODE=coverage`.
-   Both produce the same Cobertura file for the same gate.
+   `ddev quality` switches Xdebug on with `enable_xdebug` (and off again on exit, only if it was
+   off before) and runs PHPUnit with `XDEBUG_MODE=coverage`. Both produce the same Cobertura
+   file for the same gate.
 
 A check that passes in one place and fails in the other is a defect to fix, never a reason to
 skip the check. A task that changes `quality.sh` records both `ddev quality` and the CI run.

@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The decimal scale rule: no rounding, no overflow of precision and scale.
+ *
+ * Covers TC-T09-09.
  */
 #[Group('meridian_core')]
 class DecimalScaleValidatorTest extends TestCase {
