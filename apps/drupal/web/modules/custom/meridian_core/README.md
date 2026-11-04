@@ -52,12 +52,38 @@ The first choice worked, so no fallback was used: a unique key `meridian_externa
 - A unique key on `field_symbol` is impossible (shared storage). The watchlist symbol backstop
   is the key on the derived `wl-{symbol}`.
 
+## Violation contract (T10)
+
+`$entity->validate()` returns violations with a raw `getPropertyPath()` and `getCode()`.
+`ViolationContractTest` pins these raw values. T10 maps them to JSON pointers, so it must apply
+the normalisation below. The other Kernel tests apply the same normalisation.
+
+| Source | Raw path | Code |
+|---|---|---|
+| Meridian rule on a single-value field (`MeridianPattern`, `MeridianJsonDocument`, `MeridianDecimalScale`, `MeridianUniqueInBundle`, ...) | `field_symbol` | `meridian.*` |
+| Meridian rule on one value of a multi-value field (`field_rule_hits`) | `field_rule_hits.0` (the delta) | `meridian.pattern` |
+| Meridian rule on the whole multi-value field (`field_modes`) | `field_modes` | `meridian.duplicate_value` |
+| Cross-field and external ID rules | `field_external_id`, `field_buy_count`, ... | `meridian.<bundle>.<rule>`, `meridian.external_id_mismatch` |
+| Core range, length, scale of a value | `field_score.0.value` | core UUID code (`Range::TOO_HIGH_ERROR`, `Length::TOO_LONG_ERROR`) |
+| Core allowed values | `field_mode.0` | `Choice::NO_SUCH_CHOICE_ERROR` |
+| Core required | `field_score` | `NotNull::IS_NULL_ERROR` |
+| Reference to a missing or wrong-bundle node | `field_run.0.target_id` | empty string `''` |
+| Malformed date | `field_trade_date.0` and `field_trade_date.0.value` (two violations) | empty string `''` |
+| Base field (title) | `title.0.value` | core code |
+
+Normalisation T10 applies: remove a trailing `.value` or `.target_id`; for a field other than
+`field_rule_hits` and `field_modes` also remove a trailing `.0`; keep the delta for those two
+multi-value fields. The result is the field machine name (strip `field_` for the payload name),
+except `field_rule_hits.N` and `field_modes.N`, which point at item N. Two violations can have the
+same path (a malformed date). A violation with an empty code comes from core and T10 should map
+it by path and message, not by code.
+
 ## Tests
 
 `apps/drupal/README.md`, "Tests". The Kernel tests create the content model from
 `config/sync` with `SyncConfigTrait`, so they test the shipped YAML. To run them against another
-copy of the config (for a mutation check), set the environment variable `MERIDIAN_SYNC_DIR` to
-that directory, or set the protected property `$syncConfigDirectory` in a test class.
+copy of the config (for a mutation check), set the protected property `$syncConfigDirectory` in
+a test class.
 `MeridianRecordFactoryTrait` builds one valid record per bundle; each rejection case changes
 one value. Kernel tests are slow (about ten seconds per method), so related cases share a method
 and the failure message names the case.

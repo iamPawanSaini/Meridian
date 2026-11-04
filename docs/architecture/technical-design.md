@@ -72,6 +72,8 @@ Key rules:
   `view meridian inputs` (administrator and analyst);
   `source_version` and `payload_hash` need `administer meridian records`. The T09 matrix of six
   roles is [permissions.md](../specs/permissions.md).
+- Validation errors reach T10 as raw property paths and codes; the forms and the normalisation are
+  in `apps/drupal/web/modules/custom/meridian_core/README.md`, "Violation contract (T10)".
 - JSON:API runs in read-only mode (`jsonapi.settings:read_only: true`).
 - **Sole writer.** `meridian_ingest` is the only writer of `decision`, `position`,
   `daily_run` and `price_snapshot`. The admin UI may only unpublish them (D6, "Entity

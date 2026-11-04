@@ -12,7 +12,7 @@ use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
  *
  * The tests therefore run against the YAML the site installs, not a copy.
  * The directory can be replaced for mutation checks by a protected property
- * ($syncConfigDirectory) or by the environment variable MERIDIAN_SYNC_DIR.
+ * ($syncConfigDirectory).
  */
 trait SyncConfigTrait {
 
@@ -35,9 +35,8 @@ trait SyncConfigTrait {
    * Returns the directory with the exported config.
    */
   protected function syncDirectory(): string {
-    $override = $this->syncConfigDirectory ?? (getenv('MERIDIAN_SYNC_DIR') ?: NULL);
-    if ($override !== NULL) {
-      return $override;
+    if ($this->syncConfigDirectory !== NULL) {
+      return $this->syncConfigDirectory;
     }
     return dirname(__DIR__, 7) . '/config/sync';
   }
