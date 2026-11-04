@@ -21,8 +21,9 @@
 #                               .tools/docs-regression.lock with its pid, because ddev drops the
 #                               environment), so a suite that runs `ddev quality` cannot start
 #                               docs-regression again: the docs group is left out, with a note.
-#   QUALITY_DOCS_JOBS=N         how many docs suites docs-regression runs at once (default 1; CI
-#                               sets 4 on a runner with no DDEV).
+#   QUALITY_DOCS_JOBS=N         how many docs suites docs-regression runs at once (an integer
+#                               >= 1, default 1; CI sets 4 on a runner with no DDEV). Any other
+#                               value exits 2.
 #   GITHUB_STEP_SUMMARY=FILE    when set, a Markdown table of the steps is appended to FILE.
 # SKIP happens only when a component manifest is absent. A missing tool is a FAIL. A built-in
 # step that SKIPs without a line in quality/expected-skips.txt is a FAIL, and so is a step that
@@ -91,6 +92,11 @@ if [[ -n "${QUALITY_STEPS:-}" && ${#selected[@]} -gt 0 ]]; then
   exit 2
 fi
 
+if [[ -n "${QUALITY_DOCS_JOBS+x}" && ! "$QUALITY_DOCS_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "error: QUALITY_DOCS_JOBS must be a positive integer (got '$QUALITY_DOCS_JOBS')" >&2
+  exit 2
+fi
+
 runner="${QUALITY_RUNNER:-native}"
 case "$runner" in
   native | ddev) ;;
@@ -153,36 +159,10 @@ builtin_steps() {
   secret_history+=" mkdir -p .tools/reports &&"
   secret_history+=" $gitleaks git --redact --no-banner --config .gitleaks.toml"
   secret_history+=" --report-format json --report-path .tools/reports/gitleaks.json"
-  # T08: every docs-task suite in --regression mode (decision D-5), one after another. A suite
-  # that exits non-zero fails the step and is named. BLOCKED and optional-tool SKIP lines inside
-  # a suite do not change its exit code.
-  # QUALITY_NESTED and the lock file stop recursion: a docs suite (T04a, T05, T06) may run
-  # `ddev quality`, and a nested run leaves out the docs group. The suites run one after
-  # another by default (they share pre-commit and DDEV, so parallel runs on a developer machine
-  # can clash). CI sets QUALITY_DOCS_JOBS=4 because one after another they would use most of the
-  # 10 minute budget (NFR-07); each suite writes to its own file and the results are reported in
-  # order. .tools/suite-bin (the pinned shellcheck only) goes first on PATH.
-  # T07_SKIP_NESTED=1: T07 would run T02 to T06 again, and this step already runs each once. The command must be one line (the steps file is line based), so
-  # newlines become spaces.
-  docs_regression="$(
-    cat <<'EOF'
-mkdir -p .tools; echo $$ > .tools/docs-regression.lock; d="$(mktemp -d)";
-trap 'rm -f .tools/docs-regression.lock; rm -rf "$d"' EXIT;
-if [ -x .tools/shellcheck ]; then mkdir -p .tools/suite-bin; ln -sf ../shellcheck .tools/suite-bin/shellcheck; export PATH="$PWD/.tools/suite-bin:$PATH"; fi; export QUALITY_NESTED=1 T07_SKIP_NESTED=1; rc=0; n=0; max="${QUALITY_DOCS_JOBS:-1}";
-for s in docs/tests/T*/run-checks.sh; do
-  if [ ! -f "$s" ]; then echo "no docs suites found: $s"; exit 1; fi;
-  n=$((n + 1)); k="${s#docs/tests/}"; k="${k%%/*}";
-  ( "$s" --regression >"$d/$k.out" 2>&1; echo $? >"$d/$k.rc" ) &
-  while [ "$(jobs -rp | wc -l)" -ge "$max" ]; do wait -n; done;
-done; wait;
-for s in docs/tests/T*/run-checks.sh; do
-  k="${s#docs/tests/}"; k="${k%%/*}";
-  if [ "$(cat "$d/$k.rc")" = 0 ]; then echo "detail: ok $s";
-  else echo "FAILED: $s --regression"; tail -n 40 "$d/$k.out"; rc=1; fi;
-done; echo "detail: $n docs suites run"; exit $rc
-EOF
-  )"
-  docs_regression="${docs_regression//$'\n'/ }"
+  # T08: every docs-task suite in --regression mode (decision D-5). The logic, the recursion
+  # guard and the QUALITY_DOCS_JOBS handling are in scripts/docs_regression.sh, which shellcheck
+  # lints as a script.
+  docs_regression="bash scripts/docs_regression.sh"
   # Verify the exact tool commands when T13 (engine) and T21 (web) add the manifests.
   engine="ruff check . && ruff format --check . && mypy meridian_engine"
   engine+=" && pytest --cov=meridian_engine --cov-branch --cov-report=xml:coverage.xml"
@@ -221,7 +201,8 @@ EOF
   step core "branch-name" "-" "python3 scripts/check_branch_name.py"
   step core "commit-range" "-" "$commit_range"
   step core "exceptions" "-" \
-    "mkdir -p .tools/reports && python3 scripts/exceptions_report.py --out .tools/reports/exceptions-report.txt"
+    "mkdir -p .tools/reports && python3 scripts/exceptions_report.py \
+--out .tools/reports/exceptions-report.txt"
   step core "assets" "-" "python3 scripts/check_assets.py"
   step core "tooling-tests" "-" "$tooling_tests"
   step core "secret-history" "-" "$secret_history"

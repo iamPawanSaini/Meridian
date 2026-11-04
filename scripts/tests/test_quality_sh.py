@@ -12,6 +12,7 @@ from pathlib import Path
 
 QUALITY = Path(__file__).resolve().parents[1] / "quality.sh"
 REPO = QUALITY.parents[1]
+DOCS_REGRESSION = QUALITY.parent / "docs_regression.sh"
 EXPECTED_SKIPS = REPO / "quality" / "expected-skips.txt"
 GROUPS = ["core", "docs", "drupal", "engine", "web"]
 ORIGINAL_STEPS = {
@@ -73,6 +74,7 @@ def make_tree(tmp: Path, skips: str | None = None) -> Path:
     (tmp / "scripts").mkdir(parents=True, exist_ok=True)
     (tmp / "quality").mkdir(parents=True, exist_ok=True)
     shutil.copy(QUALITY, tmp / "scripts" / "quality.sh")
+    shutil.copy(DOCS_REGRESSION, tmp / "scripts" / "docs_regression.sh")
     if skips is None:
         shutil.copy(EXPECTED_SKIPS, tmp / "quality" / "expected-skips.txt")
     else:
@@ -97,7 +99,7 @@ def run_in(
 
 
 class ListAndGroupTests(unittest.TestCase):
-    """--list, --group and the step to group mapping (T08, KD-2)."""
+    """TC-T08-05, TC-T08-06: --list, --group and the step to group mapping (T08, KD-2)."""
 
     def setUp(self) -> None:
         tmp = tempfile.TemporaryDirectory()
@@ -163,7 +165,7 @@ class ListAndGroupTests(unittest.TestCase):
 
 
 class RunnerIndependenceTests(unittest.TestCase):
-    """SA-2 condition 2: the runner never changes the step set or the SKIP decisions."""
+    """TC-T08-13: SA-2 condition 2, the runner never changes the step set or the SKIPs."""
 
     def test_list_and_skips_are_the_same_under_native_and_ddev(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -188,7 +190,7 @@ class RunnerIndependenceTests(unittest.TestCase):
 
 
 class ExpectedSkipsTests(unittest.TestCase):
-    """KD-3: a SKIP is never silent."""
+    """TC-T08-08 to TC-T08-11: KD-3, a SKIP is never silent."""
 
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
@@ -258,7 +260,7 @@ class ExpectedSkipsTests(unittest.TestCase):
 
 
 class SummaryAndDetailTests(unittest.TestCase):
-    """GITHUB_STEP_SUMMARY table and the detail lines."""
+    """TC-T08-12 and TC-T08-15: the GITHUB_STEP_SUMMARY table, detail lines, docs-regression."""
 
     def setUp(self) -> None:
         tmp = tempfile.TemporaryDirectory()
@@ -298,6 +300,7 @@ class SummaryAndDetailTests(unittest.TestCase):
         self.assertNotIn("noise", out.stdout)
 
     def test_nested_run_leaves_docs_out_and_refuses_the_docs_group(self) -> None:
+        """TC-T08-15: the recursion guard."""
         tree = make_tree(self.tmp / "t")
         refused = run_in(tree, "--group", "docs", env={"QUALITY_NESTED": "1"})
         self.assertEqual(refused.returncode, 2)
@@ -310,6 +313,7 @@ class SummaryAndDetailTests(unittest.TestCase):
         self.assertIn("component-engine", nested.stdout)
 
     def test_live_lock_file_marks_a_nested_run_and_a_stale_one_does_not(self) -> None:
+        """TC-T08-15: the lock file guard."""
         tree = make_tree(self.tmp / "t")
         lock = tree / ".tools" / "docs-regression.lock"
         lock.parent.mkdir()
@@ -322,17 +326,73 @@ class SummaryAndDetailTests(unittest.TestCase):
         self.assertEqual(out.returncode, 1)  # docs-regression ran: no suites in the bare tree
         self.assertIn("no docs suites found", out.stdout)
 
-    def test_docs_regression_names_a_failing_suite(self) -> None:
-        tree = make_tree(self.tmp / "t")
-        for name, code in (("T98", 0), ("T99", 1)):
+    def add_suites(self, tree: Path, codes: dict[str, int], sleep: float = 0) -> None:
+        for name, code in codes.items():
             suite = tree / "docs" / "tests" / name / "run-checks.sh"
             suite.parent.mkdir(parents=True)
-            suite.write_text(f'#!/bin/sh\n[ "$1" = --regression ] || exit 3\nexit {code}\n')
+            suite.write_text(
+                f'#!/bin/sh\n[ "$1" = --regression ] || exit 3\nsleep {sleep}\n'
+                f"echo output of {name}\nexit {code}\n"
+            )
             suite.chmod(suite.stat().st_mode | stat.S_IXUSR)
+
+    def test_docs_regression_names_a_failing_suite(self) -> None:
+        """TC-T08-15: a failing suite is named."""
+        tree = make_tree(self.tmp / "t")
+        self.add_suites(tree, {"T98": 0, "T99": 1})
         out = run_in(tree, "--group", "docs")
         self.assertEqual(out.returncode, 1, out.stdout)
         self.assertIn("FAILED: docs/tests/T99/run-checks.sh --regression", out.stdout)
         self.assertNotIn("FAILED: docs/tests/T98", out.stdout)
+        self.assertEqual(
+            (tree / ".tools" / "reports" / "docs" / "T98.txt").read_text(encoding="utf-8"),
+            "output of T98\n",
+        )
+
+    def test_invalid_docs_jobs_value_exits_2(self) -> None:
+        """TC-T08-15: QUALITY_DOCS_JOBS must be an integer of at least 1."""
+        tree = make_tree(self.tmp / "t")
+        self.add_suites(tree, {"T98": 0})
+        for value in ("0", "abc", "", "-1", "1.5", "2 3"):
+            with self.subTest(value=value):
+                out = run_in(tree, "--group", "docs", env={"QUALITY_DOCS_JOBS": value})
+                self.assertEqual(out.returncode, 2, out.stdout)
+                self.assertIn("QUALITY_DOCS_JOBS must be a positive integer", out.stderr)
+                self.assertNotIn("PASS", out.stdout)
+
+    def test_invalid_docs_jobs_value_is_refused_by_the_script_itself(self) -> None:
+        """TC-T08-15: docs_regression.sh checks the value when it is called directly."""
+        tree = make_tree(self.tmp / "t")
+        self.add_suites(tree, {"T98": 0})
+        env = {**os.environ, "QUALITY_DOCS_JOBS": "0"}
+        out = subprocess.run(
+            ["bash", str(tree / "scripts" / "docs_regression.sh")],
+            capture_output=True,
+            text=True,
+            env=env,
+            cwd=tree,
+            check=False,
+        )
+        self.assertEqual(out.returncode, 2)
+        self.assertIn("must be a positive integer", out.stderr)
+
+    def test_parallel_run_reports_in_order_and_names_the_failing_suite(self) -> None:
+        """TC-T08-15: with QUALITY_DOCS_JOBS=3 the output order is the glob order."""
+        tree = make_tree(self.tmp / "t")
+        self.add_suites(tree, {"T97": 0, "T98": 1, "T99": 0}, sleep=0.3)
+        out = run_in(tree, "--group", "docs", env={"QUALITY_DOCS_JOBS": "3"})
+        self.assertEqual(out.returncode, 1, out.stdout)
+        lines = [x.strip() for x in out.stdout.splitlines()]
+        expected = [
+            "detail: ok docs/tests/T97/run-checks.sh",
+            "FAILED: docs/tests/T98/run-checks.sh --regression",
+            "output of T98",
+            "detail: ok docs/tests/T99/run-checks.sh",
+            "detail: 3 docs suites run",
+        ]
+        self.assertEqual([x for x in lines if x in expected], expected)
+        self.assertNotIn("FAILED: docs/tests/T97", out.stdout)
+        self.assertNotIn("FAILED: docs/tests/T99", out.stdout)
 
 
 if __name__ == "__main__":

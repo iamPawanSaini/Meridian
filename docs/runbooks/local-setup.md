@@ -36,6 +36,9 @@ running, or you want to reset it. Since T06 the stack has five containers: `web`
   ```
 
   `scripts/bootstrap-dev.sh` checks this and stops with a message if it is missing.
+- PyYAML on the Python that runs `ddev quality` (the docs suites import it). Check with
+  `python3 -c 'import yaml'`; if it fails, run
+  `python3 -m pip install -r scripts/requirements-docs-tests.txt` or install `python3-yaml`.
 - On Windows with WSL2: run everything inside WSL2 and keep the clone on the WSL2 Linux
   filesystem, for example under `~/`. Do not clone under `/mnt/c`, it is very slow and breaks
   file watching.
@@ -116,10 +119,15 @@ running, or you want to reset it. Since T06 the stack has five containers: `web`
    ```
 
    Expected: `Done. Hooks installed (pre-commit and commit-msg).` On Python 3.10 see the
-   Prerequisites first. It installs pre-commit, gitleaks and actionlint into `.tools/` and checks
-   each against its pinned SHA-256 (a mismatch stops it). Run it again after a pull that changes
-   `scripts/tool-versions.env` (T08 added gitleaks and actionlint). The gitleaks and actionlint
+   Prerequisites first. It installs pre-commit, gitleaks, actionlint and shellcheck into
+   `.tools/` and checks each against its pinned SHA-256 (a mismatch stops it). Run it again after
+   a pull that changes `scripts/tool-versions.env` (T08 added gitleaks, actionlint and shellcheck). Those
    binaries are Linux x86_64 only (WSL2 Linux).
+
+   The `docs` group of `ddev quality` runs the docs suites on your own Python, and they import
+   PyYAML. Install it if `python3 -c 'import yaml'` fails:
+   `python3 -m pip install -r scripts/requirements-docs-tests.txt` (or the distro package
+   `python3-yaml`).
 
 ## Verification
 
@@ -141,8 +149,8 @@ ddev quality
   until T13 and T21; every expected SKIP is listed in `quality/expected-skips.txt`. `ddev
   quality` also runs pre-commit (step 7). Run it on a committed tree: the pre-commit fixers
   rewrite files in place.
-- Two steps need network access: `secret-history` is local, but `audit-drupal` reads the
-  Composer advisory database, so it fails with no network. Use `scripts/quality.sh --group core`
+- Only `audit-drupal` needs network access: it reads the Composer advisory database, so it
+  fails with no network. `secret-history` is local. Use `scripts/quality.sh --group core`
   or `--group docs` offline. `ddev quality --group drupal` runs one group.
 
 ## Engine, Postgres and web commands (T06)
