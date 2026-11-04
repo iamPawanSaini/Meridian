@@ -1028,7 +1028,7 @@ JS
   t0=$(date +%s); rcof ddev quality; t1=$(date +%s); note "ddev quality took $((t1-t0)) s"
   printf '%s\n' "$OUT" >"$WORK/q54.txt"; show_out "$(tail -12 "$WORK/q54.txt")"
   ckp "Verification: ddev quality exits 0 (rc=$RC)" eq "$RC" 0 rc
-  ckp "Verification: PASS component-drupal; SKIP component-drupal-tests (no apps/drupal/phpunit.xml.dist); engine and web steps SKIP" bash -c "grep -qE '^\s*PASS\s+component-drupal\b' '$WORK/q54.txt' && grep -E 'SKIP\s+component-drupal-tests' '$WORK/q54.txt' | grep -q phpunit && grep -qE 'SKIP\s+component-engine' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-web' '$WORK/q54.txt'"
+  ckp "Verification: PASS component-drupal and component-drupal-tests (T09; was: SKIP); engine and web steps SKIP" bash -c "grep -qE '^\s*PASS\s+component-drupal\b' '$WORK/q54.txt' && grep -qE '^\s*PASS\s+component-drupal-tests' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-engine' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-web' '$WORK/q54.txt'"
   ckp "git status --porcelain is empty after the whole walk-through" bash -c "o=\$(git status --porcelain); echo \"\$o\"; [[ -z \"\$o\" ]]"
   rcof ddev engine python3 --version
   ckp "T06 section: ddev engine python3 --version prints Python 3.12.x" bash -c "[[ $RC -eq 0 && \"\$OUT\" == 'Python 3.12.'* ]]"
