@@ -1,0 +1,27 @@
+uuid: 41190e53-9fa4-4bb4-95f1-a1e31594eb39
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_pre_llm_action
+field_name: field_pre_llm_action
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: BUY
+      label: BUY
+    -
+      value: AVOID
+      label: AVOID
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

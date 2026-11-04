@@ -1,0 +1,21 @@
+uuid: 3d7826dc-9e6e-4ed0-a6e7-d95dfac29031
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_last_mark_date
+    - node.type.position
+  module:
+    - datetime
+id: node.position.field_last_mark_date
+field_name: field_last_mark_date
+entity_type: node
+bundle: position
+label: 'Last mark date'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

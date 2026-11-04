@@ -1,0 +1,20 @@
+uuid: e92fff7a-6329-4985-bfde-cccb0396d69b
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_virtual_equity
+field_name: field_virtual_equity
+entity_type: node
+type: decimal
+settings:
+  precision: 16
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

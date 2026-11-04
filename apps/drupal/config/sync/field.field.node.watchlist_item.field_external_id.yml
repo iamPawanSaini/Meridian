@@ -1,0 +1,19 @@
+uuid: 710b7c87-b80d-42b7-83c7-af685fc17463
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_external_id
+    - node.type.watchlist_item
+id: node.watchlist_item.field_external_id
+field_name: field_external_id
+entity_type: node
+bundle: watchlist_item
+label: 'External id'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,19 @@
+uuid: 52a5f791-eca6-4462-a964-e3836241b95c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_notes
+    - node.type.watchlist_item
+id: node.watchlist_item.field_notes
+field_name: field_notes
+entity_type: node
+bundle: watchlist_item
+label: Notes
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

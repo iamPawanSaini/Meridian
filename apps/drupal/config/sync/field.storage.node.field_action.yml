@@ -1,0 +1,27 @@
+uuid: 602be1e2-f2b8-46f2-8767-34aeca6d254c
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_action
+field_name: field_action
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: BUY
+      label: BUY
+    -
+      value: AVOID
+      label: AVOID
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

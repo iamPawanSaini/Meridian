@@ -1,0 +1,20 @@
+uuid: 62f1cc9f-9634-4af7-8608-01ab399d5fde
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_veto_count
+field_name: field_veto_count
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

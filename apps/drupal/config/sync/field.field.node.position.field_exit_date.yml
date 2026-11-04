@@ -1,0 +1,21 @@
+uuid: 4ec616c2-186e-42ce-814f-484e0269a4a0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_exit_date
+    - node.type.position
+  module:
+    - datetime
+id: node.position.field_exit_date
+field_name: field_exit_date
+entity_type: node
+bundle: position
+label: 'Exit date'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

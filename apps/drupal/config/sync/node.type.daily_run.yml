@@ -1,0 +1,14 @@
+uuid: 4c721bd1-f51d-4966-83a5-a5c49c742c69
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - meridian_core
+name: 'Daily Run'
+type: daily_run
+description: 'Daily Run records of the Meridian content model (T09). Simulation only.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

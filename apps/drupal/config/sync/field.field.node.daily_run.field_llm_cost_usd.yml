@@ -1,0 +1,23 @@
+uuid: 83d64b65-682f-47a5-9de9-f1c4bbc88c27
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_llm_cost_usd
+    - node.type.daily_run
+id: node.daily_run.field_llm_cost_usd
+field_name: field_llm_cost_usd
+entity_type: node
+bundle: daily_run
+label: 'Llm cost usd'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

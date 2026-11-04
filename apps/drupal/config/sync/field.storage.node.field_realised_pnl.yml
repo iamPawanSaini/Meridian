@@ -1,0 +1,20 @@
+uuid: 97ce8b0f-8437-417e-8ec9-0491553183c8
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_realised_pnl
+field_name: field_realised_pnl
+entity_type: node
+type: decimal
+settings:
+  precision: 14
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

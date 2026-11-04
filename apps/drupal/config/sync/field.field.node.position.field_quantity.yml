@@ -1,0 +1,23 @@
+uuid: ebb22ced-e9ac-4806-9b9f-c280fb32a5ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_quantity
+    - node.type.position
+id: node.position.field_quantity
+field_name: field_quantity
+entity_type: node
+bundle: position
+label: Quantity
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

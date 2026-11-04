@@ -1,0 +1,23 @@
+uuid: 08397cf2-0d38-4d3a-a7c1-18c1cf61c317
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_failure_count
+    - node.type.daily_run
+id: node.daily_run.field_failure_count
+field_name: field_failure_count
+entity_type: node
+bundle: daily_run
+label: 'Failure count'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

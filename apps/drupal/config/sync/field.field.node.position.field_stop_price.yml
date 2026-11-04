@@ -1,0 +1,23 @@
+uuid: 7192b995-c3c7-4424-a785-a1bd83655999
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_stop_price
+    - node.type.position
+id: node.position.field_stop_price
+field_name: field_stop_price
+entity_type: node
+bundle: position
+label: 'Stop price'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

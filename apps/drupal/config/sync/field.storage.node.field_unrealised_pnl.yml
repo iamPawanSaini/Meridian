@@ -1,0 +1,20 @@
+uuid: 9377f69d-a1d2-407a-be55-72865e60a516
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_unrealised_pnl
+field_name: field_unrealised_pnl
+entity_type: node
+type: decimal
+settings:
+  precision: 14
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

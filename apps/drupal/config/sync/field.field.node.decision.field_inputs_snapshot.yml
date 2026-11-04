@@ -1,0 +1,19 @@
+uuid: 6f54a0ca-e972-4bdf-9568-e08657c74443
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_inputs_snapshot
+    - node.type.decision
+id: node.decision.field_inputs_snapshot
+field_name: field_inputs_snapshot
+entity_type: node
+bundle: decision
+label: 'Inputs snapshot'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

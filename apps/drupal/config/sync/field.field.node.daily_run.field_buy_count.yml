@@ -1,0 +1,23 @@
+uuid: a074fbdd-c3ab-4c03-bff5-d0e9a29932a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_buy_count
+    - node.type.daily_run
+id: node.daily_run.field_buy_count
+field_name: field_buy_count
+entity_type: node
+bundle: daily_run
+label: 'Buy count'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

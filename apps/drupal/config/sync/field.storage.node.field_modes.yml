@@ -1,0 +1,27 @@
+uuid: 3a648ae8-e6b1-4cc7-a6a0-aec0e21312cc
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_modes
+field_name: field_modes
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: long
+      label: long
+    -
+      value: short
+      label: short
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 2
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

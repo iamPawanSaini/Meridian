@@ -1,0 +1,21 @@
+uuid: 376d7f7b-b5ab-474a-9252-6e8c2e4f8983
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_time_stop_date
+    - node.type.position
+  module:
+    - datetime
+id: node.position.field_time_stop_date
+field_name: field_time_stop_date
+entity_type: node
+bundle: position
+label: 'Time stop date'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

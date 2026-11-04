@@ -1,0 +1,14 @@
+uuid: 9aa81bf7-e0eb-4d19-8008-ef3a2aff7f43
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.dashboard_read
+  module:
+    - user
+id: user_add_role_action.dashboard_read
+label: 'Add the Dashboard read role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: dashboard_read

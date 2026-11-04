@@ -1,0 +1,23 @@
+uuid: e1393fc0-12f6-46c1-aafe-5f3152897b37
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_virtual_equity
+    - node.type.daily_run
+id: node.daily_run.field_virtual_equity
+field_name: field_virtual_equity
+entity_type: node
+bundle: daily_run
+label: 'Virtual equity'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.01
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

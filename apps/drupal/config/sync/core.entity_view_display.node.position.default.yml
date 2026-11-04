@@ -1,0 +1,256 @@
+uuid: 20c1de08-7c31-4137-8c17-7cdc34bce390
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.position.field_costs_total
+    - field.field.node.position.field_decision
+    - field.field.node.position.field_entry_date
+    - field.field.node.position.field_entry_price
+    - field.field.node.position.field_exit_date
+    - field.field.node.position.field_exit_price
+    - field.field.node.position.field_exit_reason
+    - field.field.node.position.field_external_id
+    - field.field.node.position.field_last_mark_date
+    - field.field.node.position.field_last_mark_price
+    - field.field.node.position.field_mode
+    - field.field.node.position.field_payload_hash
+    - field.field.node.position.field_quantity
+    - field.field.node.position.field_r_multiple
+    - field.field.node.position.field_realised_pnl
+    - field.field.node.position.field_run
+    - field.field.node.position.field_source_version
+    - field.field.node.position.field_status
+    - field.field.node.position.field_stop_price
+    - field.field.node.position.field_symbol
+    - field.field.node.position.field_target_price
+    - field.field.node.position.field_time_stop_date
+    - field.field.node.position.field_unrealised_pnl
+    - node.type.position
+  module:
+    - user
+id: node.position.default
+targetEntityType: node
+bundle: position
+mode: default
+content:
+  field_costs_total:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_decision:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 21
+    region: content
+  field_entry_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: html_date
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_entry_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_exit_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: html_date
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_exit_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_exit_reason:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_external_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_last_mark_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: html_date
+    third_party_settings: {  }
+    weight: 18
+    region: content
+  field_last_mark_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 17
+    region: content
+  field_mode:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_payload_hash:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 23
+    region: content
+  field_quantity:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_r_multiple:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 3
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 19
+    region: content
+  field_realised_pnl:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_run:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 20
+    region: content
+  field_source_version:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 22
+    region: content
+  field_status:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_stop_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_symbol:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_target_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_time_stop_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: html_date
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_unrealised_pnl:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 16
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

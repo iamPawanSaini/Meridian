@@ -1,0 +1,29 @@
+uuid: 5c0228c0-869e-4e46-9cf8-af943f1d256c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_run
+    - node.type.daily_run
+    - node.type.position
+id: node.position.field_run
+field_name: field_run
+entity_type: node
+bundle: position
+label: Run
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      daily_run: daily_run
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,23 @@
+uuid: 086ba3cb-968e-4c4d-a078-16facb60889d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_attempt
+    - node.type.daily_run
+id: node.daily_run.field_attempt
+field_name: field_attempt
+entity_type: node
+bundle: daily_run
+label: Attempt
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

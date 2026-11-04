@@ -1,0 +1,14 @@
+uuid: 2dd766eb-b408-41f8-85bd-0f0903f6808d
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.engine_ingest
+  module:
+    - user
+id: user_remove_role_action.engine_ingest
+label: 'Remove the Engine ingest role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: engine_ingest

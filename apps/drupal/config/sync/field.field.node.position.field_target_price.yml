@@ -1,0 +1,23 @@
+uuid: e0bc0adb-b3a6-4ad0-bcd0-1db06a776031
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_target_price
+    - node.type.position
+id: node.position.field_target_price
+field_name: field_target_price
+entity_type: node
+bundle: position
+label: 'Target price'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

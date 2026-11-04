@@ -1,0 +1,19 @@
+uuid: a27ba797-99b8-4706-884a-32ae9e0aebe5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_external_id
+    - node.type.price_snapshot
+id: node.price_snapshot.field_external_id
+field_name: field_external_id
+entity_type: node
+bundle: price_snapshot
+label: 'External id'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

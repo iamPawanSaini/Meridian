@@ -1,0 +1,21 @@
+uuid: 20545503-6a9a-4b7e-99fc-b9983d72a183
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pre_llm_action
+    - node.type.decision
+  module:
+    - options
+id: node.decision.field_pre_llm_action
+field_name: field_pre_llm_action
+entity_type: node
+bundle: decision
+label: 'Pre llm action'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

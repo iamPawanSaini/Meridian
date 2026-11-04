@@ -1,0 +1,23 @@
+uuid: b2f69b49-88cf-4f27-8d90-d62a9b5d15fb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_version
+    - node.type.decision
+id: node.decision.field_source_version
+field_name: field_source_version
+entity_type: node
+bundle: decision
+label: 'Source version'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

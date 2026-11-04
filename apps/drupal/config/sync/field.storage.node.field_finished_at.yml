@@ -1,0 +1,20 @@
+uuid: 0033405d-2a19-43ed-b43e-44139a9ed050
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_finished_at
+field_name: field_finished_at
+entity_type: node
+type: timestamp
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes:
+  value:
+    - value
+persist_with_no_fields: false
+custom_storage: false

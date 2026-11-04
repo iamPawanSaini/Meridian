@@ -1,0 +1,23 @@
+uuid: df921cac-1595-4278-af56-551a48bda42a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_version
+    - node.type.price_snapshot
+id: node.price_snapshot.field_source_version
+field_name: field_source_version
+entity_type: node
+bundle: price_snapshot
+label: 'Source version'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

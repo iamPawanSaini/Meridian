@@ -1,0 +1,19 @@
+uuid: e7ca354f-f905-4c2e-87af-f593b8ab6bcf
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_payload_hash
+    - node.type.price_snapshot
+id: node.price_snapshot.field_payload_hash
+field_name: field_payload_hash
+entity_type: node
+bundle: price_snapshot
+label: 'Payload hash'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

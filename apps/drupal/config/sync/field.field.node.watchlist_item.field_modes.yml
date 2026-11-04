@@ -1,0 +1,21 @@
+uuid: 23029a45-e4f4-47f1-a911-d0112cab4c49
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_modes
+    - node.type.watchlist_item
+  module:
+    - options
+id: node.watchlist_item.field_modes
+field_name: field_modes
+entity_type: node
+bundle: watchlist_item
+label: Modes
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

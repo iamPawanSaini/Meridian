@@ -1,0 +1,19 @@
+uuid: ba759f51-90fd-4453-9a7e-f682b4d89e8f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_prompt_version
+    - node.type.daily_run
+id: node.daily_run.field_prompt_version
+field_name: field_prompt_version
+entity_type: node
+bundle: daily_run
+label: 'Prompt version'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

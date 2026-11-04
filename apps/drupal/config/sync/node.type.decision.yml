@@ -1,0 +1,14 @@
+uuid: 1e405053-4cdd-4cf5-adc3-3a9423f56b60
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - meridian_core
+name: Decision
+type: decision
+description: 'Decision records of the Meridian content model (T09). Simulation only.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

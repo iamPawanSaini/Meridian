@@ -1,0 +1,9 @@
+services:
+  Drupal\meridian_core\Schema\ExternalIdIndex:
+    autowire: true
+  meridian_core.external_id_index:
+    alias: Drupal\meridian_core\Schema\ExternalIdIndex
+  Drupal\meridian_core\Service\WatchlistExternalId:
+    autowire: true
+  meridian_core.watchlist_external_id:
+    alias: Drupal\meridian_core\Service\WatchlistExternalId

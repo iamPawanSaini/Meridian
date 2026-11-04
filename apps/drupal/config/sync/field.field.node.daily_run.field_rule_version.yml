@@ -1,0 +1,19 @@
+uuid: fcaf51c1-c007-4679-8ae0-8967c87cd0f6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_rule_version
+    - node.type.daily_run
+id: node.daily_run.field_rule_version
+field_name: field_rule_version
+entity_type: node
+bundle: daily_run
+label: 'Rule version'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

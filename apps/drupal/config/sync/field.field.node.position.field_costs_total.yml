@@ -1,0 +1,23 @@
+uuid: ccac4728-c4a1-4d48-94e4-fcf2f74d7b95
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_costs_total
+    - node.type.position
+id: node.position.field_costs_total
+field_name: field_costs_total
+entity_type: node
+bundle: position
+label: 'Costs total'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

@@ -1,0 +1,29 @@
+view meridian records:
+  title: 'View Meridian records'
+  description: 'View Decision, Position, Daily Run and Price Snapshot records.'
+
+view meridian watchlist:
+  title: 'View Meridian watchlist'
+  description: 'View Watchlist Items.'
+
+view meridian inputs:
+  title: 'View Meridian inputs and costs'
+  description: 'View the inputs snapshot, LLM cost, price source and watchlist notes.'
+
+view meridian raw llm output:
+  title: 'View raw LLM output'
+  description: 'View the raw LLM reply stored on a Decision.'
+  restrict access: true
+
+administer meridian records:
+  title: 'Administer Meridian records'
+  description: 'View ingest bookkeeping (source version, payload hash) and manage records.'
+  restrict access: true
+
+ingest meridian records:
+  title: 'Ingest Meridian records'
+  description: 'Write records through the ingest endpoint (T10).'
+
+export meridian records:
+  title: 'Export Meridian records'
+  description: 'Export Meridian records from the admin UI (T12).'

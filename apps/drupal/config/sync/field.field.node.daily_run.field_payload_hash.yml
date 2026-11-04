@@ -1,0 +1,19 @@
+uuid: f436081b-a84d-49ed-ab3a-bb42c95bd4f9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_payload_hash
+    - node.type.daily_run
+id: node.daily_run.field_payload_hash
+field_name: field_payload_hash
+entity_type: node
+bundle: daily_run
+label: 'Payload hash'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

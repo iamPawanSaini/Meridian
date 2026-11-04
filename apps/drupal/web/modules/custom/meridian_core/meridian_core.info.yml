@@ -1,0 +1,10 @@
+name: 'Meridian core'
+type: module
+description: 'Meridian content model rules: validation, uniqueness, roles and access (T09).'
+package: Meridian
+core_version_requirement: ^11.1
+dependencies:
+  - drupal:datetime
+  - drupal:node
+  - drupal:options
+  - drupal:user
