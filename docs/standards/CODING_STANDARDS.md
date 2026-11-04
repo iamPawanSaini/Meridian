@@ -411,7 +411,7 @@ component and prefix that is below its floor.
 | Engine `scoring` | `meridian_engine/scoring/` | 90% (NFR-18, fixed) | Measured and reported, not gated |
 | Engine `risk` | `meridian_engine/risk/` | 90% (NFR-18, fixed) | Measured and reported, not gated |
 | Engine overall | `meridian_engine/` | 85% | Measured and reported, not gated |
-| Drupal custom modules | `web/modules/custom/meridian_*` | 70%. First measured in T09 (2026-11-04): 93.9% line coverage (460 of 490 lines, Unit and Kernel tests, `meridian_core`) | Gated by `ddev quality` and CI |
+| Drupal custom modules | `web/modules/custom/meridian_*` | 70% (was provisional; first measured in T09, 2026-11-04): 93.9% line coverage (460 of 490 lines, Unit and Kernel tests, `meridian_core`) | Gated by `ddev quality` and CI |
 | Next.js `lib/` and components | `apps/web/lib/`, `apps/web/components/` | 80% | Not gated |
 | Next.js routes and pages | `apps/web/app/` | No unit floor; covered by Playwright (T24 to T26) | n/a |
 
