@@ -50,27 +50,48 @@ final class MeridianUniqueInBundleValidator extends FieldValidatorBase implement
     }
     $entity = $value->getEntity();
     $field = $value->getName();
-    $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
-    $id_key = $entity->getEntityType()->getKey('id');
+    // A Watchlist Item external ID is wl-{symbol}, so a duplicate symbol is
+    // also a duplicate ID. The symbol is reported once, at field_symbol.
+    if ($entity->bundle() === 'watchlist_item' && $field === 'field_external_id'
+      && $this->isDuplicate($entity, 'field_symbol')) {
+      return;
+    }
     foreach (FieldValues::of($value) as $delta => $item) {
-      if (!is_string($item)) {
-        continue;
-      }
-      $query = $storage->getQuery()
-        ->accessCheck(FALSE)
-        ->condition($entity->getEntityType()->getKey('bundle'), $entity->bundle())
-        ->condition($field . '.value', $item);
-      if (!$entity->isNew()) {
-        $query->condition($id_key, $entity->id(), '<>');
-      }
-      $ids = $query->execute();
-      foreach ($storage->loadMultiple($ids) as $other) {
-        if ($other instanceof FieldableEntityInterface && $other->get($field)->value === $item) {
-          $this->report($value, $delta, $constraint->message, ['@field' => $field], MeridianUniqueInBundle::CODE);
-          break;
-        }
+      if ($this->isDuplicate($entity, $field, $item)) {
+        $this->report($value, $delta, $constraint->message, ['@field' => $field], MeridianUniqueInBundle::CODE);
       }
     }
+  }
+
+  /**
+   * Whether another entity of the bundle holds the same value (exact).
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   The entity being validated.
+   * @param string $field
+   *   The field machine name.
+   * @param mixed $item
+   *   The value to look for. NULL means the current value of the field.
+   */
+  protected function isDuplicate(FieldableEntityInterface $entity, string $field, mixed $item = NULL): bool {
+    $item ??= $entity->get($field)->value;
+    if (!is_string($item)) {
+      return FALSE;
+    }
+    $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
+    $query = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition($entity->getEntityType()->getKey('bundle'), $entity->bundle())
+      ->condition($field . '.value', $item);
+    if (!$entity->isNew()) {
+      $query->condition($entity->getEntityType()->getKey('id'), $entity->id(), '<>');
+    }
+    foreach ($storage->loadMultiple($query->execute()) as $other) {
+      if ($other instanceof FieldableEntityInterface && $other->get($field)->value === $item) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
 }

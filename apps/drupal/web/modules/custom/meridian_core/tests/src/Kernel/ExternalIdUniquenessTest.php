@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable Drupal.Arrays.Array.LongLineDeclaration -- T09: one test case per line
-
 namespace Drupal\Tests\meridian_core\Kernel;
 
 use Drupal\Core\Database\Database;
@@ -48,7 +46,8 @@ class ExternalIdUniquenessTest extends MeridianKernelTestBase {
       $first = $this->record($bundle);
       $this->assertValid($first, "$bundle: first record");
       $first->save();
-      $expected = $bundle === 'watchlist_item' ? [$duplicate, ['field_symbol', 'meridian.unique_in_bundle']] : [$duplicate];
+      // A duplicate Watchlist symbol is one violation, at field_symbol.
+      $expected = $bundle === 'watchlist_item' ? [['field_symbol', 'meridian.unique_in_bundle']] : [$duplicate];
       $this->assertViolations($this->record($bundle), $expected, "$bundle: second record with the same id");
       $loaded = Node::load($first->id());
       $loaded->set('title', 'Updated');

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable Drupal.Arrays.Array.LongLineDeclaration -- T09: one test case per line
-
 namespace Drupal\Tests\meridian_core\Kernel;
 
 use Drupal\node\Entity\Node;
@@ -88,10 +86,7 @@ class WatchlistItemValidationTest extends MeridianKernelTestBase {
   public function testSymbolUniqueAndImmutable(): void {
     $saved = $this->record('watchlist_item');
     $saved->save();
-    $this->assertViolations($this->record('watchlist_item'), [
-      ['field_external_id', 'meridian.unique_in_bundle'],
-      ['field_symbol', 'meridian.unique_in_bundle'],
-    ], 'duplicate watchlist symbol');
+    $this->assertRejected($this->record('watchlist_item'), 'field_symbol', 'meridian.unique_in_bundle', 'duplicate watchlist symbol: one violation');
     // A Decision with the same symbol does not collide with the Watchlist Item.
     $this->assertValid($this->record('decision', ['field_symbol' => 'RELIANCE']), 'decision with the same symbol');
     $this->assertValid($this->record('watchlist_item', ['field_symbol' => 'TCS', 'field_external_id' => 'wl-TCS']), 'another symbol');
