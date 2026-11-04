@@ -180,13 +180,15 @@ builtin_steps() {
   drupal+=" && vendor/bin/phpstan analyse -c phpstan.neon.dist"
   # T09: PHPUnit (Unit and Kernel) with Cobertura coverage and the 70% gate. CI uses pcov. The
   # DDEV web image has no pcov build for PHP 8.3 (the Sury key has expired), so the ddev runner
-  # loads Xdebug in coverage mode for this command only (scripts/README.md, accepted
-  # differences). SIMPLETEST_DB comes from the environment (DDEV config, or the CI service).
-  drupal_php="php"
+  # switches Xdebug on (DDEV's enable_xdebug, undone on exit) in coverage mode for this command
+  # only (scripts/README.md, accepted differences). It must be on for the child processes of
+  # the Kernel tests too, so a -d option is not enough. SIMPLETEST_DB comes from the
+  # environment (DDEV config, or the CI service).
+  drupal_tests=""
   if [[ "$runner" == "ddev" ]]; then
-    drupal_php="php -d zend_extension=xdebug -d xdebug.mode=coverage"
+    drupal_tests="enable_xdebug >/dev/null; trap disable_xdebug EXIT; XDEBUG_MODE=coverage "
   fi
-  drupal_tests="$drupal_php vendor/bin/phpunit --log-junit junit.xml"
+  drupal_tests+="php vendor/bin/phpunit --log-junit junit.xml"
   drupal_tests+=" --coverage-cobertura=coverage.xml"
   drupal_tests+=" && python3 ../../scripts/coverage_gate.py --thresholds"
   drupal_tests+=" ../../quality/coverage-thresholds.json --require web/modules/custom/meridian_"

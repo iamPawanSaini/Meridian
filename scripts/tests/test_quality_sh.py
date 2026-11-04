@@ -200,7 +200,9 @@ class ExpectedSkipsTests(unittest.TestCase):
     def test_real_file_lists_known_steps_with_tickets(self) -> None:
         lines = [x for x in EXPECTED_SKIPS.read_text(encoding="utf-8").splitlines() if x.strip()]
         data = [x for x in lines if not x.startswith("#")]
-        self.assertEqual(len(data), 7)
+        # T09 removed component-drupal-tests: the Drupal test step now runs.
+        self.assertEqual(len(data), 6)
+        self.assertNotIn("component-drupal-tests", "".join(data))
         for line in data:
             self.assertRegex(line, r"^[a-z-]+\s+# T\d{2}a?: \S")
 
