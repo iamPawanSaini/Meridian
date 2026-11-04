@@ -22,7 +22,7 @@
 | `scripts/check_ci.py` | All rules PASS, including the new rule 2 database parity |
 | `scripts/exceptions_report.py` | Passes, but counts **0** `phpcs:disable` (see finding 1) |
 | `docker manifest inspect mariadb:10.6.22` | The tag exists on Docker Hub (checked 2026-11-04) |
-| Docs regression suites T04a, T05, T06 (`--regression`) | The reviewer's run had not finished when this review was written. See "C4" below |
+| Docs regression suites T04a, T05, T06 (`--regression`) | One check fails in each suite, and it is the same check every time: T04a's optional "shellcheck on tracked shell scripts" (`docs/tests/T04a/run-checks.sh:772`). It uses the host `/usr/bin/shellcheck` 0.8.0, which reports SC2015/SC2120 in lines T09 does not change (`docs/tests/T04a/run-checks.sh:806, 879`, `docs/tests/T06/run-checks.sh:525`). The pinned pre-commit shellcheck passes. This is the reviewer's host tooling, not a T09 regression. The coverage-row check passes |
 
 ## Judgement of the deviations the developer reported
 
