@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable Drupal.Arrays.Array.LongLineDeclaration -- T09: one test case per line
-
 namespace Drupal\Tests\meridian_core\Unit;
 
 use Drupal\meridian_core\Validation\Patterns;
@@ -13,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Each pattern of the data model accepts and rejects the right values.
+ *
+ * Covers TC-T09-08.
  */
 #[Group('meridian_core')]
 class PatternsTest extends TestCase {

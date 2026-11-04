@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable Drupal.Arrays.Array.LongLineDeclaration -- T09: one test case per line
-
 namespace Drupal\Tests\meridian_core\Kernel;
 
 use Drupal\node\NodeInterface;

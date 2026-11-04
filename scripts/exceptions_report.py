@@ -59,7 +59,7 @@ SLOT: dict[str, re.Pattern[str]] = {
     "shellcheck": re.compile(r"#\s*shellcheck\s+disable=[\w,]+\s+#\s*" + _TID),
     "hadolint": re.compile(r"#\s*hadolint\s+ignore=[\w,]+\s+#\s*" + _TID),
     "markdownlint": re.compile(r"-->.*<!--\s*" + _TID),
-    "config exclude": re.compile(r"(?:#|//)\s*" + _TID),
+    "config exclude": re.compile(r"(?:#|//|<!--)\s*" + _TID),
 }
 _NOQA_CODE = re.compile(r"#\s*noqa:\s*[A-Z]+[0-9]+")
 _ESLINT_RULE = re.compile(r"eslint-disable\S*\s+[^\s-]")

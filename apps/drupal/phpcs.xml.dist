@@ -8,4 +8,7 @@
   <arg value="sp"/>
   <rule ref="Drupal"/>
   <rule ref="DrupalPractice"/>
+  <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+    <exclude-pattern>*/tests/src/*</exclude-pattern> <!-- T09: one test case per line -->
+  </rule>
 </ruleset>
