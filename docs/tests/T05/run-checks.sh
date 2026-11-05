@@ -473,7 +473,7 @@ ckp "phpcs.xml.dist and phpstan.neon.dist unchanged in scope: level 6, no baseli
 ckp "phpstan.neon.dist has no baseline" allout apps/drupal/phpstan.neon.dist 'baseline'
 ckp "phpstan config loads phpstan-drupal (explicit include or extension-installer comment)" allin apps/drupal/phpstan.neon.dist 'phpstan-drupal|extension-installer'
 cka "phpunit.xml.dist is present (T09 added it with the first module; was: absent until T09)" bash -c "[[ -e apps/drupal/phpunit.xml.dist ]]"
-cka "meridian_core is the only custom module (T09; was: no custom module exists yet)" bash -c "[[ \$(git ls-files 'apps/drupal/web/modules/custom/*' | cut -d/ -f5 | sort -u | grep -v '^\.gitkeep\$') == meridian_core ]]"
+cka "meridian_core exists and every custom module is named in section 0 (T09; was: no custom module exists yet; survives T10 meridian_ingest)" bash -c "m=\$(git ls-files 'apps/drupal/web/modules/custom/*' | cut -d/ -f6 | sort -u | grep -v '^\.gitkeep\$'); grep -qx meridian_core <<<\"\$m\" && ! grep -vxE 'meridian_core|meridian_ingest' <<<\"\$m\""
 
 case_start TC-T05-20 "composer.lock size vs check-added-large-files (KD-7)"
 lock_size() { need_file "$CL" || return 1; local kb; kb=$(( ($(stat -c %s "$CL") + 1023) / 1024 ))
@@ -612,7 +612,7 @@ sys.exit(0 if d.get('bootstrap')=='Successful' and d.get('db-status')=='Connecte
   ckp "git status --porcelain is empty for the whole repository" bash -c "o=\$(git status --porcelain); echo \"\$o\"; [[ -z \"\$o\" ]]"
   ckp "settings.php unchanged by DDEV (git diff --quiet)" git diff --quiet -- "$SET"
 
-  case_start TC-T05-34 "live: ddev quality exits 0; component-drupal PASS, tests SKIP (C4, TC-T04a-48)"
+  case_start TC-T05-34 "live: ddev quality exits 0; component-drupal PASS, component-drupal-tests PASS (T09) (C4, TC-T04a-48)"
   out=$(ddev quality 2>&1) && rc=0 || rc=$?
   printf '%s\n' "$out" >"$WORK/q.txt"
   if [[ $rc -eq 0 ]]; then pass "ddev quality exit 0"; else bad "ddev quality exit $rc"; show_out "$(tail -15 <<<"$out")"; fi

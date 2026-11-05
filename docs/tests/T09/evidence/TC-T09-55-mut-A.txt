@@ -1,0 +1,105 @@
+117:      $map['field_symbol'][] = ['MeridianUniqueInBundle', NULL];
+== mutation uniq, class ExternalIdUniquenessTest
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/muta/drupal/phpunit.xml.dist
+
+FFF....                                                             7 / 7 (100%)
+
+Time: 04:06.191, Memory: 6.00 MB
+
+There were 3 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testDuplicateIsRejectedByValidate
+daily_run: second record with the same id
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.unique_in_bundle',
+-    ],
+-]
++Array &0 []
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:51
+
+2) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testUnpublishedDuplicateCounts
+unpublished duplicate
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.unique_in_bundle',
+-    ],
+-]
++Array &0 []
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:140
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:66
+
+3) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testComparisonIsExact
+the exact value is a duplicate
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => 'meridian.unique_in_bundle',
+-]
++Array &0 []
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:90
+
+FAILURES!
+Tests: 7, Assertions: 76, Failures: 3.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/muta/drupal && vendor/bin/phpunit --testsuite kernel --filter ExternalIdUniquenessTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1
+60-  public function ensure(): bool {
+61:    return FALSE;
+62-    if (!$this->tableExists()) {
+63:      return FALSE;
+64-    }
+65-    if (!$this->exists()) {
+== mutation nokey, class ExternalIdUniquenessTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/muta/drupal/phpunit.xml.dist
+
+....FFF                                                             7 / 7 (100%)
+
+Time: 02:47.521, Memory: 6.00 MB
+
+There were 3 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testDatabaseKeyRejectsDuplicateSave
+the key exists after the config install
+Failed asserting that false is true.
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:116
+
+2) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testConcurrentWatchlistCreatesAreStoppedByTheKey
+The second save must fail.
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:150
+
+3) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testKeyLifecycle
+field-storage path: created with the field storage
+Failed asserting that false is true.
+
+/tmp/muta/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:163
+
+FAILURES!
+Tests: 7, Assertions: 78, Failures: 3.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/muta/drupal && vendor/bin/phpunit --testsuite kernel --filter ExternalIdUniquenessTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1

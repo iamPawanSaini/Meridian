@@ -97,6 +97,11 @@ class DecisionValidationTest extends MeridianKernelTestBase {
     foreach (['0', '0.00', '100', '100.00', '50.5'] as $score) {
       $cases["score $score"] = [['field_score' => $score], []];
     }
+    $cases['score abc'] = [
+      ['field_score' => 'abc'],
+      // Core reports it three times: Range twice, and a rule without a code.
+      [['field_score', ''], ['field_score', self::NOT_A_NUMBER], ['field_score', self::NOT_A_NUMBER]],
+    ];
     $cases['close_price 0'] = [['field_close_price' => '0'], [['field_close_price', self::TOO_LOW]]];
     $cases['close_price -1'] = [['field_close_price' => '-1'], [['field_close_price', self::TOO_LOW]]];
     $cases['close_price 0.0001'] = [['field_close_price' => '0.0001'], []];

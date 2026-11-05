@@ -1,0 +1,31 @@
+## TC-T09-56 coverage gate on the Cobertura file produced by the main-tree ddev quality run (component-drupal-tests PASS)
+coverage gate: not measured: meridian_engine/scoring/
+coverage gate: not measured: meridian_engine/risk/
+coverage gate: not measured: meridian_engine/
+coverage gate: not measured: apps/web/lib/
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+gate rc=0
+root line-rate 0.9412955465587 lines-covered 465 lines-valid 494
+source /var/www/html/apps/drupal/web/modules/custom/meridian_core/src
+-- junit tests/failures
+72 tests 2154 assertions 0 failures 0 errors 0 skipped
+-- no uncounted excludes
+38:    <exclude>
+39-      <directory>web/modules/custom/*/tests</directory>
+40:    </exclude>
+41-  </source>
+42-</phpunit>
+## TC-T09-56 step 1 / TC-T09-59 step 3
+
+[31mFailed to execute command `php -m | grep -i pcov`: exit status 1[0m
+grep rc=1 (1 = pcov not loaded)
+xdebug
+Xdebug
+xdebug grep rc=0 (1 = off by default)
+(no match above)
+96:6. (T09) The coverage driver differs: CI uses pcov (setup-php `coverage: pcov`). The DDEV web
+97-   image cannot install `php8.3-pcov` (the Sury apt key has expired, checked 2026-11-04), so
+98-   `ddev quality` switches Xdebug on with `enable_xdebug` (and off again on exit, only if it was
+99-   off before) and runs PHPUnit with `XDEBUG_MODE=coverage`. Both produce the same Cobertura
+100-   file for the same gate.

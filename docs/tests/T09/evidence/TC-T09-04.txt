@@ -1,0 +1,48 @@
+## TC-T09-04
+-- storage
+13:  allowed_values:
+15-      value: open
+18-      value: closed
+21-      value: success
+24-      value: failed
+27-      value: skipped
+29:  allowed_values_function: ''
+32-cardinality: 1
+11:type: list_string
+32:cardinality: 1
+-- per-bundle
+apps/drupal/config/sync/field.field.node.position.field_status.yml:9:    - meridian_core
+apps/drupal/config/sync/field.field.node.position.field_status.yml-10-    - options
+apps/drupal/config/sync/field.field.node.position.field_status.yml-11-third_party_settings:
+apps/drupal/config/sync/field.field.node.position.field_status.yml:12:  meridian_core:
+apps/drupal/config/sync/field.field.node.position.field_status.yml-13-    allowed_values:
+apps/drupal/config/sync/field.field.node.position.field_status.yml-14-      - open
+apps/drupal/config/sync/field.field.node.position.field_status.yml-15-      - closed
+apps/drupal/config/sync/field.field.node.position.field_status.yml-16-id: node.position.field_status
+apps/drupal/config/sync/field.field.node.position.field_status.yml-17-field_name: field_status
+apps/drupal/config/sync/field.field.node.position.field_status.yml-18-entity_type: node
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml:9:    - meridian_core
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-10-    - options
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-11-third_party_settings:
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml:12:  meridian_core:
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-13-    allowed_values:
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-14-      - success
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-15-      - failed
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-16-      - skipped
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-17-id: node.daily_run.field_status
+apps/drupal/config/sync/field.field.node.daily_run.field_status.yml-18-field_name: field_status
+-- schema
+# Per-bundle allowed values for a field that shares its storage between bundles (T09, DN-3).
+# The constraint MeridianBundleAllowedValues reads this setting.
+field.field.*.*.*.third_party.meridian_core:
+  type: mapping
+  label: 'Meridian field settings'
+  mapping:
+    allowed_values:
+      type: sequence
+      label: 'Allowed values of this bundle'
+      sequence:
+        type: string
+        label: 'Allowed value'
+-- config:status
+ [notice] No differences between DB and sync directory.

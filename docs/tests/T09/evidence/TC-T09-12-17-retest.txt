@@ -1,0 +1,38 @@
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+........                                                            8 / 8 (100%)
+
+Time: 02:00.952, Memory: 6.00 MB
+
+Decision Validation (Drupal\Tests\meridian_core\Kernel\DecisionValidation)
+ ✔ Baseline and required fields
+ ✔ Enumerations
+ ✔ Score and prices
+ ✔ Trade date not in the future
+ ✔ Action and veto rules
+ ✔ Text and document rules
+ ✔ External id
+ ✔ Run reference
+
+OK (8 tests, 198 assertions)
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+......                                                              6 / 6 (100%)
+
+Time: 01:35.841, Memory: 6.00 MB
+
+Position Validation (Drupal\Tests\meridian_core\Kernel\PositionValidation)
+ ✔ Baseline required fields and status
+ ✔ Numbers
+ ✔ Price ordering and time stop
+ ✔ Open and closed fields
+ ✔ External id
+ ✔ References and decision
+
+OK (6 tests, 155 assertions)

@@ -1,0 +1,10 @@
+## TC-T09-71
+331:- [ ] Permissions matrix documented and tested for `administrator`, `analyst`, `engine_ingest`, `dashboard_read`, `anonymous` and `authenticated` (FR-16)
+294:| NFR-05 | R-08 | Read API response time for a 50-row JSON:API page with 5,000 records seeded | Must | p95 at most 500 ms on DDEV and at most 1,500 ms on Pantheon dev (warm, wake excluded), over 50 requests. T03 amendment: provisional until the T09 measurement gate in `technical-design.md`, sect
+8:438-| 2026-11-01 | T03 | Container diagram table | Postgres dev hosting names Neon Free (OQ-01) | solution-architect |
+9:439-| 2026-11-01 | T03 | NFR-04, NFR-05 | Pointer to the T03 values, measurement gate and Pantheon dev value (D-2) | solution-architect |
+10:440-| 2026-11-01 | T03 | RK-07 | Names the revalidation secret `MERIDIAN_REVALIDATE_SECRET` (T02 review note 18) | solution-architect |
+11:441-| 2026-11-01 | T03 | OQ-01, OQ-07 | Resolutions recorded (D-1, D-2) | solution-architect |
+12:442-| 2026-11-01 | T03 | Related documents | Link to `technical-design.md` | solution-architect |
+13:443-| 2026-11-01 | T03 | RK-10, cost map (hosted Postgres row) | Pointer to the OQ-01 resolution (T03 review note 19) | solution-architect |
+15:451:| T03 amendment | solution-architect | 2026-11-01 | Amendments table above (6 rows) reviewed by solution-architect: within the D-4 conditions, no accepted ADR changed, no FR or NFR loosened (`d

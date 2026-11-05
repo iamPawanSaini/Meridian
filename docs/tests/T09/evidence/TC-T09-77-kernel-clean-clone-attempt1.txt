@@ -1,0 +1,18 @@
+## TC-T09-77 step 5: documented command (apps/drupal/README.md) in the clean clone, 2026-11-05T15:04:02+05:30
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+
+30) Drupal\Tests\meridian_core\Kernel\WatchlistItemValidationTest::testEnabledLimit
+PHPUnit\Framework\Exception: Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+Xdebug: [Step Debug] Time-out connecting to debugging client, waited: 200 ms. Tried: host.docker.internal:9003 (fallback through xdebug.client_host/xdebug.client_port).
+
+ERRORS!
+Tests: 47, Assertions: 1089, Errors: 30.
+
+[31mFailed to execute command `vendor/bin/phpunit --testsuite kernel`: exit status 2[0m
+EXIT=1
+2026-11-05T15:18:49+05:30

@@ -1,0 +1,14 @@
+TC-T09-20: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Position Validation (Drupal\Tests\meridian_core\Kernel\PositionValidation)
+ ✔ Baseline required fields and status
+ ✔ Numbers
+ ✔ Price ordering and time stop
+ ✔ Open and closed fields
+ ✔ External id
+ ✔ References and decision
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

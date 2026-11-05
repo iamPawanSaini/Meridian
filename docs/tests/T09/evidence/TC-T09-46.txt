@@ -1,0 +1,14 @@
+## TC-T09-46
+https://meridian.ddev.site/user/reset/<one-time-token-redacted>
+GET /user/login -> 200
+GET / -> 200
+GET /node/1 -> 404
+-- front page body mentions Meridian record data?
+0
+## TC-T09-46 (with a published record present: nid 2503)
+anonymous GET / -> 200
+anonymous GET /node/2503 -> 403
+anonymous GET /node/2503/revisions -> 403
+anonymous GET /rss.xml -> 404
+-- body leak check on / and /node/2503 (count of record text hits)
+0

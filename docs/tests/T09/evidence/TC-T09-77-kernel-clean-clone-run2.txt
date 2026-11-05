@@ -1,0 +1,12 @@
+## TC-T09-77 step 5 (re-run: the first attempt at 15:04 ran while ddev quality had switched Xdebug on and failed with 30 Xdebug step-debug timeouts; see TC-T09-77-kernel-clean-clone-attempt1.txt)
+2026-11-05T16:35:13+05:30
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+...............................................                   47 / 47 (100%)
+
+Time: 09:57.616, Memory: 8.00 MB
+
+OK (47 tests, 1937 assertions)
+EXIT=0
+2026-11-05T16:45:11+05:30

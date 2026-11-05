@@ -68,15 +68,18 @@ the normalisation below. The other Kernel tests apply the same normalisation.
 | Core allowed values | `field_mode.0` | `Choice::NO_SUCH_CHOICE_ERROR` |
 | Core required | `field_score` | `NotNull::IS_NULL_ERROR` |
 | Reference to a missing or wrong-bundle node | `field_run.0.target_id` | empty string `''` |
+| Non-numeric decimal (`score` = `abc`) | `field_score.0.value`, 3 violations | one empty code, two Range `INVALID_CHARACTERS_ERROR` |
+| Non-numeric integer (`quantity` = `abc`) | `field_quantity.0.value`, 2 violations | one empty code, one Range `INVALID_CHARACTERS_ERROR` |
+| Non-integer integer (`quantity` = `1.5`) | `field_quantity.0.value`, 1 violation | empty string `''` |
 | Malformed date | `field_trade_date.0` and `field_trade_date.0.value` (two violations) | empty string `''` |
 | Base field (title) | `title.0.value` | core code |
 
 Normalisation T10 applies: remove a trailing `.value` or `.target_id`; for a field other than
 `field_rule_hits` and `field_modes` also remove a trailing `.0`; keep the delta for those two
 multi-value fields. The result is the field machine name (strip `field_` for the payload name),
-except `field_rule_hits.N` and `field_modes.N`, which point at item N. Two violations can have the
-same path (a malformed date). A violation with an empty code comes from core and T10 should map
-it by path and message, not by code.
+except `field_rule_hits.N` and `field_modes.N`, which point at item N. Several
+violations can share a path (a malformed date, a non-numeric number). A violation with an empty
+code comes from core and T10 should map it by path and message, not by code.
 
 ## Tests
 

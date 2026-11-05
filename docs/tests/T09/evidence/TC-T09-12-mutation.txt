@@ -1,0 +1,36 @@
+## TC-T09-12 MUT score101 (field_score max 101)
+== mutation score101, class DecisionValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mut/drupal/phpunit.xml.dist
+
+..F.....                                                            8 / 8 (100%)
+
+Time: 03:49.118, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testScoreAndPrices
+decision: score 100.01
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_score',
+-        1 => '2d28afcb-e32e-45fb-a815-01c431a86a69',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:106
+
+FAILURES!
+Tests: 8, Assertions: 183, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter DecisionValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1 (non-zero = mutation detected)

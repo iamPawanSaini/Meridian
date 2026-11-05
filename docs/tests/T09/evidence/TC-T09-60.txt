@@ -1,0 +1,30 @@
+## TC-T09-60
+-- 1
+PASS  rule 1: group coverage
+PASS  rule 2: toolchain parity
+PASS  rule 3: action pins
+PASS  rule 4: secret names documented
+PASS  rule 5: least privilege
+PASS  rule 6: heavier-set tripwire
+rc=0
+-- 2
+/usr/bin/python3: No module named pytest
+## TC-T09-60 (cont.)
+test_check_ci (unittest.loader._FailedTest) ... ERROR
+
+======================================================================
+ERROR: test_check_ci (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_check_ci
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/loader.py", line 154, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/pawan/Meridian/scripts/tests/test_check_ci.py", line 13, in <module>
+    import _helpers  # noqa: F401  # T08: puts scripts/ on sys.path
+ModuleNotFoundError: No module named '_helpers'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

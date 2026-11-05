@@ -1,0 +1,11 @@
+## TC-T09-45 steps 1 and 2
+permissions.md exists
+docs/specs/data-model.md:73:Permissions matrix: [permissions.md](permissions.md).
+docs/specs/README.md:9:| [permissions.md](permissions.md) | T09 | Permissions matrix: six roles by permission, by bundle and operation, and by restricted field (FR-16) |
+docs/architecture/technical-design.md:74:  roles is [permissions.md](../specs/permissions.md).
+-- required statements
+15:[technical-design.md, D6](../architecture/technical-design.md) and are tested in T10 (ingest
+24:| Engine ingest | `engine_ingest` | The `svc_engine` service user (T10) |
+101:administrator can change a record in the UI. `meridian_ingest` (T10) writes through the Entity
+250:1. **Neutral, not allowed.** `hook_node_access` returns `forbidden` or `neutral`, never
+257:3. **No listing filter.** Core alters node queries only when a module implements

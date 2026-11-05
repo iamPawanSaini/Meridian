@@ -1,0 +1,16 @@
+TC-T09-24: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Watchlist Item Validation (Drupal\Tests\meridian_core\Kernel\WatchlistItemValidation)
+ ✔ Field rules
+ ✔ External id derivation
+ ✔ Symbol unique and immutable
+ ✔ Enabled limit
+
+OK (47 tests, 1937 assertions)
+EXIT=0
+2026-11-05T10:39:27+05:30
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

@@ -1,0 +1,61 @@
+## TC-T09-48 HEAD 83ed38f 2026-11-05T12:04:26+05:30
+-- pre: git status of apps/drupal
+-- 1 ddev drupal-install --force
+Installing dependencies from lock file (including require-dev)
+Verifying lock file contents can be installed on current platform.
+Nothing to install, update or remove
+Generating autoload files
+97 packages you are using are looking for funding.
+Use the `composer fund` command to find out more!
+Scaffolding files for pantheon-systems/drupal-integrations:
+  - Skip [web-root]/sites/default/settings.php because it already exists and overwrite is false.
+phpstan/extension-installer: Extensions installed
+ You are about to:
+ * DROP all tables in your 'db' database.
+
+ // Do you want to continue?: yes.                                              
+
+ [notice] Starting Drupal installation. This takes a while.
+ [notice] Performed install task: install_select_language
+ [notice] Performed install task: install_select_profile
+ [notice] Performed install task: install_load_profile
+ [notice] Performed install task: install_verify_requirements
+ [notice] Performed install task: install_verify_database_ready
+ [notice] Performed install task: install_base_system
+ [notice] Performed install task: install_bootstrap_full
+ [notice] Performed install task: install_config_import_batch
+ [notice] Performed install task: install_config_download_translations
+ [notice] Performed install task: install_config_revert_install_changes
+ [notice] Performed install task: install_configure_form
+ [notice] Performed install task: install_finished
+ [success] Installation complete. (Admin)
+ [success] User name: admin  User password: <redacted>
+ [success] Cache rebuild complete.
+ [notice] No differences between DB and sync directory.
+Drupal is installed. Next step: ddev drush uli
+install rc=0
+-- 2 config:status
+ [notice] No differences between DB and sync directory.
+-- node types
+
+
+
+
+
+-- role:list
+anonymous
+authenticated
+administrator
+analyst
+engine_ingest
+dashboard_read
+-- node types and roles exist (config:get exit codes)
+node.type.decision exit 0 : 'node.type.decision:name': Decision
+node.type.position exit 0 : 'node.type.position:name': Position
+node.type.daily_run exit 0 : 'node.type.daily_run:name': 'Daily Run'
+node.type.price_snapshot exit 0 : 'node.type.price_snapshot:name': 'Price Snapshot'
+node.type.watchlist_item exit 0 : 'node.type.watchlist_item:name': 'Watchlist Item'
+user.role.administrator exit 0
+user.role.analyst exit 0
+user.role.engine_ingest exit 0
+user.role.dashboard_read exit 0

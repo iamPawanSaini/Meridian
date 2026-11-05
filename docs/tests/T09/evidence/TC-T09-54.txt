@@ -1,0 +1,30 @@
+## TC-T09-54 HEAD 83ed38f 2026-11-05
+-- step1/2
+SIMPLETEST_DB=mysql://db:db@db/db
+10.6.21-MariaDB-ubu2004-log
+-- step3 unit
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+.........................                                         25 / 25 (100%)
+
+Time: 00:00.041, Memory: 6.00 MB
+
+OK (25 tests, 217 assertions)
+-- step4 kernel (full output: TC-T09-54-kernel.txt)
+2026-11-05T10:24:33+05:30
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+...............................................                   47 / 47 (100%)
+
+Time: 14:51.859, Memory: 8.00 MB
+
+Content Model Structure (Drupal\Tests\meridian_core\Kernel\ContentModelStructure)
+ ✔ Bundles and fields equal the data model
+OK (47 tests, 1937 assertions)
+EXIT=0
+2026-11-05T10:39:27+05:30
+0

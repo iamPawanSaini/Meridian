@@ -1,0 +1,15 @@
+TC-T09-34: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+External Id Uniqueness (Drupal\Tests\meridian_core\Kernel\ExternalIdUniqueness)
+ ✔ Duplicate is rejected by validate
+ ✔ Unpublished duplicate counts
+ ✔ Comparison is exact
+ ✔ Same value in another bundle is allowed
+ ✔ Database key rejects duplicate save
+ ✔ Concurrent watchlist creates are stopped by the key
+ ✔ Key lifecycle
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

@@ -1,0 +1,20 @@
+## TC-T09-67 2026-11-05T12:09:47+05:30 HEAD 83ed38f
+-- 1 xdebug
+xdebug disabled
+-- 2 MG-1
+run 1: create 23.18 s, update 40.75 s, total 63.93 s, violations 0
+run 2: create 22.47 s, update 41.70 s, total 64.17 s, violations 0
+run 3: create 22.26 s, update 46.52 s, total 68.79 s, violations 0
+run 4: create 23.28 s, update 46.82 s, total 70.10 s, violations 0
+run 5: create 22.61 s, update 46.49 s, total 69.10 s, violations 0
+
+items per pass: 500, JSON payload per run: 3.83 MB (inputs_snapshot plus raw_llm_output)
+slowest create 23.28 s, slowest update 46.82 s
+p95 of create plus update over 5 runs: 70.10 s (with 5 runs the p95 is the slowest run)
+NFR-04 entity-layer limit used for the warning: 15 s (half of 30 s)
+
+environment: PHP 8.3.19, MariaDB 10.6.21-MariaDB-ubu2004-log, pcov not loaded, xdebug not loaded
+host: Linux; CPU 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz; 8 logical CPUs; RAM 7.6 GiB (WSL2 behind DDEV)
+rc=0
+-- 3 git status (tracked files)
+(empty = nothing changed in apps)

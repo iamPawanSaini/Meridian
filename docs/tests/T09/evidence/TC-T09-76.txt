@@ -1,0 +1,9 @@
+## TC-T09-76
+-- 1
+(empty = unchanged)
+-- 2
+no .env tracked
+-- 3
+no MERIDIAN_ variable
+-- 4
+Detect hardcoded secrets.................................................Passed

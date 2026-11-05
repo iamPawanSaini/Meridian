@@ -1,0 +1,32 @@
+## TC-T09-77 step 4: ddev quality in the clean clone (HEAD 83ed38f), start 2026-11-05T15:03:50+05:30
+PASS  pre-commit
+PASS  branch-name
+PASS  commit-range
+PASS  exceptions
+PASS  assets
+PASS  tooling-tests
+PASS  secret-history
+PASS  ci-config
+PASS  docs-regression
+      ok docs/tests/T00/run-checks.sh
+      ok docs/tests/T02/run-checks.sh
+      ok docs/tests/T03/run-checks.sh
+      ok docs/tests/T04/run-checks.sh
+      ok docs/tests/T04a/run-checks.sh
+      ok docs/tests/T05/run-checks.sh
+      ok docs/tests/T06/run-checks.sh
+      ok docs/tests/T07/run-checks.sh
+      8 docs suites run
+PASS  build-drupal
+PASS  component-drupal
+PASS  component-drupal-tests
+PASS  audit-drupal
+SKIP  build-engine (no services/engine/Dockerfile)
+SKIP  component-engine (no services/engine/pyproject.toml)
+SKIP  audit-engine (no services/engine/pyproject.toml)
+SKIP  build-web (no apps/web/package.json)
+SKIP  component-web (no apps/web/package.json)
+SKIP  audit-web (no apps/web/package.json)
+summary: PASS 13 FAIL 0 SKIP 6
+EXIT=0
+2026-11-05T16:34:44+05:30

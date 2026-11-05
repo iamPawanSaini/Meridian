@@ -1,0 +1,5 @@
+## TC-T09-56/77 coverage gate on the clean-clone run
+coverage gate: not measured: apps/web/components/
+coverage gate: all measured components meet their floors
+line-rate 0.9412955465587 covered 465 valid 494
+72 tests 2154 assertions 0 failures 0 errors 0 skipped

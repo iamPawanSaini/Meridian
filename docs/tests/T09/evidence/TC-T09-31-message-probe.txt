@@ -1,0 +1,3 @@
+first saved: nid 2502
+field_external_id [meridian.unique_in_bundle] Another record of this content type already has this field_external_id.
+cleaned up

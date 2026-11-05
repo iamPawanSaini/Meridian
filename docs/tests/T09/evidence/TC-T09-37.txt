@@ -1,0 +1,24 @@
+## TC-T09-37 2026-11-05T12:09:07+05:30
+-- 1
+ [notice] There are no changes to import.
+ [notice] No differences between DB and sync directory.
+ [success] No pending updates.
+ -------------- ---------- ----------- 
+  Title          Severity   Summary    
+ -------------- ---------- ----------- 
+  Public files   Error      Not fully  
+  directory                 protected  
+                                       
+ -------------- ---------- ----------- 
+(requirements rc=0)
+-- 2 technical-design unverified item
+752:| Unique database index on `field_external_id` per bundle | D1 | T09 (closed 2026-11-04: the key `meridian_external_id_bundle` on `node__field_external_id (bundle, field_external_id_value)` works, DN-10 first choice, no fallback. Kept after `drupal-install`, `cim`, `cr`, `updatedb` and a field storage update (core drops the table on that update; an update hook adds the key again). Table collation `utf8mb4_general_ci`) |
+-- 3 review path statement
+46:- **Unique key (KD-4, DN-10 first choice).** `meridian_external_id_bundle` on
+55:  `technical-design.md` (unverified item closed) and in the module README. No Fallback A or B,
+90:| 6 | Minor | `docs/standards/CODING_STANDARDS.md` "Naming (section 0)" | Two approved names do not match the naming rules. The D6/KD-6 permissions (`view meridian records`, and so on) do not "start with `meridian_`". The DN-11 key `meridian_external_id_bundle` does not use the `uq_` prefix. The 
+-- collation
+utf8mb4_general_ci
+
+utf8mb4_general_ci
+

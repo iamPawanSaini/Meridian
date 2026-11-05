@@ -1,0 +1,193 @@
+## TC-T09-57/75/56/63/64 full ddev quality, start 2026-11-05T12:17:33+05:30, HEAD 83ed38f plus uncommitted tester files
+PASS  pre-commit
+PASS  branch-name
+PASS  commit-range
+PASS  exceptions
+PASS  assets
+PASS  tooling-tests
+PASS  secret-history
+PASS  ci-config
+FAIL  docs-regression
+      detail: ok docs/tests/T00/run-checks.sh
+      detail: ok docs/tests/T02/run-checks.sh
+      detail: ok docs/tests/T03/run-checks.sh
+      detail: ok docs/tests/T04/run-checks.sh
+      FAILED: docs/tests/T04a/run-checks.sh --regression
+        PASS  .ddev/README.md describes the quality command and that it works from T05
+        PASS  CLAUDE.md commands table lists scripts/quality.sh
+        PASS  TRACEABILITY R-12 row names T04a
+        PASS  TRACEABILITY NFR-18 row names T04a (coverage thresholds)
+      == TC-T04a-33 simulation-only, no secrets, .env.example unchanged (C6, SIM)
+        PASS  no broker vendor names or trading hostnames in the T04a files
+        PASS  no secret patterns in the T04a files
+        PASS  .env.example holds no secret-shaped value (invariant that replaces the unchanged-variables check)
+        PASS  check-names.sh clean
+      == TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]
+      == TC-T04a-35 no component scaffolds yet (plan non-goal; makes the SKIP rule real) [snapshot]
+      == TC-T04a-36 to 47 owner-run (run: docs/tests/T04a/run-checks.sh --owner)
+        BLOCKED  TC-T04a-36 bootstrap-dev.sh in a clean copy installs pre-commit and both hook types; versions captured (network)
+        BLOCKED  TC-T04a-37 pre-commit run --all-files: zero violations on the clean tree (network)
+        BLOCKED  TC-T04a-38 scripts/quality.sh exits 0 on the clean tree with component steps SKIP (network)
+        BLOCKED  TC-T04a-39 to 45 rejection demos with controls: untyped Python, ruff, long Markdown, shellcheck, YAML, hadolint, Spectral
+        BLOCKED  TC-T04a-46 bad commit message refused by the installed hook; TC-T04a-47 bad branch name fails quality.sh
+      == TC-T04a-48 to 52 deferred or manual
+        FAIL  TC-48 ddev quality exits 0 on a clean tree
+              FAIL  pre-commit
+                    Detect hardcoded secrets............................................................Passed
+                    trim trailing whitespace............................................................Passed
+                    fix end of files....................................................................Passed
+                    mixed line ending...................................................................Passed
+                    check yaml..........................................................................Passed
+        BLOCKED  TC-T04a-49 bad PHP style rejected by phpcs and PHPStan (needs T05 Composer tools; custom modules from T09)
+        BLOCKED  TC-T04a-50 ESLint error, tsc --noEmit failure, Prettier failure (needs the T21 scaffold)
+        BLOCKED  TC-T04a-51 CI coverage drop, CI branch-name check, real Cobertura attribute names (needs T08, T09, T13, T21)
+        BLOCKED  TC-T04a-52 manual review of ten standards rules against the checklist (tester, evidence manual-review.md)
+      == TC-T04a-53 to 56 owner-run real-tool checks of the D-4 addendum 'verify' rows (OQ-T04a-6)
+        BLOCKED  TC-T04a-53 coverage.py honours '# pragma: no cover  # T13: reason' (owner-run, pip install coverage)
+        BLOCKED  TC-T04a-54 hadolint honours '# hadolint ignore=DL3008 # T06: reason' (owner-run)
+        BLOCKED  TC-T04a-55 markdownlint honours the separate-comment ticket form (owner-run)
+        BLOCKED  TC-T04a-56 yamllint per-rule ignore: path with a ticket comment works; the inline ticket form is silently ignored (owner-run)
+      == TC-T04a-57 to 58 deferred real-tool checks of the addendum
+        BLOCKED  TC-T04a-57 TypeScript '// @ts-expect-error T21: reason' suppresses the error (deferred to T21)
+        BLOCKED  TC-T04a-58 phpcs '// phpcs:ignore <sniff> -- T09: reason' suppresses the sniff (deferred to T05 or T09)
+      
+      NOTE: --regression mode: 10 at-close (snapshot) checks excluded because they are true only at the close of T04a; 300 invariant checks executed; owner-run and deferred cases are not part of the regression set.
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T05/run-checks.sh --regression
+      == TC-T05-24 pre-commit hooks over the T05 changes (C4)
+        FAIL  pre-commit run --all-files exits 0
+              Detect hardcoded secrets............................................................Passed
+              trim trailing whitespace............................................................Passed
+              fix end of files....................................................................Passed
+              mixed line ending...................................................................Passed
+              check yaml..........................................................................Passed
+              check json..........................................................................Passed
+              check toml..........................................................................Passed
+              check for merge conflicts...........................................................Passed
+      
+      == Roll-up per case
+        PASS     TC-T05-01
+        PASS     TC-T05-02
+        PASS     TC-T05-03
+        PASS     TC-T05-04
+        PASS     TC-T05-05
+        PASS     TC-T05-06
+        PASS     TC-T05-07
+        PASS     TC-T05-08
+        PASS     TC-T05-09
+        PASS     TC-T05-10
+        PASS     TC-T05-11
+        PASS     TC-T05-12
+        PASS     TC-T05-13
+        PASS     TC-T05-14
+        PASS     TC-T05-15
+        PASS     TC-T05-16
+        PASS     TC-T05-17
+        PASS     TC-T05-18
+        PASS     TC-T05-19
+        PASS     TC-T05-20
+        FAIL     TC-T05-21
+        PASS     TC-T05-22
+        PASS     TC-T05-23
+        FAIL     TC-T05-24
+      
+      NOTE: --regression: 7 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg cases: 22 PASS, 2 FAIL, 0 BLOCKED; checks executed: 176; SKIP (optional tools): 1; BLOCKED lines: 0
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T06/run-checks.sh --regression
+                FAIL  T04a run-checks.sh --regression exits 0 (no invariant regression)
+                        FAIL  exceptions_report.py exits 0 on the real tree and writes a non-empty report
+                        FAIL  independent scan: every suppression cites a ticket; report counts equal the scan
+                        FAIL  T04 run-checks.sh --regression: exit 0, no FAIL, PASS not below the count at close (118)
+                        FAIL  T03 run-checks.sh: exit 0, no FAIL, PASS not below the count at close
+                        FAIL  pre-commit run --all-files
+                        FAIL  TC-48 ddev quality exits 0 on a clean tree
+                              FAIL  pre-commit
+        FAIL  T04a, T03 and T04 regression sets exit 0
+              T04a regression failed
+                FAIL  exceptions_report.py exits 0 on the real tree and writes a non-empty report
+                FAIL  independent scan: every suppression cites a ticket; report counts equal the scan
+                FAIL  T04 run-checks.sh --regression: exit 0, no FAIL, PASS not below the count at close (118)
+                FAIL  T03 run-checks.sh: exit 0, no FAIL, PASS not below the count at close
+                FAIL  pre-commit run --all-files
+      
+      == Roll-up per case
+        PASS     TC-T06-01
+        PASS     TC-T06-02
+        PASS     TC-T06-03
+        PASS     TC-T06-04
+        PASS     TC-T06-05
+        PASS     TC-T06-06
+        PASS     TC-T06-07
+        PASS     TC-T06-08
+        PASS     TC-T06-09
+        PASS     TC-T06-10
+        PASS     TC-T06-11
+        PASS     TC-T06-12
+        PASS     TC-T06-13
+        PASS     TC-T06-14
+        PASS     TC-T06-15
+        PASS     TC-T06-16
+        PASS     TC-T06-17
+        PASS     TC-T06-18
+        FAIL     TC-T06-19
+      
+      NOTE: --regression: 8 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg run=20261105T074954Z cases: 18 PASS, 1 FAIL, 0 BLOCKED; checks executed: 93; SKIP (optional tools): 2; BLOCKED lines: 0
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T07/run-checks.sh --regression
+        PASS  ssh:// git_url with pantheon_known_hosts missing: exit 2 and the same absences
+      
+      == Roll-up per case
+        PASS     TC-T07-01
+        PASS     TC-T07-02
+        PASS     TC-T07-03
+        PASS     TC-T07-04
+        PASS     TC-T07-05
+        PASS     TC-T07-06
+        PASS     TC-T07-07
+        PASS     TC-T07-08
+        PASS     TC-T07-09
+        PASS     TC-T07-10
+        PASS     TC-T07-11
+        PASS     TC-T07-12
+        PASS     TC-T07-13
+        PASS     TC-T07-14
+        PASS     TC-T07-15
+        PASS     TC-T07-16
+        PASS     TC-T07-17
+        PASS     TC-T07-18
+        PASS     TC-T07-19
+        PASS     TC-T07-20
+        PASS     TC-T07-21
+        PASS     TC-T07-22
+        PASS     TC-T07-23
+        FAIL     TC-T07-24
+        PASS     TC-T07-25
+        PASS     TC-T07-26
+        BLOCKED  TC-T07-27
+        PASS     TC-T07-28
+        PASS     TC-T07-58
+        PASS     TC-T07-59
+        PASS     TC-T07-60
+        PASS     TC-T07-61
+        PASS     TC-T07-62
+      
+      NOTE: --regression: 1 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg run=20261105T090803Z cases: 31 PASS, 1 FAIL, 1 BLOCKED; checks executed: 146; SKIP (optional tools): 3; BLOCKED lines: 4
+      RESULT: ONE OR MORE CHECKS FAILED
+      detail: 8 docs suites run
+PASS  build-drupal
+PASS  component-drupal
+PASS  component-drupal-tests
+PASS  audit-drupal
+SKIP  build-engine (no services/engine/Dockerfile)
+SKIP  component-engine (no services/engine/pyproject.toml)
+SKIP  audit-engine (no services/engine/pyproject.toml)
+SKIP  build-web (no apps/web/package.json)
+SKIP  component-web (no apps/web/package.json)
+SKIP  audit-web (no apps/web/package.json)
+summary: PASS 12 FAIL 1 SKIP 6
+[31mFailed to run quality ; error=exit status 1[0m
+EXIT=1
+2026-11-05T14:59:40+05:30

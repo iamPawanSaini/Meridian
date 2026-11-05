@@ -100,7 +100,7 @@ Severity: **Blocker** (must fix before merge), **Major** (must fix in this task)
 | 16 | Note | whole diff | Simulation-only: no broker SDK, client, domain or order code. No new outbound host. The MG-1 script uses no network | None | n/a |
 | 17 | Note | `scripts/quality.sh:184` | Re-review: the reflowed comment line is 123 characters, against the 100-character line length used elsewhere. No gate covers shell comment length | Rewrap it when the file is next touched | n/a |
 | 18 | Note | `MeridianUniqueInBundleValidator.php` (`d74d07c`) | Re-review: validating a Watchlist Item now runs the symbol uniqueness query twice, once to skip the `external_id` check and once for the symbol constraint. The cost is negligible for at most 50 admin-written items. When `external_id` is a duplicate but the symbol is not (only possible with a mismatched ID), both `meridian.external_id_mismatch` and `meridian.unique_in_bundle` fire. That needs a hand-made ID the derivation never produces | None | n/a |
-| 19 | Note | `apps/drupal/composer.lock` (unchanged by T09) | Re-review: `composer audit` reports 12 advisories on 7 Symfony packages (published 2026-11-04), so `audit-drupal` fails on `main` and on this branch alike. This is not caused by the T09 diff (`git diff main...HEAD -- apps/drupal/composer.*` is empty) | Owner decision, see "Re-review" below. It is a C4 condition, not a T09 finding to fix in this diff | Open (owner, C4) |
+| 19 | Note | `apps/drupal/composer.lock` (unchanged by T09) | Re-review: `composer audit` reports 12 advisories on 7 Symfony packages (published 2026-11-04), so `audit-drupal` fails on `main` and on this branch alike. This is not caused by the T09 diff (`git diff main...HEAD -- apps/drupal/composer.*` is empty) | Owner decision, see "Re-review" below. It is a C4 condition, not a T09 finding to fix in this diff. **Update 2026-11-05:** the owner chose "Patch in T09". `d973302` moves 13 `symfony/*` packages to 7.4.23 in `composer.lock` only, and `composer audit` is clean (see "Fix review: Symfony advisories") | Resolved (`d973302`, owner decision 2026-11-05) |
 
 ## Common criteria check
 
@@ -109,7 +109,7 @@ Severity: **Blocker** (must fix before merge), **Major** (must fix in this task)
 | C1 Plan before code | Yes | Plan and decisions `51e4404` and test design `d25e46e` come before the first code commit `b3b71cc`. Plan approved by the owner on 2026-11-04 |
 | C2 Review findings resolved | Yes, with assigned items (re-review 2026-11-05) | All Blocker and Major findings are fixed. Minor findings 3, 4, 5, 9 and 10 are fixed. Minor findings 6 (technical-architect, at close), 7 and 8 (tester, before `/test-task`) are assigned and open |
 | C3 Criteria mapped to executed tests | Pending | All six ACs map to TC-T09 cases. The Kernel and Unit suites pass in the reviewer's run. The test report is written at `/test-task`. AC6 uses the reworded text (owner, O-3) |
-| C4 CI green | Pending | Locally: phpstan, phpcs, pre-commit, check-names, check_ci and both PHPUnit suites are green. The developer's last full `ddev quality` log (run start 15:08 IST) failed `docs-regression` on the T04a coverage-row check. That run started before `e993414` (15:48), which is meant to fix it. The failing check (`docs/tests/T04a/run-checks.sh:152`, words `70`, `provisional`, `kernel`) matches the current coverage row. The tester must record a clean `ddev quality` on `7abe5fc` or later, and the live CI run of the `drupal` job (TC-T09-62). **Re-review (2026-11-05): not met, for a reason outside the T09 diff.** On `d347b72`, `ddev quality` gives PASS 12, FAIL 1 because of the upstream Symfony advisories (finding 19), which also fail on `main`. Every T09-specific gate passes. C4 stays unmet until the owner's decision is carried out and recorded (see "Re-review") |
+| C4 CI green | Pending | Locally: phpstan, phpcs, pre-commit, check-names, check_ci and both PHPUnit suites are green. The developer's last full `ddev quality` log (run start 15:08 IST) failed `docs-regression` on the T04a coverage-row check. That run started before `e993414` (15:48), which is meant to fix it. The failing check (`docs/tests/T04a/run-checks.sh:152`, words `70`, `provisional`, `kernel`) matches the current coverage row. The tester must record a clean `ddev quality` on `7abe5fc` or later, and the live CI run of the `drupal` job (TC-T09-62). **Re-review (2026-11-05): not met, for a reason outside the T09 diff.** On `d347b72`, `ddev quality` gives PASS 12, FAIL 1 because of the upstream Symfony advisories (finding 19), which also fail on `main`. Every T09-specific gate passes. C4 stays unmet until the owner's decision is carried out and recorded (see "Re-review"). **Update 2026-11-05: local part met, CI part pending.** The owner's decision ("Patch in T09") was carried out in `d973302`. `composer audit --locked` is clean (reviewer, 2026-11-05). The developer reports a full `ddev quality` in a clean clone of `83ed38f` with PASS 13 and no FAIL (the reviewer did not re-run it). Still open: the live CI run of the `drupal` job (TC-T09-62), and a `ddev quality` record on the final head, because `e51ec08` and `729a0c6` came after `83ed38f` |
 | C5 Docs updated | Partly | `data-model.md`, `technical-design.md` (with revision note 6), `permissions.md`, the READMEs, the runbook and the coverage row are updated. The violation contract (finding 2) was added in `309c5a6`. Open: the naming section (finding 6), and the `TRACEABILITY.md` rows for R-06, R-07 and FR-16 plus SA-1 at `/close-task` |
 | C6 No secrets | Yes | gitleaks passes on the tree. The CI `ci-only` password and the DDEV `db:db` URL are throwaway values with comments. `MERIDIAN_SYNC_DIR` was removed (`309c5a6`), so T09 adds no new environment variable and `.env.example` is unchanged, as the plan's C6 reason says |
 | C7 Clean-checkout works | Pending | The `ddev drupal-install --force`, `cex`/`cim` round trip is reported by the developer. The tester proves it in TC-T09-48 to TC-T09-51 and TC-T09-77 |
@@ -161,14 +161,69 @@ decides how to handle it. The reviewer's recommendation, in order:
 Do not put the dependency bump inside the T09 branch unless the owner chooses that, because it is
 outside the T09 scope and would need its own review.
 
+## Fix review: DEF-012 (2026-11-05, commit `e51ec08`)
+
+Scope: Kernel tests and one coverage figure only, with no production code. Read with
+`git show e51ec08`; not re-run by the reviewer (the developer reports PHPStan and phpcs clean
+and the two classes passing, 14 tests). `ddev quality` was not run because the tester was using
+the container.
+
+| Check | Result |
+|---|---|
+| The cases DEF-012 asks for | Present: `score abc` in `DecisionValidationTest::testScoreAndPrices`; `quantity 1.5` and `quantity abc` in `PositionValidationTest::testNumbers` |
+| Exact assertions | Yes. Each case asserts the full `(path, code)` list through `runCases()`, so an added or lost violation fails. The expectations match the probe in DEF-012: `abc` on `field_score` gives 3 (two Range `INVALID_CHARACTERS_ERROR`, one empty-code primitive-type error), `1.5` on `field_quantity` gives 1 (empty code), and `abc` gives 2 |
+| `NOT_A_NUMBER` constant | `Range::INVALID_CHARACTERS_ERROR`, the UUID `ad9a9798-...` recorded in DEF-012. It follows the existing pattern of the other core-code constants |
+| Coverage row | 94.1% (465 of 494 lines). The total grew from 490 because of the re-review source changes (`d74d07c`), not this commit. It stays above the 70% floor |
+| Scope and standards | Test-only, no suppression, and the file names TC IDs already. No simulation-only concern |
+
+| # | Severity | File | Issue | Resolution | Status |
+|---|---|---|---|---|---|
+| 20 | Minor | `apps/drupal/web/modules/custom/meridian_core/README.md`, "Violation contract (T10)" | DEF-012 also suggested listing these core violations in the T10 contract table. The table says only that "two violations can have the same path (a malformed date)". A non-numeric decimal gives **three** at `field_x.0.value` (two with `Range::INVALID_CHARACTERS_ERROR`, one empty code), and a non-integer integer gives one with an empty code. T10 needs this to collapse them into one `errors[]` entry, or to type-check before `validate()` | Add one row each for "non-numeric decimal or integer" and "non-integer integer", with raw paths and codes, and change "two violations" to "several violations". Optionally pin the raw form in `ViolationContractTest`. Can be done at close, or ticketed to T10 planning | Open |
+| 21 | Note | `docs/tests/T09/test-cases.md` TC-T09-12; `docs/tests/defects.md` DEF-012 | TC-T09-12 still says "each rejection is one violation at `field_score`", while the test now pins three core violations (the same class as finding 7). DEF-012 still shows `Status: Open` with no fix commit | Tester amends TC-T09-12 alongside finding 7 and records `e51ec08` and the retest in DEF-012 | Open (tester) |
+
+The case `'1e5'` for score (two violations, per DEF-012) is not tested. That is acceptable,
+because `abc` already covers the not-a-number path.
+
+The commits `d973302` (Symfony update) and `729a0c6` (test report) are not part of this fix
+review.
+
+**Verdict for DEF-012: Approved.** The fix does what the defect asks for testing. Finding 20 is
+a Minor documentation follow-up that does not block. The overall verdict below is unchanged.
+
+## Fix review: Symfony advisories (d973302)
+
+**Owner decision (recorded 2026-11-05).** The owner was asked directly in the session and chose
+"Patch in T09": run `composer update 'symfony/*' --with-dependencies` on the T09 branch as a
+separate T09 commit. This replaces the reviewer's recommendation in "Re-review" (a separate fix
+on `main`). Because the owner decided it, carrying the update in T09 is not scope creep. `main`
+keeps the advisories until T09 merges.
+
+| Check (reviewer, read-only, 2026-11-05) | Result |
+|---|---|
+| Files changed | `apps/drupal/composer.lock` only (91 lines in, 91 out). `composer.json` is unchanged, so the lock `content-hash` is unchanged |
+| Packages | 13, all `symfony/*`, all to `v7.4.23`: console, dependency-injection, filesystem (from 7.4.21), finder, http-foundation, http-kernel, routing, runtime, serializer, validator, yaml, browser-kit, lock. The others move from 7.4.22. No non-Symfony package changes |
+| Kind of change | A patch release inside the existing constraints. Only the `version`, `reference`, `time` and `dist`/`source` `url` fields change, and every URL points at the `symfony` GitHub repositories |
+| `composer audit --locked` | "No security vulnerability advisories found" |
+| `composer validate` | Valid |
+| Commit message | Starts with `T09:`, states the reason and the owner choice, and has the attribution line |
+| Full suite | The developer reports `ddev quality` in a clean clone of `83ed38f`: PASS 13, no FAIL. Not re-run by the reviewer, as instructed |
+
+No finding. A patch-level Symfony update can change runtime behaviour, but the full PHPUnit
+suite, PHPStan and phpcs ran on the updated lock in that `ddev quality` run, and T09 adds no
+Functional tests that would hit HTTP-kernel paths. The live CI run (TC-T09-62) also runs on the
+updated lock.
+
+**Verdict for d973302: Approved.** Note 19 is resolved. C4 now needs only the live CI run and a
+`ddev quality` record on the final head. The overall verdict below is unchanged.
+
 ## Approval
 
 **Re-review 2026-11-05: Approved with conditions.** No Blocker or Major finding is open. The
 conditions to meet before `/close-task`:
 
-1. **C4.** Carry out the owner's decision on the Symfony advisories (finding 19), recorded with
-   a ticket. Then record a clean `ddev quality` on the final head and a green live CI run of
-   the `drupal` job (TC-T09-62, finding 15).
+1. **C4.** The Symfony advisories are resolved (finding 19, `d973302`, owner decision
+   2026-11-05). Still to do: record a clean `ddev quality` on the final head and a green live
+   CI run of the `drupal` job (TC-T09-62, finding 15).
 2. **Finding 7 and 8 (tester).** Amend TC-T09-13, TC-T09-28 and TC-T09-31; adopt the T05/T06
    suite edits with change-log rows; make the "only custom module" check survive T10.
 3. **Finding 6 (technical-architect, at close).** Amend the naming section of

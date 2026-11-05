@@ -1,0 +1,17 @@
+TC-T09-23: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Price Snapshot Validation (Drupal\Tests\meridian_core\Kernel\PriceSnapshotValidation)
+ ✔ Required fields lists and external id
+ ✔ Prices volume and ordering
+
+
+Daily Run Validation (Drupal\Tests\meridian_core\Kernel\DailyRunValidation)
+ ✔ Required fields and lists
+ ✔ Numbers and times
+ ✔ Conditional fields
+ ✔ Future trade date is not restricted
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

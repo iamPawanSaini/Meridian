@@ -1,0 +1,62 @@
+
+[31mFailed to execute command `sed -i '/^third_party_settings:/,/^id:/{/^third_party_settings:/d;/^  meridian_core:/d;/^    allowed_values:/d;/^      - /d}' /tmp/mutc/drupal/config/sync/field.field.node.daily_run.field_status.yml && grep -n 'third_party\|allowed_values' /tmp/mutc/drupal/config/sync/field.field.node.daily_run.field_status.yml; echo '(setting removed)'`: exit status 1[0m
+== mutation status_daily, class DailyRunValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutc/drupal/phpunit.xml.dist
+
+F...                                                                4 / 4 (100%)
+
+Time: 02:24.812, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\DailyRunValidationTest::testRequiredFieldsAndLists
+daily_run: status open
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_status',
+-        1 => 'meridian.bundle_allowed_values',
+-    ],
+-]
++Array &0 []
+
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DailyRunValidationTest.php:52
+
+FAILURES!
+Tests: 4, Assertions: 93, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutc/drupal && vendor/bin/phpunit --testsuite kernel --filter DailyRunValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1
+12:  max_length: 21
+== mutation symbol21, class ContentModelStructureTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutc/drupal/phpunit.xml.dist
+
+F...                                                                4 / 4 (100%)
+
+Time: 02:07.795, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testBundlesAndFieldsEqualTheDataModel
+decision.field_symbol storage max_length
+Failed asserting that 21 is identical to 20.
+
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:280
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:317
+
+FAILURES!
+Tests: 4, Assertions: 347, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutc/drupal && vendor/bin/phpunit --testsuite kernel --filter ContentModelStructureTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1

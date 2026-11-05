@@ -1,0 +1,89 @@
+118:      $map['field_symbol'][] = ['MeridianImmutable', NULL];
+== mutation immut, class LifecycleRulesTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutb/drupal/phpunit.xml.dist
+
+F...                                                                4 / 4 (100%)
+
+Time: 02:25.696, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\LifecycleRulesTest::testExternalIdIsImmutable
+daily_run: external_id changed
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.immutable',
+-    ],
+-]
++Array &0 []
+
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:140
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/LifecycleRulesTest.php:50
+
+FAILURES!
+Tests: 4, Assertions: 61, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutb/drupal && vendor/bin/phpunit --testsuite kernel --filter LifecycleRulesTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1
+6:    - meridian_core
+14:  - 'export meridian records'
+15:  - 'view meridian inputs'
+16:  - 'view meridian raw llm output'
+17:  - 'view meridian records'
+18:  - 'view meridian watchlist'
+== mutation analyst_raw, class PermissionsMatrixTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutb/drupal/phpunit.xml.dist
+
+.FF..F.                                                             7 / 7 (100%)
+
+Time: 03:34.074, Memory: 6.00 MB
+
+There were 3 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\PermissionsMatrixTest::testRoleConfiguration
+analyst has exactly its permissions
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+     0 => 'access content',
+     1 => 'export meridian records',
+     2 => 'view meridian inputs',
+-    3 => 'view meridian records',
+-    4 => 'view meridian watchlist',
++    3 => 'view meridian raw llm output',
++    4 => 'view meridian records',
++    5 => 'view meridian watchlist',
+ ]
+
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PermissionsMatrixTest.php:146
+
+2) Drupal\Tests\meridian_core\Kernel\PermissionsMatrixTest::testRoleByPermissionCells
+analyst / view meridian raw llm output
+Failed asserting that true is identical to false.
+
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PermissionsMatrixTest.php:163
+
+3) Drupal\Tests\meridian_core\Kernel\PermissionsMatrixTest::testRestrictedFieldCells
+analyst views decision.field_raw_llm_output
+Failed asserting that true is identical to false.
+
+/tmp/mutb/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PermissionsMatrixTest.php:242
+
+FAILURES!
+Tests: 7, Assertions: 274, Failures: 3.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutb/drupal && vendor/bin/phpunit --testsuite kernel --filter PermissionsMatrixTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1

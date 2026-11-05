@@ -1,0 +1,3 @@
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:101:      ['field_score' => 'abc'],
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PositionValidationTest.php:105:      'quantity 1.5' => [['field_quantity' => '1.5'], [['field_quantity', '']]],
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PositionValidationTest.php:106:      'quantity abc' => [['field_quantity' => 'abc'], [['field_quantity', ''], ['field_quantity', self::NOT_A_NUMBER]]],

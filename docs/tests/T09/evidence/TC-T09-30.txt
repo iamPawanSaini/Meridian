@@ -1,0 +1,55 @@
+TC-T09-30: rule coverage cross-check against the plan rule list (KD-3) and the DN-4 table.
+Source of test names: evidence/TC-T09-54-kernel.txt (PU-K --testdox, 47 tests, no S or I) and
+evidence/TC-T09-08-unit-testdox.txt (25 tests). Method: tester read each Kernel and Unit class and matched
+data-provider labels to the rules (exact (path, code) lists are compared by assertViolations()).
+
+Test classes named by the case, all present and run (none skipped or incomplete):
+  Kernel: ContentModelStructureTest (4), DecisionValidationTest (8), PositionValidationTest (6),
+          DailyRunValidationTest (4), PriceSnapshotValidationTest (2), WatchlistItemValidationTest (4),
+          LifecycleRulesTest (4), ExternalIdUniquenessTest (7), PermissionsMatrixTest (7),
+          ViolationContractTest (1)  = 47
+  Unit:   PatternsTest (14), JsonDocumentValidatorTest (4), DecimalScaleValidatorTest (4), DecimalsTest (3) = 25
+
+KD-3 rule list (19 rows in the plan; the case text said 22)
+
+ #  Bundle        Rule                                                      Covered by
+ 1  all           external_id regex, max 64, unique, immutable, equals      PatternsTest (all five patterns); Decision/Position/DailyRun/PriceSnapshot
+                  natural key                                               ::testExternalId / testNumbersAndTimes / testRequiredFieldsListsAndExternalId;
+                                                                            WatchlistItemValidationTest::testExternalIdDerivation; ExternalIdUniquenessTest;
+                                                                            LifecycleRulesTest::testExternalIdIsImmutable, testNaturalKeyChangeIsMismatch
+ 2  all ingested  source_version >= 1, never decreases; payload_hash regex  Decision/PriceSnapshot 'source_version 0'; LifecycleRulesTest::testSourceVersionNeverDecreases (4 bundles);
+                                                                            testStaleCopyIsComparedWithTheStoredRecord; payload_hash: Decision, PriceSnapshot, PatternsTest
+                                                                            (gap, minor: 'source_version 0' is not a case in Position and DailyRun; the min is an instance
+                                                                            setting asserted for all bundles by ContentModelStructureTest)
+ 3  all           symbol, version labels, model_name, title max 255         DecisionValidationTest::testTextAndDocumentRules; DailyRun::testRequiredFieldsAndLists;
+                                                                            PatternsTest; WatchlistItem 'title 256'
+ 4  decision      trade_date not after today (IST)                          DecisionValidationTest::testTradeDateNotInTheFuture (fixed clock, both IST midnight edges)
+ 5  decision      mode / actions / veto_reason enums                        DecisionValidationTest::testEnumerations
+ 6  decision      score 0..100 scale 2; close_price > 0                     DecisionValidationTest::testScoreAndPrices (non-numeric input: not covered, DEF-012)
+ 7  decision      action / vetoed / veto_reason cross-field                 DecisionValidationTest::testActionAndVetoRules (truth table)
+ 8  decision      rule_hits regex per item, max 50                          DecisionValidationTest::testTextAndDocumentRules (items 'lower', 'bad', 50, 51, 33 chars)
+ 9  decision      JSON objects and byte limits, rationale 2,000             DecisionValidationTest::testTextAndDocumentRules; JsonDocumentValidatorTest::testByteLimit
+10  decision      run targets a daily_run                                   DecisionValidationTest::testRunReference
+11  position      status, exit_reason, mode enums                           PositionValidationTest::testBaselineRequiredFieldsAndStatus
+12  position      prices, quantity, costs, r_multiple, scale                PositionValidationTest::testNumbers, testPriceOrderingAndTimeStop (non-integer quantity: not covered, DEF-012)
+13  position      DN-4 conditionals, exit/mark dates, DN-6 Decision         PositionValidationTest::testOpenAndClosedFields, testReferencesAndDecision (incl. unsaved Decision)
+14  position      run/decision targets                                      PositionValidationTest::testReferencesAndDecision
+15  daily_run     run_id, attempt, enums, counts, ranges, finished_at      DailyRunValidationTest::testRequiredFieldsAndLists, testNumbersAndTimes
+16  price_snapshot OHLC ordering, volume, source enum                       PriceSnapshotValidationTest::testPricesVolumeAndOrdering, testRequiredFieldsListsAndExternalId
+17  watchlist_item external_id derived, symbol unique+immutable, 50 limit,  WatchlistItemValidationTest::testFieldRules, testExternalIdDerivation, testSymbolUniqueAndImmutable, testEnabledLimit
+                  modes, sort_order, notes, enabled default
+18  (KD-3 mechanism) bundle-subset status                                   PositionValidationTest / DailyRunValidationTest 'status success|open'; ContentModelStructureTest::testStatusUnionAndSubsets
+19  (access)      permissions and field access                              PermissionsMatrixTest (7 tests)
+
+DN-4 conditional table (7 rows)
+
+ position  closed -> exit_* required, unrealised_pnl empty                 testOpenAndClosedFields ('closed without X' x4, 'closed with unrealised_pnl')
+ position  open -> exit_* empty                                            testOpenAndClosedFields ('open with X' x4)
+ position  short/long -> time_stop_date required after entry / empty        testPriceOrderingAndTimeStop (six time-stop cases)
+ daily_run skipped -> skip_reason required                                  DailyRunValidationTest::testConditionalFields
+ daily_run success -> skip_reason empty, watchlist_source required          testConditionalFields
+ daily_run failed -> both optional                                          testConditionalFields
+ decision  vetoed -> veto_reason required / empty                           DecisionValidationTest::testActionAndVetoRules
+
+Result: every rule row has at least one named test. Two input-type gaps (non-numeric score, non-integer quantity) are
+reported as DEF-012; they are not rows of the plan rule list.

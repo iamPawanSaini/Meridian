@@ -1,0 +1,22 @@
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /var/www/html/apps/drupal/phpunit.xml.dist
+
+........                                                            8 / 8 (100%)
+
+Time: 00:00.028, Memory: 6.00 MB
+
+Decimal Scale Validator (Drupal\Tests\meridian_core\Unit\DecimalScaleValidator)
+ ✔ Rejects too many fraction digits
+ ✔ Rejects too many integer digits
+ ✔ Accepts values that fit
+ ✔ Ignores non numbers and empty values
+
+Json Document Validator (Drupal\Tests\meridian_core\Unit\JsonDocumentValidator)
+ ✔ Rejects invalid and non objects
+ ✔ Accepts objects
+ ✔ Empty values add nothing
+ ✔ Byte limit
+
+OK (8 tests, 61 assertions)

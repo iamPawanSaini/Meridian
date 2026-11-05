@@ -48,6 +48,11 @@ abstract class MeridianKernelTestBase extends KernelTestBase {
   protected const TOO_HIGH = Range::TOO_HIGH_ERROR;
 
   /**
+   * The code core gives to a value that is not a number (Range).
+   */
+  protected const NOT_A_NUMBER = Range::INVALID_CHARACTERS_ERROR;
+
+  /**
    * The code core gives to text longer than max_length.
    */
   protected const TOO_LONG = Length::TOO_LONG_ERROR;

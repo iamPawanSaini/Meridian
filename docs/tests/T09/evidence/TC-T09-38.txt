@@ -1,0 +1,36 @@
+## TC-T09-38
+view meridian records:
+  title: 'View Meridian records'
+  description: 'View Decision, Position, Daily Run and Price Snapshot records.'
+
+view meridian watchlist:
+  title: 'View Meridian watchlist'
+  description: 'View Watchlist Items.'
+
+view meridian inputs:
+  title: 'View Meridian inputs and costs'
+  description: 'View the inputs snapshot, LLM cost, price source and watchlist notes.'
+
+view meridian raw llm output:
+  title: 'View raw LLM output'
+  description: 'View the raw LLM reply stored on a Decision.'
+  restrict access: true
+
+administer meridian records:
+  title: 'Administer Meridian records'
+  description: 'View ingest bookkeeping (source version, payload hash) and manage records.'
+  restrict access: true
+
+ingest meridian records:
+  title: 'Ingest Meridian records'
+  description: 'Write records through the ingest endpoint (T10).'
+
+export meridian records:
+  title: 'Export Meridian records'
+  description: 'Export Meridian records from the admin UI (T12).'
+-- count:
+7
+apps/drupal/web/modules/custom/meridian_core/src/Hook/AccessHooks.php:20: * through the bypass node access permission. The hooks do not filter entity
+apps/drupal/web/modules/custom/meridian_core/src/Hook/AccessHooks.php:94:      return AccessResult::forbiddenIf(!$account->hasPermission('bypass node access'))->cachePerPermissions();
+apps/drupal/web/modules/custom/meridian_core/src/Hook/AccessHooks.php:114:    return AccessResult::forbiddenIf(!$account->hasPermission('bypass node access'))->cachePerPermissions();
+apps/drupal/web/modules/custom/meridian_core/src/Plugin/Validation/Constraint/MeridianImmutableValidator.php:20: * cannot bypass the rule. A new entity has nothing to compare with.

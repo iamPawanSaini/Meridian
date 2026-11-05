@@ -1,0 +1,16 @@
+## TC-T09-72
+51e4404 2026-11-04 12:06:36 +0530 T09: approved plan and solution-architect decisions
+--
+b3b71cc 2026-11-04 13:21:25 +0530 T09: add meridian_core module and export the content model
+56bfdbb 2026-11-04 13:21:31 +0530 T09: add PHPUnit harness with Kernel and Unit tests
+0539f94 2026-11-04 17:26:45 +0530 T09: replace file-wide phpcs:disable with a ticketed tests exclude
+-- decisions first commits
+docs/tasks/T09/decision-field-rules.md: 51e4404 2026-11-04 12:06:36 +0530
+docs/tasks/T09/decision-measurement-scope.md: 51e4404 2026-11-04 12:06:36 +0530
+docs/tasks/T09/decision-roles-and-access.md: 51e4404 2026-11-04 12:06:36 +0530
+docs/tasks/T09/decision-uniqueness.md: 51e4404 2026-11-04 12:06:36 +0530
+9:| Status | Approved (owner, 2026-11-04) |
+35:  `meridian_core.allowed_values` third-party setting on the two `field_status` instances),
+65:  edit form, limiting the `status` exposed filter options, "admin may only unpublish" form
+93:exported field YAML, then checked by `cim` and `config:status`.
+98:(`field_external_id`, `field_trade_date`, `field_symbol`, `field_mode`, `field_status`,

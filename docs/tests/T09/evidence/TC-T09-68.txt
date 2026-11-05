@@ -1,0 +1,11 @@
+## TC-T09-68
+34:| R-06 | D2 provenance columns NOT NULL; D3 idempotency; D4 outbox; D5 ingest contract; NFR-04 numbers |
+36:| R-08 | D1 read fields and indexes; D6 read client and revalidation; NFR-05 numbers |
+689:| NFR-04 DDEV | One ingest request of 500 items in at most 30 s (p95 over 5 runs). The API accepts at least 500 items per request | Provisional (D-2). Measurement gate MG-1 at the end of T09, before T10 coding. T09 runs the entity-layer part (500 Decisions of about 8 KB, create and update, 5 runs); T10 confirms on the endpoint. The value may move either way without an ADR (D-2). **MG-1 result 2026-11-04: p95 50.1
+690:| NFR-04 Pantheon dev | At most 30 s per ingest request at the measured batch size. Provisional batch 100 items. The publisher halves the batch on 504, timeout or 413 | Pantheon edge timeout 59 s and PHP `max_execution_time` 120 s ([Pantheon timeouts](https://docs.pantheon.io/timeouts), checked 2026-11-01, per D-2). T07 records wake time, warm GET latency and the edge body limit (live run, pending); T10 measures 
+691:| NFR-05 | 50-row JSON:API page with 5,000 records: p95 at most 500 ms on DDEV and at most 1,500 ms on Pantheon dev (warm, wake excluded), over 50 requests | Provisional. Measured in T11 with 5,000 seeded nodes (D-2 authority moved to T11 by `docs/tasks/T09/decision-measurement-scope.md`); T30 confirms |
+702:Measurements recorded at gate MG-1 are added below this table with a date.
+704:### MG-1, NFR-04 entity-layer part (T09, 2026-11-04)
+765:  revalidation secret (T02 note 18), the NFR-04 and NFR-05 rows point here, OQ-01 is
+781:| 5 | 2026-11-02 | T07 (offline part): D7 PAT wording and `PANTHEON_SITE` source; D8 deploy steps, host key, rollback, upstream, interstitial rule and the Terminus 4.3.3 pin; NFR-04 Pantheon row and body-size row; unverified register. Live results are added when the T07 live run happens |
+782:| 6 | 2026-11-04 | T09 amendment (`docs/tasks/T09/decision-uniqueness.md`, `decision-roles-and-access.md`, `decision-measurement-scope.md`): D1 uniqueness wording (`MeridianUniqueInBundle`, unique key, Watchlist backstop), field visibility sentence, unverified item for the unique key closed, NFR-04 and NFR-05 rows, MG-1 result with raw output |
