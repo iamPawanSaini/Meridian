@@ -1001,7 +1001,7 @@ where the plan gives one.
 | Steps | 1. `grep -n "mariadb\|pcov\|SIMPLETEST_DB\|coverage:" .github/workflows/ci.yml` 2. `grep -n "database" -A3 .ddev/config.yaml pantheon.yml apps/drupal/pantheon.yml 2>/dev/null` 3. `grep -n "pcov" .ddev/config.yaml` (no match is expected) |
 | Expected result | The `drupal` job has `services: mariadb` with image `mariadb:10.6.<patch>` (an exact tag, not `latest`, not `10`), a health check, setup-php `coverage: pcov` (not `none`), and `SIMPLETEST_DB` pointing at the service (`mysql://...@127.0.0.1:3306/...`); no sqlite; `.ddev/config.yaml` has `database: type mariadb, version 10.6` and installs pcov via `webimage_extra_packages` or the documented form; `pantheon.yml` `database.version: 10.6`. All three agree on 10.6 |
 | Evidence | `evidence/TC-T09-59.txt` |
-| Actual result | Re-judged on the existing evidence against the amended text. `ci.yml` drupal job: `mariadb:10.6.22` service with a health check, `coverage: pcov`, `SIMPLETEST_DB` to 127.0.0.1:3306, no sqlite; `.ddev/config.yaml` database mariadb 10.6 with a throwaway `SIMPLETEST_DB`, no pcov (accepted); `pantheon.yml` 10.6; all agree. That pcov really loads in CI is proven only by the live run (TC-T09-62, Blocked). |
+| Actual result | Re-judged on the existing evidence against the amended text. `ci.yml` drupal job: `mariadb:10.6.22` service with a health check, `coverage: pcov`, `SIMPLETEST_DB` to 127.0.0.1:3306, no sqlite; `.ddev/config.yaml` database mariadb 10.6 with a throwaway `SIMPLETEST_DB`, no pcov (accepted); `pantheon.yml` 10.6; all agree. CI part now observed: `php -m` in the toolchain step of the live drupal job lists pcov and the MariaDB service container initialised (TC-T09-62, `evidence/TC-T09-62-live-ci.txt`). |
 | Status | Pass |
 | Date | 2026-11-05 (re-judged after the amendment) |
 | Executed by | tester (execute mode) |
@@ -1045,10 +1045,10 @@ where the plan gives one.
 | Preconditions | Branch pushed and a PR open (owner action; no `gh` here) |
 | Steps | 1. Owner sends the Actions run URL and the full logs of the `drupal` job (service container start, `php -m`, phpunit output, coverage step) and the artifact list 2. Tester reads the logs |
 | Expected result | The run is green; log shows MariaDB 10.6.x started and healthy, pcov loaded, Unit and Kernel suites with the same test counts as the DDEV run (TC-T09-54), the coverage gate with the same line coverage within rounding, and the Cobertura XML in the uploaded artifacts. The two runs (DDEV and CI) are both recorded in the report (T08 condition 5). Without the owner's logs the case is Blocked |
-| Evidence | none |
-| Actual result | Needs the owner: open a PR from the pushed branch and send the Actions run URL, the full log of the drupal job and the artifact list. gh is not installed here. Steps in the report. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-62-live-ci.txt` |
+| Actual result | Pass on the observed evidence, with gaps. Observed (GitHub API and owner-pasted excerpts): PR run 42029185375 and main run 42030675309 (merge 69ed15e) have every job success, including `drupal` (step 'Run the quality suite (group drupal)' success, 'Initialize containers' success) and `ci-ok`; `php -m` in the toolchain step lists pcov; the drupal group prints PASS build-drupal, component-drupal, component-drupal-tests, audit-drupal (PASS 4 FAIL 0); artifact `reports-drupal` (9384 B) exists. NOT observed (logs and artifacts need authentication): the MariaDB version in the service log, the PHPUnit test counts, the coverage percentage and the contents of the Cobertura file; the 70% gate is inferred from component-drupal-tests PASS, which enforces it. |
+| Status | Pass |
+| Date | 2026-11-05 (judged on the owner's live CI evidence) |
 | Executed by | tester (execute mode) |
 
 ---
@@ -1256,10 +1256,10 @@ where the plan gives one.
 | Preconditions | Tree clean |
 | Steps | 1. `ddev quality 2>&1 \| tee EVD` 2. `.tools/pre-commit run --all-files 2>&1 \| tee -a EVD` 3. `scripts/check-names.sh` 4. CI run: see TC-T09-62 |
 | Expected result | All three exit 0; no new lint, type or security warning compared with the T08 baseline (the counts of warnings are recorded); CI green by TC-T09-62; no a phpcs ignore comment, a PHPStan ignore comment or a baseline added without a ticket comment (grep shows none, or each carries a ticket) |
-| Evidence | `evidence/TC-T09-77-ddev-quality-clean-clone.txt`, `evidence/TC-T09-61.txt` |
-| Actual result | The local part passes: ddev quality exit 0 on the committed head (clean clone, PASS 13 FAIL 0 SKIP 6), pre-commit --all-files exit 0 (all hooks Passed), check-names OK; PHPStan 0 errors, phpcs 0 errors, composer audit clean (audit-drupal PASS), no suppression without a ticket (exceptions PASS). Blocked on the CI part: the live CI run (TC-T09-62) needs the owner. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-77-ddev-quality-clean-clone.txt`, `evidence/TC-T09-61.txt`, `evidence/TC-T09-62-live-ci.txt` |
+| Actual result | All three local gates exit 0 (`ddev quality` PASS 13 FAIL 0 SKIP 6 on the committed head in a clean clone; pre-commit --all-files; check-names) and CI is green on the PR and on main (TC-T09-62). Warning counts in CI were not observed (logs need authentication); locally PHPStan 0 errors, phpcs 0 errors, audit clean, no unticketed suppression. |
+| Status | Pass |
+| Date | 2026-11-05 (judged on the owner's live CI evidence) |
 | Executed by | tester (execute mode) |
 
 ### TC-T09-76: C6 secrets and `.env.example`
