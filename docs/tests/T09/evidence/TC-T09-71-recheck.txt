@@ -1,0 +1,6 @@
+## TC-T09-71 recheck on 2a384d1 2026-11-05T19:20:44+05:30
+331:- [ ] Permissions matrix documented and tested for `administrator`, `analyst`, `engine_ingest`, `dashboard_read`, `anonymous` and `authenticated` (FR-16)
+provisional until the T11 measurement (`docs/tasks/T09/decision-measurement-scope.
+444:| 2026-11-05 | T09 | NFR-05 | Pointer change: provisional until the T11 measurement, not the T09 gate (DN-9, `docs/tasks/T09/decision-measurement-scope.md`). No target changed (D-4 condition 1) | 
+445:| 2026-11-05 | T09 | OQ-07 | Pointer change: NFR-04 stays at the T09 gate, NFR-05 points to the T11 measurement (DN-9) | solution-architect |
+454:| T09 amendment | solution-architect | 2026-11-05 | 2 rows, pointer only, within D-4 |

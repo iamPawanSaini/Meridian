@@ -812,9 +812,9 @@ where the plan gives one.
 | Preconditions | Site installed; owner has the one-time link |
 | Steps | 1. Agent runs `ddev drush uli`; owner opens the link in the Windows browser. 2. Owner opens `/admin/structure/types` and `/admin/people/roles` and `/admin/people/permissions` 3. Owner screenshots each page in full |
 | Expected result | Five content types listed (Decision, Position, Daily Run, Price Snapshot, Watchlist Item); roles page lists Administrator, Analyst, Engine ingest, Dashboard read plus Anonymous and Authenticated; the permissions page shows the Meridian group with the 7 permissions. A partial screenshot is insufficient: the case stays Blocked until full pages are sent. The tester cannot accept evidence on the owner's behalf |
-| Evidence | none |
-| Actual result | Owner-run (Windows browser, full-page screenshots of /admin/structure/types, /admin/people/roles, /admin/people/permissions). Not run by the tester; steps for the owner are in the report. |
-| Status | Blocked |
+| Evidence | `evidence/TC-T09-47-types.png`, `evidence/TC-T09-47-roles.png`, `evidence/TC-T09-47-permissions-1.png` to `-5.png` |
+| Actual result | Owner screenshots (Windows Chrome, incognito, 2026-11-05, logged in with the ddev drush uli link) read and compared by the tester. Types page: Daily Run, Decision, Position, Price Snapshot, Watchlist Item (five, no others). Roles page: Anonymous user, Authenticated user, Administrator, Analyst, Engine ingest, Dashboard read (six). Permissions page, full page in 5 parts (ends at Save permissions): group 'Meridian core' with the seven permissions (Administer Meridian records, Export, Ingest, View inputs and costs, View records, View watchlist, View raw LLM output). Checked boxes equal permissions.md and the role YAML: Analyst export, inputs, records, watchlist; Engine ingest ingest, watchlist; Dashboard read records, watchlist; Administrator greyed (is_admin); Anonymous and Authenticated none; View raw LLM output and Administer Meridian records checked for no non-admin role; 'View published content' checked for Analyst, Engine ingest and Dashboard read only, not for Anonymous or Authenticated; no node create, edit or delete permission checked for any non-admin role. The admin pages render unstyled (no admin theme CSS), which does not affect the check. |
+| Status | Pass |
 | Date | 2026-11-05 |
 | Executed by | tester (execute mode) |
 
@@ -1192,10 +1192,10 @@ where the plan gives one.
 | Preconditions | Task being closed |
 | Steps | 1. `grep -n "Permissions matrix" docs/TASKS.md` 2. `grep -n "T11 measurement" docs/architecture/solution-architecture.md` |
 | Expected result | `docs/TASKS.md` T09 AC6 carries the reworded text (six roles) as given in the criteria, so O-3 is resolved and the report needs no "reading" note. SA-1: the NFR-05 row says "provisional until the T11 measurement" and the Amendments table has a dated row. If SA-1 is not done at close the case is Blocked (not a T09 code failure) and listed in the report as an open hand-off |
-| Evidence | `evidence/TC-T09-71.txt` |
-| Actual result | AC6 part: docs/TASKS.md T09 AC6 carries the six-role wording (done). SA-1 part: solution-architecture.md NFR-05 still says 'provisional until the T09 measurement' (not the T11 measurement) and the Amendments table has no 2026-11-04 row, so SA-1 is an open hand-off, not a T09 code failure. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-71.txt`, `evidence/TC-T09-71-recheck.txt` |
+| Actual result | AC6 wording: docs/TASKS.md T09 AC6 lists the six roles. SA-1 (applied by the solution-architect, commit 2a384d1): the NFR-05 row says 'provisional until the T11 measurement'; the Amendments table has two 2026-11-05 T09 rows (NFR-05, OQ-07) and a T09 sign-off row. |
+| Status | Pass |
+| Date | 2026-11-05 (recheck on 2a384d1) |
 | Executed by | tester (execute mode) |
 
 ---
@@ -1287,7 +1287,7 @@ where the plan gives one.
 | Steps | 1. `git clone <repo> $WORK/clean && cd $WORK/clean && git checkout task/T09-content-model` 2. `ddev start` 3. `ddev drupal-install` 4. `ddev quality` 5. `ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel` 6. Only commands from `apps/drupal/README.md` and `docs/runbooks/local-setup.md` are used; any other command is a docs defect |
 | Expected result | All steps exit 0 using only the documented commands; the Drupal tests run and pass from a clean checkout. The clean clone uses a differently named DDEV project directory, so the tester records the project-name collision handling from the runbook. If a second DDEV project cannot be started the case is Blocked and the owner is asked to run it. Owner-run: `https://meridian.ddev.site` opens in the Windows browser (login from `ddev drush uli`) |
 | Evidence | `evidence/TC-T09-77.txt`, `evidence/TC-T09-77-kernel-clean-clone-run2.txt`, `evidence/TC-T09-77-kernel-clean-clone-attempt1.txt`, `evidence/TC-T09-77-ddev-quality-clean-clone.txt` |
-| Actual result | Fresh clone of task/T09-content-model (83ed38f) on the Linux filesystem; ddev delete -Oy meridian (runbook step 2) for the other checkout, ddev start, ddev drupal-install, drush uli, ddev meridian-status (five services healthy), scripts/bootstrap-dev.sh, the documented kernel command (OK, 47 tests, 1937 assertions, 9 min 57 s) and ddev quality (PASS 13 FAIL 0 SKIP 6, 1 h 31 min) all exit 0, using only documented commands. The first kernel attempt failed because ddev quality had switched Xdebug on at that moment (30 step-debug timeouts); the re-run after quality finished passed. Owner-run Windows browser check (`https://meridian.ddev.site` opens, login from ddev drush uli) is still open (see the owner steps). |
+| Actual result | Fresh clone of task/T09-content-model (83ed38f) on the Linux filesystem; ddev delete -Oy meridian (runbook step 2) for the other checkout, ddev start, ddev drupal-install, drush uli, ddev meridian-status (five services healthy), scripts/bootstrap-dev.sh, the documented kernel command (OK, 47 tests, 1937 assertions, 9 min 57 s) and ddev quality (PASS 13 FAIL 0 SKIP 6, 1 h 31 min) all exit 0, using only documented commands. The first kernel attempt failed because ddev quality had switched Xdebug on at that moment (30 step-debug timeouts); the re-run after quality finished passed. The Windows browser part is covered by the owner's screenshots of TC-T09-47: `https://meridian.ddev.site` opened in Windows Chrome and the login from ddev drush uli worked. |
 | Status | Pass |
 | Date | 2026-11-05 |
 | Executed by | tester (execute mode) |
