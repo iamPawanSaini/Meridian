@@ -1,0 +1,21 @@
+uuid: eabe8a4e-41da-46e7-b241-7c09da949018
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_entry_date
+    - node.type.position
+  module:
+    - datetime
+id: node.position.field_entry_date
+field_name: field_entry_date
+entity_type: node
+bundle: position
+label: 'Entry date'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

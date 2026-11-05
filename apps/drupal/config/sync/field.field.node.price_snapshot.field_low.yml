@@ -1,0 +1,23 @@
+uuid: 3ac0de37-05e0-4c6f-af00-315ba5d2f874
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_low
+    - node.type.price_snapshot
+id: node.price_snapshot.field_low
+field_name: field_low
+entity_type: node
+bundle: price_snapshot
+label: Low
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

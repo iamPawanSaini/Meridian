@@ -1,0 +1,20 @@
+uuid: 8bf65a65-d793-47dd-90db-6b94701daaf0
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_llm_cost_usd
+field_name: field_llm_cost_usd
+entity_type: node
+type: decimal
+settings:
+  precision: 10
+  scale: 4
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

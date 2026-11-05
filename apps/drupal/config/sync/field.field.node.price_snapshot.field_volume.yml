@@ -1,0 +1,23 @@
+uuid: 80e150e5-2555-498e-9f85-92ac2b45b985
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_volume
+    - node.type.price_snapshot
+id: node.price_snapshot.field_volume
+field_name: field_volume
+entity_type: node
+bundle: price_snapshot
+label: Volume
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

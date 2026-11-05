@@ -1,0 +1,21 @@
+uuid: c4f671e0-2868-4d15-9985-96add0e3707c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_mode
+    - node.type.position
+  module:
+    - options
+id: node.position.field_mode
+field_name: field_mode
+entity_type: node
+bundle: position
+label: Mode
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

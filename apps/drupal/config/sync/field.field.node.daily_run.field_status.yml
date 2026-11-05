@@ -1,0 +1,28 @@
+uuid: d2e3d462-dc69-4546-bcc2-ac6a3d3dab50
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_status
+    - node.type.daily_run
+  module:
+    - meridian_core
+    - options
+third_party_settings:
+  meridian_core:
+    allowed_values:
+      - success
+      - failed
+      - skipped
+id: node.daily_run.field_status
+field_name: field_status
+entity_type: node
+bundle: daily_run
+label: Status
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

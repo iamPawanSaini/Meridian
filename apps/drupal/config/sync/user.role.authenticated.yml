@@ -1,14 +1,11 @@
 uuid: 7774def9-7021-4e11-8989-50ebd3c9eaa5
 langcode: en
 status: true
-dependencies:
-  module:
-    - system
+dependencies: {  }
 _core:
   default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
 id: authenticated
 label: 'Authenticated user'
 weight: 1
 is_admin: false
-permissions:
-  - 'access content'
+permissions: {  }

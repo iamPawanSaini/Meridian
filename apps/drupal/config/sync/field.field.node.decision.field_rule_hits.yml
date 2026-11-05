@@ -1,0 +1,19 @@
+uuid: 7ade4b90-0bbe-451e-9572-37536bd7df44
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_rule_hits
+    - node.type.decision
+id: node.decision.field_rule_hits
+field_name: field_rule_hits
+entity_type: node
+bundle: decision
+label: 'Rule hits'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

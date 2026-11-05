@@ -1,0 +1,14 @@
+uuid: da68edf3-87d7-4cec-9065-5fd9fcf29d56
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - meridian_core
+name: Position
+type: position
+description: 'Position records of the Meridian content model (T09). Simulation only.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

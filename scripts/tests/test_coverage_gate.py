@@ -102,6 +102,26 @@ class GateTests(unittest.TestCase):
         self.assertEqual(cg.main(["--require", "meridian_engine/", *base]), 0)
         self.assertEqual(cg.main(["--require", "apps/web/lib/", *base]), 1)
 
+    def test_phpunit_filenames_are_relative_to_the_source(self) -> None:
+        """T09: PHPUnit names files relative to its <source>, which holds the module path."""
+        source = "/var/www/html/apps/drupal/web/modules/custom/meridian_core/src"
+
+        def report(hit: int) -> str:
+            lines = "".join(
+                f'<line number="{i + 1}" hits="{1 if i < hit else 0}"/>' for i in range(100)
+            )
+            return (
+                f"<coverage><sources><source>{source}</source></sources><packages>"
+                '<package name="Hook/A.php"><classes><class name="A" filename="Hook/A.php">'
+                f"<lines>{lines}</lines></class></classes></package></packages></coverage>"
+            )
+
+        path = self.dir / "php.xml"
+        for hit, expected in ((70, 0), (69, 1)):
+            path.write_text(report(hit), encoding="utf-8")
+            args = ["--thresholds", str(THRESHOLDS), "--require", "web/modules/custom/meridian_"]
+            self.assertEqual(cg.main([*args, str(path)]), expected, hit)
+
     def test_floor_is_always_a_percentage(self) -> None:
         thr = self.dir / "t.json"
         thr.write_text('{"components": [{"path": "a/", "line": 1}]}', encoding="utf-8")

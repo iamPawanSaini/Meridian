@@ -1,0 +1,21 @@
+uuid: cc0c1b14-17b1-475d-824b-970778324fcf
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_watchlist_source
+    - node.type.daily_run
+  module:
+    - options
+id: node.daily_run.field_watchlist_source
+field_name: field_watchlist_source
+entity_type: node
+bundle: daily_run
+label: 'Watchlist source'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

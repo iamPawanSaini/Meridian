@@ -1,0 +1,21 @@
+uuid: f2d8a9a0-2528-4735-9449-437b40900cab
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_action
+    - node.type.decision
+  module:
+    - options
+id: node.decision.field_action
+field_name: field_action
+entity_type: node
+bundle: decision
+label: Action
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

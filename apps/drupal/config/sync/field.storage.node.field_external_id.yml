@@ -1,0 +1,23 @@
+uuid: 0ee5031f-5274-4443-9a42-c92c53c57978
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_external_id
+field_name: field_external_id
+entity_type: node
+type: string
+settings:
+  max_length: 64
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes:
+  value:
+    - value
+persist_with_no_fields: false
+custom_storage: false

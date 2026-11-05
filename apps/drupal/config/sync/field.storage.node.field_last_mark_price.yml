@@ -1,0 +1,20 @@
+uuid: 98129a38-9f2c-469d-bfe7-a64a97db7cf6
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_last_mark_price
+field_name: field_last_mark_price
+entity_type: node
+type: decimal
+settings:
+  precision: 14
+  scale: 4
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

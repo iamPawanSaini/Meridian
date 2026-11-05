@@ -1,0 +1,19 @@
+uuid: de221a01-aafb-419f-b46a-7da99af528a3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_payload_hash
+    - node.type.decision
+id: node.decision.field_payload_hash
+field_name: field_payload_hash
+entity_type: node
+bundle: decision
+label: 'Payload hash'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

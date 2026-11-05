@@ -1,0 +1,19 @@
+uuid: 54676378-4dd0-4b40-bd4e-15b989f1cca2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_llm_rationale
+    - node.type.decision
+id: node.decision.field_llm_rationale
+field_name: field_llm_rationale
+entity_type: node
+bundle: decision
+label: 'Llm rationale'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

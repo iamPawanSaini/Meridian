@@ -1,0 +1,23 @@
+uuid: c825075d-5f04-4149-8115-a3652840133c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_exit_price
+    - node.type.position
+id: node.position.field_exit_price
+field_name: field_exit_price
+entity_type: node
+bundle: position
+label: 'Exit price'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

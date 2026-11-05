@@ -1,0 +1,23 @@
+uuid: 510e3191-20fa-4390-b363-f23266f86c41
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_sort_order
+    - node.type.watchlist_item
+id: node.watchlist_item.field_sort_order
+field_name: field_sort_order
+entity_type: node
+bundle: watchlist_item
+label: 'Sort order'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: 999
+  prefix: ''
+  suffix: ''
+field_type: integer

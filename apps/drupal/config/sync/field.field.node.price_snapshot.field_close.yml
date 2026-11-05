@@ -1,0 +1,23 @@
+uuid: 8e08384e-b1bd-4560-aef3-3080d9d7eb2b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_close
+    - node.type.price_snapshot
+id: node.price_snapshot.field_close
+field_name: field_close
+entity_type: node
+bundle: price_snapshot
+label: Close
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

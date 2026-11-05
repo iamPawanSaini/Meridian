@@ -1,0 +1,12 @@
+# Per-bundle allowed values for a field that shares its storage between bundles (T09, DN-3).
+# The constraint MeridianBundleAllowedValues reads this setting.
+field.field.*.*.*.third_party.meridian_core:
+  type: mapping
+  label: 'Meridian field settings'
+  mapping:
+    allowed_values:
+      type: sequence
+      label: 'Allowed values of this bundle'
+      sequence:
+        type: string
+        label: 'Allowed value'

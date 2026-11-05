@@ -1,0 +1,19 @@
+uuid: 4f8b6a4c-20e3-4c21-98d8-b02dfafc123e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_finished_at
+    - node.type.daily_run
+id: node.daily_run.field_finished_at
+field_name: field_finished_at
+entity_type: node
+bundle: daily_run
+label: 'Finished at'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: timestamp

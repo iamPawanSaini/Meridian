@@ -1,0 +1,202 @@
+uuid: 4cd309cf-0a96-4b59-bfe7-ac4dec896fbc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.decision.field_action
+    - field.field.node.decision.field_close_price
+    - field.field.node.decision.field_external_id
+    - field.field.node.decision.field_inputs_snapshot
+    - field.field.node.decision.field_llm_rationale
+    - field.field.node.decision.field_mode
+    - field.field.node.decision.field_model_name
+    - field.field.node.decision.field_payload_hash
+    - field.field.node.decision.field_pre_llm_action
+    - field.field.node.decision.field_prompt_version
+    - field.field.node.decision.field_raw_llm_output
+    - field.field.node.decision.field_rule_hits
+    - field.field.node.decision.field_rule_version
+    - field.field.node.decision.field_run
+    - field.field.node.decision.field_score
+    - field.field.node.decision.field_source_version
+    - field.field.node.decision.field_symbol
+    - field.field.node.decision.field_trade_date
+    - field.field.node.decision.field_veto_reason
+    - field.field.node.decision.field_vetoed
+    - node.type.decision
+  module:
+    - user
+id: node.decision.default
+targetEntityType: node
+bundle: decision
+mode: default
+content:
+  field_action:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_close_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 4
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 17
+    region: content
+  field_external_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_inputs_snapshot:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_llm_rationale:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 16
+    region: content
+  field_mode:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_model_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_payload_hash:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 20
+    region: content
+  field_pre_llm_action:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_prompt_version:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_raw_llm_output:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_rule_hits:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_rule_version:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_run:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 18
+    region: content
+  field_score:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_source_version:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: false
+    third_party_settings: {  }
+    weight: 19
+    region: content
+  field_symbol:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_trade_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: html_date
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_veto_reason:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_vetoed:
+    type: boolean
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

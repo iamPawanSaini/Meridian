@@ -48,6 +48,9 @@ next-env.d.ts
 test-results/
 playwright-report/
 coverage/
+# Quality-suite outputs (engine, Drupal): JUnit and Cobertura files, uploaded by CI as artifacts
+junit.xml
+coverage.xml
 
 # Editors and OS
 .idea/

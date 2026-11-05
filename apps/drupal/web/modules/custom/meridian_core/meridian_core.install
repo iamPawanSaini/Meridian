@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall hooks of Meridian core.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_install().
+ *
+ * When the field table already exists (module installed after the content
+ * model), add the unique external ID key. On a fresh install from config the
+ * field storage hook adds it when the storage is created.
+ */
+function meridian_core_install(): void {
+  \Drupal::service('meridian_core.external_id_index')->ensure();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function meridian_core_uninstall(): void {
+  \Drupal::service('meridian_core.external_id_index')->drop();
+}

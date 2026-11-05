@@ -22,3 +22,5 @@ fail_on_hook_fail: true
 # The PAT (TERMINUS_MACHINE_TOKEN) is never set here; it lives in the global DDEV config.
 web_environment:
   - PANTHEON_SITE=meridian-trade
+  # PHPUnit Kernel tests (T09). Throwaway DDEV database credentials, not a secret; CI sets its own.
+  - SIMPLETEST_DB=mysql://db:db@db/db

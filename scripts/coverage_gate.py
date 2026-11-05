@@ -38,10 +38,16 @@ def load_coverage(paths: list[str]) -> Coverage:
     coverage: Coverage = {}
     for path in paths:
         root = ET.parse(path).getroot()
+        # PHPUnit writes filenames relative to its one <source> directory (T09), so the source
+        # is put in front. A prefix is matched anywhere in the path, so full names still match.
+        sources = [(s.text or "").strip() for s in root.iter("source") if (s.text or "").strip()]
+        base = sources[0].replace("\\", "/").rstrip("/") + "/" if len(sources) == 1 else ""
         for cls in root.iter("class"):
             name = (cls.get("filename") or "").replace("\\", "/")
             if not name:
                 continue
+            if base and not name.startswith("/"):
+                name = base + name
             lines = coverage.setdefault(name, {})
             for line in cls.iter("line"):
                 number = int(line.get("number", "0"))

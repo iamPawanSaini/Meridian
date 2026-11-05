@@ -152,11 +152,28 @@ jobs:
   drupal:
     name: drupal
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     permissions:
       contents: read
     env:
       QUALITY_RUNNER: native
+      # T09: the Kernel tests run on MariaDB, the engine of the local stack and Pantheon (never
+      # SQLite). The value is a throwaway for the ephemeral service container below, not a secret.
+      SIMPLETEST_DB: mysql://root:ci-only@127.0.0.1:3306/meridian_test
+    services:
+      mariadb:
+        # The tag matches the local MariaDB 10.6 and pantheon.yml (scripts/check_ci.py rule 2).
+        image: mariadb:10.6.22
+        env:
+          MARIADB_ROOT_PASSWORD: ci-only
+          MARIADB_DATABASE: meridian_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - name: Check out the full history
         # actions/checkout v7.0.1
@@ -170,11 +187,13 @@ jobs:
         with:
           php-version: '8.3'
           tools: composer:2.11.1
-          coverage: none
+          extensions: gd, pdo_mysql
+          coverage: pcov
       - name: Record the toolchain
         shell: bash
         run: |
           php -v
+          php -m | grep -i pcov
           composer --version
       - name: Find the Composer cache directory
         id: composer-cache

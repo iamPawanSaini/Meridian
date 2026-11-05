@@ -1,0 +1,14 @@
+uuid: 21e813dc-b3f4-42f3-ac97-159e02c6cb39
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.analyst
+  module:
+    - user
+id: user_add_role_action.analyst
+label: 'Add the Analyst role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: analyst

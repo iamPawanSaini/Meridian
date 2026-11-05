@@ -1,2 +1,5 @@
 name: fixture
 php_version: "8.3"
+database:
+  type: mariadb
+  version: "10.6"

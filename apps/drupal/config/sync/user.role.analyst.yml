@@ -1,0 +1,17 @@
+uuid: 06904498-7146-4db4-8d36-ac46a1085f8f
+langcode: en
+status: true
+dependencies:
+  module:
+    - meridian_core
+    - system
+id: analyst
+label: Analyst
+weight: 3
+is_admin: false
+permissions:
+  - 'access content'
+  - 'export meridian records'
+  - 'view meridian inputs'
+  - 'view meridian records'
+  - 'view meridian watchlist'

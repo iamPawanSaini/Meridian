@@ -1,0 +1,23 @@
+uuid: 1be0db4c-d28b-4a73-9008-22f1475dc04a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_r_multiple
+    - node.type.position
+id: node.position.field_r_multiple
+field_name: field_r_multiple
+entity_type: node
+bundle: position
+label: 'R multiple'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: -100.0
+  max: 100.0
+  prefix: ''
+  suffix: ''
+field_type: decimal

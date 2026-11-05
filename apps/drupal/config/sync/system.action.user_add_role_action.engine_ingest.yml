@@ -1,0 +1,14 @@
+uuid: 9d9d2cca-7384-4605-a00c-b0d179ee1a2f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.engine_ingest
+  module:
+    - user
+id: user_add_role_action.engine_ingest
+label: 'Add the Engine ingest role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: engine_ingest

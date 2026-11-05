@@ -30,6 +30,30 @@ ddev drush uli         # one-time admin login link
 
 The full procedure is `docs/runbooks/local-setup.md`.
 
+## Tests
+
+PHPUnit has two suites in `phpunit.xml.dist`: `unit` and `kernel`, both over
+`web/modules/custom/*/tests/src`. T09 adds no Functional tests. Run them in DDEV:
+
+```bash
+ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite unit
+ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel
+```
+
+Kernel tests need a database. `SIMPLETEST_DB` is the PHPUnit variable that holds its URL, in the
+form `mysql://user:password@host/database`. Kernel tests create their own prefixed tables and
+drop them afterwards. DDEV sets it to the project database in `.ddev/config.yaml`
+(`mysql://db:db@db/db`, the DDEV default credentials, not a secret). CI sets it for its MariaDB
+service container. The URL is never kept in `phpunit.xml.dist`, and SQLite is not used.
+A Kernel test class takes about ten seconds per test method, so the full Kernel suite runs for
+several minutes.
+
+`ddev quality` runs the suites with coverage and the 70% gate on `web/modules/custom/meridian_`.
+In CI the coverage driver is pcov. The DDEV web image has no pcov package for PHP 8.3, so the
+DDEV run loads Xdebug in coverage mode for that one command (`scripts/README.md`).
+
+`meridian_core` is documented in `web/modules/custom/meridian_core/README.md`.
+
 ## Config workflow
 
 Configuration lives in `config/sync/` and is the source of truth.

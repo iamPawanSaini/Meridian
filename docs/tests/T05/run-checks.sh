@@ -472,8 +472,8 @@ ckp "web/modules/custom/.gitkeep tracked (phpcs/PHPStan path exists)" bash -c "g
 ckp "phpcs.xml.dist and phpstan.neon.dist unchanged in scope: level 6, no baseline, ignores need comments" allin apps/drupal/phpstan.neon.dist 'level:\s*6' 'reportIgnoresWithoutComments:\s*true'
 ckp "phpstan.neon.dist has no baseline" allout apps/drupal/phpstan.neon.dist 'baseline'
 ckp "phpstan config loads phpstan-drupal (explicit include or extension-installer comment)" allin apps/drupal/phpstan.neon.dist 'phpstan-drupal|extension-installer'
-cka "phpunit.xml.dist is absent until T09 (the SKIP is visible, T05 does not add it)" bash -c "[[ ! -e apps/drupal/phpunit.xml.dist ]]"
-cka "no custom module exists yet (T09)" bash -c "[[ -z \$(git ls-files 'apps/drupal/web/modules/custom/*' | grep -v '\.gitkeep\$' || true) ]]"
+cka "phpunit.xml.dist is present (T09 added it with the first module; was: absent until T09)" bash -c "[[ -e apps/drupal/phpunit.xml.dist ]]"
+cka "meridian_core is the only custom module (T09; was: no custom module exists yet)" bash -c "[[ \$(git ls-files 'apps/drupal/web/modules/custom/*' | cut -d/ -f5 | sort -u | grep -v '^\.gitkeep\$') == meridian_core ]]"
 
 case_start TC-T05-20 "composer.lock size vs check-added-large-files (KD-7)"
 lock_size() { need_file "$CL" || return 1; local kb; kb=$(( ($(stat -c %s "$CL") + 1023) / 1024 ))
@@ -618,7 +618,7 @@ sys.exit(0 if d.get('bootstrap')=='Successful' and d.get('db-status')=='Connecte
   if [[ $rc -eq 0 ]]; then pass "ddev quality exit 0"; else bad "ddev quality exit $rc"; show_out "$(tail -15 <<<"$out")"; fi
   ran=$((ran+1))
   ckp "PASS line for component-drupal" bash -c "grep -E '^\s*PASS\s+component-drupal\b' '$WORK/q.txt' | grep -qv 'tests'"
-  ckp "visible SKIP for component-drupal-tests (no apps/drupal/phpunit.xml.dist)" bash -c "grep -E '^\s*SKIP\s+component-drupal-tests' '$WORK/q.txt' | grep -q 'phpunit.xml.dist'"
+  ckp "PASS line for component-drupal-tests (T09; was: visible SKIP, no phpunit.xml.dist)" bash -c "grep -qE '^\s*PASS\s+component-drupal-tests' '$WORK/q.txt'"
   ckp "no FAIL line anywhere" bash -c "[[ -s '$WORK/q.txt' ]] && ! grep -E '^\s*FAIL' '$WORK/q.txt'"
 
   case_start TC-T05-35 "live negative: a PHP style/type violation makes ddev quality fail (TC-T04a-49)"

@@ -55,8 +55,9 @@ Every field, with type, cardinality, validation, index and visible-to roles, is 
 [data-model.md, section "Drupal content model"](../specs/data-model.md#drupal-content-model).
 Key rules:
 
-- `external_id` is unique per bundle, enforced at entity level (core `UniqueField`
-  constraint) plus a database index added in T09. It is never edited after creation.
+- `external_id` is unique per bundle, enforced at entity level (`MeridianUniqueInBundle`; core
+  `UniqueField` is per entity type) plus a unique database key added in T09. It is never edited
+  after creation.
 - References carry the target's `external_id` in the payload and are stored as entity
   references. A Position references its Daily Run and its BUY Decision. A Decision
   references its Daily Run. A Decision does not reference its Position, which avoids a
@@ -67,13 +68,19 @@ Key rules:
 - Field visibility is enforced by `hook_entity_field_access()` in `meridian_core`, so
   JSON:API and Views apply it: `raw_llm_output` needs the permission
   `view meridian raw llm output` (administrator only, FR-20); `inputs_snapshot` and
-  `llm_cost_usd` need `view meridian inputs` (administrator and analyst);
-  `source_version` and `payload_hash` need `administer meridian records`.
+  `llm_cost_usd`, Price Snapshot `source` and Watchlist Item `notes` need
+  `view meridian inputs` (administrator and analyst);
+  `source_version` and `payload_hash` need `administer meridian records`. The T09 matrix of six
+  roles is [permissions.md](../specs/permissions.md).
+- Validation errors reach T10 as raw property paths and codes; the forms and the normalisation are
+  in `apps/drupal/web/modules/custom/meridian_core/README.md`, "Violation contract (T10)".
 - JSON:API runs in read-only mode (`jsonapi.settings:read_only: true`).
 - **Sole writer.** `meridian_ingest` is the only writer of `decision`, `position`,
   `daily_run` and `price_snapshot`. The admin UI may only unpublish them (D6, "Entity
   access"). Ingest requests are serialised by a lock (D5), so the entity-level
-  `UniqueField` check cannot race. The database unique index stays as defence in depth.
+  `MeridianUniqueInBundle` check cannot race. The database unique key stays as defence in depth,
+  and it is also the only backstop against two concurrent admin creates of one Watchlist
+  symbol.
   `watchlist_item` is written only through the T12 admin UI.
 
 ## D2 Postgres schema and migration plan
@@ -679,9 +686,9 @@ ADR-0004 left these items **unverified**. T07 confirms each one:
 
 | Item | Value | Status and source |
 |---|---|---|
-| NFR-04 DDEV | One ingest request of 500 items in at most 30 s (p95 over 5 runs). The API accepts at least 500 items per request | Provisional (D-2). Measurement gate MG-1 at the end of T09, before T10 coding: time 500 node creates and 500 updates in one transaction with a drush script, 5 runs, and record p95 here with the raw output. The value may move either way without an ADR (D-2). T10 then confirms it on the real endpoint |
+| NFR-04 DDEV | One ingest request of 500 items in at most 30 s (p95 over 5 runs). The API accepts at least 500 items per request | Provisional (D-2). Measurement gate MG-1 at the end of T09, before T10 coding. T09 runs the entity-layer part (500 Decisions of about 8 KB, create and update, 5 runs); T10 confirms on the endpoint. The value may move either way without an ADR (D-2). **MG-1 result 2026-11-04: p95 50.18 s, above the 15 s warning level (see below)** |
 | NFR-04 Pantheon dev | At most 30 s per ingest request at the measured batch size. Provisional batch 100 items. The publisher halves the batch on 504, timeout or 413 | Pantheon edge timeout 59 s and PHP `max_execution_time` 120 s ([Pantheon timeouts](https://docs.pantheon.io/timeouts), checked 2026-11-01, per D-2). T07 records wake time, warm GET latency and the edge body limit (live run, pending); T10 measures the 100-item warm ingest on Pantheon dev (p95 over 5 runs); T28 confirms |
-| NFR-05 | 50-row JSON:API page with 5,000 records: p95 at most 500 ms on DDEV and at most 1,500 ms on Pantheon dev (warm, wake excluded), over 50 requests | Provisional. Measured at gate MG-1 with 5,000 seeded nodes, and confirmed in T11 |
+| NFR-05 | 50-row JSON:API page with 5,000 records: p95 at most 500 ms on DDEV and at most 1,500 ms on Pantheon dev (warm, wake excluded), over 50 requests | Provisional. Measured in T11 with 5,000 seeded nodes (D-2 authority moved to T11 by `docs/tasks/T09/decision-measurement-scope.md`); T30 confirms |
 | Ingest body size | At most 8 MB (8,388,608 bytes) per request; larger returns 413. The publisher targets at most 4 MB | Design value. Pantheon edge body limit **unverified** because the T07 live measurement (8 MB and 9 MB POST to `/user/login`) has not run yet; T07 records the result with the date |
 | Ingest field limits | `inputs_snapshot` at most 64 KB, `raw_llm_output` at most 32 KB, `llm_rationale` at most 2,000 characters | Design value from A-09 (about 10 KB raw output per decision) |
 | Ingest rate limit | 60 requests per minute per OAuth client; more returns 429 with `Retry-After` | Design value. A daily run needs fewer than 20 requests |
@@ -692,8 +699,45 @@ ADR-0004 left these items **unverified**. T07 confirms each one:
 | Ingest lock | Lock `meridian_ingest` held for at most 130 s; a busy lock returns 409 `ingest_busy` with `Retry-After: 30` | Above the 120 s PHP limit on Pantheon (review finding 1) |
 | Stale run lock | A `running` row older than 30 min is marked `failed` (`stale_lock`) | Job timeout 30 min (ADR-0002) |
 
-Measurements recorded at gate MG-1 are added below this table with a date. None are recorded
-yet.
+Measurements recorded at gate MG-1 are added below this table with a date.
+
+### MG-1, NFR-04 entity-layer part (T09, 2026-11-04)
+
+Script: `apps/drupal/scripts/perf/mg1_ingest_timing.php`, run with
+`ddev drush php:script`. Parameters (`docs/tasks/T09/decision-measurement-scope.md`): bundle
+`decision`, all pointing at one Daily Run created first and not timed; 500 Decisions per pass,
+each with `inputs_snapshot` and `raw_llm_output` of about 8 KB together (3.83 MB of JSON per
+pass); a create pass and an update pass (a changed score, `source_version` 2 and a new
+revision), each in one transaction, `validate()` on every entity with 0 violations; 5 runs, each
+starting with no Decisions (deletion not timed); Xdebug off. The update pass loads the 500
+entities by ID with `loadMultiple()` (the lookup by `external_id` of T10 is not included).
+
+Environment: PHP 8.3.19, MariaDB 10.6.21, pcov not loaded, Xdebug not loaded, Linux on WSL2
+(Intel Core i5-1135G7, 8 logical CPUs, 7.6 GiB RAM) behind DDEV v1.24.4.
+
+Raw output:
+
+```text
+run 1: create 21.00 s, update 29.17 s, total 50.18 s, violations 0
+run 2: create 16.05 s, update 31.81 s, total 47.85 s, violations 0
+run 3: create 15.16 s, update 29.53 s, total 44.70 s, violations 0
+run 4: create 16.81 s, update 32.67 s, total 49.47 s, violations 0
+run 5: create 14.53 s, update 33.29 s, total 47.82 s, violations 0
+
+items per pass: 500, JSON payload per run: 3.83 MB (inputs_snapshot plus raw_llm_output)
+slowest create 21.00 s, slowest update 33.29 s
+p95 of create plus update over 5 runs: 50.18 s (with 5 runs the p95 is the slowest run)
+```
+
+Result: the combined create plus update p95 (the slowest of 5 runs) is **50.18 s**, above the
+15 s level (half of the 30 s budget) that DN-9 sets for a warning. The create pass alone takes
+14.5 to 21.0 s and the update pass 29.2 to 33.3 s. This is the entity layer only, so the real
+endpoint will be slower. Per DN-9 the technical-architect raises this at T10 planning, before T10
+coding. Observations for that discussion, **not measured**: an update loads the stored entity
+for `MeridianImmutable`, `MeridianNonDecreasing` and, on a mismatch only,
+`MeridianExternalIdMatches`, and core loads it again on save; a new revision writes every field
+table again. The 500-item batch limit, the batch size and the single-transaction design (D4, D5)
+are the levers.
 
 ## Unverified items and open items
 
@@ -705,7 +749,7 @@ yet.
 | Simple OAuth 6.x scope entities grant permissions; per-consumer token lifetimes | D6 | T10 |
 | Core Simple OAuth 6.x enforces PKCE; one consumer with several grants | D6 | T10, T22 |
 | A user token's access is the intersection of scope and user permissions; token revocation | D6 | T22 |
-| Unique database index on `field_external_id` per bundle | D1 | T09 |
+| Unique database index on `field_external_id` per bundle | D1 | T09 (closed 2026-11-04: the key `meridian_external_id_bundle` on `node__field_external_id (bundle, field_external_id_value)` works, DN-10 first choice, no fallback. Kept after `drupal-install`, `cim`, `cr`, `updatedb` and a field storage update (core drops the table on that update; an update hook adds the key again). Table collation `utf8mb4_general_ci`) |
 | Pantheon private files path and that it is not served | D6, D8 | T07 (live run pending) |
 | Pantheon dev branch name (`master` assumed), Integrated Composer on our split, `web_docroot` without `pantheon.upstream.yml` | D8 | T07 (live run pending) |
 | Pantheon edge body limit (8 MB needed) | D5, D8 | T07 (live run pending) |
@@ -735,6 +779,7 @@ yet.
 | 3 | 2026-11-01 | Fixes DEF-002: `uq_runs_date_attempt` becomes a partial unique index `WHERE attempt > 0`, so repeated `publish` and `replay` rows (`attempt = 0`) on one date no longer collide. Lock (`uq_runs_one_running`) and "already succeeded" check (compute attempts only) unchanged in effect (D2, D3; `docs/specs/data-model.md` runs) |
 | 4 | 2026-11-02 | T06: D7 records that the DDEV containers resolve `meridian.ddev.site` through `ddev-router` and trust the mkcert root; DDEV value of `MERIDIAN_WEB_BASE_URL` is `https://meridian.ddev.site:3001`; open item resolved |
 | 5 | 2026-11-02 | T07 (offline part): D7 PAT wording and `PANTHEON_SITE` source; D8 deploy steps, host key, rollback, upstream, interstitial rule and the Terminus 4.3.3 pin; NFR-04 Pantheon row and body-size row; unverified register. Live results are added when the T07 live run happens |
+| 6 | 2026-11-04 | T09 amendment (`docs/tasks/T09/decision-uniqueness.md`, `decision-roles-and-access.md`, `decision-measurement-scope.md`): D1 uniqueness wording (`MeridianUniqueInBundle`, unique key, Watchlist backstop), field visibility sentence, unverified item for the unique key closed, NFR-04 and NFR-05 rows, MG-1 result with raw output |
 
 ## Sign-off
 

@@ -1,0 +1,20 @@
+uuid: 7e8e4d4d-40df-4a35-beca-8a5964a955f9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_low
+field_name: field_low
+entity_type: node
+type: decimal
+settings:
+  precision: 14
+  scale: 4
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,14 @@
+uuid: 946494cd-4e84-4c23-a31c-a2c8b378f0c9
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.dashboard_read
+  module:
+    - user
+id: user_remove_role_action.dashboard_read
+label: 'Remove the Dashboard read role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: dashboard_read

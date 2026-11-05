@@ -1,0 +1,23 @@
+uuid: c1b88e14-3fb2-483b-b8ba-3aba874e235e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_enabled
+    - node.type.watchlist_item
+id: node.watchlist_item.field_enabled
+field_name: field_enabled
+entity_type: node
+bundle: watchlist_item
+label: Enabled
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

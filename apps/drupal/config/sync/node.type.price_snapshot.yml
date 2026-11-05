@@ -1,0 +1,14 @@
+uuid: 3d166a96-9ab4-4e8d-81c2-f7668fd48259
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - meridian_core
+name: 'Price Snapshot'
+type: price_snapshot
+description: 'Price Snapshot records of the Meridian content model (T09). Simulation only.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

@@ -1,0 +1,21 @@
+uuid: a98ee4ab-4433-4ea2-9762-00175f809b4d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_adjusted
+    - node.type.price_snapshot
+id: node.price_snapshot.field_adjusted
+field_name: field_adjusted
+entity_type: node
+bundle: price_snapshot
+label: Adjusted
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

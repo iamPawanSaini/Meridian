@@ -1,0 +1,23 @@
+uuid: 2fc40dfc-6758-4a38-b49f-28951cbd45d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_entry_price
+    - node.type.position
+id: node.position.field_entry_price
+field_name: field_entry_price
+entity_type: node
+bundle: position
+label: 'Entry price'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

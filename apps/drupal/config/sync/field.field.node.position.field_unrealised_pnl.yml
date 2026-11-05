@@ -1,0 +1,23 @@
+uuid: 06fd2485-5e51-49b9-8c1c-a0bb7a992e01
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_unrealised_pnl
+    - node.type.position
+id: node.position.field_unrealised_pnl
+field_name: field_unrealised_pnl
+entity_type: node
+bundle: position
+label: 'Unrealised pnl'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

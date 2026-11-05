@@ -1,0 +1,15 @@
+uuid: 30de26b7-e489-4c24-932b-d5701c0f4b16
+langcode: en
+status: true
+dependencies:
+  module:
+    - meridian_core
+    - system
+id: engine_ingest
+label: 'Engine ingest'
+weight: 4
+is_admin: false
+permissions:
+  - 'access content'
+  - 'ingest meridian records'
+  - 'view meridian watchlist'

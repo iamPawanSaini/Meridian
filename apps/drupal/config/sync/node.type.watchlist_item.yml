@@ -1,0 +1,14 @@
+uuid: 2ad44bf1-6928-4c0a-9b99-c9b92e735b81
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - meridian_core
+name: 'Watchlist Item'
+type: watchlist_item
+description: 'Watchlist Item records of the Meridian content model (T09). Simulation only.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

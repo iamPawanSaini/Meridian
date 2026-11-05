@@ -1,0 +1,21 @@
+uuid: 000d746d-4632-438a-bf48-b7417d83b601
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_trade_date
+    - node.type.price_snapshot
+  module:
+    - datetime
+id: node.price_snapshot.field_trade_date
+field_name: field_trade_date
+entity_type: node
+bundle: price_snapshot
+label: 'Trade date'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

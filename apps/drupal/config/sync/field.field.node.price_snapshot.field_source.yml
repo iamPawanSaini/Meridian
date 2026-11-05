@@ -1,0 +1,21 @@
+uuid: 7704fc3d-dc24-4632-89c0-ea1e0db34dab
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source
+    - node.type.price_snapshot
+  module:
+    - options
+id: node.price_snapshot.field_source
+field_name: field_source
+entity_type: node
+bundle: price_snapshot
+label: Source
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

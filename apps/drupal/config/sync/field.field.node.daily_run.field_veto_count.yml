@@ -1,0 +1,23 @@
+uuid: a3075136-8525-4568-90ed-6a8c3a8aeb24
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_veto_count
+    - node.type.daily_run
+id: node.daily_run.field_veto_count
+field_name: field_veto_count
+entity_type: node
+bundle: daily_run
+label: 'Veto count'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

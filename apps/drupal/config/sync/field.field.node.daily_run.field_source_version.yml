@@ -1,0 +1,23 @@
+uuid: 661a5f71-00f4-4f36-b1b8-51a3f1fde438
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_version
+    - node.type.daily_run
+id: node.daily_run.field_source_version
+field_name: field_source_version
+entity_type: node
+bundle: daily_run
+label: 'Source version'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

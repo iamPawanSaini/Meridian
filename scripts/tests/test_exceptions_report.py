@@ -150,6 +150,16 @@ class ConfigExcludeTests(unittest.TestCase):
     def test_inline_exclude(self) -> None:
         self.assertEqual(er.config_exclude_lines(['exclude = ["docs/x"]']), [1])
 
+    def test_xml_exclude_needs_a_ticket_in_its_comment(self) -> None:
+        """T09: a phpcs ruleset exclude counts, and an XML comment is its ticket slot."""
+        line = "<exclude-pattern>*/tests/src/*</exclude-pattern>"
+        self.assertEqual(er.config_exclude_lines([line]), [1])
+        self.assertIsNotNone(er.classify("config exclude", line)[1])
+        self.assertIsNotNone(er.classify("config exclude", line + " <!-- one per line -->")[1])
+        self.assertEqual(
+            er.classify("config exclude", line + " <!-- T09: one per line -->"), ("T09", None)
+        )
+
     def test_yaml_ignores_block(self) -> None:
         lines = ["ignores:", '  - "docs/TASKS.md"', '  - "b"', "other: 1"]
         self.assertEqual(er.config_exclude_lines(lines), [2, 3])

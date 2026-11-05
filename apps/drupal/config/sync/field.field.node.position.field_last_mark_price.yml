@@ -1,0 +1,23 @@
+uuid: cde973cf-b553-435a-8f75-ee11879a27a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_last_mark_price
+    - node.type.position
+id: node.position.field_last_mark_price
+field_name: field_last_mark_price
+entity_type: node
+bundle: position
+label: 'Last mark price'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

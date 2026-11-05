@@ -88,6 +88,16 @@ version match (later Python and Node). These differences are accepted:
 3. The PHP patch level floats in both places.
 4. CI installs PyYAML 6.0.3 for the docs suites, while a local run uses the PyYAML of the
    developer's Python (any version that imports as `yaml`).
+5. (T09) The Drupal tests need a database. CI starts a MariaDB service container
+   (`mariadb:10.6.22`) and sets `SIMPLETEST_DB`. DDEV uses its own MariaDB 10.6 and sets
+   `SIMPLETEST_DB` in `.ddev/config.yaml`. `check_ci.py` rule 2 checks that the DDEV database
+   type and version, the `pantheon.yml` database version and the CI image share one MariaDB
+   major.minor.
+6. (T09) The coverage driver differs: CI uses pcov (setup-php `coverage: pcov`). The DDEV web
+   image cannot install `php8.3-pcov` (the Sury apt key has expired, checked 2026-11-04), so
+   `ddev quality` switches Xdebug on with `enable_xdebug` (and off again on exit, only if it was
+   off before) and runs PHPUnit with `XDEBUG_MODE=coverage`. Both produce the same Cobertura
+   file for the same gate.
 
 A check that passes in one place and fails in the other is a defect to fix, never a reason to
 skip the check. A task that changes `quality.sh` records both `ddev quality` and the CI run.

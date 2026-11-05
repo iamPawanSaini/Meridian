@@ -1,0 +1,23 @@
+uuid: 002186e8-43fd-4ea9-8cb6-beed25754313
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_high
+    - node.type.price_snapshot
+id: node.price_snapshot.field_high
+field_name: field_high
+entity_type: node
+bundle: price_snapshot
+label: High
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

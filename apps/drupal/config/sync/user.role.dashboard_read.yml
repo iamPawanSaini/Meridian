@@ -1,0 +1,15 @@
+uuid: 7e11ec9d-4d64-4625-84ad-4f69b2f32266
+langcode: en
+status: true
+dependencies:
+  module:
+    - meridian_core
+    - system
+id: dashboard_read
+label: 'Dashboard read'
+weight: 5
+is_admin: false
+permissions:
+  - 'access content'
+  - 'view meridian records'
+  - 'view meridian watchlist'

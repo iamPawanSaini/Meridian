@@ -328,7 +328,7 @@ Add Postgres, Python engine and Next.js containers through `.ddev/docker-compose
 - [ ] Unique `external_id` enforced per type at entity level (not only in the API)
 - [ ] `ddev drush cex` after install shows no diff; `cim` on a clean site recreates everything
 - [ ] PHPUnit kernel tests cover every validation rule, including each rejection case
-- [ ] Permissions matrix documented (admin, analyst-read, engine-ingest)
+- [ ] Permissions matrix documented and tested for `administrator`, `analyst`, `engine_ingest`, `dashboard_read`, `anonymous` and `authenticated` (FR-16)
 
 ## T10: Ingest API and authentication (L)
 **Owner chain:** developer, solution-architect (security consult). **Depends on:** T09. **Covers:** R-06, R-09, R-10

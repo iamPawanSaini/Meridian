@@ -1,0 +1,29 @@
+uuid: 5910b2ea-979a-4a16-a5ae-b5454892c1f2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_decision
+    - node.type.decision
+    - node.type.position
+id: node.position.field_decision
+field_name: field_decision
+entity_type: node
+bundle: position
+label: Decision
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      decision: decision
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,23 @@
+uuid: f507d2fd-5746-479c-b7c9-13738cc994a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_open
+    - node.type.price_snapshot
+id: node.price_snapshot.field_open
+field_name: field_open
+entity_type: node
+bundle: price_snapshot
+label: Open
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0001
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

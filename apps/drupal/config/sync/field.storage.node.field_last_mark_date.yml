@@ -1,0 +1,20 @@
+uuid: 20c56138-42f1-4511-822e-4701ebe8f4dc
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - node
+id: node.field_last_mark_date
+field_name: field_last_mark_date
+entity_type: node
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
