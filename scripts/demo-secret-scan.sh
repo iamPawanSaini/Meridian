@@ -42,7 +42,10 @@ PY
   echo
   echo "== Step 2: commit containing a fake GitHub token, expected to be REJECTED"
   # The fake token is generated at run time so no key-like string lives in the repo.
+  # tr gets SIGPIPE (exit 141) when head closes the pipe; that is expected under
+  # pipefail, which is why `|| true` is there. The length check below guards it.
   fake="ghp_$({ LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom || true; } | head -c 36)"
+  [[ ${#fake} -eq 40 ]] || { echo "ERROR: could not generate the fake token" >&2; return 2; }
   printf 'GITHUB_TOKEN=%s\n' "$fake" > config.env
   git add config.env
   set +e
