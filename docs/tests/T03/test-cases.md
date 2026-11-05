@@ -240,10 +240,10 @@ available.
 | Preconditions | Network access to the npm registry; `.spectral.yaml` and `openapi.yaml` present. Record the Spectral version (pinned in T04a if available) |
 | Steps | 1. `npx @stoplight/spectral-cli lint docs/architecture/openapi.yaml --ruleset .spectral.yaml --fail-severity=warn 2>&1 \| tee docs/tests/T03/evidence/TC-T03-10.txt; echo "exit=${PIPESTATUS[0]}" \| tee -a docs/tests/T03/evidence/TC-T03-10.txt` |
 | Expected result | Exit 0 with no errors and no warnings; the evidence file shows the tool version (add `npx @stoplight/spectral-cli --version`) and the exit code. Any finding is a defect against the contract and is not suppressed in the ruleset. If the owner has not run it, the case is Blocked and the task is not signed off |
-| Actual result | Not run by tester: no network, npx download denied. Owner-run command unchanged. |
+| Actual result | Re-executed 2026-11-06 by tester at HEAD c442012 (network available). Spectral CLI 6.17.0 (pre-commit hook pins 6.15.0; the 6.17.0 run is stricter or equal for this check). `No results with a severity of 'warn' or higher found!`, exit=0. |
 | Evidence | `evidence/TC-T03-10.txt` |
-| Status | Blocked |
-| Date | 2026-11-01 |
+| Status | Pass |
+| Date | 2026-11-06 |
 | Executed by | tester |
 
 ### TC-T03-11: Auth: clients, scopes, tokens, roles, matrix (D6)
@@ -570,10 +570,10 @@ available.
 | Preconditions | TC-T03-06 passes |
 | Steps | 1. If `mmdc` is installed: extract each mermaid block of `technical-design.md` to a file and run `mmdc -i block.mmd -o $SCRATCH/x.svg`. 2. Otherwise paste each block into a GitHub preview or mermaid.live and record the result |
 | Expected result | Every Mermaid block renders without a syntax error; the sequence diagram shows publisher, outbox, Drupal ingest, token refresh and the failure branch |
-| Actual result | No mmdc and no network for a preview. Block read by eye (balanced alt, loop, end); render unconfirmed. |
-| Evidence | `evidence/manual-review.md` |
-| Status | Blocked |
-| Date | 2026-11-01 |
+| Actual result | 2026-11-06, HEAD c442012. Step 1 (mmdc) attempted for all 4 mermaid blocks (technical-design.md x1, solution-architecture.md x3): exit=1 each, chrome-headless-shell not installed and not installable without unzip or sudo; no SVG produced, so rendering is NOT proven. Fallback: mermaid 12.3.0 `parse()` under node (DOMPurify stubbed, no layout): 4 of 4 PARSE-OK (technical-design sequence; two flowchart-v2; one sequence); negative control (unclosed `alt`) is rejected, so the parser detects syntax errors. Sequence diagram content checked: participants publisher, Postgres outbox, Drupal meridian_ingest, `/oauth/token`; branches 200, 401 (token refresh), 409, 413/504/timeout, 422, down after retries. Proves syntax validity only, not visual rendering. |
+| Evidence | `evidence/TC-T03-32.txt`, `evidence/TC-T03-32-attempt1-nobrowser.txt`, `evidence/mermaid-parse.mjs`, `evidence/mermaid-src/` |
+| Status | Pass (parse-level only) |
+| Date | 2026-11-06 |
 | Executed by | tester |
 
 ## Change log

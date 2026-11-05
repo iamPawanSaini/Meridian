@@ -1,0 +1,31 @@
+flowchart TB
+    user["Browser (owner, analysts)"]
+    subgraph gha["GitHub Actions"]
+        cron["daily-run.yml (cron, manual dispatch, concurrency lock)"]
+        engine["meridian_engine (Python 3.12): fetch, score, LLM review, simulate, publish"]
+        cron --> engine
+    end
+    pg[("Postgres 16, system of record: runs, prices, decisions, positions, outbox")]
+    subgraph pantheon["Pantheon sandbox (dev)"]
+        ingest["meridian_ingest: idempotent ingest API"]
+        core["meridian_core: content model, roles, admin views"]
+        jsonapi["Drupal JSON:API (read)"]
+        ddb[("Drupal database: published copy")]
+        ingest --> ddb
+        core --> ddb
+        jsonapi --> ddb
+    end
+    subgraph vercel["Vercel Hobby"]
+        web["meridian-web (Next.js App Router, server-side data access)"]
+    end
+    yahoo["yfinance / Yahoo Finance"]
+    claude["Claude API"]
+    engine -->|"SQL over TLS"| pg
+    engine -->|"HTTPS GET"| yahoo
+    engine -->|"HTTPS, JSON schema-validated"| claude
+    engine -->|"outbox drain: HTTPS POST ingest, OAuth client credentials, ingest scope"| ingest
+    engine -->|"watchlist read at run start, OAuth client credentials, watchlist read scope"| jsonapi
+    engine -->|"on-demand revalidation after publish, shared secret"| web
+    web -->|"JSON:API read, OAuth read scope or user token"| jsonapi
+    user -->|"HTTPS, Drupal account login"| web
+    user -->|"HTTPS, Drupal admin UI"| core

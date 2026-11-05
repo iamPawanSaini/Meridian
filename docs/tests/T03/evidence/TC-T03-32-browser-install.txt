@@ -1,0 +1,7 @@
+== install chrome-headless-shell (scratch cache, no sudo)
+  puppeteer install firefox@stable_111.0.1      Install a specific version of the Firefox browser.
+  puppeteer install firefox --platform mac      Install the latest Mac (Intel) build of the Firefox browser.
+
+Error: All providers failed for chrome-headless-shell 156.0.8078.47:
+  - DefaultProvider: Extraction failed: no zip archiver is available. Install `unzip` (or `tar.exe`/Powershell on Windows), or add the optional `yauzl` dependency.
+exit=1
