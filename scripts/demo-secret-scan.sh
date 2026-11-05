@@ -32,7 +32,7 @@ rev = re.search(r"gitleaks/gitleaks\n\s+rev:\s*(\S+)", text).group(1)
 print("repos:\n  - repo: https://github.com/gitleaks/gitleaks\n"
       f"    rev: {rev}\n    hooks:\n      - id: gitleaks")
 PY
-  "$pre_commit" install -q
+  "$pre_commit" install >/dev/null
 
   echo "== Step 1: clean commit (control), expected to SUCCEED"
   git add .gitleaks.toml .pre-commit-config.yaml
@@ -42,7 +42,7 @@ PY
   echo
   echo "== Step 2: commit containing a fake GitHub token, expected to be REJECTED"
   # The fake token is generated at run time so no key-like string lives in the repo.
-  fake="ghp_$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 36)"
+  fake="ghp_$({ LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom || true; } | head -c 36)"
   printf 'GITHUB_TOKEN=%s\n' "$fake" > config.env
   git add config.env
   set +e
