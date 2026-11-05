@@ -1,0 +1,19 @@
+## TC-T09-63/64 docs regression suites in the clean clone (committed HEAD 83ed38f), run by the docs-regression step of ddev quality (scripts/docs_regression.sh, --regression mode, recursion guard set)
+PASS  docs-regression
+      ok docs/tests/T00/run-checks.sh
+      ok docs/tests/T02/run-checks.sh
+      ok docs/tests/T03/run-checks.sh
+      ok docs/tests/T04/run-checks.sh
+      ok docs/tests/T04a/run-checks.sh
+      ok docs/tests/T05/run-checks.sh
+      ok docs/tests/T06/run-checks.sh
+      ok docs/tests/T07/run-checks.sh
+      8 docs suites run
+== T00: 
+== T02: 
+== T03: RESULT: ALL AUTOMATED CHECKS PASSED 
+== T04: RESULT: ALL AUTOMATED CHECKS PASSED 
+== T04a: RESULT: ALL EXECUTED CHECKS PASSED (15 blocked) 
+== T05: SUMMARY: mode=reg cases: 24 PASS, 0 FAIL, 0 BLOCKED; checks executed: 176; SKIP (optional tools): 1; BLOCKED lines: 0 RESULT: ALL EXECUTED CHECKS PASSED (0 case(s) blocked) 
+== T06: SUMMARY: mode=reg run=20261105T101410Z cases: 19 PASS, 0 FAIL, 0 BLOCKED; checks executed: 93; SKIP (optional tools): 2; BLOCKED lines: 0 RESULT: ALL EXECUTED CHECKS PASSED (0 case(s) blocked) 
+== T07: SUMMARY: mode=reg run=20261105T104826Z cases: 31 PASS, 0 FAIL, 2 BLOCKED; checks executed: 146; SKIP (optional tools): 3; BLOCKED lines: 4 RESULT: ALL EXECUTED CHECKS PASSED (2 case(s) blocked) 

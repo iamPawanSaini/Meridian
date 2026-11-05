@@ -1,0 +1,27 @@
+decision external_id -> yes, unique
+decision trade_date -> yes
+decision symbol -> yes
+decision mode -> yes
+decision score -> yes
+decision action -> yes
+decision vetoed -> yes
+decision run -> yes
+position external_id -> yes, unique
+position symbol -> yes
+position mode -> yes
+position status -> yes
+position entry_date -> yes
+position exit_date -> yes
+position run -> yes
+position decision -> yes
+daily_run external_id -> yes, unique
+daily_run trade_date -> yes
+daily_run status -> yes
+daily_run finished_at -> yes
+price_snapshot external_id -> yes, unique
+price_snapshot trade_date -> yes
+price_snapshot symbol -> yes
+watchlist_item external_id -> yes, unique
+watchlist_item symbol -> yes, unique
+watchlist_item enabled -> yes
+watchlist_item sort_order -> yes

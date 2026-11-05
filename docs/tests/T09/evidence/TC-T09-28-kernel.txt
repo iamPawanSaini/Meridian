@@ -1,0 +1,9 @@
+TC-T09-28: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Violation Contract (Drupal\Tests\meridian_core\Kernel\ViolationContract)
+ ✔ Raw paths and codes
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

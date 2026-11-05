@@ -1,0 +1,35 @@
+## TC-T09-59
+-- step1
+162:      SIMPLETEST_DB: mysql://root:ci-only@127.0.0.1:3306/meridian_test
+164:      mariadb:
+166:        image: mariadb:10.6.22
+191:          coverage: pcov
+196:          php -m | grep -i pcov
+-- step2
+.ddev/config.yaml:2:# PHP and database versions must equal apps/drupal/pantheon.yml and composer.json
+.ddev/config.yaml-3-# config.platform.php (checked by docs/tests/T05/run-checks.sh).
+.ddev/config.yaml-4-name: meridian
+.ddev/config.yaml-5-type: drupal11
+--
+.ddev/config.yaml:10:database:
+.ddev/config.yaml-11-  type: mariadb
+.ddev/config.yaml-12-  version: "10.6"
+.ddev/config.yaml-13-webserver_type: nginx-fpm
+--
+.ddev/config.yaml:25:  # PHPUnit Kernel tests (T09). Throwaway DDEV database credentials, not a secret; CI sets its own.
+.ddev/config.yaml-26-  - SIMPLETEST_DB=mysql://db:db@db/db
+apps/drupal/pantheon.yml:1:# Pantheon site configuration (T05). Source of truth for PHP and database versions:
+apps/drupal/pantheon.yml-2-# .ddev/config.yaml and composer.json config.platform.php must match (run-checks.sh TC-T05-04).
+apps/drupal/pantheon.yml-3-api_version: 1
+apps/drupal/pantheon.yml-4-web_docroot: true
+--
+apps/drupal/pantheon.yml:6:database:
+apps/drupal/pantheon.yml-7-  version: 10.6
+apps/drupal/pantheon.yml-8-build_step: true
+-- step3
+no pcov in .ddev/config.yaml
+-- healthcheck/sqlite
+173:          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+174:          --health-interval=5s
+175:          --health-timeout=5s
+176:          --health-retries=20

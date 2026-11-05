@@ -1,0 +1,47 @@
+## TC-T09-70
+-- 1
+58:- `external_id` is unique per bundle, enforced at entity level (`MeridianUniqueInBundle`; core
+72:  `view meridian inputs` (administrator and analyst);
+81:  `MeridianUniqueInBundle` check cannot race. The database unique key stays as defence in depth,
+387:| `meridian_dashboard_user` | `view meridian records`, `view meridian inputs`, `view meridian raw llm output` | same as `meridian_dashboard_read`, plus `GET /api/meridian/v1/me` |
+394:`view meridian records` and `view meridian inputs`. A second scope
+428:`access content`, `view meridian records`, `view meridian inputs`,
+752:| Unique database index on `field_external_id` per bundle | D1 | T09 (closed 2026-11-04: the key `meridian_external_id_bundle` on `node__field_external_id (bundle, field_external_id_value)` works,
+782:| 6 | 2026-11-04 | T09 amendment (`docs/tasks/T09/decision-uniqueness.md`, `decision-roles-and-access.md`, `decision-measurement-scope.md`): D1 uniqueness wording (`MeridianUniqueInBundle`, unique
+-- 2
+docs/runbooks/local-setup.md:149:  `ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel` (or `unit`).
+docs/runbooks/local-setup.md:150:  They use `SIMPLETEST_DB`, which DDEV sets to the project database (`apps/drupal/README.md`,
+apps/drupal/README.md:40:ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel
+apps/drupal/README.md:43:Kernel tests need a database. `SIMPLETEST_DB` is the PHPUnit variable that holds its URL, in the
+-- 3
+.github/README.md:60:- MariaDB: the `drupal` job runs a `mariadb:10.6.22` service container (health check, port
+.github/README.md:64:- Coverage: setup-php `coverage: pcov` in the `drupal` job (DDEV uses Xdebug coverage, see
+scripts/README.md:17:| `check_ci.py` | CI rules YAML cannot check: group coverage, toolchain parity with DDEV and Pantheon, action pins, documented secret names, least privilege, heavier-set tripwire 
+scripts/README.md:91:5. (T09) The Drupal tests need a database. CI starts a MariaDB service container
+scripts/README.md:92:   (`mariadb:10.6.22`) and sets `SIMPLETEST_DB`. DDEV uses its own MariaDB 10.6 and sets
+scripts/README.md:94:   type and version, the `pantheon.yml` database version and the CI image share one MariaDB
+scripts/README.md:96:6. (T09) The coverage driver differs: CI uses pcov (setup-php `coverage: pcov`). The DDEV web
+scripts/README.md:97:   image cannot install `php8.3-pcov` (the Sury apt key has expired, checked 2026-11-04), so
+-- 4
+19:| T09 | Content model as configuration | M | 3 Drupal backend | T03, T05 | In test | `task/T09-content-model` | Plan approved 2026-11-04 (DN-1 to DN-11 decided by solution-architect); owner accepte
+20:| T10 | Ingest API and authentication | L | 3 Drupal backend | T09 | Not started |  |  |
+21:| T11 | Read API for the frontend | M | 3 Drupal backend | T09 | Not started |  |  |
+22:| T12 | Admin UI and roles | M | 3 Drupal backend | T09 | Not started |  |  |
+TRACEABILITY T09 hits: 3
+-- 5
+16:| R-03 | LLM analyst review that can veto a buy; failure counts as veto | FR-05, FR-06, FR-07, NFR-08 | T02, T17, T29, T30, T31 | technical-design D1 (Decision `vetoed`, `veto_reason`, `raw_llm_output`), D2 (`runs` LLM cost columns, `ck_decisions_
+19:| R-06 | Every input, output and decision is stored and reproducible | FR-12, FR-13, FR-14, NFR-04, NFR-16 | T02, T03, T09, T10, T14, T17, T19, T20, T24, T27, T29, T30, T31 | technical-design D2 (provenance NOT NULL, migration plan), D3 (idempoten
+20:| R-07 | Drupal admin can browse, filter and export records, with roles | FR-15, FR-16 | T02, T09, T12, T19 | technical-design D1 (content model, field visibility), D6 (roles, permissions); data-model Drupal content model | Planned: [FR-15](#plann
+23:| R-10 | Scheduled daily run, NSE holiday safe, idempotent, alerts on failure | FR-22, FR-23, FR-24, FR-25, NFR-01, NFR-02, NFR-06, NFR-14, NFR-15 | T02, T10, T14, T15, T19, T20, T27, T28, T29, T30, T31 | technical-design D2 (`runs` lock, status, 
+25:| R-12 | Every task tested and documented inside the project folder | FR-28, FR-29, NFR-07, NFR-18 | T00, T01, T02, T04, T04a, T08, T16, T32, T33 | technical-design D5 (Spectral lint, structural check), test hooks in D1 to D8 | TC-T00-01 to TC-T00
+47:| FR-06 | R-03 | T17 | unit | One test per failure type (malformed, empty, timeout, API error, schema violation) using fake LLM responses, each asserting a veto with the reason stored | TC-T17-* | Planned |
+48:| FR-07 | R-03 | T17, T30 | unit; security | Prompt-injection set with at least one injection case per untrusted input field, asserting 0 unvalidated BUY results and an unchanged output schema; T30 repeats it in the manual review | TC-T17-*, TC-T3
+53:| FR-12 | R-06 | T14, T17 | integration | After a run on Postgres, assert all 5 provenance fields are non-null on 100% of decision rows, including constraint tests on the schema (T14) and the LLM fields (T17) | TC-T14-*, TC-T17-* | Planned |
+54:| FR-13 | R-06 | T20, T27 | integration; end-to-end | Run replay for a stored date with no LLM and compare scores and pre-LLM actions with the original run: 0 differences (T20 integration, T27 on DDEV) | TC-T20-*, TC-T27-* | Planned |
+55:| FR-14 | R-06 | T19, T27 | data reconciliation | Publish a seeded day and run the reconciliation script comparing counts and key values between Postgres and Drupal: 0 differences (T19 against Drupal, T27 on the full stack) | TC-T19-*, TC-T27-* | 
+56:| FR-15 | R-07 | T12 | integration | Drupal Functional tests for the 3 admin views: exposed filters work and the CSV export row count equals the filtered row count | TC-T12-* | Planned |
+57:| FR-16 | R-07 | T09, T12 | integration; security | PHPUnit permissions matrix testing every role against every permission, 100% of cells pass, with at least 4 roles present | TC-T09-*, TC-T12-* | Planned |
+75:| NFR-04 | R-06 | T10, T30 | performance | Timing harness posts one 500-record ingest request 5 times on DDEV and reports the nearest-rank p95 with raw samples, at most 30 s (T10); T30 repeats it | TC-T10-*, TC-T30-* | Planned |
+77:| NFR-06 | R-10 | T31 | manual simulation | Count terminal run records per trading day over the T31 window: 100% terminal and at least 90% success or partial | TC-T31-* | Planned |
+78:| NFR-07 | R-12 | T08 | performance | Read the ci.yml wall-clock time from GitHub Actions job timings on a clean cache and warm caches: at most 10 min and 6 min (T08) | TC-T08-* | Planned |
+87:| NFR-16 | R-06 | T14, T29 | integration; manual simulation | Backup and restore drill for Postgres and the Drupal database: row counts match, RPO at most 24 h and RTO at most 2 h recorded (T14 script, T29 drill) | TC-T14-*, TC-T29-* | Planned |

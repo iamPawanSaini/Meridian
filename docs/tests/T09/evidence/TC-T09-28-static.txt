@@ -1,0 +1,102 @@
+## TC-T09-28 (static part)
+-- step1 grep codes in src and tests
+meridian.external_id_mismatch: src=1 tests=7
+meridian.bundle_allowed_values: src=1 tests=2
+meridian.position.decision_not_buy: src=1 tests=1
+meridian.position.decision_symbol_mismatch: src=1 tests=2
+meridian.position.decision_mode_mismatch: src=1 tests=2
+meridian.position.decision_after_entry: src=1 tests=1
+-- all meridian.* codes defined in src
+'meridian.bundle_allowed_values' tests=2
+'meridian.daily_run.buy_count_exceeds_decisions' tests=1
+'meridian.daily_run.finished_before_started' tests=1
+'meridian.daily_run.skip_reason_forbidden' tests=1
+'meridian.daily_run.skip_reason_required' tests=1
+'meridian.daily_run.watchlist_source_required' tests=1
+'meridian.date_in_future' tests=1
+'meridian.decimal_precision' tests=1
+'meridian.decimal_scale' tests=4
+'meridian.decision.buy_requires_pre_buy' tests=1
+'meridian.decision.buy_vetoed' tests=1
+'meridian.decision.veto_reason_forbidden' tests=1
+'meridian.decision.veto_reason_required' tests=1
+'meridian.decision.veto_requires_pre_buy' tests=1
+'meridian.duplicate_value' tests=2
+'meridian.external_id_mismatch' tests=7
+'meridian.immutable' tests=2
+'meridian.json_invalid' tests=1
+'meridian.json_not_object' tests=1
+'meridian.json_too_large' tests=1
+'meridian.max_length' tests=2
+'meridian.non_decreasing' tests=1
+'meridian.pattern' tests=6
+'meridian.position.decision_after_entry' tests=1
+'meridian.position.decision_mode_mismatch' tests=2
+'meridian.position.decision_not_buy' tests=1
+'meridian.position.decision_symbol_mismatch' tests=2
+'meridian.position.exit_field_forbidden' tests=1
+'meridian.position.exit_field_required' tests=1
+'meridian.position.exit_not_after_entry' tests=1
+'meridian.position.mark_before_entry' tests=1
+'meridian.position.stop_not_below_entry' tests=1
+'meridian.position.target_not_above_entry' tests=1
+'meridian.position.time_stop_forbidden' tests=1
+'meridian.position.time_stop_not_after_entry' tests=1
+'meridian.position.time_stop_required' tests=1
+'meridian.position.unrealised_pnl_forbidden' tests=1
+'meridian.price_snapshot.high_below_' tests=0
+'meridian.price_snapshot.low_above_' tests=0
+'meridian.unique_in_bundle' tests=2
+'meridian.watchlist_item.enabled_limit' tests=1
+-- helper exactness
+  /**
+   * Runs rejection cases and accept cases of one bundle.
+   *
+   * @param string $bundle
+   *   The bundle.
+   * @param array<string, array{0: array<string, mixed>, 1: list<array{0: string, 1: string}>}> $cases
+   *   Cases by label: field changes and the expected violations.
+   */
+  protected function runCases(string $bundle, array $cases): void {
+    foreach ($cases as $label => [$changes, $expected]) {
+      $this->assertViolations($this->record($bundle, $changes), $expected, $bundle . ': ' . $label);
+    }
+  }
+
+}
+-- README violation contract
+55:## Violation contract (T10)
+56-
+57-`$entity->validate()` returns violations with a raw `getPropertyPath()` and `getCode()`.
+58-`ViolationContractTest` pins these raw values. T10 maps them to JSON pointers, so it must apply
+59-the normalisation below. The other Kernel tests apply the same normalisation.
+60-
+61-| Source | Raw path | Code |
+62-|---|---|---|
+63-| Meridian rule on a single-value field (`MeridianPattern`, `MeridianJsonDocument`, `MeridianDecimalScale`, `MeridianUniqueInBundle`, ...) | `field_symbol` | `meridian.*` |
+64-| Meridian rule on one value of a multi-value field (`field_rule_hits`) | `field_rule_hits.0` (the delta) | `meridian.pattern` |
+65-| Meridian rule on the whole multi-value field (`field_modes`) | `field_modes` | `meridian.duplicate_value` |
+66-| Cross-field and external ID rules | `field_external_id`, `field_buy_count`, ... | `meridian.<bundle>.<rule>`, `meridian.external_id_mismatch` |
+67-| Core range, length, scale of a value | `field_score.0.value` | core UUID code (`Range::TOO_HIGH_ERROR`, `Length::TOO_LONG_ERROR`) |
+68-| Core allowed values | `field_mode.0` | `Choice::NO_SUCH_CHOICE_ERROR` |
+69-| Core required | `field_score` | `NotNull::IS_NULL_ERROR` |
+70-| Reference to a missing or wrong-bundle node | `field_run.0.target_id` | empty string `''` |
+71-| Malformed date | `field_trade_date.0` and `field_trade_date.0.value` (two violations) | empty string `''` |
+72-| Base field (title) | `title.0.value` | core code |
+73-
+74-Normalisation T10 applies: remove a trailing `.value` or `.target_id`; for a field other than
+75-`field_rule_hits` and `field_modes` also remove a trailing `.0`; keep the delta for those two
+76-multi-value fields. The result is the field machine name (strip `field_` for the payload name),
+77-except `field_rule_hits.N` and `field_modes.N`, which point at item N. Two violations can have the
+78-same path (a malformed date). A violation with an empty code comes from core and T10 should map
+79-it by path and message, not by code.
+80-
+81-## Tests
+82-
+83-`apps/drupal/README.md`, "Tests". The Kernel tests create the content model from
+84-`config/sync` with `SyncConfigTrait`, so they test the shipped YAML. To run them against another
+85-copy of the config (for a mutation check), set the protected property `$syncConfigDirectory` in
+86-a test class.
+87-`MeridianRecordFactoryTrait` builds one valid record per bundle; each rejection case changes
+88-one value. Kernel tests are slow (about ten seconds per method), so related cases share a method
+89-and the failure message names the case.

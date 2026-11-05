@@ -1,0 +1,33 @@
+## TC-T09-66
+-rw-r--r-- 1 pawan pawan 7186 Nov  4 17:26 apps/drupal/scripts/perf/mg1_ingest_timing.php
+-- strict_types:
+3:declare(strict_types=1);
+-- bundles targeted
+69:  'type' => 'daily_run',
+97:    'type' => 'decision',
+-- MG1 consts
+26:const MG1_ITEMS = 500;
+27:const MG1_RUNS = 5;
+-- validate/violations
+10: * each pass in one database transaction, with validate() on every entity and zero violations
+58:  $violations = $entity->validate();
+-- xdebug check
+29:if (extension_loaded('xdebug')) {
+30:  fwrite(STDERR, "Xdebug is loaded. Turn it off (ddev xdebug off) and run again.\n");
+199:printf("\nenvironment: PHP %s, MariaDB %s, pcov %s, xdebug %s\n", PHP_VERSION, $database->query('SELECT VERSION()')->fetchField(), extension_loaded('pcov') ? 'loaded' : 'not loaded', extension_loaded('xdebug') ? 'loaded' : 'not loaded');
+-- transaction
+140:  $transaction = $database->startTransaction();
+155:  $transaction = $database->startTransaction();
+-- output facts
+94:  $symbol = sprintf('SYM%03d', $i % 50);
+171:  printf("run %d: create %.2f s, update %.2f s, total %.2f s, violations 0\n", $run_number, $create, $upda
+180:printf("\nitems per pass: %d, JSON payload per run: %.2f MB (inputs_snapshot plus raw_llm_output)\n", MG1_
+181:printf("slowest create %.2f s, slowest update %.2f s\n", max($creates), max($updates));
+182:printf("p95 of create plus update over %d runs: %.2f s (with 5 runs the p95 is the slowest run)\n", MG1_RU
+183:printf("NFR-04 entity-layer limit used for the warning: 15 s (half of 30 s)\n");
+199:printf("\nenvironment: PHP %s, MariaDB %s, pcov %s, xdebug %s\n", PHP_VERSION, $database->query('SELECT VE
+200:printf("host: %s; CPU %s; %d logical CPUs; RAM %s (WSL2 behind DDEV)\n", php_uname('s r'), $cpu, (int) tri
+-- config/sync writes / network
+16: * resolution or ingest lock. It uses no network and writes nothing to config/sync. Run it on a
+-- guard
+41:  fwrite(STDERR, "Refusing to run: $existing decision or daily_run nodes exist. Use a throwaway install (ddev drupal-install --force).\n");

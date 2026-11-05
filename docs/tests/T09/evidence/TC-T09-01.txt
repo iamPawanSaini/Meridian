@@ -1,0 +1,32 @@
+## TC-T09-01
+README.md
+config
+meridian_core.info.yml
+meridian_core.install
+meridian_core.permissions.yml
+meridian_core.services.yml
+src
+tests
+name: 'Meridian core'
+type: module
+description: 'Meridian content model rules: validation, uniqueness, roles and access (T09).'
+package: Meridian
+core_version_requirement: ^11.1
+dependencies:
+  - drupal:datetime
+  - drupal:node
+  - drupal:options
+  - drupal:user
+5:  datetime: 0
+8:  field: 0
+10:  meridian_core: 0
+12:  node: 0
+13:  options: 0
+17:  text: 0
+19:  user: 0
+-- forbidden modules:
+none
+-- contrib in composer require:
+composer.json unchanged
+check-names: OK (no stale placeholder names)
+check-names rc=0

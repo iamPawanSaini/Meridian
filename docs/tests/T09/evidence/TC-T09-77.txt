@@ -1,0 +1,59 @@
+## TC-T09-77 clean checkout, 2026-11-05T15:01:46+05:30
+-- runbook step 2: remove the registration of the other checkout (documented: ddev delete -Oy meridian)
+[32mImage  for project meridian was deleted[0m
+[32mImage ddev/ddev-dbserver-mariadb-10.6:v1.24.4-meridian-built for project meridian was deleted[0m
+[32mProject meridian was deleted. Your code and configuration are unchanged.[0m
+-- runbook step 1 (clone made earlier):
+/home/pawan/meridian-clean-t09
+83ed38f
+task/T09-content-model
+0
+-- step 2/3: ddev start
+ 107/162 [==================>---------]  66%
+ 116/162 [====================>-------]  71%
+ 136/162 [=======================>----]  83%
+ 153/162 [==========================>-]  94%
+ 161/162 [===========================>]  99%
+ 162/162 [============================] 100%
+Generating autoload files
+97 packages you are using are looking for funding.
+Use the `composer fund` command to find out more!
+[32mSuccessfully started meridian[0m
+[32mYour project can be reached at https://meridian.ddev.site
+See 'ddev describe' for alternate URLs.[0m
+start rc=0
+(clean tree above if empty)
+-- step 4 (runbook): ddev drupal-install
+ [notice] Performed install task: install_config_revert_install_changes
+ [notice] Performed install task: install_configure_form
+ [notice] Performed install task: install_finished
+ [success] Installation complete. (Admin)
+ [success] User name: admin  User password: <redacted>
+ [success] Cache rebuild complete.
+ [notice] No differences between DB and sync directory.
+Drupal is installed. Next step: ddev drush uli
+install rc=0
+-- step 5: drush uli
+https://meridian.ddev.site/user/reset/<redacted>
+-- step 6: ddev meridian-status
+SERVICE              STATE        HEALTH
+web                  running      healthy
+db                   running      healthy
+meridian-postgres    running      healthy
+meridian-engine      running      healthy
+meridian-web         running      healthy
+OK: all services running and healthy
+-- step 7: scripts/bootstrap-dev.sh
+Downloading pre-commit 4.7.0
+Downloading gitleaks 8.30.1
+Downloading actionlint 1.7.12
+Downloading shellcheck 0.11.0
+8.30.1
+1.7.12
+version: 0.11.0
+pre-commit 4.7.0
+pre-commit installed at .git/hooks/pre-commit
+pre-commit installed at .git/hooks/commit-msg
+Done. Hooks installed (pre-commit and commit-msg).
+Run 'scripts/quality.sh' to check the tree.
+bootstrap rc=0

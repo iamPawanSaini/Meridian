@@ -1,0 +1,57 @@
+## TC-T09-07 mutation results (full output: TC-T09-55.txt)
+== mutation symbol21, class ContentModelStructureTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutc/drupal/phpunit.xml.dist
+
+F...                                                                4 / 4 (100%)
+
+Time: 02:07.795, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testBundlesAndFieldsEqualTheDataModel
+decision.field_symbol storage max_length
+Failed asserting that 21 is identical to 20.
+
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:280
+/tmp/mutc/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:317
+
+FAILURES!
+Tests: 4, Assertions: 347, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutc/drupal && vendor/bin/phpunit --testsuite kernel --filter ContentModelStructureTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1
+== mutation nofield, class ContentModelStructureTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutd/drupal/phpunit.xml.dist
+
+FE..                                                                4 / 4 (100%)
+
+Time: 01:42.068, Memory: 6.00 MB
+
+There was 1 error:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testStatusUnionAndSubsets
+Error: Call to a member function getThirdPartySetting() on null
+
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:335
+
+--
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testBundlesAndFieldsEqualTheDataModel
+decision: every expected field exists
+Failed asserting that actual size 19 matches expected size 20.
+
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:301
+
+ERRORS!
+Tests: 4, Assertions: 250, Errors: 1, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutd/drupal && vendor/bin/phpunit --testsuite kernel --filter ContentModelStructureTest 2>&1 | tail -60`: exit status 2[0m
+EXIT=1

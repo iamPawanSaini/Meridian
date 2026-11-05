@@ -1,0 +1,14 @@
+## TC-T09-03 static extras
+decision: new_revision=1 display_submitted=display_submitted: false status_default=
+position: new_revision=1 display_submitted=display_submitted: false status_default=
+daily_run: new_revision=1 display_submitted=display_submitted: false status_default=
+price_snapshot: new_revision=1 display_submitted=display_submitted: false status_default=
+watchlist_item: new_revision=1 display_submitted=display_submitted: false status_default=
+field.storage.node.field_modes.yml:23:cardinality: 2
+field.storage.node.field_rule_hits.yml:17:cardinality: -1
+13:  size: big
+13:  datetime_type: date
+22:    target_bundles:
+23-      daily_run: daily_run
+24-    sort:
+25-      field: _none

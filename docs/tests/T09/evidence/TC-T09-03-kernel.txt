@@ -1,0 +1,12 @@
+TC-T09-03: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Content Model Structure (Drupal\Tests\meridian_core\Kernel\ContentModelStructure)
+ ✔ Bundles and fields equal the data model
+ ✔ Status union and subsets
+ ✔ Indexed columns
+ ✔ Displays cover every field
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

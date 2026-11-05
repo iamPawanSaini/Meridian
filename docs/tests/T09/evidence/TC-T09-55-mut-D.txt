@@ -1,0 +1,69 @@
+14:required: false
+== mutation vetoed_notreq, class DecisionValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutd/drupal/phpunit.xml.dist
+
+F.......                                                            8 / 8 (100%)
+
+Time: 04:37.289, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testBaselineAndRequiredFields
+decision: field_vetoed missing
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_vetoed',
+-        1 => 'ad32d13f-c3d4-423b-909a-857b961eb720',
+-    ],
+-]
++Array &0 []
+
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:53
+
+FAILURES!
+Tests: 8, Assertions: 180, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutd/drupal && vendor/bin/phpunit --testsuite kernel --filter DecisionValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1
+19
+== mutation nofield, class ContentModelStructureTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mutd/drupal/phpunit.xml.dist
+
+FE..                                                                4 / 4 (100%)
+
+Time: 01:42.068, Memory: 6.00 MB
+
+There was 1 error:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testStatusUnionAndSubsets
+Error: Call to a member function getThirdPartySetting() on null
+
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:335
+
+--
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\ContentModelStructureTest::testBundlesAndFieldsEqualTheDataModel
+decision: every expected field exists
+Failed asserting that actual size 19 matches expected size 20.
+
+/tmp/mutd/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:301
+
+ERRORS!
+Tests: 4, Assertions: 250, Errors: 1, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mutd/drupal && vendor/bin/phpunit --testsuite kernel --filter ContentModelStructureTest 2>&1 | tail -60`: exit status 2[0m
+EXIT=1

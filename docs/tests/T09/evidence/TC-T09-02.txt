@@ -1,0 +1,34 @@
+## TC-T09-02
+-- step1 counts
+node.type: 5
+field.storage.node: 61
+field.field.node: 82
+core.entity_form_display.node: 5
+core.entity_view_display.node: 5
+user.role: 6
+node.type.daily_run.yml
+node.type.decision.yml
+node.type.position.yml
+node.type.price_snapshot.yml
+node.type.watchlist_item.yml
+-- step2 config/install:
+(end)
+-- step3
+apps/drupal/web/modules/custom/meridian_core/config/schema/meridian_core.schema.yml
+-- step4 enforced
+apps/drupal/config/sync/node.type.daily_run.yml: enforced:module:-meridian_corename:'DailyRun'
+apps/drupal/config/sync/node.type.decision.yml: enforced:module:-meridian_corename:Decision
+apps/drupal/config/sync/node.type.position.yml: enforced:module:-meridian_corename:Position
+apps/drupal/config/sync/node.type.price_snapshot.yml: enforced:module:-meridian_corename:'PriceSnapshot'
+apps/drupal/config/sync/node.type.watchlist_item.yml: enforced:module:-meridian_corename:'WatchlistItem'
+-- roles new
+apps/drupal/config/sync/user.role.administrator.yml
+apps/drupal/config/sync/user.role.analyst.yml
+apps/drupal/config/sync/user.role.anonymous.yml
+apps/drupal/config/sync/user.role.authenticated.yml
+apps/drupal/config/sync/user.role.dashboard_read.yml
+apps/drupal/config/sync/user.role.engine_ingest.yml
+-- uuid check
+uuids 214 bad 0
+-- yamllint on config
+yamllint.................................................................Passed

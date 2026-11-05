@@ -1,0 +1,56 @@
+## TC-T09-58
+-- baseline: phpstan on the real module
+Note: Using configuration file /var/www/html/apps/drupal/phpstan.neon.dist.
+
+ [OK] No errors                                                                 
+
+rc=0
+-- phpstan scratch TypeError
+ ------ --------------------------------------------------------------------- 
+  Line   docs/tests/T09/scratch-58/TypeError.php                              
+ ------ --------------------------------------------------------------------- 
+  16     Method Drupal\meridian_scratch\TypeError::value() should return int  
+         but returns string.                                                  
+         🪪  return.type                                                      
+ ------ --------------------------------------------------------------------- 
+
+
+ [ERROR] Found 1 error                                                          
+
+
+[31mFailed to execute command `vendor/bin/phpstan analyse --no-progress --level=6 -c phpstan.neon.dist ../../docs/tests/T09/scratch-58/TypeError.php`: exit status 1[0m
+-- phpstan scratch UnticketedIgnore
+  17     Ignoring all errors on a line is not allowed.                    
+         🪪  ignore.allLineErrors (non-ignorable)                         
+         💡  Use @phpstan-ignore with an identifier and a comment (in     
+         parentheses).                                                    
+  17     Method Drupal\meridian_scratch\UnticketedIgnore::value() should  
+         return int but returns string.                                   
+         🪪  return.type                                                  
+ ------ ----------------------------------------------------------------- 
+
+
+ [ERROR] Found 2 errors                                                         
+
+
+[31mFailed to execute command `vendor/bin/phpstan analyse --no-progress --level=6 -c phpstan.neon.dist ../../docs/tests/T09/scratch-58/UnticketedIgnore.php`: exit status 1[0m
+-- phpcs scratch Tabs
+ 15 | ERROR | [x] Spaces must be used to indent lines; tabs are not allowed
+ 15 | ERROR | [x] Line indented incorrectly; expected 2 spaces, found 1
+ 16 | ERROR | [x] Spaces must be used to indent lines; tabs are not allowed
+ 16 | ERROR | [x] Line indented incorrectly; expected 4 spaces, found 2
+ 17 | ERROR | [x] Spaces must be used to indent lines; tabs are not allowed
+ 17 | ERROR | [x] Line indented incorrectly; expected 2 spaces, found 1
+----------------------------------------------------------------------------
+PHPCBF CAN FIX THE 10 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+----------------------------------------------------------------------------
+
+Time: 405ms; Memory: 6MB
+
+
+[31mFailed to execute command `vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php ../../docs/tests/T09/scratch-58/Tabs.php`: exit status 2[0m
+-- phpcs baseline (real tree)
+
+
+Time: 2.23 secs; Memory: 12MB
+

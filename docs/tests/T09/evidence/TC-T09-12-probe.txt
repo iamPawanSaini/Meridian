@@ -1,0 +1,11 @@
+quantity 1.5    => 1 quantity violations: field_quantity.0.value [] This value should be of the correct primitive type.
+quantity '1.5'  => 1 quantity violations: field_quantity.0.value [] This value should be of the correct primitive type.
+quantity 'abc'  => 2 quantity violations: field_quantity.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b] This value should be a valid number. | field_quantity.0.value [] This value should be of the correct primitive type.
+quantity '2'    => 0 quantity violations: 
+score 'abc'  => 4 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b] This value should be a valid number. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b
+score '1e5'  => 3 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [2d28afcb-e32e-45fb-a815-01c431a86a69] Score: the value may be no greater than 100. | field_score.0.value [] This value should be of th
+score ''     => 2 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score [ad32d13f-c3d4-423b-909a-857b961eb720] This value should not be null.
+score 'NaN'  => 4 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b] This value should be a valid number. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b
+score '50,5' => 4 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b] This value should be a valid number. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b
+score ' 50'  => 2 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [] This value should be of the correct primitive type.
+score '5 0'  => 4 violations: field_run.0.target_id [] The referenced entity (node: 1) does not exist. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b] This value should be a valid number. | field_score.0.value [ad9a9798-7a99-4df7-8ce9-46e416a1e60b

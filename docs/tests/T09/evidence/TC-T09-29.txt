@@ -1,0 +1,21 @@
+## TC-T09-29
+-- step1 validate() calls per Kernel file
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DailyRunValidationTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PermissionsMatrixTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/LifecycleRulesTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PriceSnapshotValidationTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:2
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ViolationContractTest.php:1
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:2
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PositionValidationTest.php:0
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/WatchlistItemValidationTest.php:0
+-- step2 forbidden classes in tests
+apps/drupal/web/modules/custom/meridian_core/tests/src/Traits/FixedTime.php:22:  public function getRequestTime(): int {
+apps/drupal/web/modules/custom/meridian_core/tests/src/Traits/FixedTime.php:29:  public function getRequestMicroTime(): float {
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:374:    $this->assertSame([], $source->listAll('jsonapi'), 'no JSON:API config in T09');
+-- grep context
+apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ContentModelStructureTest.php:374:    $this->assertSame([], $source->listAll('jsonapi'), 'no JSON:API config in T09');
+apps/drupal/web/modules/custom/meridian_core/tests/src/Traits/FixedTime.php:22:  public function getRequestTime(): int {
+apps/drupal/web/modules/custom/meridian_core/tests/src/Traits/FixedTime.php:29:  public function getRequestMicroTime(): float {

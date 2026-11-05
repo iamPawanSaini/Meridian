@@ -1,0 +1,15 @@
+TC-T09-40: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Permissions Matrix (Drupal\Tests\meridian_core\Kernel\PermissionsMatrix)
+ ✔ Permission definitions
+ ✔ Role configuration
+ ✔ Role by permission cells
+ ✔ Role by bundle by operation cells
+ ✔ Unpublished records and neutral rule
+ ✔ Restricted field cells
+ ✔ Cache contexts
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

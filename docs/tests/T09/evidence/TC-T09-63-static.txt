@@ -1,0 +1,17 @@
+## TC-T09-63 static parts
+-- step4 old expectations
+docs/tests/T05/run-checks.sh:476:cka "meridian_core exists and every custom module is named in section 0 (T09; was: no custom module exists yet; survives T10 meridian_ingest)" bash -c "m=\$(git ls-files 'apps/drupal/web/modules/custom/*' | cut -d/ -f6 | sort -u | grep -v '^\.gitkeep\$'); grep -qx meridian_core <<<\"\$m\" && ! grep -vxE 'meridian_core|meridian_ingest' <<<\"\$m\""
+docs/tests/T05/run-checks.sh:621:  ckp "PASS line for component-drupal-tests (T09; was: visible SKIP, no phpunit.xml.dist)" bash -c "grep -qE '^\s*PASS\s+component-drupal-tests' '$WORK/q.txt'"
+-- the four edited lines now
+cka "phpunit.xml.dist is present (T09 added it with the first module; was: absent until T09)" bash -c "[[ -e apps/drupal/phpunit.xml.dist ]]"
+cka "meridian_core exists and every custom module is named in section 0 (T09; was: no custom module exists yet; survives T10 meridian_ingest)" bash -c "m=\$(git ls-files 'apps/drupal/web/modules/custom/*' | cut -d/ -f6 | sort -u | grep -v '^\.gitkeep\$'); grep -qx meridian_core <<<\"\$m\" && ! grep -vxE 'meridian_core|meridian_ingest' <<<\"\$m\""
+  ckp "PASS line for component-drupal-tests (T09; was: visible SKIP, no phpunit.xml.dist)" bash -c "grep -qE '^\s*PASS\s+component-drupal-tests' '$WORK/q.txt'"
+  ckp "Verification: PASS component-drupal and component-drupal-tests (T09; was: SKIP); engine and web steps SKIP" bash -c "grep -qE '^\s*PASS\s+component-drupal\b' '$WORK/q54.txt' && grep -qE '^\s*PASS\s+component-drupal-tests' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-engine' '$WORK/q54.txt' && grep -qE 'SKIP\s+component-web' '$WORK/q54.txt'"
+-- bash -n / shellcheck
+syntax ok
+shellcheck rc=0
+-- change log rows
+docs/tests/T05/test-cases.md:359:| Expected result | `web/modules/custom/.gitkeep` tracked; `phpstan.neon.dist` keeps level 6, `reportIgnoresWithoutComments: tr
+docs/tests/T05/test-cases.md:706:| 2026-11-05 | `run-checks.sh` TC-T05-19: the two "until T09" snapshots now assert the T09 state (`phpunit.xml.dist` present; `
+docs/tests/T06/test-cases.md:926:| 2026-11-05 | `run-checks.sh` line 1031 (walk-through verification): "SKIP component-drupal-tests (no phpunit.xml.dist)" is no
+-- tag choice: cka for 475/476 (snapshots, as before), ckp for 621 and 1031 (live-quality invariants)

@@ -1,0 +1,53 @@
+## TC-T09-51 2026-11-05T12:06:52+05:30
+-- precondition dump
+Wrote database dump from project 'meridian' database 'db' to file /tmp/claude-1000/-home-pawan-Meridian/4daeb473-c2fa-435d-a27c-d020585f194f/scratchpad/pre.sql.gz in gzip format.
+-- 1 sql:drop
+
+ // Do you really want to drop all tables in the database db?: yes.             
+
+-- count tables: 1
+-- 2 site:install --existing-config
+ You are about to:
+ * DROP all tables in your 'db' database.
+
+ // Do you want to continue?: yes.                                              
+
+ [notice] Starting Drupal installation. This takes a while.
+ [notice] Performed install task: install_select_language
+ [notice] Performed install task: install_select_profile
+ [notice] Performed install task: install_load_profile
+ [notice] Performed install task: install_verify_requirements
+ [notice] Performed install task: install_verify_database_ready
+ [notice] Performed install task: install_base_system
+ [notice] Performed install task: install_bootstrap_full
+ [notice] Performed install task: install_config_import_batch
+ [notice] Performed install task: install_config_download_translations
+ [notice] Performed install task: install_config_revert_install_changes
+ [notice] Performed install task: install_configure_form
+ [notice] Performed install task: install_finished
+ [success] Installation complete. (Admin)
+ [success] User name: admin  User password: <redacted>
+install rc=0
+-- 3 config:status
+ [notice] No differences between DB and sync directory.
+-- 4 cex to temp dir
+ [success] Configuration successfully exported to /tmp/cex-after.
+/tmp/cex-after
+-- 5 diff -r
+Only in /var/www/html/apps/drupal/config/sync: .htaccess
+
+[31mFailed to execute command `diff -r /var/www/html/apps/drupal/config/sync /tmp/cex-after && echo IDENTICAL`: exit status 1[0m
+-- 6 key
+node__field_external_id	0	meridian_external_id_bundle	1	bundle	A	0	NULL	NULL		BTREE			NO
+node__field_external_id	0	meridian_external_id_bundle	2	field_external_id_value	A	0	NULL	NULL		BTREE			NO
+
+-- 7 node types
+5
+-- roles
+anonymous authenticated administrator analyst engine_ingest dashboard_read 
+-- uli
+https://meridian.ddev.site/user/reset/<redacted>
+-- git status
+-- 5b diff -r ignoring the non-config .htaccess guard file
+IDENTICAL
+apps/drupal/config/sync/.htaccess

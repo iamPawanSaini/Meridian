@@ -1,0 +1,24 @@
+## TC-T09-53
+6:  no URL is kept in this file. Run from apps/drupal: vendor/bin/phpunit, then the option testsuite and a suite name
+10:         bootstrap="web/core/tests/bootstrap.php"
+26:  <testsuites>
+27:    <testsuite name="unit">
+28:      <directory>web/modules/custom/*/tests/src/Unit</directory>
+29:    </testsuite>
+30:    <testsuite name="kernel">
+31:      <directory>web/modules/custom/*/tests/src/Kernel</directory>
+32:    </testsuite>
+33:  </testsuites>
+34:  <source ignoreSuppressionOfDeprecations="true">
+36:      <directory>web/modules/custom</directory>
+39:      <directory>web/modules/custom/*/tests</directory>
+41:  </source>
+-- step2 (expect nothing)
+5:  SIMPLETEST_DB environment variable (DDEV sets it; CI sets it for the MariaDB service);
+(grep rc=0)
+-- step3 list-suites
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Available test suites:
+ - kernel (47 tests)
+ - unit (25 tests)

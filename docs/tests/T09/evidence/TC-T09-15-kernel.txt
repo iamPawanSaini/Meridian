@@ -1,0 +1,16 @@
+TC-T09-15: extract of the full Kernel run (PU-K --testdox) on HEAD 83ed38f, 2026-11-05.
+Full raw output: docs/tests/T09/evidence/TC-T09-54-kernel.txt
+
+Decision Validation (Drupal\Tests\meridian_core\Kernel\DecisionValidation)
+ ✔ Baseline and required fields
+ ✔ Enumerations
+ ✔ Score and prices
+ ✔ Trade date not in the future
+ ✔ Action and veto rules
+ ✔ Text and document rules
+ ✔ External id
+ ✔ Run reference
+
+
+OK (47 tests, 1937 assertions)
+EXIT=0

@@ -1,0 +1,28 @@
+## TC-T09-57 static + host parts
+-- 1 guard / empty-tree / T09 text in quality.sh
+179:  # T09: the module exists, so PHPStan always runs (the T05 empty-tree guard is removed).
+179:  # T09: the module exists, so PHPStan always runs (the T05 empty-tree guard is removed).
+181:  # T09: PHPUnit (Unit and Kernel) with Cobertura coverage and the 70% gate. CI uses pcov. The
+221:  # T09: apps/drupal/phpunit.xml.dist exists, so this step runs and the coverage gate applies.
+-- 2 expected-skips
+no component-drupal-tests line
+-- 5 scripts tests (unittest; pytest is not installed on the host)
+noqa: 1
+total: 1
+
+1 suppression(s) without a valid ticket
+Ran 30 tests in 2.260s
+
+OK
+-- unit tests summary: scripts/tests 160 OK; .claude/hooks/tests 30 OK
+-- 4 scripts/quality.sh --group core (main tree, 2026-11-05T16:39:02+05:30)
+PASS  pre-commit
+PASS  branch-name
+PASS  commit-range
+PASS  exceptions
+PASS  assets
+PASS  tooling-tests
+PASS  secret-history
+PASS  ci-config
+summary: PASS 8 FAIL 0 SKIP 0
+rc=0

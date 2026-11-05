@@ -1,0 +1,43 @@
+## TC-T09-52 2026-11-05T12:07:54+05:30
+-- 1 config:set drift
+ // field.field.node.decision.field_score config?: yes.                         
+
+-- 2 config:status
+ --------------------------------------- ----------- 
+  Name                                    State      
+ --------------------------------------- ----------- 
+  field.field.node.decision.field_score   Different  
+ --------------------------------------- ----------- 
+-- 3 cim
+|            | field.field.node.decision.field_score | Update    |
++------------+---------------------------------------+-----------+
+
+ // Import the listed configuration changes?: yes.                              
+
+ [notice] Synchronized configuration: update field.field.node.decision.field_score.
+ [notice] Finalizing configuration synchronization.
+ [success] The configuration was imported successfully.
+-- 4 config:status
+ [notice] No differences between DB and sync directory.
+-- role delete then cim
+ [success] Deleted "dashboard_read"
+ ------------------------------------------- ---------- 
+  Name                                        State     
+ ------------------------------------------- ---------- 
+  system.action.user_add_role_action.dashbo   Only in   
+  ard_read                                    sync dir  
+  system.action.user_remove_role_action.das   Only in   
+  hboard_read                                 sync dir  
+  user.role.dashboard_read                    Only in   
+                                              sync dir  
+ ------------------------------------------- ---------- 
+
+ [notice] Synchronized configuration: create user.role.dashboard_read.
+ [notice] Synchronized configuration: create system.action.user_remove_role_action.dashboard_read.
+ [notice] Synchronized configuration: create system.action.user_add_role_action.dashboard_read.
+ [notice] Finalizing configuration synchronization.
+ [success] The configuration was imported successfully.
+anonymous authenticated administrator analyst engine_ingest dashboard_read 
+ [notice] No differences between DB and sync directory.
+-- git status
+(empty = clean)

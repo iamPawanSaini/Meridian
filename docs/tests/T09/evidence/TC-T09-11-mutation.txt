@@ -1,0 +1,55 @@
+## TC-T09-11 MUT short2 (field_mode allowed values gain short2)
+== mutation short2, class DecisionValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mut/drupal/phpunit.xml.dist
+
+.F....F.                                                            8 / 8 (100%)
+
+Time: 02:50.385, Memory: 6.00 MB
+
+There were 2 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testEnumerations
+decision: mode short
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 []
++Array &0 [
++    0 => Array &1 [
++        0 => 'field_mode',
++        1 => '8e179f1b-97aa-4560-a02f-2a8b42e49df7',
++    ],
++]
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:85
+
+2) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testExternalId
+decision: mode differs from the id
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+         0 => 'field_external_id',
+         1 => 'meridian.external_id_mismatch',
+     ],
++    1 => Array &2 [
++        0 => 'field_mode',
++        1 => '8e179f1b-97aa-4560-a02f-2a8b42e49df7',
++    ],
+ ]
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:251
+
+FAILURES!
+Tests: 8, Assertions: 175, Failures: 2.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter DecisionValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1 (non-zero = mutation detected)

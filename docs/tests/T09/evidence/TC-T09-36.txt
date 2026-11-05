@@ -1,0 +1,20 @@
+## TC-T09-36 live parts 2026-11-05T12:08:33+05:30
+-- after config install (current site, from TC-T09-51 install)
+meridian_external_id_bundle	1	bundle
+meridian_external_id_bundle	2	field_external_id_value
+
+-- after drush cr
+ [success] Cache rebuild complete.
+meridian_external_id_bundle	1	bundle
+meridian_external_id_bundle	2	field_external_id_value
+
+-- after updatedb
+ [success] No pending updates.
+meridian_external_id_bundle	1	bundle
+meridian_external_id_bundle	2	field_external_id_value
+
+-- entity schema check
+[]
+-- key not on revision table
+1
+-- uninstall path: covered by Kernel testKeyLifecycle (module uninstall cannot be run on the live site without dropping the content model; see TC-T09-36-kernel.txt)

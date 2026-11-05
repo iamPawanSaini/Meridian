@@ -1,0 +1,335 @@
+2026-11-05T10:33:39+05:30
+20:  max: 101.0
+== mutation score101, class DecisionValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mut/drupal/phpunit.xml.dist
+
+..F.....                                                            8 / 8 (100%)
+
+Time: 03:49.118, Memory: 6.00 MB
+
+There was 1 failure:
+
+1) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testScoreAndPrices
+decision: score 100.01
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_score',
+-        1 => '2d28afcb-e32e-45fb-a815-01c431a86a69',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:106
+
+FAILURES!
+Tests: 8, Assertions: 183, Failures: 1.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter DecisionValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T10:37:34+05:30
+18:      value: short2
+== mutation short2, class DecisionValidationTest
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.19
+Configuration: /tmp/mut/drupal/phpunit.xml.dist
+
+.F....F.                                                            8 / 8 (100%)
+
+Time: 02:50.385, Memory: 6.00 MB
+
+There were 2 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testEnumerations
+decision: mode short
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 []
++Array &0 [
++    0 => Array &1 [
++        0 => 'field_mode',
++        1 => '8e179f1b-97aa-4560-a02f-2a8b42e49df7',
++    ],
++]
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:85
+
+2) Drupal\Tests\meridian_core\Kernel\DecisionValidationTest::testExternalId
+decision: mode differs from the id
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+         0 => 'field_external_id',
+         1 => 'meridian.external_id_mismatch',
+     ],
++    1 => Array &2 [
++        0 => 'field_mode',
++        1 => '8e179f1b-97aa-4560-a02f-2a8b42e49df7',
++    ],
+ ]
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php:251
+
+FAILURES!
+Tests: 8, Assertions: 175, Failures: 2.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter DecisionValidationTest 2>&1 | tail -60`: exit status 1[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T10:40:29+05:30
+117:      $map['field_symbol'][] = ['MeridianUniqueInBundle', NULL];
+== mutation uniq, class ExternalIdUniquenessTest
+Terminated
+EXIT=143 (non-zero = mutation detected)
+
+2026-11-05T10:41:25+05:30
+118:      $map['field_symbol'][] = ['MeridianImmutable', NULL];
+== mutation immut, class LifecycleRulesTest
+Terminated
+EXIT=143 (non-zero = mutation detected)
+
+2026-11-05T10:41:34+05:30
+
+[31mFailed to execute command `sed -i '/^third_party_settings:/,/^id:/{/^third_party_settings:/d;/^  meridian_core:/d;/^    allowed_values:/d;/^      - /d}' /tmp/mut/drupal/config/sync/field.field.node.daily_run.field_status.yml && grep -n 'third_party\|allowed_values' /tmp/mut/drupal/config/sync/field.field.node.daily_run.field_status.yml; echo '(setting removed)'`: exit status 1[0m
+== mutation status_daily, class DailyRunValidationTest
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.unique_in_bundle',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:51
+
+2) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testUnpublishedDuplicateCounts
+unpublished duplicate
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.unique_in_bundle',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:140
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:66
+
+3) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testComparisonIsExact
+the exact value is a duplicate
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => 'meridian.unique_in_bundle',
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/ExternalIdUniquenessTest.php:90
+
+4) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testConcurrentWatchlistCreatesAreStoppedByTheKey
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+5) Drupal\Tests\meridian_core\Kernel\ExternalIdUniquenessTest::testKeyLifecycle
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+ERRORS!
+Tests: 7, Assertions: 53, Errors: 1, Failures: 5.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter ExternalIdUniquenessTest 2>&1 | tail -60`: exit status 2[0m
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Statement/PdoTrait.php:109
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/StatementWrapperIterator.php:89
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Connection.php:666
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Schema.php:137
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Schema.php:649
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:1569
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:1543
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:696
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:1963
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:2019
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:1962
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Field/FieldStorageDefinitionListener.php:85
+/tmp/mut/drupal/web/core/modules/field/src/Entity/FieldStorageConfig.php:372
+/tmp/mut/drupal/web/core/modules/field/src/Entity/FieldStorageConfig.php:334
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityStorageBase.php:582
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityStorageBase.php:537
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Config/Entity/ConfigEntityStorage.php:239
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityBase.php:371
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Config/Entity/ConfigEntityBase.php:643
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Traits/SyncConfigTrait.php:59
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:94
+
+--
+
+There were 3 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\LifecycleRulesTest::testExternalIdIsImmutable
+daily_run: external_id changed
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_external_id',
+-        1 => 'meridian.immutable',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:140
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/LifecycleRulesTest.php:50
+
+2) Drupal\Tests\meridian_core\Kernel\LifecycleRulesTest::testSourceVersionNeverDecreases
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+3) Drupal\Tests\meridian_core\Kernel\LifecycleRulesTest::testStaleCopyIsComparedWithTheStoredRecord
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+ERRORS!
+Tests: 4, Assertions: 12, Errors: 1, Failures: 3.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter LifecycleRulesTest 2>&1 | tail -60`: exit status 2[0m
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Statement/PdoTrait.php:109
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/StatementWrapperIterator.php:89
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Connection.php:666
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Schema.php:137
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Database/Schema.php:649
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:1569
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:1543
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorageSchema.php:696
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:1963
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:2019
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/Sql/SqlContentEntityStorage.php:1962
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Field/FieldStorageDefinitionListener.php:85
+/tmp/mut/drupal/web/core/modules/field/src/Entity/FieldStorageConfig.php:372
+/tmp/mut/drupal/web/core/modules/field/src/Entity/FieldStorageConfig.php:334
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityStorageBase.php:582
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityStorageBase.php:537
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Config/Entity/ConfigEntityStorage.php:239
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Entity/EntityBase.php:371
+/tmp/mut/drupal/web/core/lib/Drupal/Core/Config/Entity/ConfigEntityBase.php:643
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Traits/SyncConfigTrait.php:59
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:94
+
+--
+
+There were 3 failures:
+
+1) Drupal\Tests\meridian_core\Kernel\DailyRunValidationTest::testRequiredFieldsAndLists
+daily_run: status open
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 [
+-    0 => Array &1 [
+-        0 => 'field_status',
+-        1 => 'meridian.bundle_allowed_values',
+-    ],
+-]
++Array &0 []
+
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:133
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:160
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DailyRunValidationTest.php:52
+
+2) Drupal\Tests\meridian_core\Kernel\DailyRunValidationTest::testConditionalFields
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+3) Drupal\Tests\meridian_core\Kernel\DailyRunValidationTest::testFutureTradeDateIsNotRestricted
+Failed to run installer database tasks: Failed to connect to your database server. The server reports the following message: <em class="placeholder">SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name or service not known [Tip: This message normally means that there is no MySQL server running on the system or that you are using an incorrect host name or port number when trying to connect to the server. You should also check that the TCP/IP port you are using has not been blocked by a firewall or port blocking service.] </em>.<ul><li>Is the database server running?</li><li>Does the database exist or does the database user have sufficient privileges to create the database?</li><li>Have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>
+
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:366
+/tmp/mut/drupal/web/core/tests/Drupal/KernelTests/KernelTestBase.php:232
+/tmp/mut/drupal/web/modules/custom/meridian_core/tests/src/Kernel/MeridianKernelTestBase.php:89
+
+ERRORS!
+Tests: 4, Assertions: 33, Errors: 1, Failures: 3.
+
+[31mFailed to execute command `set -o pipefail; cd /tmp/mut/drupal && vendor/bin/phpunit --testsuite kernel --filter DailyRunValidationTest 2>&1 | tail -60`: exit status 2[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:36+05:30
+[31mProject is not currently running. Try 'ddev start'.[0m
+[31mProject is not currently running. Try 'ddev start'.[0m
+== mutation vetoed_notreq, class DecisionValidationTest
+[31mProject is not currently running. Try 'ddev start'.[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:38+05:30
+[31mProject is not currently running. Try 'ddev start'.[0m
+[31mProject is not currently running. Try 'ddev start'.[0m
+== mutation analyst_raw, class PermissionsMatrixTest
+[31mProject is not currently running. Try 'ddev start'.[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:41+05:30
+[31mProject is not currently running. Try 'ddev start'.[0m
+[31mProject is not currently running. Try 'ddev start'.[0m
+== mutation nokey, class ExternalIdUniquenessTest
+[31mProject is not currently running. Try 'ddev start'.[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:44+05:30
+[31mProject is not currently running. Try 'ddev start'.[0m
+[31mProject is not currently running. Try 'ddev start'.[0m
+== mutation symbol21, class ContentModelStructureTest
+[31mProject is not currently running. Try 'ddev start'.[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:46+05:30
+[31mProject is not currently running. Try 'ddev start'.[0m
+[31mProject is not currently running. Try 'ddev start'.[0m
+== mutation nofield, class ContentModelStructureTest
+[31mProject is not currently running. Try 'ddev start'.[0m
+EXIT=1 (non-zero = mutation detected)
+
+2026-11-05T11:50:50+05:30

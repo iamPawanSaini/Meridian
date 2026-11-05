@@ -1,0 +1,30 @@
+## TC-T09-06
+apps/drupal/config/sync/core.entity_form_display.node.daily_run.default.yml
+apps/drupal/config/sync/core.entity_form_display.node.decision.default.yml
+apps/drupal/config/sync/core.entity_form_display.node.position.default.yml
+apps/drupal/config/sync/core.entity_form_display.node.price_snapshot.default.yml
+apps/drupal/config/sync/core.entity_form_display.node.watchlist_item.default.yml
+apps/drupal/config/sync/core.entity_view_display.node.daily_run.default.yml
+apps/drupal/config/sync/core.entity_view_display.node.decision.default.yml
+apps/drupal/config/sync/core.entity_view_display.node.position.default.yml
+apps/drupal/config/sync/core.entity_view_display.node.price_snapshot.default.yml
+apps/drupal/config/sync/core.entity_view_display.node.watchlist_item.default.yml
+decision form fields 20 missing []
+decision view fields 20 missing []
+decision body field: False
+position form fields 23 missing []
+position view fields 23 missing []
+position body field: False
+daily_run form fields 21 missing []
+daily_run view fields 21 missing []
+daily_run body field: False
+price_snapshot form fields 12 missing []
+price_snapshot view fields 12 missing []
+price_snapshot body field: False
+watchlist_item form fields 6 missing []
+watchlist_item view fields 6 missing []
+watchlist_item body field: False
+TOTAL MISSING 0
+-- extra config types
+none
+no non-default modes

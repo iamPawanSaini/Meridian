@@ -1,0 +1,43 @@
+## TC-T09-60 (cont.) unittest discover
+test_good_fixture_passes_every_rule (test_check_ci.GoodTreeTests) ... ok
+test_real_repository_passes (test_check_ci.GoodTreeTests) ... ok
+test_standard_library_only (test_check_ci.GoodTreeTests) ... ok
+test_group_called_twice (test_check_ci.Rule1Tests) ... ok
+test_groups_come_from_the_quality_listing (test_check_ci.Rule1Tests) ... ok
+test_missing_group (test_check_ci.Rule1Tests) ... ok
+test_missing_workflow (test_check_ci.Rule1Tests) ... ok
+test_unknown_group (test_check_ci.Rule1Tests) ... ok
+test_composer_mismatch_and_missing_record (test_check_ci.Rule2Tests) ... ok
+test_composer_record_needs_a_date (test_check_ci.Rule2Tests) ... ok
+test_database_mismatch_in_ci (test_check_ci.Rule2Tests) ... ok
+test_database_mismatch_in_ddev (test_check_ci.Rule2Tests) ... ok
+test_database_mismatch_in_pantheon (test_check_ci.Rule2Tests) ... ok
+test_database_service_missing_or_unversioned (test_check_ci.Rule2Tests) ... ok
+test_database_type_must_be_mariadb (test_check_ci.Rule2Tests) ... ok
+test_database_versions_agree (test_check_ci.Rule2Tests)
+TC-T09-60: DDEV, Pantheon and the CI MariaDB service share one major.minor. ... ok
+test_php_mismatch_in_ddev_and_pantheon (test_check_ci.Rule2Tests) ... ok
+test_php_mismatch_with_ci (test_check_ci.Rule2Tests) ... ok
+test_python_and_node_versions_checked_once_present (test_check_ci.Rule2Tests) ... ok
+test_failure_names_file_and_line (test_check_ci.Rule3Tests) ... ok
+test_local_action_is_allowed (test_check_ci.Rule3Tests) ... ok
+test_unpinned_short_branch_and_missing_comment_fail (test_check_ci.Rule3Tests) ... ok
+test_wrong_comment_repo_fails (test_check_ci.Rule3Tests) ... ok
+test_github_token_is_exempt (test_check_ci.Rule4Tests) ... ok
+test_missing_doc_fails (test_check_ci.Rule4Tests) ... ok
+test_names_in_comments_are_ignored (test_check_ci.Rule4Tests) ... ok
+test_undocumented_secret_and_variable_fail (test_check_ci.Rule4Tests) ... ok
+test_missing_top_level_permissions (test_check_ci.Rule5Tests) ... ok
+test_write_all_fails (test_check_ci.Rule5Tests) ... ok
+test_write_without_ticket_fails_and_with_ticket_passes (test_check_ci.Rule5Tests) ... ok
+test_block_style_needs_is_read (test_check_ci.Rule6Tests) ... ok
+test_every_marker_without_a_heavier_job_fails (test_check_ci.Rule6Tests) ... ok
+test_fixture_tree_trips_the_rule (test_check_ci.Rule6Tests) ... ok
+test_heavier_job_in_ci_ok_needs_fails (test_check_ci.Rule6Tests) ... ok
+test_non_markers_do_not_trip (test_check_ci.Rule6Tests) ... ok
+test_real_tree_has_no_marker (test_check_ci.Rule6Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 1.362s
+
+OK

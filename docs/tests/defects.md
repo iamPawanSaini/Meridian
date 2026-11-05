@@ -172,6 +172,106 @@ without `--file` (or with a file that is not a database backup). TC-T07-20 check
 that no `backup:restore` pairs `--file` with `--element`; TC-T07-48 uses `--file` alone and checks
 that the file is a database backup.
 
+### DEF-012: Non-numeric and non-integer inputs are untested and give several violations
+
+| Field | Value |
+|---|---|
+| ID | DEF-012 |
+| Severity | Low (the input is rejected; the gaps are test coverage and the violation count) |
+| Found in | T09, TC-T09-12 (non-numeric score), TC-T09-17 (non-integer quantity) |
+| Status | Open |
+| Fix commit | |
+| Retest result | |
+
+**Steps to reproduce**
+
+1. `ddev drush php:script docs/tests/T09/probe_nonnumeric.php` (read-only, no save; output in
+   `docs/tests/T09/evidence/TC-T09-12-probe.txt`)
+2. `grep -rn "abc\|1.5"
+   apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/DecisionValidationTest.php
+   apps/drupal/web/modules/custom/meridian_core/tests/src/Kernel/PositionValidationTest.php` (no
+   non-numeric or non-integer case)
+
+**Expected:** TC-T09-12: "non-numeric rejected ... each rejection is one violation at
+`field_score`", with a Kernel test for it (AC5 mapping rule). TC-T09-17: "non-integer rejected"
+(`quantity`), with a Kernel test.
+
+**Actual:** the values are rejected, but (a) no Kernel test passes a non-numeric score or a
+non-integer quantity, so a regression would go unseen; (b) `field_score = 'abc'` gives three
+violations at `field_score.0.value`: two with the core code `ad9a9798-7a99-4df7-8ce9-46e416a1e60b`
+("This value should be a valid number", the Range min and max rules) and one with an empty code
+("correct primitive type"). `'1e5'` gives two (Range `TOO_HIGH` and the empty-code primitive-type
+message). `quantity = 'abc'` gives two, `1.5` or `'1.5'` gives one (empty code). T10 will see
+several entries for one bad value, some with an empty code. Suggested fix: add the cases to
+`DecisionValidationTest` and `PositionValidationTest` with the exact (path, code) list, and list the
+primitive-type and "valid number" violations in the README "Violation contract (T10)" table (or have
+T10 type-check before it calls `validate()`).
+
+### DEF-013: pcov is not available in the DDEV web container (TC-T09-56 and TC-T09-59 expect it)
+
+| Field | Value |
+|---|---|
+| ID | DEF-013 |
+| Severity | Low (accepted deviation; Xdebug coverage is used locally, pcov in CI) |
+| Found in | T09, TC-T09-56 (pcov loaded), TC-T09-59 (`.ddev/config.yaml` installs pcov) |
+| Status | Won't fix |
+| Fix commit | |
+| Retest result | TC-T09-56 and TC-T09-59 re-judged Pass on 2026-11-05 after the cases were amended (Xdebug coverage allowed in DDEV, pcov required in CI). CI pcov is still proven only by TC-T09-62 |
+
+**Steps to reproduce**
+
+1. `ddev exec php -m | grep -i pcov` (prints nothing, exit 1)
+2. `grep -n pcov .ddev/config.yaml` (no match)
+
+**Expected:** TC-T09-56: "pcov loaded"; TC-T09-59: "`.ddev/config.yaml` ... installs pcov via
+`webimage_extra_packages` or the documented form".
+
+**Actual:** pcov is not installed locally. The developer could not install `php8.3-pcov` (the Sury
+apt key has expired) and runs the coverage gate under Xdebug in `scripts/quality.sh`; CI sets
+`coverage: pcov`. The review accepted this as deviation D8 and as the plan's own fallback ("Risks:
+pcov not installable"), and `scripts/README.md` accepted difference 6 documents it. The test cases
+were not amended. The tester does not change the expected result. Needs the technical-architect to
+set Won't fix (Low) and the tester to reword TC-T09-56 and TC-T09-59 in the next design pass; until
+the live CI run (TC-T09-62) is read, the pcov path is unproven.
+
+**Decision:** Won't fix (Low). The technical-architect's review (`docs/tasks/T09/review.md`,
+judgement of deviation 8) accepted Xdebug coverage in DDEV and pcov in CI as the plan's own fallback.
+
+### DEF-014: A full `ddev quality` takes over an hour (each docs suite nests `ddev quality`)
+
+| Field | Value |
+|---|---|
+| ID | DEF-014 |
+| Severity | Low (developer usability; no wrong result) |
+| Found in | T09, TC-T09-57, TC-T09-63, TC-T09-64, TC-T09-75 |
+| Status | Open |
+| Fix commit | |
+| Retest result | |
+
+**Steps to reproduce**
+
+1. `docs/tests/T04a/run-checks.sh --regression` and watch `ps`: the suite starts `ddev quality`,
+   which runs the drupal group, including the Kernel suite under Xdebug (about 15 to 25 minutes).
+2. `docs/tests/T05/run-checks.sh --regression` runs the T04a regression again (line 487).
+   `docs/tests/T06/run-checks.sh --regression` runs T05 (which runs T04a) and T04a (line 480 and
+   481). The recursion guard (lock file, `QUALITY_NESTED`) is set only by
+   `scripts/docs_regression.sh`; when a suite is run by hand, as `/test-task` is asked to do for
+   TC-T09-63 and TC-T09-64, nothing marks the nested `ddev quality` as nested (not verified to the
+   end: the tester stopped these runs after seeing `ddev quality` start twice, one level inside the
+   other).
+
+**Expected:** the docs-regression step of one `ddev quality` takes minutes (the regression set is
+described as "invariant static checks", decision D-5).
+
+**Actual:** one full `ddev quality` runs the Kernel suite once itself, then `docs-regression` runs
+T04a, T05, T06 and T07; T04a, T05 and T06 each re-run T04a (and T06 re-runs T05), so five or six
+Kernel runs under Xdebug sit in one `ddev quality` (over an hour on this machine, with a 15 minute
+Kernel suite). Suggested fix: make the nested `ddev quality` in the T04a check (TC-T04a-48, the
+"ddev quality exits 0" contract) run only the cheap groups (`scripts/quality.sh --group core`, or a
+`QUALITY_SKIP_PHPUNIT=1` switch honoured by `quality.sh` when the lock file or `QUALITY_NESTED` is
+set), keep the full run only in the `--live` mode, and have T05 and T06 nest T04a with the same
+switch. A cap such as `timeout 20m` on the nested step would also bound the cost.
+
 ## Closed
 
 ### DEF-001: Path guard misparses quoted shell operators
