@@ -51,6 +51,8 @@ class ViolationContractTest extends MeridianKernelTestBase {
     $this->assertSame([['field_external_id', 'meridian.external_id_mismatch']], $this->rawViolations('decision', ['field_symbol' => 'TCS']), 'entity rule: the field path');
     $this->assertSame([['title.0.value', self::TOO_LONG]], $this->rawViolations('decision', ['title' => str_repeat('a', 256)]), 'base field');
     $this->assertSame([['field_score', self::REQUIRED]], $this->rawViolations('decision', ['field_score' => NULL]), 'required: the field path');
+    $this->assertSame([['field_quantity.0.value', ''], ['field_quantity.0.value', self::NOT_A_NUMBER]], $this->rawViolations('position', ['field_quantity' => 'abc']), 'non-numeric integer: several violations share the path');
+    $this->assertSame([['field_quantity.0.value', '']], $this->rawViolations('position', ['field_quantity' => '1.5']), 'non-integer: one empty code');
   }
 
 }
