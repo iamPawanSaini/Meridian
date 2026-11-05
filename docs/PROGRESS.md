@@ -6,7 +6,7 @@ Statuses: Not started, Planned, In progress, In review, In test, Blocked, Done.
 
 | Task | Title | Size | Phase | Depends on | Status | Branch | Notes |
 |---|---|---|---|---|---|---|---|
-| T00 | Repository scaffold and documentation skeleton | S | 0 Foundation | none | In test | `task/T00-scaffold` | Secret-scan demo pending (see `docs/tests/T00/test-report.md`) |
+| T00 | Repository scaffold and documentation skeleton | S | 0 Foundation | none | Done (2026-11-06) | `task/T00-scaffold`, `task/T00-retest` | 8/8 pass, signed off; DEF-015 (demo script vs pre-commit 4.7.0) fixed and closed; review finding 1 closed |
 | T01 | Claude Code agents and workflow commands | M | 0 Foundation | T00 | In test | `task/T01-agents` | 6/7 pass (live guard probe passed; DEF-001 fixed); TC-T01-06 dry run `T01-demo` not yet run |
 | T02 | Solution architecture | M | 1 Architecture and planning | T00, T01 | In test | `task/T02-solution-architecture` | Approved by technical-architect; 33/35 pass; blocked on owner secret scan (TC-T02-29) and GitHub render (TC-T02-32) |
 | T03 | Technical design | M | 1 Architecture and planning | T02 | In test | `task/T03-technical-design` | Approved by solution-architect (Rev 3); 30/32 pass; DEF-002 fixed; blocked on owner Spectral lint (TC-T03-10), Mermaid render (TC-T03-32) |
