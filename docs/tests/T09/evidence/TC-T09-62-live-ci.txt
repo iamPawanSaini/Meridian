@@ -1,0 +1,156 @@
+# TC-T09-62 live CI evidence (GitHub API, public, read 2026-11-05)
+PR #7 head 3d17dca: run https://github.com/iamPawanSaini/Meridian/actions/runs/42029185375
+main merge 69ed15e: run https://github.com/iamPawanSaini/Meridian/actions/runs/42030675309
+deploy-drupal on 69ed15e: https://github.com/iamPawanSaini/Meridian/actions/runs/42030675290 (skip job: PANTHEON_SITE unset)
+
+42029185375 127250936373 core success 2026-11-05T12:40:48Z 2026-11-05T12:41:30Z
+    Set up job - success
+    Check out the full history - success
+    Set up Python - success
+    Cache pre-commit environments - success
+    Cache pinned tools - success
+    Install the pinned tools - success
+    Run the quality suite (group core) - success
+    Upload reports - success
+    Post Cache pinned tools - success
+    Post Cache pre-commit environments - success
+    Post Set up Python - success
+    Post Check out the full history - success
+    Complete job - success
+42029185375 127250936744 web success 2026-11-05T12:40:48Z 2026-11-05T12:40:55Z
+    Set up job - success
+    Check out the full history - success
+    Run the quality suite (group web) - success
+    Upload reports - success
+    Post Check out the full history - success
+    Complete job - success
+42029185375 127250936852 drupal success 2026-11-05T12:40:48Z 2026-11-05T12:45:09Z
+    Set up job - success
+    Initialize containers - success
+    Check out the full history - success
+    Set up PHP and Composer - success
+    Record the toolchain - success
+    Find the Composer cache directory - success
+    Cache Composer downloads - success
+    Run the quality suite (group drupal) - success
+    Upload reports - success
+    Post Cache Composer downloads - success
+    Post Check out the full history - success
+    Stop containers - success
+    Complete job - success
+42029185375 127250936929 engine success 2026-11-05T12:40:48Z 2026-11-05T12:40:54Z
+    Set up job - success
+    Check out the full history - success
+    Run the quality suite (group engine) - success
+    Upload reports - success
+    Post Check out the full history - success
+    Complete job - success
+42029185375 127250937074 docs success 2026-11-05T12:40:48Z 2026-11-05T12:45:55Z
+    Set up job - success
+    Check out the full history - success
+    Set up Python - success
+    Cache pre-commit environments - success
+    Cache pinned tools - success
+    Install the Python packages the docs suites import - success
+    Install the pinned tools - success
+    Run the quality suite (group docs) - success
+    Upload reports - success
+    Post Cache pinned tools - success
+    Post Cache pre-commit environments - success
+    Post Set up Python - success
+    Post Check out the full history - success
+    Complete job - success
+42029185375 127253392290 ci-ok success 2026-11-05T12:45:57Z 2026-11-05T12:46:00Z
+    Set up job - success
+    Fail when a needed job did not succeed - skipped
+    All jobs succeeded - success
+    Complete job - success
+42030675309 127256021563 core success 2026-11-05T12:51:28Z 2026-11-05T12:52:13Z
+    Set up job - success
+    Check out the full history - success
+    Set up Python - success
+    Cache pre-commit environments - success
+    Cache pinned tools - success
+    Install the pinned tools - success
+    Run the quality suite (group core) - success
+    Upload reports - success
+    Post Cache pinned tools - success
+    Post Cache pre-commit environments - success
+    Post Set up Python - success
+    Post Check out the full history - success
+    Complete job - success
+42030675309 127256021815 engine success 2026-11-05T12:51:28Z 2026-11-05T12:51:33Z
+    Set up job - success
+    Check out the full history - success
+    Run the quality suite (group engine) - success
+    Upload reports - success
+    Post Check out the full history - success
+    Complete job - success
+42030675309 127256021907 drupal success 2026-11-05T12:51:28Z 2026-11-05T12:54:05Z
+    Set up job - success
+    Initialize containers - success
+    Check out the full history - success
+    Set up PHP and Composer - success
+    Record the toolchain - success
+    Find the Composer cache directory - success
+    Cache Composer downloads - success
+    Run the quality suite (group drupal) - success
+    Upload reports - success
+    Post Cache Composer downloads - success
+    Post Check out the full history - success
+    Stop containers - success
+    Complete job - success
+42030675309 127256021912 web success 2026-11-05T12:51:28Z 2026-11-05T12:51:35Z
+    Set up job - success
+    Check out the full history - success
+    Run the quality suite (group web) - success
+    Upload reports - success
+    Post Check out the full history - success
+    Complete job - success
+42030675309 127256021961 docs success 2026-11-05T12:51:28Z 2026-11-05T12:56:28Z
+    Set up job - success
+    Check out the full history - success
+    Set up Python - success
+    Cache pre-commit environments - success
+    Cache pinned tools - success
+    Install the Python packages the docs suites import - success
+    Install the pinned tools - success
+    Run the quality suite (group docs) - success
+    Upload reports - success
+    Post Cache pinned tools - success
+    Post Cache pre-commit environments - success
+    Post Set up Python - success
+    Post Check out the full history - success
+    Complete job - success
+42030675309 127258396174 ci-ok success 2026-11-05T12:56:30Z 2026-11-05T12:56:34Z
+    Set up job - success
+    Fail when a needed job did not succeed - skipped
+    All jobs succeeded - success
+    Complete job - success
+42030675290 127256021894 skip success 2026-11-05T12:51:28Z 2026-11-05T12:51:32Z
+    Set up job - success
+    Report that the deploy is not configured - success
+    Complete job - success
+42030675290 127256024061 deploy skipped 2026-11-05T12:51:26Z 2026-11-05T12:51:26Z
+
+Artifacts of run 42029185375: reports-docs, reports-web, reports-drupal (9384 B), reports-core, reports-engine
+Job log download needs authentication (HTTP 403); log content to be supplied by the owner.
+
+## Owner-supplied excerpts, PR run 42029185375, job drupal (pasted 2026-11-05)
+
+Step "Record the toolchain":
+PHP 8.3.36 (cli) (built: Oct 24 2026 12:07:24) (NTS)
+Zend Engine v4.3.36 with Zend OPcache v8.3.36
+pcov
+PHP version 8.3.36 (/usr/bin/php8.3)
+Composer version 2.11.1 2026-10-30 14:52:10
+
+Step "Run the quality suite (group drupal)":
+PASS  build-drupal
+PASS  component-drupal
+PASS  component-drupal-tests
+PASS  audit-drupal
+summary: PASS 4 FAIL 0 SKIP 0
+
+Not in the excerpt: PHPUnit test counts and coverage percentage (they are in the
+reports-drupal artifact, which needs authentication to download).

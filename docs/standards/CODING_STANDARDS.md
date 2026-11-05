@@ -63,10 +63,16 @@ Use the names in section 0 of `docs/TASKS.md` everywhere:
 | SQL | `snake_case` tables and columns | n/a | n/a | n/a |
 | Shell | `kebab-case.sh` | n/a | `snake_case` functions and locals | `UPPER_SNAKE` env vars |
 
-- Database constraint and index names use the prefixes in `docs/specs/data-model.md`
-  (`pk_`, `fk_`, `uq_`, `ck_`, `ix_`).
-- Drupal machine names: fields start with `field_`, permissions and scopes start with
-  `meridian_`.
+- Postgres constraint and index names (the engine schema, `docs/specs/data-model.md`
+  "Postgres") use the prefixes `pk_`, `fk_`, `uq_`, `ck_` and `ix_`.
+- Keys and indexes that a Drupal module adds to Drupal tables start with `meridian_` and do
+  not use those prefixes. The approved name is `meridian_external_id_bundle`, the unique key
+  on `node__field_external_id` (T09, DN-10 and DN-11). It keeps that name.
+- Drupal machine names: fields start with `field_`. OAuth scopes start with `meridian_`.
+- Drupal permissions are lower-case phrases that contain `meridian`, as fixed in D6 of the
+  technical design and in `docs/specs/permissions.md` (for example `view meridian records`,
+  `ingest meridian records`). A new permission follows the same pattern and is added to D6
+  and `permissions.md` first.
 
 ### Error handling
 

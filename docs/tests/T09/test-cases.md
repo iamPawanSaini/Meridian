@@ -812,9 +812,9 @@ where the plan gives one.
 | Preconditions | Site installed; owner has the one-time link |
 | Steps | 1. Agent runs `ddev drush uli`; owner opens the link in the Windows browser. 2. Owner opens `/admin/structure/types` and `/admin/people/roles` and `/admin/people/permissions` 3. Owner screenshots each page in full |
 | Expected result | Five content types listed (Decision, Position, Daily Run, Price Snapshot, Watchlist Item); roles page lists Administrator, Analyst, Engine ingest, Dashboard read plus Anonymous and Authenticated; the permissions page shows the Meridian group with the 7 permissions. A partial screenshot is insufficient: the case stays Blocked until full pages are sent. The tester cannot accept evidence on the owner's behalf |
-| Evidence | none |
-| Actual result | Owner-run (Windows browser, full-page screenshots of /admin/structure/types, /admin/people/roles, /admin/people/permissions). Not run by the tester; steps for the owner are in the report. |
-| Status | Blocked |
+| Evidence | `evidence/TC-T09-47-types.png`, `evidence/TC-T09-47-roles.png`, `evidence/TC-T09-47-permissions-1.png` to `-5.png` |
+| Actual result | Owner screenshots (Windows Chrome, incognito, 2026-11-05, logged in with the ddev drush uli link) read and compared by the tester. Types page: Daily Run, Decision, Position, Price Snapshot, Watchlist Item (five, no others). Roles page: Anonymous user, Authenticated user, Administrator, Analyst, Engine ingest, Dashboard read (six). Permissions page, full page in 5 parts (ends at Save permissions): group 'Meridian core' with the seven permissions (Administer Meridian records, Export, Ingest, View inputs and costs, View records, View watchlist, View raw LLM output). Checked boxes equal permissions.md and the role YAML: Analyst export, inputs, records, watchlist; Engine ingest ingest, watchlist; Dashboard read records, watchlist; Administrator greyed (is_admin); Anonymous and Authenticated none; View raw LLM output and Administer Meridian records checked for no non-admin role; 'View published content' checked for Analyst, Engine ingest and Dashboard read only, not for Anonymous or Authenticated; no node create, edit or delete permission checked for any non-admin role. The admin pages render unstyled (no admin theme CSS), which does not affect the check. |
+| Status | Pass |
 | Date | 2026-11-05 |
 | Executed by | tester (execute mode) |
 
@@ -1001,7 +1001,7 @@ where the plan gives one.
 | Steps | 1. `grep -n "mariadb\|pcov\|SIMPLETEST_DB\|coverage:" .github/workflows/ci.yml` 2. `grep -n "database" -A3 .ddev/config.yaml pantheon.yml apps/drupal/pantheon.yml 2>/dev/null` 3. `grep -n "pcov" .ddev/config.yaml` (no match is expected) |
 | Expected result | The `drupal` job has `services: mariadb` with image `mariadb:10.6.<patch>` (an exact tag, not `latest`, not `10`), a health check, setup-php `coverage: pcov` (not `none`), and `SIMPLETEST_DB` pointing at the service (`mysql://...@127.0.0.1:3306/...`); no sqlite; `.ddev/config.yaml` has `database: type mariadb, version 10.6` and installs pcov via `webimage_extra_packages` or the documented form; `pantheon.yml` `database.version: 10.6`. All three agree on 10.6 |
 | Evidence | `evidence/TC-T09-59.txt` |
-| Actual result | Re-judged on the existing evidence against the amended text. `ci.yml` drupal job: `mariadb:10.6.22` service with a health check, `coverage: pcov`, `SIMPLETEST_DB` to 127.0.0.1:3306, no sqlite; `.ddev/config.yaml` database mariadb 10.6 with a throwaway `SIMPLETEST_DB`, no pcov (accepted); `pantheon.yml` 10.6; all agree. That pcov really loads in CI is proven only by the live run (TC-T09-62, Blocked). |
+| Actual result | Re-judged on the existing evidence against the amended text. `ci.yml` drupal job: `mariadb:10.6.22` service with a health check, `coverage: pcov`, `SIMPLETEST_DB` to 127.0.0.1:3306, no sqlite; `.ddev/config.yaml` database mariadb 10.6 with a throwaway `SIMPLETEST_DB`, no pcov (accepted); `pantheon.yml` 10.6; all agree. CI part now observed: `php -m` in the toolchain step of the live drupal job lists pcov and the MariaDB service container initialised (TC-T09-62, `evidence/TC-T09-62-live-ci.txt`). |
 | Status | Pass |
 | Date | 2026-11-05 (re-judged after the amendment) |
 | Executed by | tester (execute mode) |
@@ -1045,10 +1045,10 @@ where the plan gives one.
 | Preconditions | Branch pushed and a PR open (owner action; no `gh` here) |
 | Steps | 1. Owner sends the Actions run URL and the full logs of the `drupal` job (service container start, `php -m`, phpunit output, coverage step) and the artifact list 2. Tester reads the logs |
 | Expected result | The run is green; log shows MariaDB 10.6.x started and healthy, pcov loaded, Unit and Kernel suites with the same test counts as the DDEV run (TC-T09-54), the coverage gate with the same line coverage within rounding, and the Cobertura XML in the uploaded artifacts. The two runs (DDEV and CI) are both recorded in the report (T08 condition 5). Without the owner's logs the case is Blocked |
-| Evidence | none |
-| Actual result | Needs the owner: open a PR from the pushed branch and send the Actions run URL, the full log of the drupal job and the artifact list. gh is not installed here. Steps in the report. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-62-live-ci.txt` |
+| Actual result | Pass on the observed evidence, with gaps. Observed (GitHub API and owner-pasted excerpts): PR run 42029185375 and main run 42030675309 (merge 69ed15e) have every job success, including `drupal` (step 'Run the quality suite (group drupal)' success, 'Initialize containers' success) and `ci-ok`; `php -m` in the toolchain step lists pcov; the drupal group prints PASS build-drupal, component-drupal, component-drupal-tests, audit-drupal (PASS 4 FAIL 0); artifact `reports-drupal` (9384 B) exists. NOT observed (logs and artifacts need authentication): the MariaDB version in the service log, the PHPUnit test counts, the coverage percentage and the contents of the Cobertura file; the 70% gate is inferred from component-drupal-tests PASS, which enforces it. |
+| Status | Pass |
+| Date | 2026-11-05 (judged on the owner's live CI evidence) |
 | Executed by | tester (execute mode) |
 
 ---
@@ -1192,10 +1192,10 @@ where the plan gives one.
 | Preconditions | Task being closed |
 | Steps | 1. `grep -n "Permissions matrix" docs/TASKS.md` 2. `grep -n "T11 measurement" docs/architecture/solution-architecture.md` |
 | Expected result | `docs/TASKS.md` T09 AC6 carries the reworded text (six roles) as given in the criteria, so O-3 is resolved and the report needs no "reading" note. SA-1: the NFR-05 row says "provisional until the T11 measurement" and the Amendments table has a dated row. If SA-1 is not done at close the case is Blocked (not a T09 code failure) and listed in the report as an open hand-off |
-| Evidence | `evidence/TC-T09-71.txt` |
-| Actual result | AC6 part: docs/TASKS.md T09 AC6 carries the six-role wording (done). SA-1 part: solution-architecture.md NFR-05 still says 'provisional until the T09 measurement' (not the T11 measurement) and the Amendments table has no 2026-11-04 row, so SA-1 is an open hand-off, not a T09 code failure. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-71.txt`, `evidence/TC-T09-71-recheck.txt` |
+| Actual result | AC6 wording: docs/TASKS.md T09 AC6 lists the six roles. SA-1 (applied by the solution-architect, commit 2a384d1): the NFR-05 row says 'provisional until the T11 measurement'; the Amendments table has two 2026-11-05 T09 rows (NFR-05, OQ-07) and a T09 sign-off row. |
+| Status | Pass |
+| Date | 2026-11-05 (recheck on 2a384d1) |
 | Executed by | tester (execute mode) |
 
 ---
@@ -1256,10 +1256,10 @@ where the plan gives one.
 | Preconditions | Tree clean |
 | Steps | 1. `ddev quality 2>&1 \| tee EVD` 2. `.tools/pre-commit run --all-files 2>&1 \| tee -a EVD` 3. `scripts/check-names.sh` 4. CI run: see TC-T09-62 |
 | Expected result | All three exit 0; no new lint, type or security warning compared with the T08 baseline (the counts of warnings are recorded); CI green by TC-T09-62; no a phpcs ignore comment, a PHPStan ignore comment or a baseline added without a ticket comment (grep shows none, or each carries a ticket) |
-| Evidence | `evidence/TC-T09-77-ddev-quality-clean-clone.txt`, `evidence/TC-T09-61.txt` |
-| Actual result | The local part passes: ddev quality exit 0 on the committed head (clean clone, PASS 13 FAIL 0 SKIP 6), pre-commit --all-files exit 0 (all hooks Passed), check-names OK; PHPStan 0 errors, phpcs 0 errors, composer audit clean (audit-drupal PASS), no suppression without a ticket (exceptions PASS). Blocked on the CI part: the live CI run (TC-T09-62) needs the owner. |
-| Status | Blocked |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-77-ddev-quality-clean-clone.txt`, `evidence/TC-T09-61.txt`, `evidence/TC-T09-62-live-ci.txt` |
+| Actual result | All three local gates exit 0 (`ddev quality` PASS 13 FAIL 0 SKIP 6 on the committed head in a clean clone; pre-commit --all-files; check-names) and CI is green on the PR and on main (TC-T09-62). Warning counts in CI were not observed (logs need authentication); locally PHPStan 0 errors, phpcs 0 errors, audit clean, no unticketed suppression. |
+| Status | Pass |
+| Date | 2026-11-05 (judged on the owner's live CI evidence) |
 | Executed by | tester (execute mode) |
 
 ### TC-T09-76: C6 secrets and `.env.example`
@@ -1287,7 +1287,7 @@ where the plan gives one.
 | Steps | 1. `git clone <repo> $WORK/clean && cd $WORK/clean && git checkout task/T09-content-model` 2. `ddev start` 3. `ddev drupal-install` 4. `ddev quality` 5. `ddev exec -d /var/www/html/apps/drupal vendor/bin/phpunit --testsuite kernel` 6. Only commands from `apps/drupal/README.md` and `docs/runbooks/local-setup.md` are used; any other command is a docs defect |
 | Expected result | All steps exit 0 using only the documented commands; the Drupal tests run and pass from a clean checkout. The clean clone uses a differently named DDEV project directory, so the tester records the project-name collision handling from the runbook. If a second DDEV project cannot be started the case is Blocked and the owner is asked to run it. Owner-run: `https://meridian.ddev.site` opens in the Windows browser (login from `ddev drush uli`) |
 | Evidence | `evidence/TC-T09-77.txt`, `evidence/TC-T09-77-kernel-clean-clone-run2.txt`, `evidence/TC-T09-77-kernel-clean-clone-attempt1.txt`, `evidence/TC-T09-77-ddev-quality-clean-clone.txt` |
-| Actual result | Fresh clone of task/T09-content-model (83ed38f) on the Linux filesystem; ddev delete -Oy meridian (runbook step 2) for the other checkout, ddev start, ddev drupal-install, drush uli, ddev meridian-status (five services healthy), scripts/bootstrap-dev.sh, the documented kernel command (OK, 47 tests, 1937 assertions, 9 min 57 s) and ddev quality (PASS 13 FAIL 0 SKIP 6, 1 h 31 min) all exit 0, using only documented commands. The first kernel attempt failed because ddev quality had switched Xdebug on at that moment (30 step-debug timeouts); the re-run after quality finished passed. Owner-run Windows browser check (`https://meridian.ddev.site` opens, login from ddev drush uli) is still open (see the owner steps). |
+| Actual result | Fresh clone of task/T09-content-model (83ed38f) on the Linux filesystem; ddev delete -Oy meridian (runbook step 2) for the other checkout, ddev start, ddev drupal-install, drush uli, ddev meridian-status (five services healthy), scripts/bootstrap-dev.sh, the documented kernel command (OK, 47 tests, 1937 assertions, 9 min 57 s) and ddev quality (PASS 13 FAIL 0 SKIP 6, 1 h 31 min) all exit 0, using only documented commands. The first kernel attempt failed because ddev quality had switched Xdebug on at that moment (30 step-debug timeouts); the re-run after quality finished passed. The Windows browser part is covered by the owner's screenshots of TC-T09-47: `https://meridian.ddev.site` opened in Windows Chrome and the login from ddev drush uli worked. |
 | Status | Pass |
 | Date | 2026-11-05 |
 | Executed by | tester (execute mode) |

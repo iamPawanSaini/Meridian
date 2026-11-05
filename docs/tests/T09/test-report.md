@@ -60,7 +60,7 @@
 | TC-T09-44 | AC6 | Pass | `evidence/TC-T09-44-kernel.txt` |
 | TC-T09-45 | AC6, C5 | Pass | `evidence/TC-T09-45-parity.txt` |
 | TC-T09-46 | AC6, AC4 | Pass | `evidence/TC-T09-46.txt` |
-| TC-T09-47 | AC6, C7 | Blocked | none |
+| TC-T09-47 | AC6, C7 | Pass | `evidence/TC-T09-47-permissions-1.png` |
 | TC-T09-48 | AC4, C7 | Pass | `evidence/TC-T09-48.txt` |
 | TC-T09-49 | AC4 | Pass | `evidence/TC-T09-49.txt` |
 | TC-T09-50 | AC4 | Pass | `evidence/TC-T09-50.txt` |
@@ -75,7 +75,7 @@
 | TC-T09-59 | C4, AC5 | Pass | `evidence/TC-T09-59.txt` |
 | TC-T09-60 | C4 | Pass | `evidence/TC-T09-60.txt` |
 | TC-T09-61 | C6 | Pass | `evidence/TC-T09-61.txt` |
-| TC-T09-62 | C4, AC5 | Blocked | none |
+| TC-T09-62 | C4, AC5 | Pass | `evidence/TC-T09-62-live-ci.txt` |
 | TC-T09-63 | C3, C4 | Pass | `evidence/TC-T09-63-static.txt` |
 | TC-T09-64 | C3, C5 | Pass | `evidence/TC-T09-64.txt` |
 | TC-T09-65 | C4, C6 | Pass | `evidence/TC-T09-65.txt` |
@@ -84,18 +84,18 @@
 | TC-T09-68 | C5 | Pass | `evidence/TC-T09-68.txt` |
 | TC-T09-69 | AC1, C5 | Pass | `evidence/TC-T09-69.txt` |
 | TC-T09-70 | C5, C7 | Pass | `evidence/TC-T09-70.txt` |
-| TC-T09-71 | AC6, C5 | Blocked | `evidence/TC-T09-71.txt` |
+| TC-T09-71 | AC6, C5 | Pass | `evidence/TC-T09-71.txt` |
 | TC-T09-72 | C1 | Pass | `evidence/TC-T09-72.txt` |
 | TC-T09-73 | C2 | Pass | `evidence/TC-T09-73.txt` |
 | TC-T09-74 | C3 | Pass | `evidence/TC-T09-74.txt` |
-| TC-T09-75 | C4 | Blocked | `evidence/TC-T09-77-ddev-quality-clean-clone.txt` |
+| TC-T09-75 | C4 | Pass | `evidence/TC-T09-77-ddev-quality-clean-clone.txt` |
 | TC-T09-76 | C6 | Pass | `evidence/TC-T09-76.txt` |
 | TC-T09-77 | C7 | Pass | `evidence/TC-T09-77.txt` |
 
-Totals: 73 pass, 0 fail, 4 blocked, 0 not run (77 cases).
+Totals: 77 pass, 0 fail, 0 blocked, 0 not run (77 cases).
 
 Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-empty evidence file
-(checked in `evidence/TC-T09-74.txt`). The Blocked cases are not passes.
+(checked in `evidence/TC-T09-74.txt`). There are no Blocked or Fail cases.
 
 ### Status per acceptance criterion
 
@@ -105,15 +105,15 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 | AC2 Validation enforced | Pass | TC-04, 08 to 29 verified every rule with exact (path, code) lists. TC-12 and TC-17 passed on retest after DEF-012 was fixed in e51ec08 |
 | AC3 Unique `external_id` per type at entity level | Pass | TC-25, 29, 31 to 37: `validate()` rejects duplicates on all five bundles; the database key `meridian_external_id_bundle` stops a bare `save()` and a concurrent Watchlist create; the key survives install, `cim`, `cr`, `updatedb` and uninstall is tested |
 | AC4 `cex` shows no diff after install; `cim` on a clean site recreates everything | Pass | TC-06, 36, 37, 46, 48 to 52: install from config, `cex` identical, two `cim` runs idle, `sql:drop` then `site:install --existing-config` reproduces config/sync byte for byte, drift and a deleted role are restored by `cim` |
-| AC5 Kernel tests cover every validation rule and each rejection | Not complete | Suites pass (Kernel 47 tests; Unit 25 tests; Decision and Position classes re-run after e51ec08: 198 and 155 assertions), all seven suite mutations and the structure mutations are detected (TC-55). Open: the live CI run (TC-62, Blocked) only. DEF-012 is fixed and retested |
-| AC6 Permissions matrix documented and tested for the six roles (FR-16) | Pass for the matrix, two items open | TC-38 to 46: 54 role-by-permission, 120 role-by-bundle-by-operation and 78 field cells are asserted and equal `permissions.md` and the role YAML. Open: TC-47 (owner browser check, Blocked) and TC-71 (SA-1 hand-off, Blocked) |
+| AC5 Kernel tests cover every validation rule and each rejection | Pass | Suites pass (Kernel 47 tests; Unit 25 tests; Decision and Position classes re-run after e51ec08: 198 and 155 assertions), all seven suite mutations and the structure mutations are detected (TC-55). Live CI: green on the PR and on main (TC-62). DEF-012 is fixed and retested |
+| AC6 Permissions matrix documented and tested for the six roles (FR-16) | Pass | TC-38 to 47 and 71: 54 role-by-permission, 120 role-by-bundle-by-operation and 78 field cells are asserted and equal `permissions.md` and the role YAML. The owner's browser screenshots (TC-47) show the same cells as `permissions.md`, and SA-1 is applied (TC-71) |
 | C1 Plan before code | Pass | TC-72 |
 | C2 Review findings resolved | Pass | TC-73: no Blocker or Major open. Findings 7 and 8 were closed by the tester on 2026-11-05; finding 6 is for `/close-task` |
 | C3 Criteria mapped to executed tests | Pass | TC-63, 64, 66, 67, 74 |
-| C4 CI green, no new warnings | Not met | Local gates are clean: `ddev quality` PASS 13 FAIL 0 SKIP 6 on the committed head (clean clone), pre-commit, phpstan, phpcs, composer audit, check_ci. Open: the live CI run (TC-62, TC-75 Blocked), which also proves pcov in CI |
-| C5 Docs and traceability | Mostly | TC-01, 37, 45, 68 to 70 Pass. Open for `/close-task`: TRACEABILITY evidence links, SA-1 (TC-71), finding 6 (naming section) |
+| C4 CI green, no new warnings | Met | Local gates are clean: `ddev quality` PASS 13 FAIL 0 SKIP 6 on the committed head (clean clone), pre-commit, phpstan, phpcs, composer audit, check_ci. Live CI is green on PR run 42029185375 and main run 42030675309, and pcov loads in CI (TC-62) |
+| C5 Docs and traceability | Pass | TC-01, 37, 45, 68 to 71 Pass. Not test cases, for `/close-task`: TRACEABILITY evidence links (rows still say Planned) |
 | C6 No secrets | Pass | TC-61, 65, 76. `.env.example` unchanged; the review's `MERIDIAN_SYNC_DIR` removal confirmed |
-| C7 Clean checkout works | Pass for the Linux side | TC-77 ran every documented command from a fresh clone. Open: the Windows browser check (owner, TC-47 and TC-77) |
+| C7 Clean checkout works | Pass | TC-77 ran every documented command from a fresh clone; the owner's Windows screenshots (TC-47) show the site and the admin pages |
 
 ## Defects raised
 
@@ -216,8 +216,9 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 
 ## Coverage notes
 
-- Not run by the tester: TC-T09-47 (owner browser check), TC-T09-62 (live CI), the Windows part of
-  TC-T09-77, SA-1 of TC-T09-71. TC-T09-75 is Blocked only on its CI step.
+- TC-T09-47 and the Windows part of TC-T09-77 were judged on the owner's screenshots, SA-1 of
+  TC-T09-71 on the committed document. TC-T09-62 was judged on API results and owner-pasted excerpts
+(see Live CI evidence).
 - Mutation checks ran in copies of `apps/drupal` inside the DDEV container; no production file was
   edited.
   Detected: score max 101, `short2` in `field_mode`, `MeridianUniqueInBundle` removed,
@@ -241,40 +242,52 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 
 ## Steps for the owner
 
-**TC-T09-62 (live CI of the `drupal` job).** `gh` is not installed here, so the owner does this:
+**TC-T09-62 (live CI)** is done: see "Live CI evidence" below.
 
-1. Open a pull request from `task/T09-content-model` (pushed) to `main` on GitHub. The workflow
-   `Meridian
-   CI` runs on `pull_request`.
-2. Wait for the jobs. The `drupal` job has a 25 minute limit; expect about 15 minutes.
-3. Send the tester: the Actions run URL, the full log of the `drupal` job (service container start,
-   `php -m`, the PHPUnit and coverage output), and the list of the `reports-drupal` artifact.
-4. The tester will check: MariaDB 10.6.22 started and healthy; `php -m | grep -i pcov` prints pcov;
-   Unit 25 tests and Kernel 47 tests (OK, 1937 assertions) as in TC-T09-54; coverage gate near 94.1
-   percent; `coverage.xml` and `junit.xml` in the artifact; `audit-drupal` green with the Symfony
-   7.4.23
-   packages. Without the logs TC-T09-62 and the CI part of TC-T09-75 stay Blocked.
+No owner step is open. TC-T09-47 was done with the owner's screenshots (see below).
 
-**TC-T09-47 and the Windows part of TC-T09-77 (administrator in a browser).**
+## Browser evidence (TC-T09-47)
 
-1. In WSL, in the project, run `ddev start` (if it is not running), then `ddev drush uli`. The site
-   was
-   reinstalled with `ddev drupal-install --force` at the end of testing, so it is empty and the
-   admin
-   password is a throwaway.
-2. Open the one-time link in the Windows browser, then open `/admin/structure/types`,
-   `/admin/people/roles` and `/admin/people/permissions`.
-3. Send full-page screenshots of the three pages. Expected: five content types (Decision, Position,
-   Daily
-   Run, Price Snapshot, Watchlist Item); roles Administrator, Analyst, Engine ingest, Dashboard read
-   plus
-   Anonymous and Authenticated; the permissions page lists the Meridian group with seven
-   permissions. A
-   partial screenshot is not enough.
+The tester read all seven screenshots in `evidence/TC-T09-47-*.png` (Windows Chrome, incognito,
+2026-11-05, logged in with the one-time link). Five content types, six roles and the seven Meridian
+permissions appear, and the ticked boxes equal `permissions.md` and the role YAML: Analyst export,
+inputs, records and watchlist; Engine ingest ingest and watchlist; Dashboard read records and
+watchlist; Anonymous and Authenticated none; 'View published content' for the three service roles
+only.
+
+## Live CI evidence (TC-T09-62, TC-T09-75, CI part of TC-T09-59)
+
+Source: `evidence/TC-T09-62-live-ci.txt` (GitHub API job and step results, plus log excerpts pasted
+by
+the owner). Read on 2026-11-05.
+
+Observed:
+
+- PR run 42029185375 (head 3d17dca) and main run 42030675309 (merge 69ed15e): every job succeeded
+  (core, web, drupal, engine, docs, `ci-ok`). In `drupal`, "Initialize containers" and the step "Run
+the
+  quality suite (group drupal)" succeeded.
+- `php -m` in the toolchain step lists pcov (PHP 8.3.36, Composer 2.11.1).
+- The drupal group printed PASS build-drupal, component-drupal, component-drupal-tests and
+  audit-drupal (PASS 4 FAIL 0 SKIP 0).
+- The artifact `reports-drupal` (9384 B) exists.
+
+Not observed (job logs and artifact downloads need authentication):
+
+- The MariaDB version in the service container log (only that the containers initialised).
+- The PHPUnit test counts (so equality with the DDEV 25 and 47 is not confirmed).
+- The coverage percentage and the contents of the Cobertura file. The 70% floor is inferred from
+  `component-drupal-tests` PASS, which enforces it.
+- Warning counts in CI.
+
+TC-T09-62 and TC-T09-75 are judged Pass on this evidence, with those gaps stated. The CI part of
+TC-T09-59 (pcov loads in CI) is observed.
 
 ## Sign-off
 
-**Not signed off.** No case fails. Four are Blocked (TC-T09-47 and 62 need the owner, TC-T09-71
-needs SA-1 at close, TC-T09-75 waits for CI). DEF-012 was fixed in e51ec08 and retested; no
-Critical, High or Medium defect is open. The product behaviour under test is verified. Sign-off
-needs the live CI run and the owner's browser check. tester, 2026-11-05.
+**Pass: all criteria verified.** 77 of 77 cases pass; no Fail or Blocked case; no defect is open
+except DEF-014 (Low, proposed for a separate ticket after T09, owner decision pending). Limits
+stated: in the live CI evidence the PHPUnit counts, the coverage percentage, the MariaDB version and
+the CI warning counts were not observed (logs need authentication); TC-T09-62 is judged on the API
+results and the owner's excerpts. Items for `/close-task`, which are not test cases: TRACEABILITY
+evidence links. tester, 2026-11-05.
