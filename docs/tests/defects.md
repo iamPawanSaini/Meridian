@@ -244,9 +244,11 @@ judgement of deviation 8) accepted Xdebug coverage in DDEV and pcov in CI as the
 | ID | DEF-014 |
 | Severity | Low (developer usability; no wrong result) |
 | Found in | T09, TC-T09-57, TC-T09-63, TC-T09-64, TC-T09-75 |
-| Status | Open (Proposed for a separate ticket after T09; owner decision pending) |
+| Status | Open |
 | Fix commit | |
 | Retest result | |
+
+Triage note: proposed for a separate ticket after T09; owner decision pending.
 
 **Steps to reproduce**
 
