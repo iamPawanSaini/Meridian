@@ -102,6 +102,8 @@ class PositionValidationTest extends MeridianKernelTestBase {
       'last_mark_price 5 decimals' => [['field_last_mark_price' => '2900.00001'], [['field_last_mark_price', $scale]]],
       'quantity 0' => [['field_quantity' => 0], [['field_quantity', self::TOO_LOW]]],
       'quantity -1' => [['field_quantity' => -1], [['field_quantity', self::TOO_LOW]]],
+      'quantity 1.5' => [['field_quantity' => '1.5'], [['field_quantity', '']]],
+      'quantity abc' => [['field_quantity' => 'abc'], [['field_quantity', ''], ['field_quantity', self::NOT_A_NUMBER]]],
       'quantity 1' => [['field_quantity' => 1], []],
       'costs_total -0.01' => [['field_costs_total' => '-0.01'], [['field_costs_total', self::TOO_LOW]]],
       'costs_total 0' => [['field_costs_total' => '0'], []],
