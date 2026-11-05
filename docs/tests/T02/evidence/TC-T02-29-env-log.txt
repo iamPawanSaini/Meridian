@@ -1,0 +1,4 @@
+d965f95 T07: update runbook, env example, design and Terminus facts record
+2169ad3 T07: add ddev deploy-drupal, pull-only Pantheon provider, site name
+ad11e74 T06: settle D7 resolution, digest rule and env comments
+96b4c17 T03: technical design, data model, ingest OpenAPI contract, env matrix

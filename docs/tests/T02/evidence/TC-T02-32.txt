@@ -1,0 +1,8 @@
+TC-T02-32 2026-11-06 HEAD 9b846bb
+== parse() all blocks incl. negative control (expect 1 failure: neg)
+PARSE-ERR neg-unclosed-alt.mmd: Parse error on line 8: | ...t ok    B-->>A: y | --------------------^ | Expecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'end', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'else', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got '1'
+PARSE-OK  sa-1.mmd diagramType=flowchart-v2
+PARSE-OK  sa-2.mmd diagramType=flowchart-v2
+PARSE-OK  sa-3.mmd diagramType=sequence
+mermaid-version=12.3.0 failures=1
+exit=1

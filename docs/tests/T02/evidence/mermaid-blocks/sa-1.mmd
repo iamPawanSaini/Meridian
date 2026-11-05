@@ -1,0 +1,13 @@
+flowchart LR
+    owner["Project owner and invited analysts"]
+    meridian["Meridian (simulation-only research system)"]
+    yahoo["Yahoo Finance via yfinance (EOD prices, fundamentals, headlines)"]
+    nse["NSE published holiday calendar (transcribed manually, never scraped)"]
+    claude["Claude API (analyst review)"]
+    github["GitHub (repo, Actions scheduler, issues for alerts)"]
+    owner -->|"browses dashboard and Drupal admin, manages watchlist"| meridian
+    meridian -->|"HTTPS, read-only EOD requests"| yahoo
+    nse -.->|"yearly config update by owner"| meridian
+    meridian -->|"HTTPS, prompt with validated JSON reply"| claude
+    github -->|"cron schedule and manual dispatch"| meridian
+    meridian -->|"failure alerts"| github

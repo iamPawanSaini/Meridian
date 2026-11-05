@@ -514,10 +514,10 @@ reviewed, branch `task/T02-solution-architecture`, run from the repo root.
 | Preconditions | Standard; `scripts/bootstrap-dev.sh` run so `.tools/pre-commit` exists |
 | Steps | 1. Standard steps; block `== TC-T02-29`<br>2. `git diff task/T01-agents -- .env.example` |
 | Expected result | Step 2 prints nothing; pre-commit passes on all files; no key-like strings in T02 docs. If `.tools/pre-commit` is missing the case is Blocked, not Pass |
-| Actual result | .env.example unchanged vs task/T01-agents (PASS) and no key-like strings (PASS). The pre-commit secret scan did not run: .tools/pre-commit is not installed (owner action from T00, scripts/bootstrap-dev.sh). Blocked per case rule, not Pass. |
-| Evidence | `evidence/TC-T02-29.txt`, `evidence/extra-steps.txt` |
-| Status | Blocked |
-| Date | 2026-11-01 |
+| Actual result | Rerun 2026-11-06 at HEAD 9b846bb. pre-commit (gitleaks and all hooks) passes on all files; no key-like strings. Step 2 does NOT print nothing: `git diff task/T01-agents -- .env.example` shows a large diff, because T03, T06 and T07 legitimately extended .env.example after the T02 base. `git log task/T01-agents..HEAD -- .env.example` lists only d965f95 (T07), ad11e74 (T06), 96b4c17 (T03); neither T02 commit (1b8a031, c426c9a) touches it. Judged on the intent of C6 for T02 (T02 leaves .env.example unchanged), following the at-close/`--regression` convention (D-5) used for T03 to T06. Literal step 2 expectation is not met and is stated plainly. Earlier 2026-11-01 results: Blocked (no .tools/pre-commit). |
+| Evidence | `evidence/run-checks-2026-11-06.txt`, `evidence/run-checks-2026-11-06-regression.txt`, `evidence/TC-T02-29-env-diff.txt`, `evidence/TC-T02-29-env-log.txt` |
+| Status | Pass (secret scan clean; step 2 judged on T02 history, see actual result) |
+| Date | 2026-11-06 |
 | Executed by | tester |
 
 ### TC-T02-30: Relative links resolve; markdown lint where available
@@ -529,10 +529,10 @@ reviewed, branch `task/T02-solution-architecture`, run from the repo root.
 | Preconditions | Standard |
 | Steps | Standard steps; block `== TC-T02-30` |
 | Expected result | No `broken link` lines for T02 docs. markdownlint clean if installed; otherwise a SKIP line, recorded in the report as "not available" |
-| Actual result | Relative links resolve (PASS). markdownlint not installed: SKIP, recorded as "not available" per the expected result. |
-| Evidence | `evidence/TC-T02-30.txt`, `evidence/extra-steps.txt` |
+| Actual result | Relative links resolve (PASS). 2026-11-06: markdownlint-cli2 is available through `.tools/pre-commit` and passes on solution-architecture.md, naming.md and ADR-0001 to ADR-0006 (exit 0). The script's own `command -v markdownlint` check still prints SKIP because no standalone binary exists; the pre-commit hook is the lint. |
+| Evidence | `evidence/TC-T02-30.txt`, `evidence/TC-T02-30-markdownlint.txt`, `evidence/run-checks-2026-11-06.txt` |
 | Status | Pass |
-| Date | 2026-11-01 |
+| Date | 2026-11-06 |
 | Executed by | tester |
 
 ### TC-T02-31: Every criterion maps to an executed case with evidence (manual)
@@ -559,10 +559,10 @@ reviewed, branch `task/T02-solution-architecture`, run from the repo root.
 | Preconditions | Branch pushed, or a local Mermaid renderer available |
 | Steps | 1. Open `docs/architecture/solution-architecture.md` in the GitHub preview (or render each block locally)<br>2. Save a screenshot or renderer log to `evidence/TC-T02-32.*` |
 | Expected result | All diagrams render without a syntax error. If neither GitHub nor a renderer is reachable the case is Blocked, not Pass |
-| Actual result | No GitHub preview (not pushed, no network) and no local Mermaid renderer. Static syntax validation only (balanced fences/blocks/brackets/quotes, defined nodes); not a render. Blocked per case rule. |
-| Evidence | `evidence/TC-T02-32-static.txt, evidence/manual-review.md` |
-| Status | Blocked |
-| Date | 2026-11-01 |
+| Actual result | 2026-11-06: no GitHub preview and no browser (Chromium needs sudo; running a downloaded browser was refused), so rendering is NOT proven. Fallback per T03 TC-T03-32: mermaid 12.3.0 `parse()` (docs/tests/T03/evidence/mermaid-parse.mjs). 3 of 3 blocks in solution-architecture.md parse (2 flowchart-v2, 1 sequence); negative control (unclosed `alt`) is rejected. Syntax validity only, not layout. One visual check on GitHub by the owner is still needed. |
+| Evidence | `evidence/TC-T02-32.txt`, `evidence/mermaid-blocks/`, `evidence/TC-T02-32-static.txt` |
+| Status | Pass (parse-level only) |
+| Date | 2026-11-06 |
 | Executed by | tester |
 
 ### TC-T02-33: T02 stays at architecture level (manual)
