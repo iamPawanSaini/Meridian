@@ -25,12 +25,12 @@
 | TC-T09-09 | AC2, AC5 | Pass | `evidence/TC-T09-09.txt` |
 | TC-T09-10 | AC2, AC5 | Pass | `evidence/TC-T09-10-kernel.txt` |
 | TC-T09-11 | AC2, AC5 | Pass | `evidence/TC-T09-11-kernel.txt` |
-| TC-T09-12 | AC2, AC5 | Fail | `evidence/TC-T09-12-kernel.txt` |
+| TC-T09-12 | AC2, AC5 | Pass | `evidence/TC-T09-12-kernel.txt` |
 | TC-T09-13 | AC2, AC5 | Pass | `evidence/TC-T09-13-kernel.txt` |
 | TC-T09-14 | AC2, AC5 | Pass | `evidence/TC-T09-14-kernel.txt` |
 | TC-T09-15 | AC2, AC5 | Pass | `evidence/TC-T09-15-kernel.txt` |
 | TC-T09-16 | AC2, AC5 | Pass | `evidence/TC-T09-16-kernel.txt` |
-| TC-T09-17 | AC2, AC5 | Fail | `evidence/TC-T09-17-kernel.txt` |
+| TC-T09-17 | AC2, AC5 | Pass | `evidence/TC-T09-17-kernel.txt` |
 | TC-T09-18 | AC2, AC5 | Pass | `evidence/TC-T09-18-kernel.txt` |
 | TC-T09-19 | AC2, AC5 | Pass | `evidence/TC-T09-19-kernel.txt` |
 | TC-T09-20 | AC2, AC5 | Pass | `evidence/TC-T09-20-kernel.txt` |
@@ -92,7 +92,7 @@
 | TC-T09-76 | C6 | Pass | `evidence/TC-T09-76.txt` |
 | TC-T09-77 | C7 | Pass | `evidence/TC-T09-77.txt` |
 
-Totals: 71 pass, 2 fail, 4 blocked, 0 not run (77 cases).
+Totals: 73 pass, 0 fail, 4 blocked, 0 not run (77 cases).
 
 Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-empty evidence file
 (checked in `evidence/TC-T09-74.txt`). The Blocked cases are not passes.
@@ -102,10 +102,10 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 | Criterion | Status | Basis |
 |---|---|---|
 | AC1 Content types and fields as the T03 spec, exported in `config/sync` | Pass | TC-01 to 07 and 69. Field sets equal the amended data-model for all five bundles (21, 24, 22, 13 and 7 fields with title); structure test and two mutations confirm it |
-| AC2 Validation enforced | Pass with one open Low defect | TC-04, 08 to 29 verified every rule with exact (path, code) lists, 47 Kernel and 25 Unit tests. TC-12 and TC-17 fail only on the untested non-numeric and non-integer inputs (DEF-012) |
+| AC2 Validation enforced | Pass | TC-04, 08 to 29 verified every rule with exact (path, code) lists. TC-12 and TC-17 passed on retest after DEF-012 was fixed in e51ec08 |
 | AC3 Unique `external_id` per type at entity level | Pass | TC-25, 29, 31 to 37: `validate()` rejects duplicates on all five bundles; the database key `meridian_external_id_bundle` stops a bare `save()` and a concurrent Watchlist create; the key survives install, `cim`, `cr`, `updatedb` and uninstall is tested |
 | AC4 `cex` shows no diff after install; `cim` on a clean site recreates everything | Pass | TC-06, 36, 37, 46, 48 to 52: install from config, `cex` identical, two `cim` runs idle, `sql:drop` then `site:install --existing-config` reproduces config/sync byte for byte, drift and a deleted role are restored by `cim` |
-| AC5 Kernel tests cover every validation rule and each rejection | Not complete | Suites pass (47 Kernel, 1937 assertions; 25 Unit, 217 assertions), all seven suite mutations and the structure mutations are detected (TC-55). Open: DEF-012 (two input-type cases untested; the developer is adding tests) and the live CI run (TC-62, Blocked) |
+| AC5 Kernel tests cover every validation rule and each rejection | Not complete | Suites pass (Kernel 47 tests; Unit 25 tests; Decision and Position classes re-run after e51ec08: 198 and 155 assertions), all seven suite mutations and the structure mutations are detected (TC-55). Open: the live CI run (TC-62, Blocked) only. DEF-012 is fixed and retested |
 | AC6 Permissions matrix documented and tested for the six roles (FR-16) | Pass for the matrix, two items open | TC-38 to 46: 54 role-by-permission, 120 role-by-bundle-by-operation and 78 field cells are asserted and equal `permissions.md` and the role YAML. Open: TC-47 (owner browser check, Blocked) and TC-71 (SA-1 hand-off, Blocked) |
 | C1 Plan before code | Pass | TC-72 |
 | C2 Review findings resolved | Pass | TC-73: no Blocker or Major open. Findings 7 and 8 were closed by the tester on 2026-11-05; finding 6 is for `/close-task` |
@@ -119,9 +119,9 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 
 | Defect | Severity | Status |
 |---|---|---|
-| DEF-012 Non-numeric and non-integer inputs are untested and give several violations (TC-12, TC-17) | Low | Open |
+| DEF-012 Non-numeric and non-integer inputs are untested and give several violations (TC-12, TC-17) | Low | Retest passed (fix e51ec08) |
 | DEF-013 pcov is not available in the DDEV web container (TC-56, TC-59); review deviation 8 | Low | Won't fix (review deviation 8 accepted; cases amended and re-judged Pass) |
-| DEF-014 A full `ddev quality` takes over an hour (each docs suite nests `ddev quality`) | Low | Open |
+| DEF-014 A full `ddev quality` takes over an hour (each docs suite nests `ddev quality`) | Low | Open: proposed for a separate ticket after T09; owner decision pending |
 
 ## Work the review assigned to the tester (done before execution)
 
@@ -205,8 +205,8 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
    gives the `field_external_id` mismatch and, at `field_decision`, the DN-6 symbol or mode mismatch
    (the tests assert both). T10 should expect two entries. A future `trade_date` is accepted on
    `price_snapshot` and `daily_run` (plan question Q-2, review D6).
-9. **Stale figure.** `CODING_STANDARDS.md` records 93.9 percent (460 of 490 lines, 2026-11-04). The
-   final code measures 94.1 percent (465 of 494, TC-T09-56). Update at close.
+9. **Coverage figure.** `CODING_STANDARDS.md` now records 94.1 percent (465 of 494 lines), the
+   value measured in TC-T09-56.
 10. **Clone left on disk.** The clean clone `~/meridian-clean-t09` could not be removed by the
     tester
     (outside the write area). Its DDEV project is deleted; remove the folder by hand.
@@ -274,12 +274,7 @@ Counts by status come from the Status rows of `test-cases.md`. A Pass has a non-
 
 ## Sign-off
 
-**Not signed off.** Two cases fail (TC-T09-12 and 17 for DEF-012, to be retested after the developer
-adds the tests) and four are Blocked (TC-T09-47 and 62 need the
-owner, TC-T09-71 needs SA-1 at close, TC-T09-75 waits for CI). No Critical, High or Medium defect is
-open.
-The product behaviour under test (content model, validation, uniqueness, permissions, config round
-trip,
-clean checkout) is verified. Sign-off needs the live CI run, the owner's browser check, and DEF-012
-fixed and
-retested. tester, 2026-11-05.
+**Not signed off.** No case fails. Four are Blocked (TC-T09-47 and 62 need the owner, TC-T09-71
+needs SA-1 at close, TC-T09-75 waits for CI). DEF-012 was fixed in e51ec08 and retested; no
+Critical, High or Medium defect is open. The product behaviour under test is verified. Sign-off
+needs the live CI run and the owner's browser check. tester, 2026-11-05.

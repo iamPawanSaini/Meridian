@@ -262,11 +262,11 @@ where the plan gives one.
 | Mode | ddev run, MUT |
 | Preconditions | Harness works |
 | Steps | 1. `PU-F DecisionValidationTest --testdox` 2. MUT: change `field_score` max to 101 in a scratch copy |
-| Expected result | `score` -0.01 rejected, 100.01 rejected, 50.123 rejected (scale), 1000 rejected (precision), non-numeric rejected; 0, 0.00, 100, 100.00, 50.5 accepted. Each rejection is one violation at `field_score`. MUT: the 100.01 test fails |
-| Evidence | `evidence/TC-T09-12-kernel.txt` (extract of `evidence/TC-T09-54-kernel.txt`), `evidence/TC-T09-12-mutation.txt`, `evidence/TC-T09-12-probe.txt` |
-| Actual result | testScoreAndPrices passes for -0.01, 100.01, 1000 (TOO_HIGH), 50.123 (meridian.decimal_scale), 0, 0.00, 100, 100.00, 50.5. MUT score max 101 fails the 100.01 case. Mismatch: 'non-numeric rejected' has no Kernel test, and the tester's probe shows a non-numeric score ('abc') gives three violations at field_score.0.value (two core 'valid number' codes and one empty-code primitive-type violation), not one. See DEF-012. |
-| Status | Fail |
-| Date | 2026-11-05 |
+| Expected result | `score` -0.01 rejected, 100.01 rejected, 50.123 rejected (scale), 1000 rejected (precision); 0, 0.00, 100, 100.00, 50.5 accepted. Each of these rejections is one violation at `field_score`. A non-numeric score (`abc`) is rejected with three core violations at `field_score` (one with code `''`, two with Range `INVALID_CHARACTERS`), asserted exactly. MUT: the 100.01 test fails |
+| Evidence | `evidence/TC-T09-12-kernel.txt` (extract of `evidence/TC-T09-54-kernel.txt`), `evidence/TC-T09-12-mutation.txt`, `evidence/TC-T09-12-probe.txt`, `evidence/TC-T09-12-17-retest.txt` |
+| Actual result | Retest on e51ec08: DecisionValidationTest OK (8 tests, 198 assertions). New case `score abc` asserts three violations at field_score (code '' plus two Range INVALID_CHARACTERS). All earlier checks unchanged. Status moved from Fail to Pass; DEF-012 closed. |
+| Status | Pass |
+| Date | 2026-11-05 (retest after e51ec08) |
 | Executed by | tester (execute mode) |
 
 ### TC-T09-13: Decision `trade_date` not in the future (IST boundary)
@@ -342,10 +342,10 @@ where the plan gives one.
 | Preconditions | Harness works |
 | Steps | 1. `PU-F PositionValidationTest --testdox 2>&1 \| tee EVD` |
 | Expected result | Baseline open long Position: 0 violations. Each required field removed gives one violation (title, external_id, symbol, mode, status, entry_date, entry_price, quantity, stop_price, target_price, costs_total, run, decision, source_version, payload_hash). `status` `success` rejected (bundle subset, code `meridian.bundle_allowed_values`, path `field_status`); `status` `skipped` rejected; `open` and `closed` accepted. `exit_reason` accepts `stop`, `gap_stop`, `target`, `time_stop`, rejects `manual`. `mode` per Group C. `entry_price` 0 and `exit_price` 0 and `last_mark_price` 0 rejected, 0.0001 accepted; `quantity` 0 and -1 rejected, 1 accepted; non-integer rejected; `costs_total` -0.01 rejected, 0 accepted, 3 decimals rejected; `r_multiple` 100.001 and -100.001 rejected, 100 and -100 accepted, 4 decimals rejected; every decimal's scale tested at least once |
-| Evidence | `evidence/TC-T09-17-kernel.txt` (extract of `evidence/TC-T09-54-kernel.txt`), `evidence/TC-T09-12-probe.txt` |
-| Actual result | Baseline open and closed long Positions valid; every required field gives one violation; status success, skipped, failed rejected with meridian.bundle_allowed_values; exit_reason enum; every decimal scale tested; quantity 0, -1 rejected, 1 accepted; r_multiple, costs_total ranges. Mismatch: 'non-integer rejected' (quantity) has no Kernel test; the tester's probe shows 1.5 and '1.5' are rejected with one empty-code violation and 'abc' with two. See DEF-012. |
-| Status | Fail |
-| Date | 2026-11-05 |
+| Evidence | `evidence/TC-T09-17-kernel.txt` (extract of `evidence/TC-T09-54-kernel.txt`), `evidence/TC-T09-12-probe.txt`, `evidence/TC-T09-12-17-retest.txt`, `evidence/TC-T09-12-17-newcases.txt` |
+| Actual result | Retest on e51ec08: PositionValidationTest OK (6 tests, 155 assertions). New cases: `quantity 1.5` gives one violation with code '', `quantity abc` gives two (code '' and not-a-number). Status moved from Fail to Pass; DEF-012 closed. |
+| Status | Pass |
+| Date | 2026-11-05 (retest after e51ec08) |
 | Executed by | tester (execute mode) |
 
 ### TC-T09-18: Position price ordering and time stop by mode
@@ -1361,3 +1361,4 @@ Plan-driven coverage not tied to a single criterion:
 | 2026-11-05 | TC-T09-31: a duplicate Watchlist symbol gives exactly one violation at `field_symbol` (code `meridian.unique_in_bundle`), not at `field_external_id` | Review F7 and finding 5 option (a), fixed in `d74d07c` |
 | 2026-11-05 | TC-T09-63: expected result says "`meridian_core` exists and every custom module is named in section 0" instead of "is the only custom module" | Review F8: the check must survive T10 (`meridian_ingest`) |
 | 2026-11-05 | TC-T09-56 and TC-T09-59: DDEV may use Xdebug coverage; pcov is required in CI only (checked in TC-T09-59 statically and TC-T09-62 live). Both re-judged on the existing evidence: Pass | Review deviation 8 (Sury key expired, no pcov in DDEV, plan fallback), treated as the Won't fix decision for DEF-013 |
+| 2026-11-05 | TC-T09-12: a non-numeric score is rejected with three violations at `field_score` (code `''` and two Range `INVALID_CHARACTERS`), not one | Review finding 21 and DEF-012: core reports the bad value three times; the Kernel test now asserts the exact list (commit e51ec08) |

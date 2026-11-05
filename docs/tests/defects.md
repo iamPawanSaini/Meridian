@@ -179,9 +179,9 @@ that the file is a database backup.
 | ID | DEF-012 |
 | Severity | Low (the input is rejected; the gaps are test coverage and the violation count) |
 | Found in | T09, TC-T09-12 (non-numeric score), TC-T09-17 (non-integer quantity) |
-| Status | Open |
-| Fix commit | |
-| Retest result | |
+| Status | Retest passed |
+| Fix commit | e51ec08 |
+| Retest result | 2026-11-05: DecisionValidationTest OK (8 tests, 198 assertions) and PositionValidationTest OK (6 tests, 155 assertions); new cases score abc (3 violations), quantity abc (2), quantity 1.5 (1, code ''). TC-T09-12 and 17 now Pass; TC-T09-12 wording amended. Evidence: `evidence/TC-T09-12-17-retest.txt` |
 
 **Steps to reproduce**
 
@@ -244,7 +244,7 @@ judgement of deviation 8) accepted Xdebug coverage in DDEV and pcov in CI as the
 | ID | DEF-014 |
 | Severity | Low (developer usability; no wrong result) |
 | Found in | T09, TC-T09-57, TC-T09-63, TC-T09-64, TC-T09-75 |
-| Status | Open |
+| Status | Open (Proposed for a separate ticket after T09; owner decision pending) |
 | Fix commit | |
 | Retest result | |
 
