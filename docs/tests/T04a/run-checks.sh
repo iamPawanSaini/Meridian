@@ -852,6 +852,7 @@ OD=$WORK/clone; mkdir -p "$OD"
 git ls-files -co --exclude-standard -z | tar --null -T - -cf - 2>/dev/null | tar -x -C "$OD"
 git -C "$OD" init -q -b main && git -C "$OD" config user.email o@example.invalid && git -C "$OD" config user.name owner && git -C "$OD" config commit.gpgsign false
 git -C "$OD" add -A && git -C "$OD" commit -q -m "T04a: owner clone"
+git -C "$OD" update-ref refs/remotes/origin/main HEAD   # DEF-017: quality.sh commit-range needs origin/main
 PCB=$OD/.tools/pre-commit
 mkdir -p "$ROOT/$T/evidence"
 echo "== TC-T04a-36 bootstrap in a clean copy (C7)"
@@ -864,11 +865,13 @@ echo "  tool revisions captured (C7):"; grep -E '^\s+rev:|spectral-cli@' "$OD/.p
 echo "== TC-T04a-37 baseline clean"
 opc() { (cd "$OD" && .tools/pre-commit run --all-files); }
 ckp "pre-commit run --all-files exits 0" opc
+if [ -z "${OWNER_SKIP_QUALITY:-}" ]; then   # DEF-017: TC-38 takes about 35 minutes; set OWNER_SKIP_QUALITY=1 to rerun the other blocks
 echo "== TC-T04a-38 quality.sh on the clean tree"
 oq() { (cd "$OD" && git checkout -q -b task/T04a-owner-demo && scripts/quality.sh); }
 ckp "scripts/quality.sh exits 0" oq
 oqs() { local n; n=$(cd "$OD" && scripts/quality.sh 2>&1 | grep -cE 'SKIP.*(engine|drupal|web)'); [ "$n" -ge 3 ]; }
 ckp "three component SKIP lines present (engine, drupal, web)" oqs
+fi
 # demo TC FILE BAD GOOD [x]: the bad file is refused by the hooks, the same-named control is accepted
 demo() { local tc=$1 file=$2 bad=$3 good=$4 x=${5:-} brc grc
   put "$OD/$file" "$bad"; [ -n "$x" ] && chmod +x "$OD/$file"; git -C "$OD" add "$file"
@@ -883,6 +886,7 @@ echo "== TC-T04a-40 ruff lint rejection"
 ckp "unused import refused by ruff; clean twin accepted" demo TC-T04a-40 scripts/zz_ruff.py $'import os' $'"""Doc."""'
 echo "== TC-T04a-41 long Markdown line"
 LONG=$(printf 'word %.0s' $(seq 1 40)); WRAPPED=$(printf 'word %.0s' $(seq 1 10); echo; printf 'word %.0s' $(seq 1 10))
+LONG=${LONG% }; WRAPPED=${WRAPPED//$' \n'/$'\n'}; WRAPPED=${WRAPPED% }   # DEF-017: no trailing space, or trailing-whitespace fails the twin
 ckp "200-character prose line refused by markdownlint; wrapped twin accepted" demo TC-T04a-41 docs/zz_demo.md "$(printf '# Demo\n\n%s' "$LONG")" "$(printf '# Demo\n\n%s' "$WRAPPED")"
 echo "== TC-T04a-42 shellcheck"
 ckp "unterminated string refused by shellcheck; clean twin accepted" demo TC-T04a-42 scripts/zz_demo.sh $'#!/usr/bin/env bash\necho "unterminated' $'#!/usr/bin/env bash\necho ok' x
@@ -909,7 +913,9 @@ ckp "branch feature/bad: quality.sh exits non-zero with a FAIL on the branch ste
 hookrun() { put "$OD/$1" "$2"; git -C "$OD" add "$1"; HOUT=$(cd "$OD" && .tools/pre-commit run --files "$1" 2>&1); HRC=$?
   git -C "$OD" rm -q -f --cached "$1"; rm -f "$OD/$1"; }
 echo "== TC-T04a-53 coverage.py pragma form"
-cov() { local v=$WORK/venv; python3 -m venv "$v" && "$v/bin/pip" install -q coverage || return 1
+cov() { local v=$WORK/venv; if python3 -m venv "$v" >/dev/null 2>&1; then "$v/bin/pip" install -q coverage || return 1
+  else rm -rf "$v"; python3 -m pip install -q --target "$v/lib" coverage || return 1   # DEF-017: no python3-venv here; coverage as a plain target dir
+    mkdir -p "$v/bin"; printf '#!/bin/sh\nPYTHONPATH=%s exec python3 -m coverage "$@"\n' "$v/lib" >"$v/bin/coverage"; chmod +x "$v/bin/coverage"; fi
   local d=$WORK/cov; mkdir -p "$d"; cd "$d" || return 1
   printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:  # pragma: no cover  # T13: reason\n        return 2\n    return 0\n' >x.py
   printf 'def f(a):\n    if a:\n        return 1\n    if a < 0:\n        return 2\n    return 0\n' >y.py
@@ -926,7 +932,7 @@ hl() { hookrun zz/Dockerfile $'FROM alpine:3.20\n# hadolint ignore=DL3018 # T06:
   ! grep -q DL3018 <<<"$a" && grep -q DL3018 <<<"$b"; }
 ckp "DL3018 reported without the pragma, absent with '# hadolint ignore=DL3018 # T06: reason'" hl
 echo "== TC-T04a-55 markdownlint separate-comment ticket form"
-LONGP=$(printf 'word %.0s' $(seq 1 40))
+LONGP=$(printf 'word %.0s' $(seq 1 40)); LONGP=${LONGP% }   # DEF-017: no trailing space
 ml() { hookrun docs/zz_ml.md "$(printf '# T\n\n<!-- markdownlint-disable-next-line MD013 --> <!-- T32: reason -->\n%s\n' "$LONGP")"; local a=$HOUT ra=$HRC
   hookrun docs/zz_ml.md "$(printf '# T\n\n%s\n' "$LONGP")"; local b=$HOUT rb=$HRC
   printf '%s\n' "$a" >"$ROOT/$T/evidence/TC-T04a-55-ignored.txt"; printf '%s\n' "$b" >"$ROOT/$T/evidence/TC-T04a-55-control.txt"

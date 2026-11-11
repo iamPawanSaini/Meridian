@@ -1,0 +1,42 @@
+sequenceDiagram
+    autonumber
+    participant GH as GitHub Actions (daily-run.yml)
+    participant EN as meridian_engine
+    participant PG as Postgres
+    participant MD as yfinance
+    participant CL as Claude API
+    participant DR as Drupal (JSON:API, meridian_ingest)
+    participant WEB as meridian-web
+    GH->>EN: cron 16:00 IST on weekdays (or manual dispatch)
+    EN->>PG: open run record (run ID, date, rule, prompt and model versions)
+    EN->>EN: check NSE holiday calendar config
+    alt holiday or no new EOD candle
+        EN->>PG: close run as skipped with reason
+    else trading day
+        EN->>DR: wake request, then read Watchlist Items (watchlist read scope)
+        alt Drupal reachable
+            DR-->>EN: watchlist
+        else Drupal unreachable after retries
+            EN->>PG: load last watchlist snapshot (YAML seed if none)
+        end
+        EN->>PG: snapshot watchlist and its source into the run record
+        EN->>MD: fetch EOD candles and fundamentals (bounded retries)
+        MD-->>EN: data, or per-symbol failure
+        EN->>EN: data quality checks, then score (long or short mode, rule hits)
+        loop each candidate above the score threshold
+            EN->>CL: review request (untrusted text delimited)
+            CL-->>EN: JSON reply
+            EN->>EN: validate schema. Any failure means veto with reason
+        end
+        EN->>EN: simulate positions (sizing, stop, target, time-stop, costs)
+        EN->>PG: one transaction writes decisions, positions, run summary and outbox rows
+        EN->>DR: POST ingest batches (OAuth client credentials, ingest scope)
+        alt Drupal accepts
+            DR-->>EN: upsert result per external ID
+            EN->>PG: mark outbox rows sent and run published
+            EN->>WEB: on-demand revalidation request (shared secret)
+        else Drupal down or error
+            EN->>PG: outbox rows stay pending, run published partial
+            EN->>GH: fail-soft alert (issue with run ID and log link)
+        end
+    end

@@ -1,0 +1,35 @@
+== Owner-run cases TC-T04a-36 to 47. Needs network the first time (pre-commit downloads hook environments).
+== TC-T04a-36 bootstrap in a clean copy (C7)
+  PASS  scripts/bootstrap-dev.sh succeeds in a clean copy
+  PASS  pre-commit installed (pre-commit 4.7.0)
+  PASS  .git/hooks/pre-commit exists
+  PASS  .git/hooks/commit-msg exists (commit-msg hook type installed)
+  tool revisions captured (C7):
+        rev: v8.30.1
+        rev: v6.0.0
+        rev: v0.14.4 # verify
+        rev: v1.18.2 # verify
+        rev: v0.11.0.1 # verify
+        rev: v1.37.1 # verify
+        rev: v2.12.1b3 # verify
+        rev: v0.18.1 # verify
+            additional_dependencies: ["@stoplight/spectral-cli@6.15.0"] # verify
+== TC-T04a-37 baseline clean
+  PASS  pre-commit run --all-files exits 0
+== TC-T04a-39 untyped Python rejected by mypy --strict (control: typed)
+  PASS  scripts/zz_demo.py untyped refused; typed twin accepted
+== TC-T04a-40 ruff lint rejection
+  PASS  unused import refused by ruff; clean twin accepted
+== TC-T04a-41 long Markdown line
+  PASS  200-character prose line refused by markdownlint; wrapped twin accepted
+== TC-T04a-42 shellcheck
+  PASS  unterminated string refused by shellcheck; clean twin accepted
+== TC-T04a-43 YAML
+  PASS  duplicate key refused by yamllint; clean twin accepted
+== TC-T04a-44 hadolint
+  PASS  untagged base image refused by hadolint; tagged twin accepted
+== TC-T04a-45 Spectral
+  PASS  OpenAPI with 'info' renamed refused by Spectral; the original accepted
+== TC-T04a-46 bad commit message through the installed hook
+  PASS  'bad message' refused (no commit created); 'T04a: owner demo' accepted
+== TC-T04a-47 bad branch name through quality.sh

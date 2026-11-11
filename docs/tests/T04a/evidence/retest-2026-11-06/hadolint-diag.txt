@@ -1,0 +1,8 @@
+Haskell Dockerfile Linter 2.12.1
+--- ticket-trailing form
+docs/tests/T04a/evidence/retest-2026-11-06/hd/Dockerfile:3 DL3018 [1m[93mwarning[0m: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+docs/tests/T04a/evidence/retest-2026-11-06/hd/Dockerfile:3 DL3019 [92minfo[0m: Use the `--no-cache` switch to avoid the need to use `--update` and remove `/var/cache/apk/*` when done installing packages
+rc=1
+--- bare form
+docs/tests/T04a/evidence/retest-2026-11-06/hd/Dockerfile:3 DL3019 [92minfo[0m: Use the `--no-cache` switch to avoid the need to use `--update` and remove `/var/cache/apk/*` when done installing packages
+rc=1

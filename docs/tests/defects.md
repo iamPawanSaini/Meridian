@@ -524,3 +524,35 @@ inspects only the values under `web_environment`. TC-T05-21 and TC-T06-19 only n
   `--machine-token` and tested `auth:whoami` by exit status; Terminus 4.3.3 needs the option, and
   `whoami` exits 0 when logged out (live item L-2 confirmed this).
 - New cases: TC-T07-58 to 62 (Terminus pin, version in DDEV, budget, subdirectory, git_url forms).
+
+### DEF-015: demo-secret-scan.sh failed under pre-commit 4.7.0 (T00, TC-T00-04)
+
+| Field | Value |
+|---|---|
+| ID | DEF-015 |
+| Severity | Medium |
+| Found in | T00 retest, TC-T00-04 |
+| Status | Closed (2026-11-06, T00 close) |
+| Fix commit | `0d6eefe`, `d05dba2` |
+| Retest result | 2026-11-06 at `d05dba2`: `evidence/TC-T00-04-secret-scan.txt` shows RESULT: PASS |
+
+**Steps to reproduce**
+
+1. `scripts/demo-secret-scan.sh docs/tests/T00/evidence/TC-T00-04-secret-scan.txt`
+
+**Expected:** The control commit succeeds, the commit with a generated `ghp_` token is rejected
+by gitleaks, and the script prints `RESULT: PASS` and exits 0.
+
+**Actual:** Exit 2 before step 1. `.tools/pre-commit` 4.7.0 printed
+`pre-commit: error: unrecognized arguments: -q` for `"$pre_commit" install -q`. No commit was
+attempted, so AC4 had no passing rejection evidence. Failing run kept as
+`evidence/TC-T00-04-secret-scan-prefix-run1-failed.txt`. The demo uses a throwaway repo, and
+Meridian had no fake key committed or staged.
+
+**Second cause found during the fix.** After `-q` was removed, line 45
+(`tr ... </dev/urandom | head -c 36`) exited 141 from SIGPIPE under `set -euo pipefail`. It is
+fixed in the same commits with `{ tr ... || true; }`, plus a 40-character length guard.
+
+**Retest:** At `d05dba2` the control commit succeeded, the fake-key commit was rejected by
+gitleaks (rule `github-pat`), the script printed RESULT: PASS and exited 0, and the tree had
+no fake key committed or staged.

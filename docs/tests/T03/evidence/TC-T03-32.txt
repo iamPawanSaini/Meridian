@@ -1,0 +1,45 @@
+TC-T03-32 2026-11-06 HEAD c442012
+== Method 1: mmdc (mermaid-cli) render to SVG
+== sa-1
+Error: Could not find chrome-headless-shell (ver. 156.0.8078.47). This can occur if either
+exit=1
+== sa-2
+Error: Could not find chrome-headless-shell (ver. 156.0.8078.47). This can occur if either
+exit=1
+== sa-3
+Error: Could not find chrome-headless-shell (ver. 156.0.8078.47). This can occur if either
+exit=1
+== td-1
+Error: Could not find chrome-headless-shell (ver. 156.0.8078.47). This can occur if either
+exit=1
+Result: FAILED to launch, exit=1 for all 4 blocks. Cause: puppeteer chrome-headless-shell 156.0.8078.47 not installed; 'npx puppeteer browsers install' failed with 'Extraction failed: no zip archiver is available (install unzip)'. Installing unzip needs sudo (not allowed). A manual zip download plus run of the binary was denied by the permission classifier. No SVG was produced. Rendering NOT proven.
+
+== Method 2 (fallback): mermaid 12.3.0 parse() under node, parse only, DOMPurify stubbed (no jsdom available, package install blocked for tester)
+PARSE-OK  sa-1.mmd diagramType=flowchart-v2
+PARSE-OK  sa-2.mmd diagramType=flowchart-v2
+PARSE-OK  sa-3.mmd diagramType=sequence
+PARSE-OK  td-1.mmd diagramType=sequence
+mermaid-version=12.3.0 failures=0
+exit=0
+
+== Negative control (unclosed alt must be rejected)
+PARSE-ERR neg-unclosed-alt.mmd: Parse error on line 6: | ...lt x    B-->>A: y | --------------------^ | Expecting 'SPACE', 'NEWLINE', 'INVALID', 'create', 'box', 'end', 'autonumber', 'activate', 'deactivate', 'title', 'legacy_title', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'loop', 'rect', 'opt', 'alt', 'par', 'par_over', 'critical', 'break', 'else', 'participant', 'participant_actor', 'destroy', 'note', 'links', 'link', 'properties', 'details', 'ACTOR', got '1'
+mermaid-version=12.3.0 failures=1
+exit=1
+
+== td-1 content check (publisher, outbox, ingest, token refresh, failure branch)
+5
+    participant EN as meridian_engine publisher
+    participant OB as Postgres outbox
+    participant DR as Drupal meridian_ingest
+    participant TK as Drupal /oauth/token
+    participant WEB as meridian-web
+    loop while pending rows are due
+        alt 200
+        else 401
+        else 409 ingest_busy
+        else 413, 504 or timeout
+        else 422
+        else down after retries
+        end
+    end

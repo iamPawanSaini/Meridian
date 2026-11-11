@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    participant EN as meridian_engine publisher
+    participant OB as Postgres outbox
+    participant DR as Drupal meridian_ingest
+    participant TK as Drupal /oauth/token
+    participant WEB as meridian-web
+    EN->>DR: wake GET, backoff up to 120 s
+    EN->>TK: client credentials (meridian_ingest)
+    TK-->>EN: access token (300 s)
+    loop while pending rows are due
+        EN->>OB: select pending rows (batch size, 4 MB cap)
+        EN->>DR: POST /api/meridian/v1/ingest
+        alt 200
+            DR-->>EN: per-item results
+            EN->>OB: mark rows sent
+        else 401
+            EN->>TK: request new token once, retry batch
+        else 409 ingest_busy
+            EN->>EN: wait Retry-After, retry same batch
+        else 413, 504 or timeout
+            EN->>EN: halve batch and retry
+        else 422
+            EN->>OB: failing rows dead (or pending if unknown_reference), resend the rest
+        else down after retries
+            EN->>OB: rows stay pending, run published partial, alert
+        end
+    end
+    EN->>WEB: POST /api/revalidate (shared secret)

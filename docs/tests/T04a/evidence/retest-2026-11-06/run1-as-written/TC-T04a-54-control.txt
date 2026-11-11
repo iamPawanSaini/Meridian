@@ -1,0 +1,28 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck......................................................(no files to check)Skipped
+yamllint........................................................(no files to check)Skipped
+Hadolint............................................................................Failed
+- hook id: hadolint
+- exit code: 1
+
+zz/Dockerfile:2 DL3018 [1m[93mwarning[0m: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+zz/Dockerfile:2 DL3019 [92minfo[0m: Use the `--no-cache` switch to avoid the need to use `--update` and remove `/var/cache/apk/*` when done installing packages
+
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+actionlint (GitHub workflows)...................................(no files to check)Skipped
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

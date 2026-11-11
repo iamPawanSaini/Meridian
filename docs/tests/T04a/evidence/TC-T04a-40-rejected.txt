@@ -1,0 +1,36 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check..........................................................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+F401 [*] `os` imported but unused
+ --> scripts/zz_ruff.py:1:8
+  |
+1 | import os
+  |        ^^
+  |
+help: Remove unused import: `os`
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+
+ruff format.........................................................................Passed
+mypy................................................................................Passed
+shellcheck......................................................(no files to check)Skipped
+yamllint........................................................(no files to check)Skipped
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+actionlint (GitHub workflows)...................................(no files to check)Skipped
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

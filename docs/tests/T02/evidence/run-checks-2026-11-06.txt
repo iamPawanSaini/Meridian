@@ -1,0 +1,199 @@
+== TC-T02-01 required sections in solution-architecture.md
+  PASS  file exists and non-empty
+  PASS  section heading: context
+  PASS  section heading: container
+  PASS  section heading: data flow
+  PASS  section heading: scope
+  PASS  section heading: non-goals
+  PASS  section heading: assumptions
+  PASS  section heading: glossary
+  PASS  section heading: requirements
+  PASS  section heading: risk register
+  PASS  section heading: cost map
+  PASS  section heading: open questions
+  PASS  section heading: sign-off
+== TC-T02-02 Mermaid diagrams (context, container, daily-run sequence)
+  PASS  >=3 mermaid blocks
+  PASS  >=2 flowchart/graph
+  PASS  >=1 sequenceDiagram
+  PASS  code fences balanced
+  PASS  diagrams mention Postgres
+  PASS  diagrams mention outbox
+  PASS  diagrams mention Drupal ingest
+  PASS  diagrams mention JSON:API read path
+== TC-T02-03 glossary terms
+  PASS  glossary term: trading day
+  PASS  glossary term: holiday calendar
+  PASS  glossary term: EOD candle
+  PASS  glossary term: Nifty 50
+  PASS  glossary term: circuit limit
+  PASS  glossary term: STT
+  PASS  glossary term: long
+  PASS  glossary term: short
+  PASS  glossary term: score
+  PASS  glossary term: rule hit
+  PASS  glossary term: veto
+  PASS  glossary term: ATR
+  PASS  glossary term: stop
+  PASS  glossary term: target
+  PASS  glossary term: time-stop
+  PASS  glossary term: R-multiple
+  PASS  glossary term: forward return
+  PASS  glossary term: alpha
+== TC-T02-04 every FR/NFR row has parent R-ID, MoSCoW, target, verifying task
+  PASS  all FR/NFR rows complete (>=12 rows)
+  PASS  at least one NFR row
+  PASS  at least one FR row
+  PASS  FR/NFR IDs unique and present
+== TC-T02-05 named NFR targets exist with verifying task
+  PASS  engine run duration row
+  PASS  data freshness row states an IST time
+  PASS  dashboard LCP row -> T26
+  PASS  batch ingest of 500 records -> T10
+  PASS  p95 row mentions 5,000 records
+  PASS  p95 row verified by T11
+  PASS  p95 row verified by T30
+  PASS  availability row -> T31
+  PASS  CI duration row -> T08
+== TC-T02-06 every R-01..R-12 has a child FR/NFR in the architecture doc
+  PASS  R-01 has a child
+  PASS  R-02 has a child
+  PASS  R-03 has a child
+  PASS  R-04 has a child
+  PASS  R-05 has a child
+  PASS  R-06 has a child
+  PASS  R-07 has a child
+  PASS  R-08 has a child
+  PASS  R-09 has a child
+  PASS  R-10 has a child
+  PASS  R-11 has a child
+  PASS  R-12 has a child
+== TC-T02-08 risk register: seven named risks plus two extras
+  PASS  free data source blocking
+  PASS  LLM wrong or injected output
+  PASS  free-tier limits changing
+  PASS  Pantheon sandbox sleep
+  PASS  GitHub cron delay
+  PASS  SEBI / regulatory exposure
+  PASS  secrets leakage
+  PASS  LLM cost overrun (extra)
+  PASS  Vercel Hobby non-commercial (extra)
+== TC-T02-09 each risk row has likelihood, impact, owner role, mitigation, linked task
+  PASS  all risk rows complete (>=9 rows)
+== TC-T02-11 cost map classifies every component
+  PASS  cost row classified: GitHub Actions
+  PASS  cost row classified: Postgres
+  PASS  cost row classified: Pantheon
+  PASS  cost row classified: Vercel
+  PASS  cost row classified: Claude
+  PASS  cost row classified: data source|market data|yfinance|NSE
+  PASS  cost row classified: domain
+  PASS  each cost row has exactly one class cell (>=7 rows)
+  PASS  cost header has a limit column
+== TC-T02-13 six ADR files with matching topics
+  PASS  ADR-0001 headless Drupal + Next.js
+  PASS  ADR-0002 engine on GitHub Actions
+  PASS  ADR-0003 Postgres system of record
+  PASS  ADR-0004 monorepo subtree Pantheon
+  PASS  ADR-0005 authentication
+  PASS  ADR-0006 no live trading
+== TC-T02-14 each ADR has all template fields with content
+  PASS  ADR-0001 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0002 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0003 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0004 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0005 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  ADR-0006 fields (Status, Date, Deciders, Context, Decision, Alternatives >=2 options, Consequences)
+  PASS  exactly six ADR files and no template placeholders left
+== TC-T02-15 ADR index
+  PASS  docs/adr/README.md lists ADR-0001
+  PASS  docs/adr/README.md lists ADR-0002
+  PASS  docs/adr/README.md lists ADR-0003
+  PASS  docs/adr/README.md lists ADR-0004
+  PASS  docs/adr/README.md lists ADR-0005
+  PASS  docs/adr/README.md lists ADR-0006
+== TC-T02-16 ADR content anchors
+  PASS  ADR-0006: simulation, orders, T33
+  PASS  ADR-0003: Drupal is a published copy
+  PASS  ADR-0005: client credentials + least privilege/scope
+  PASS  ADR-0004: apps/drupal subtree
+  PASS  ADR-0002: cron / schedule
+  PASS  ADR-0001: headless
+== TC-T02-17 naming.md five checks, each with method, source, date, result
+  PASS  naming.md exists
+  PASS  .com domain row dated and sourced
+  PASS  .in domain row dated and sourced
+  PASS  GitHub handle row dated and sourced
+  PASS  Vercel handle row dated and sourced
+  PASS  IP India trademark row dated and sourced
+  PASS  trademark classes 9, 36, 42 named
+  PASS  Play Store row dated and sourced
+  PASS  App Store row dated and sourced
+  PASS  repo Meridian vs meridian mismatch recorded
+== TC-T02-18 naming.md exactly one outcome
+  PASS  exactly one Outcome line
+  PASS  outcome is exactly one of: keep / keep as internal codename only / rename
+  PASS  outcome has no unresolved markers
+== TC-T02-19 check-names.sh (positive, then negative control)
+  PASS  check-names.sh passes on tree
+  PASS  check-names.sh rejects a planted stale name
+  PASS  negative control file removed and check-names passes again
+  PASS  if outcome is rename, TASKS.md section 0 changed vs main (vacuous otherwise)
+== TC-T02-21 free-tier / regulatory claims carry URL + date, or 'unverified'
+  PASS  every cost row and limit/regulatory risk row has URL+date or 'unverified'
+  PASS  no plain http:// URLs
+== TC-T02-22 no external images or hosted assets
+  PASS  doc set exists for asset scan
+  PASS  no markdown images
+  PASS  no HTML img/script/iframe/link tags
+  PASS  no diagram or badge hosts
+  PASS  no image files under docs/architecture or docs/adr
+== TC-T02-23 no broker SDK names or trading domains
+  PASS  scan targets exist
+  PASS  no broker names in T02 outputs
+  PASS  no broker names in code/config dirs
+  PASS  docs state the simulation-only rule
+== TC-T02-24 open questions resolved or ticketed
+  PASS  open questions table non-empty; every row resolved or ticketed
+  PASS  every ticket task ID exists in TASKS.md
+  PASS  open questions table has owner column
+== TC-T02-25 technical-architect sign-off recorded
+  PASS  sign-off names technical-architect
+  PASS  sign-off says approved/signed off
+  PASS  sign-off has a date
+  PASS  sign-off not pending/conditional
+  PASS  review.md exists
+== TC-T02-26 TRACEABILITY lists refined IDs for R-01..R-12
+  PASS  TRACEABILITY R-01 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-02 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-03 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-04 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-05 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-06 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-07 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-08 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-09 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-10 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-11 row lists an FR/NFR ID
+  PASS  TRACEABILITY R-12 row lists an FR/NFR ID
+  PASS  original columns intact
+  PASS  all 12 R rows present
+  PASS  every architecture FR/NFR ID appears in TRACEABILITY
+  PASS  no TRACEABILITY FR/NFR ID missing from architecture
+  PASS  TRACEABILITY pairing matches parent R-ID in architecture doc
+== TC-T02-27 C1/C2 plan and review exist
+  PASS  plan exists and is Approved
+  PASS  review exists
+  PASS  review records approval
+== TC-T02-28 C5 docs updated
+  PASS  architecture README links solution-architecture and naming
+== TC-T02-29 C6 no secrets, .env.example unchanged
+  FAIL  [at-close] .env.example unchanged vs base branch task/T01-agents (absent from main)
+  PASS  pre-commit (secret scan etc.) passes on all files
+  PASS  no key-like strings in T02 docs
+== TC-T02-30 C7 links resolve; markdown lint when available
+  PASS  relative links in T02 docs resolve
+  SKIP  markdownlint not installed (plan says "if available"; record in report)
+
+SOME CHECKS FAILED
+exit=1
