@@ -1,0 +1,31 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml......................................................(no files to check)Skipped
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check..........................................................................Passed
+ruff format.........................................................................Passed
+mypy................................................................................Failed
+- hook id: mypy
+- exit code: 1
+
+scripts/zz_demo.py:1: error: Function is missing a type annotation 
+[no-untyped-def]
+    def add(a, b):
+    ^
+Found 1 error in 1 file (checked 1 source file)
+
+shellcheck......................................................(no files to check)Skipped
+yamllint........................................................(no files to check)Skipped
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+actionlint (GitHub workflows)...................................(no files to check)Skipped
+Spectral (OpenAPI lint).........................................(no files to check)Skipped

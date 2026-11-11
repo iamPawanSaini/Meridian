@@ -1,0 +1,33 @@
+Detect hardcoded secrets............................................................Passed
+trim trailing whitespace............................................................Passed
+fix end of files....................................................................Passed
+mixed line ending...................................................................Passed
+check yaml..........................................................................Passed
+check json......................................................(no files to check)Skipped
+check toml......................................................(no files to check)Skipped
+check for merge conflicts...........................................................Passed
+check for added large files.........................................................Passed
+detect private key..................................................................Passed
+ruff check......................................................(no files to check)Skipped
+ruff format.....................................................(no files to check)Skipped
+mypy............................................................(no files to check)Skipped
+shellcheck......................................................(no files to check)Skipped
+yamllint............................................................................Passed
+Hadolint........................................................(no files to check)Skipped
+markdownlint-cli2...............................................(no files to check)Skipped
+Meridian naming (no stale placeholder names)........................................Passed
+Meridian suppressions cite a ticket.................................................Passed
+Meridian assets (no third-party hosts, no hard-coded colours).......................Passed
+actionlint (GitHub workflows)...................................(no files to check)Skipped
+Spectral (OpenAPI lint).............................................................Failed
+- hook id: spectral
+- exit code: 1
+
+/tmp/t04a.G9FqB8/clone/docs/architecture/openapi.yaml
+ 1:1  warning  info-contact      Info object must have "contact" object.
+ 1:1  warning  info-description  Info "description" must be present and non-empty string.
+ 1:1    error  oas3-schema       must have required property "info".
+ 1:1    error  oas3-schema       must not have unevaluated properties.
+
+✖ 4 problems (2 errors, 2 warnings, 0 infos, 0 hints)
+

@@ -1,0 +1,345 @@
+PASS  pre-commit
+FAIL  branch-name
+      branch name rejected: 'feature/bad': must be 'main' or 'task/Txx-slug' (lower-case words joined by single dashes)
+FAIL  commit-range
+      origin/main not found: run git fetch origin
+PASS  exceptions
+PASS  assets
+PASS  tooling-tests
+PASS  secret-history
+PASS  ci-config
+FAIL  docs-regression
+      detail: ok docs/tests/T00/run-checks.sh
+      detail: ok docs/tests/T02/run-checks.sh
+      FAILED: docs/tests/T03/run-checks.sh --regression
+        PASS  R-05 has a non-empty design element cell
+        PASS  R-05 design element cites a document or D-section
+        PASS  R-06 has a non-empty design element cell
+        PASS  R-06 design element cites a document or D-section
+        PASS  R-07 has a non-empty design element cell
+        PASS  R-07 design element cites a document or D-section
+        PASS  R-08 has a non-empty design element cell
+        PASS  R-08 design element cites a document or D-section
+        PASS  R-09 has a non-empty design element cell
+        PASS  R-09 design element cites a document or D-section
+        PASS  R-10 has a non-empty design element cell
+        PASS  R-10 design element cites a document or D-section
+        PASS  R-11 has a non-empty design element cell
+        PASS  R-11 design element cites a document or D-section
+        PASS  R-12 has a non-empty design element cell
+        PASS  R-12 design element cites a document or D-section
+      == TC-T03-19 solution-architect sign-off recorded
+        PASS  sign-off section in technical-design.md
+        PASS  sign-off names solution-architect
+        PASS  sign-off has an ISO date
+        PASS  sign-off states approved
+        FAIL  no unresolved TODO/TBD/FIXME markers left in design docs or openapi
+        PASS  status line is not Draft
+      == TC-T03-20 check-names.sh passes (C4 limited, no stale names)
+        PASS  scripts/check-names.sh exits 0
+        PASS  T03 documents use current names (meridian_engine, meridian_ingest, meridian-web)
+      == TC-T03-21 simulation only: no broker names or trading domains in T03 artefacts
+        FAIL  all T03 artefacts exist (so the grep is not vacuous)
+        FAIL  no broker names in technical-design.md, data-model.md, openapi.yaml, .env.example, .spectral.yaml
+        FAIL  no trading-domain hostnames in openapi servers
+        PASS  design states simulation-only / no live trading (ADR-0006)
+      == TC-T03-22 no secrets, markdown hygiene, links
+        PASS  no secret patterns in T03 docs and openapi
+        PASS  pre-commit run on T03 files passes
+        FAIL  relative markdown links in TD and DM resolve
+        PASS  no external image/script assets in docs
+        SKIP  markdownlint not installed
+      
+      regression mode: 1 snapshot (cka) checks excluded (decision D-5)
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T04/run-checks.sh --regression
+        PASS  FR-14 and FR-18: data reconciliation level
+        PASS  FR-19, FR-20, FR-21: security level
+        PASS  FR-23: planned test uses a holiday fixture
+        PASS  NFR-03: performance level and LCP in the planned test
+        PASS  NFR-03: planned test measures LCP (web-vitals)
+        PASS  NFR-01, NFR-04, NFR-05, NFR-07: performance level
+        PASS  NFR-04, NFR-05: p95 in planned test
+        PASS  NFR-10: security level, gitleaks over full history
+        PASS  NFR-10: planned test names gitleaks
+        PASS  NFR-11: planned test names dependency audit and image scan
+        PASS  NFR-12: axe in the planned test
+        PASS  NFR-12: both themes in the planned test
+        PASS  NFR-18: coverage tool in the planned test
+        PASS  FR-28 and FR-29: docs check level
+      == TC-T04-18 existing TRACEABILITY columns unchanged against task/T03-technical-design (snapshot)
+      == TC-T04-19 checker self-test (rejects each seeded defect)
+        PASS  check_trace.py rejects 15 seeded defects, accepts the good miniature
+      == TC-T04-20 docs/tests/README.md points to the master plan
+        PASS  README row for master-test-plan.md is a link that resolves
+        PASS  defects.md and README links resolve
+      == TC-T04-21 test design committed before authoring (snapshot)
+      == TC-T04-22 check-names.sh passes
+        PASS  scripts/check-names.sh exits 0
+        PASS  T04 documents use current names (meridian_engine / meridian-web, not the old placeholders)
+      == TC-T04-23 simulation only: no broker names or trading domains
+        PASS  no broker vendor names or trading hostnames in master plan, TRACEABILITY, defects, template, README, test-cases
+        PASS  master plan states FR-11 static broker check without naming a vendor, simulation-only
+        PASS  no network URL to a trading host anywhere in docs/tests/T04 scripts
+      == TC-T04-24 no secrets, markers, links, markdown hygiene
+        PASS  no secret patterns in T04 outputs
+        PASS  no TODO/TBD/FIXME markers in master plan
+        PASS  relative links in master plan and TRACEABILITY resolve
+        PASS  no external image or script assets in master plan
+        PASS  pre-commit run on T04 files passes
+        SKIP  markdownlint not installed
+      == TC-T04-25 solution-architect decisions D-1 to D-6 reflected; D-6 not yet adopted (snapshot)
+        PASS  granularity: planned tests at FR/NFR level, 49 rows, R rows link to them
+      
+      NOTE: --regression mode: 6 at-close (snapshot) checks excluded because they are true only at the close of T04; 119 invariant checks executed.
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T04a/run-checks.sh --regression
+        SKIP  markdownlint-cli2: markdownlint-cli2 not installed
+        PASS  pre-commit run --all-files
+      == TC-T04a-32 documentation and traceability (C5)
+        PASS  scripts/README.md lists quality.sh and the five check scripts
+        PASS  .ddev/README.md describes the quality command and that it works from T05
+        PASS  CLAUDE.md commands table lists scripts/quality.sh
+        PASS  TRACEABILITY R-12 row names T04a
+        PASS  TRACEABILITY NFR-18 row names T04a (coverage thresholds)
+      == TC-T04a-33 simulation-only, no secrets, .env.example unchanged (C6, SIM)
+        PASS  no broker vendor names or trading hostnames in the T04a files
+        PASS  no secret patterns in the T04a files
+        PASS  .env.example holds no secret-shaped value (invariant that replaces the unchanged-variables check)
+        PASS  check-names.sh clean
+      == TC-T04a-34 process: plan approved, tests designed before authoring, review done (C1, C2) [snapshot]
+      == TC-T04a-35 no component scaffolds yet (plan non-goal; makes the SKIP rule real) [snapshot]
+      == TC-T04a-36 to 47 owner-run (run: docs/tests/T04a/run-checks.sh --owner)
+        BLOCKED  TC-T04a-36 bootstrap-dev.sh in a clean copy installs pre-commit and both hook types; versions captured (network)
+        BLOCKED  TC-T04a-37 pre-commit run --all-files: zero violations on the clean tree (network)
+        BLOCKED  TC-T04a-38 scripts/quality.sh exits 0 on the clean tree with component steps SKIP (network)
+        BLOCKED  TC-T04a-39 to 45 rejection demos with controls: untyped Python, ruff, long Markdown, shellcheck, YAML, hadolint, Spectral
+        BLOCKED  TC-T04a-46 bad commit message refused by the installed hook; TC-T04a-47 bad branch name fails quality.sh
+      == TC-T04a-48 to 52 deferred or manual
+        FAIL  TC-48 ddev quality exits 0 on a clean tree
+              Error: unknown command "quality" for "ddev"
+              Run 'ddev --help' for usage.
+        BLOCKED  TC-T04a-49 bad PHP style rejected by phpcs and PHPStan (needs T05 Composer tools; custom modules from T09)
+        BLOCKED  TC-T04a-50 ESLint error, tsc --noEmit failure, Prettier failure (needs the T21 scaffold)
+        BLOCKED  TC-T04a-51 CI coverage drop, CI branch-name check, real Cobertura attribute names (needs T08, T09, T13, T21)
+        BLOCKED  TC-T04a-52 manual review of ten standards rules against the checklist (tester, evidence manual-review.md)
+      == TC-T04a-53 to 56 owner-run real-tool checks of the D-4 addendum 'verify' rows (OQ-T04a-6)
+        BLOCKED  TC-T04a-53 coverage.py honours '# pragma: no cover  # T13: reason' (owner-run, pip install coverage)
+        BLOCKED  TC-T04a-54 hadolint honours '# hadolint ignore=DL3008 # T06: reason' (owner-run)
+        BLOCKED  TC-T04a-55 markdownlint honours the separate-comment ticket form (owner-run)
+        BLOCKED  TC-T04a-56 yamllint per-rule ignore: path with a ticket comment works; the inline ticket form is silently ignored (owner-run)
+      == TC-T04a-57 to 58 deferred real-tool checks of the addendum
+        BLOCKED  TC-T04a-57 TypeScript '// @ts-expect-error T21: reason' suppresses the error (deferred to T21)
+        BLOCKED  TC-T04a-58 phpcs '// phpcs:ignore <sniff> -- T09: reason' suppresses the sniff (deferred to T05 or T09)
+      
+      NOTE: --regression mode: 10 at-close (snapshot) checks excluded because they are true only at the close of T04a; 300 invariant checks executed; owner-run and deferred cases are not part of the regression set.
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T05/run-checks.sh --regression
+                FAIL  (sentinel) validate_openapi.py exited 0
+                FAIL  scopes consistent: openapi.yaml scopes also appear in technical-design.md
+                FAIL  no unresolved TODO/TBD/FIXME markers left in design docs or openapi
+      == TC-T05-22 only example.com addresses in T05 files (KD-5, no real mailbox)
+        PASS  every e-mail address in T05 files is example.com/org/net (or github.com for git remotes)
+        PASS  drupal-install uses admin@example.com for site and account mail
+      == TC-T05-23 scope discipline: no extra services, no deploy config (non-goals)
+        PASS  no ci.yml Drupal job added (T08)
+      == TC-T05-24 pre-commit hooks over the T05 changes (C4)
+        PASS  pre-commit run --all-files exits 0
+      
+      == Roll-up per case
+        PASS     TC-T05-01
+        PASS     TC-T05-02
+        PASS     TC-T05-03
+        PASS     TC-T05-04
+        PASS     TC-T05-05
+        PASS     TC-T05-06
+        PASS     TC-T05-07
+        PASS     TC-T05-08
+        PASS     TC-T05-09
+        PASS     TC-T05-10
+        PASS     TC-T05-11
+        PASS     TC-T05-12
+        PASS     TC-T05-13
+        PASS     TC-T05-14
+        PASS     TC-T05-15
+        PASS     TC-T05-16
+        PASS     TC-T05-17
+        PASS     TC-T05-18
+        PASS     TC-T05-19
+        PASS     TC-T05-20
+        FAIL     TC-T05-21
+        PASS     TC-T05-22
+        PASS     TC-T05-23
+        PASS     TC-T05-24
+      
+      NOTE: --regression: 7 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg cases: 23 PASS, 1 FAIL, 0 BLOCKED; checks executed: 176; SKIP (optional tools): 1; BLOCKED lines: 0
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T06/run-checks.sh --regression
+              no files
+        FAIL  T05 run-checks.sh --regression exits 0 (TC-T05-15 and 23 re-tagged cka by the tester)
+                FAIL  T04a run-checks.sh --regression exits 0 (no invariant regression)
+                        FAIL  T04 run-checks.sh --regression: exit 0, no FAIL, PASS not below the count at close (118)
+                        FAIL  T03 run-checks.sh: exit 0, no FAIL, PASS not below the count at close
+                        FAIL  TC-48 ddev quality exits 0 on a clean tree
+                FAIL  T03 and T04 regression sets exit 0
+                        FAIL  file exists and is non-empty  [docs/architecture/openapi.yaml]
+                        FAIL  no usable document; remaining checks cannot run
+                        FAIL  (sentinel) validate_openapi.py exited 0
+        FAIL  T04a, T03 and T04 regression sets exit 0
+              T04a regression failed
+                FAIL  T04 run-checks.sh --regression: exit 0, no FAIL, PASS not below the count at close (118)
+                FAIL  T03 run-checks.sh: exit 0, no FAIL, PASS not below the count at close
+                FAIL  TC-48 ddev quality exits 0 on a clean tree
+      
+      == Roll-up per case
+        PASS     TC-T06-01
+        PASS     TC-T06-02
+        PASS     TC-T06-03
+        PASS     TC-T06-04
+        PASS     TC-T06-05
+        PASS     TC-T06-06
+        PASS     TC-T06-07
+        PASS     TC-T06-08
+        PASS     TC-T06-09
+        PASS     TC-T06-10
+        PASS     TC-T06-11
+        PASS     TC-T06-12
+        PASS     TC-T06-13
+        PASS     TC-T06-14
+        PASS     TC-T06-15
+        PASS     TC-T06-16
+        FAIL     TC-T06-17
+        PASS     TC-T06-18
+        FAIL     TC-T06-19
+      
+      NOTE: --regression: 8 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg run=20261111T041758Z cases: 17 PASS, 2 FAIL, 0 BLOCKED; checks executed: 93; SKIP (optional tools): 2; BLOCKED lines: 0
+      RESULT: ONE OR MORE CHECKS FAILED
+      FAILED: docs/tests/T07/run-checks.sh --regression
+        PASS  ssh:// git_url with pantheon_known_hosts missing: exit 2 and the same absences
+      
+      == Roll-up per case
+        PASS     TC-T07-01
+        PASS     TC-T07-02
+        PASS     TC-T07-03
+        PASS     TC-T07-04
+        FAIL     TC-T07-05
+        PASS     TC-T07-06
+        PASS     TC-T07-07
+        PASS     TC-T07-08
+        PASS     TC-T07-09
+        PASS     TC-T07-10
+        PASS     TC-T07-11
+        PASS     TC-T07-12
+        PASS     TC-T07-13
+        PASS     TC-T07-14
+        PASS     TC-T07-15
+        PASS     TC-T07-16
+        PASS     TC-T07-17
+        PASS     TC-T07-18
+        PASS     TC-T07-19
+        PASS     TC-T07-20
+        PASS     TC-T07-21
+        PASS     TC-T07-22
+        PASS     TC-T07-23
+        FAIL     TC-T07-24
+        FAIL     TC-T07-25
+        PASS     TC-T07-26
+        BLOCKED  TC-T07-27
+        PASS     TC-T07-28
+        PASS     TC-T07-58
+        BLOCKED  TC-T07-59
+        PASS     TC-T07-60
+        PASS     TC-T07-61
+        PASS     TC-T07-62
+      
+      NOTE: --regression: 1 at-close (snapshot) checks excluded.
+      SUMMARY: mode=reg run=20261111T042203Z cases: 28 PASS, 3 FAIL, 2 BLOCKED; checks executed: 144; SKIP (optional tools): 3; BLOCKED lines: 5
+      RESULT: ONE OR MORE CHECKS FAILED
+      detail: 8 docs suites run
+FAIL  build-drupal
+      Installing dependencies from lock file (including require-dev)
+      Verifying lock file contents can be installed on current platform.
+      Your lock file does not contain a compatible set of packages. Please run composer update.
+      
+        Problem 1
+          - drupal/core is locked to version 11.4.11 and an update of this package was not requested.
+          - drupal/core 11.4.11 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 2
+          - drush/drush is locked to version 13.8.0 and an update of this package was not requested.
+          - drush/drush 13.8.0 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 3
+          - masterminds/html5 is locked to version 2.10.1 and an update of this package was not requested.
+          - masterminds/html5 2.10.1 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 4
+          - behat/mink-browserkit-driver is locked to version v2.3.0 and an update of this package was not requested.
+          - behat/mink-browserkit-driver v2.3.0 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 5
+          - lullabot/php-webdriver is locked to version v2.0.7 and an update of this package was not requested.
+          - lullabot/php-webdriver v2.0.7 requires ext-curl * -> it is missing from your system. Install or enable PHP's curl extension.
+        Problem 6
+          - phar-io/manifest is locked to version 2.0.4 and an update of this package was not requested.
+          - phar-io/manifest 2.0.4 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 7
+          - phpunit/php-code-coverage is locked to version 11.0.12 and an update of this package was not requested.
+          - phpunit/php-code-coverage 11.0.12 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 8
+          - phpunit/phpunit is locked to version 11.5.57 and an update of this package was not requested.
+          - phpunit/phpunit 11.5.57 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 9
+          - sebastian/comparator is locked to version 6.3.3 and an update of this package was not requested.
+          - sebastian/comparator 6.3.3 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 10
+          - squizlabs/php_codesniffer is locked to version 3.13.6 and an update of this package was not requested.
+          - squizlabs/php_codesniffer 3.13.6 requires ext-simplexml * -> it is missing from your system. Install or enable PHP's simplexml extension.
+        Problem 11
+          - theseer/tokenizer is locked to version 1.3.1 and an update of this package was not requested.
+          - theseer/tokenizer 1.3.1 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+        Problem 12
+          - drupal/core 11.4.11 requires ext-dom * -> it is missing from your system. Install or enable PHP's dom extension.
+          - drupal/core-recommended 11.4.11 requires drupal/core 11.4.11 -> satisfiable by drupal/core[11.4.11].
+          - drupal/core-recommended is locked to version 11.4.11 and an update of this package was not requested.
+      
+      To enable extensions, verify that they are enabled in your .ini files:
+          - /etc/php/8.1/cli/php.ini
+          - /etc/php/8.1/cli/conf.d/10-opcache.ini
+          - /etc/php/8.1/cli/conf.d/10-pdo.ini
+          - /etc/php/8.1/cli/conf.d/20-calendar.ini
+          - /etc/php/8.1/cli/conf.d/20-ctype.ini
+          - /etc/php/8.1/cli/conf.d/20-exif.ini
+          - /etc/php/8.1/cli/conf.d/20-ffi.ini
+          - /etc/php/8.1/cli/conf.d/20-fileinfo.ini
+          - /etc/php/8.1/cli/conf.d/20-ftp.ini
+          - /etc/php/8.1/cli/conf.d/20-gettext.ini
+          - /etc/php/8.1/cli/conf.d/20-iconv.ini
+          - /etc/php/8.1/cli/conf.d/20-phar.ini
+          - /etc/php/8.1/cli/conf.d/20-posix.ini
+          - /etc/php/8.1/cli/conf.d/20-readline.ini
+          - /etc/php/8.1/cli/conf.d/20-shmop.ini
+          - /etc/php/8.1/cli/conf.d/20-sockets.ini
+          - /etc/php/8.1/cli/conf.d/20-sysvmsg.ini
+          - /etc/php/8.1/cli/conf.d/20-sysvsem.ini
+          - /etc/php/8.1/cli/conf.d/20-sysvshm.ini
+          - /etc/php/8.1/cli/conf.d/20-tokenizer.ini
+      You can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.
+      Alternatively, you can run Composer with `--ignore-platform-req=ext-dom --ignore-platform-req=ext-curl --ignore-platform-req=ext-simplexml` to temporarily ignore these required extensions.
+FAIL  component-drupal
+      ./composer.json is valid
+      bash: line 1: vendor/bin/phpcs: No such file or directory
+FAIL  component-drupal-tests
+      Could not open input file: vendor/bin/phpunit
+FAIL  audit-drupal
+      
+                                                  
+        The "--abandoned" option does not exist.  
+                                                  
+      
+      audit [--no-dev] [-f|--format FORMAT] [--locked]
+SKIP  build-engine (no services/engine/Dockerfile)
+SKIP  component-engine (no services/engine/pyproject.toml)
+SKIP  audit-engine (no services/engine/pyproject.toml)
+SKIP  build-web (no apps/web/package.json)
+SKIP  component-web (no apps/web/package.json)
+SKIP  audit-web (no apps/web/package.json)
+summary: PASS 6 FAIL 7 SKIP 6
